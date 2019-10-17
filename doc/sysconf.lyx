@@ -1,0 +1,533 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Statistical Analysis of Systems Publications
+\end_layout
+
+\begin_layout Abstract
+What makes a publication "good"? What makes a conference "great"? These
+ questions occur to virtually all publishing researchers, and yet are very
+ difficult to tackle scientifically, for two reasons: First, we lack objective
+ measures of quality, and have to resort instead to proxy metrics, such
+ as citation count; and second, each paper and its publication circumstances
+ are unique by design (repeated publication is actively discouraged).
+ Consequently, controlled experiments on the publication process and on
+ publication quality are all but impossible, leaving us only with observational
+ studies.
+ That is what this paper is about.
+ 
+\end_layout
+
+\begin_layout Abstract
+For this paper, we collected and analyzed x,xxx publications from yy conferences
+ in the field of computer systems.
+ We extracted dozens of features for each paper, ...
+\end_layout
+
+\begin_layout Abstract
+Our main findings are...
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Define the field of computer systems (aka 'systems').
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+Systems work deals, in a nutshell, with building programs that use a lot
+ of resources and profiling that resource usage.
+ Systems work includes building operating systems, databases, and distributed
+ computing, and can be closely related to networking.
+ For instance, some might say that the structure of the internet falls in
+ the category of systems work.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+The design, implementation, and profiling of databases is a major part of
+ systems programming, with a focus on building tools that are fast enough
+ to manage large amounts of data while still being stable enough not to
+ lose it.
+ Sometimes work in databases and operating systems intersects in the design
+ of file systems to store data on disk for the operating system.
+ For example, Microsoft has spent years working on a file system based on
+ the relational database model.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+Systems work is highly practical and focused on implementation and understanding
+ what kinds of usage a system will be able to handle.
+ As such, systems work can involve trade-offs that require tuning for the
+ common usage scenarios rather than creating systems that are extremely
+ efficient in every possible case.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+Some recent work in systems has focused on solving the problems associated
+ with large-scale computation (distributed computing) and making it easier
+ to harness the power of many relatively slow computers to solve problems
+ that are easy to parallelize.
+\begin_inset Quotes erd
+\end_inset
+
+ (from http://aihorizon.com/essays/basiccs/general/cs_areas.html)
+\end_layout
+
+\begin_layout Plain Layout
+OR
+\end_layout
+
+\begin_layout Plain Layout
+The ACM and IEEE, in CC2005, say:
+\end_layout
+
+\begin_layout Plain Layout
+Computer engineering is concerned with the design and construction of computers
+ and computer-based systems.
+ It involves the study of hardware, software, communications, and the interactio
+n among them.
+ Its curriculum focuses on the theories, principles, and practices of traditiona
+l electrical engineering and mathematics and applies them to the problems
+ of designing computers and computer-based devices.
+ Computer engineering students study the design of digital hardware systems
+ including communications systems, computers, and devices that contain computers.
+ They study software development, focusing on software for digital devices
+ and their interfaces with users and other devices.
+ CE study may emphasize hardware more than software or there may be a balanced
+ emphasis.
+ CE has a strong engineering flavor.
+ Currently, a dominant area within computing engineering is embedded systems,
+ the development of devices that have software and hardware embedded in
+ them.
+ For example, devices such as cell phones, digital audio players, digital
+ video recorders, alarm systems, x-ray machines, and laser surgical tools
+ all require integration of hardware and embedded software and all are the
+ result of computer engineering.
+ [CC2005, p.
+ 13] https://www.computer.org/web/peb/curricula
+\end_layout
+
+\begin_layout Plain Layout
+See also: https://www.cs.cornell.edu/research/systems
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Why conferences: faster and better in systems (citation needed), 
+\begin_inset CommandInset href
+LatexCommand href
+name "criticism of journals"
+target "https://cra.org/cra-statement-us-news-world-report-rankings-computer-science-universities/"
+
+\end_inset
+
+
+\begin_inset CommandInset href
+LatexCommand href
+name "vardi"
+target "https://cacm.acm.org/magazines/2009/5/24632-conferences-vs-journals-in-computing-research/fulltext"
+
+\end_inset
+
+
+\begin_inset CommandInset href
+LatexCommand href
+name "paper"
+target "http://marksanderson.org/publications/my_papers/JASIST2015c.pdf"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The importance and problem of academic incentives: http://online.liebertpub.com/do
+i/full/10.1089/ees.2016.0223.
+ Inflates references; incremental publications; positive results bias? Also
+ bad to measure citation counts.
+\end_layout
+
+\begin_layout Standard
+Show 
+\begin_inset Quotes eld
+\end_inset
+
+buzzword cloud
+\begin_inset Quotes erd
+\end_inset
+
+ of keywords extracted from papers to show what's trending.
+\end_layout
+
+\begin_layout Standard
+Cluster conferences based on topics and based on citation links
+\end_layout
+
+\begin_layout Standard
+As of the time of this writing, the research interests of the systems community,
+ as expressed in citation counts, appear to reflect the following topics,
+ in descending priority order.
+\end_layout
+
+\begin_layout Standard
+There is a need to gather evidence on the effectiveness of peer review:
+ 
+\begin_inset Flex URL
+status open
+
+\begin_layout Plain Layout
+
+http://persistentastonishment.blogspot.co.uk/2015/08/reviewing-peer-review-and-its-
+flaws.html
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+IRB approval required?
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Methodology
+\end_layout
+
+\begin_layout Subsection
+data sources
+\end_layout
+
+\begin_layout Itemize
+Conference info: dates, awards, papers, authors: manually from the Web (attach
+ URL list).
+ 
+\end_layout
+
+\begin_layout Itemize
+Conference choice not meant to be comprehensive or representative of any
+ metric! Some conferences didn't run in 2017, some choices may have been
+ preferred over others.
+ But it's a wide selection encompassing a range of sizes, quality, topics,
+ countries, and organizations.
+ All conferences are peer-reviewed, however, and non-reviewed papers weren't
+ considered (posters, WiP, etc.) Focus on full-length, peer-reviewed (not
+ invited), research-track papers.
+\end_layout
+
+\begin_layout Itemize
+One major difference between conferences and journals is that conference
+ authors typically don't get to iterate over a paper before publication
+ in the same venue: there's a single acceptance cycle, with little opportunity
+ for significant revisions in between (exceptions noted for the two-cycle
+ conferences).
+ Revisions have to wait for another year or another conference, sometimes
+ 2nd choice in terms of quality or fit.
+ [put in discussion]
+\end_layout
+
+\begin_layout Itemize
+Systems papers represent their own category of scientific research and communica
+tion.
+ A typical systems paper describes a computer systems (software or hardware)
+ that was implemented or simulated, and then evaluated experimentally to
+ demonstrate some improvement in performance, efficiency, cost, or energy
+ consumption.
+ It is dissimilar to other scientific disciplines in that there is a lower
+ emphasis on theoretical results, observationsational studies, or replicating
+ past results.
+ This experimentl and engineering bias may not be intentional, but it is
+ strongly reflected in published numbers.
+ For example, of the XXXX papers analyzed here, only YYY presented theoretical
+ results, HHH measured existing or natural systems, and ZZZ replicated past
+ results.
+\end_layout
+
+\begin_layout Itemize
+Author and PC statistics: 
+\begin_inset Newline newline
+\end_inset
+
+All author statistics (as well as PC members) were obtained by querying
+ Google scholar.
+ Not all of these people maintain a Scholar profile, in which case we leave
+ their record empty.
+ In many cases, we had to resolve duplicate profiles under the same name.
+ Where possible, we used the email address or affiliation on the paper to
+ match the correct profile on Scholar.
+ (Although again, not all profiles have this information; for the rest,
+ we left the record empty.) Additionally, some names appear in several variations
+, even in the same proceedings (some real examples were: Andy Pavlo / Andrew
+ Pavlo; Will Robertson / William Robertson; Jingesh M.
+ Patel/Jingesh Patel).
+ We did a best-effort attempt to identify and deduplicate these names.
+ Our code flagged hundreds of amibiguous names (same name with different
+ affiliations or names with short edit distance in th same affiliation)
+ and we manually disambiguated all of them.
+ We estimate that there remain fewer than 0.5% ambiguation errors in the
+ author data.
+ For the entire year, we ended up with X,XXX unique persons, of which Y,YYY
+ (%) had identifiable Google Scholar records.
+ Anecdotally, it appears that a significant proportion of the authors without
+ a Scholar profile are students, biasing The overall percentage toward more
+ established authors (with higher citation counts).
+ The reason for this bias might be that some student and early-career authors
+ may feel they don't have enough publications to warrant establishing this
+ profile, or are simply unaware of the option yet.
+\end_layout
+
+\begin_layout Itemize
+Acceptance ratios: private communication
+\end_layout
+
+\begin_layout Section
+Observed Statistics
+\end_layout
+
+\begin_layout Standard
+Histograms: no.
+ of coauthors; no.
+ of PC members.
+ No of papers per conf; no of papers per author this year; reviews per paper
+ by conf.
+ (mean/median/min/max?)
+\end_layout
+
+\begin_layout Standard
+Correlation from everything to citations
+\end_layout
+
+\begin_layout Standard
+<cite: http://onlinelibrary.wiley.com/doi/10.1002/asi.22747/abstract for a comparati
+ve study of 42 CS conferences>
+\end_layout
+
+\begin_layout Section
+Modeled Statistics
+\end_layout
+
+\begin_layout Section
+Conclusion and Recommendations
+\end_layout
+
+\begin_layout Subsection
+Conference organizers
+\end_layout
+
+\begin_layout Itemize
+Create special 
+\begin_inset Quotes eld
+\end_inset
+
+reproduction track
+\begin_inset Quotes erd
+\end_inset
+
+, similar to industry track, which emphasizes attempts to reproduce other's
+ results, and de-emphasizes new or positive results.<cite to previous recommendat
+ions>
+\end_layout
+
+\begin_layout Subsection
+Authors
+\end_layout
+
+\begin_layout Subsubsection
+Gender
+\end_layout
+
+\begin_layout Standard
+Using a gender-inference model based on given names can only be trusted
+ so far.
+ First, all such models have limited accuracy (the creators of the model
+ we used estimate XX%, and based on our own author polls, we estimate an
+ accuracy of YY% +/- Z% for our population sample).
+ Second, even a correct inference of gender does not necessarily take into
+ account how an author's gender is perceived by the reviewer or even the
+ author themselves.
+ We must therefore treat with sharp skepticism any attempt to generalize
+ based from our results, and this paper will only present quantitative numbers,
+ not conclusions.
+\end_layout
+
+\begin_layout Standard
+On average, women are underrepresented as TPCs (TT%), keynote speakers (KK%),
+ session chairs (SS%), and panelists (PP%), compared to their proportion
+ as authors (AA%), and especially under double-blind reviews (DB%).
+\end_layout
+
+\begin_layout Subsection
+Blind reviews
+\end_layout
+
+\begin_layout Standard
+Most PC chairs who expressed an opinion about double-blind reviews thought
+ it was a good idea.
+ (The only reservation came from chairs who thought it impractical in their
+ narrow area.) In the past, it has been shown to improve author diversity
+ <cite> and overall paper quality <cite>.
+ And yet most conferences (XX%) in this study only employed single-blind
+ reviews.
+ Could systems conferences benefit from more widespread double-blind reviews?
+ 
+\end_layout
+
+\begin_layout Standard
+Our data suggests that the answer to this question is positive/negative/inconclu
+ sive.
+ For double-blind conferences, mean author diversity was measured using
+ <...> at XX, compared to YY for the other conferences.
+ Quality was...
+ 
+\end_layout
+
+\begin_layout Subsection
+Rebuttal
+\end_layout
+
+\begin_layout Section
+Summary
+\end_layout
+
+\begin_layout Standard
+This section summarizes the more interesting findings of this analysis.
+ At the risk of redundancy, it must be stressed that all the relationships
+ discussed here are correlational.
+ No causal relationships are implied or evaluated, because of the observational
+ nature of this study.
+ We strongly advise against drawing superficial or actionable conclusions
+ from this study to try to improve a paper's impact.
+\end_layout
+
+\begin_layout Subsection*
+Acknowledgements
+\end_layout
+
+\begin_layout Standard
+All the PC chairs who kindly and patiently provided detailed information
+ about their review process: Jonathan Aldrich, Marcos Aguilera, Lorenzo
+ Alvisi, Magdalena Balazinska, Anne Benoit, John B.
+ Carter, Augustin Chaintreau, Sunita Chandrasekaran, Carlo Curino, Peter
+ J.
+ Desnoyers, José Carlos Cabaleiro Domínguez, Tina Eliassi-Rad, Ulfar Erlingsson,
+ David Evans, Geoffrey Fox, Floris Geerts, Ryan Grant, Ben Greenstein, Tim
+ Harris, Michael A.
+ Heroux, Adriana Iamnitchi, Emmanuel Jeannot, Daniel A.
+ Jimenez, Ari Juels, Daniel S.
+ Katz, Bettina Kemme, David Keyes, Geoff Kuenning, Julian Kunkel, Eyal de
+ Lara, Marco Mellia, Bryan Parno, Lawrence Rauchwerger, Bernhard Rumpe,
+ Tetsuya Sakai, Alexander A.
+ Schwarzmann, Evgenia Smirni, Marc Snir, Dan Suciu, Bronis R.
+ de Supinski, Mohammad Taghi, Martin Vechev, Arjen P.
+ de Vries, Andrew Warfield, Xindong Wu.
+\end_layout
+
+\begin_layout Standard
+Andrew Bray for sound statistical advice.
+\end_layout
+
+\begin_layout Standard
+Heather Kitada for help in author survey design.
+\end_layout
+
+\begin_layout Standard
+Revant Baggaria for prototyping the textual analysis of the papers.
+\end_layout
+
+\end_body
+\end_document

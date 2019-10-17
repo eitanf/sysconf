@@ -1,0 +1,117 @@
+---
+output: 
+  bookdown::pdf_book:
+    keep_tex: true
+    template: main.tex
+    citation_package: natbib
+    fig_caption: true
+
+title: Peer-Review Effects in Computer Systems Conferences
+bibliography: ../../sysconf.bib
+---
+
+<!--- template from https://ulyngs.github.io/blog/posts/2018-10-28-how-to-write-acm-articles-with-r-markdown/ -->
+
+```{r code = readLines("../../load_data.R"), echo = F, message = F}
+```
+
+
+```{r setup-survey, echo=F, message=F, warning=F, cache=F}
+library('tidyverse')
+library('reshape2')
+library('stringr')
+library('kableExtra')
+
+survey <- read_csv(paste0(toplevel, "/survey/survey-tidy.csv"), col_types = c("-cccffflfffillllfffffnnnnnnn"))
+survey$length = factor(survey$length, levels = c("1-2 Paragraphs", "Half a Page", "A Page", "Multiple Pages"))
+survey$understanding = factor(survey$understanding, levels = c("Perfectly", "Missed some minor points", "Misunderstood major points", "Probably didn't read it"))
+survey$helpfulness = factor(survey$helpfulness, levels = c("Very helpful", "Somewhat helpful", "Not at all"))
+survey$fairness = factor(survey$fairness, levels = c("Fair", "Somewhat fair", "Unfair", "Very unfair"))
+survey$position = factor(survey$position, levels = c("Government Researcher", "Industry Researcher", "Professor", "Associate Professor", "Assistant Professor", "Postdoctoral Researcher", "Student", "Other"))
+survey$months_research = factor(survey$months_research, levels = c("1-3", "4-6", "7-9", "10-12", ">12"))
+survey$reviews = factor(survey$reviews, levels = c("0", "1", "2", "3", "4", "5", "6+"))
+
+raw_survey <- read_csv(paste0(toplevel, "/survey/final_responses.csv"))
+all_authors <- read_csv(paste0(toplevel, "/survey/authors-for-survey-without-bounced-emails.csv"))
+demographics <- survey %>%
+  group_by(response_id) %>%
+  summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
+
+demographics <- survey %>%
+  group_by(response_id) %>%
+  summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
+
+good_affils <- filter(authors, !is.na(sector))
+good_positions <- filter(demographics, !is.na(position))
+good_genders <- filter(authors, !is.na(gender))
+
+com_table <- data.frame(com = c(sum(good_affils$sector == "COM"), sum(good_positions$position == "Industry Researcher")),
+                        notcom = c(sum(good_affils$sector != "COM"), sum(good_positions$position != "Industry Researcher")),
+                        row.names = c("email_affiliation", "survey respondents"))
+
+gov_table <- data.frame(gov = c(sum(good_affils$sector == "GOV"), sum(good_positions$position == "Government Researcher")),
+                        notcom = c(sum(good_affils$sector != "GOV"), sum(good_positions$position != "Government Researcher")),
+                        row.names = c("email_affiliation", "survey respondents"))
+
+gender_table <- data.frame(female = c(sum(good_genders$gender == "F"), sum(demographics$gender == "F", na.rm = T)),
+                             male = c(sum(good_genders$gender == "M"), sum(demographics$gender == "M", na.rm = T)),
+                        row.names = c("email_affiliation", "survey respondents"))
+
+survey_with_confs <- survey %>%
+  mutate(conference = gsub("_\\d\\d\\d", "", paper_id)) %>%
+  left_join(all_confs)
+
+english_pcs <- roles %>%
+  filter(role == "pc") %>%
+  left_join(persons, by = (c("name", "gs_email"))) %>%
+  left_join(countries, by = c("country" = "code")) %>%
+  filter(!is.na(country)) %>%
+  group_by(conf) %>%
+  summarize(pct_english = sum(speaks_english) / n()) %>%
+  left_join(all_confs, by = c("conf" = "conference")) %>%
+  mutate(conf = gsub("_\\d\\d", "", conf))
+
+confs_with_rebut <- survey %>%
+  filter(!is.na(rebuttal_helpful)) %>%
+  group_by(paper_id, name) %>%
+  summarize(rebuttal_helpful = first(rebuttal_helpful)) %>%
+  mutate(conference = gsub("_\\d\\d\\d", "", paper_id)) %>%
+  left_join(all_confs) %>%
+  filter(rebuttal == T) %>%
+  group_by(conference) %>%
+  mutate(total = n(), happy=sum(rebuttal_helpful == T), unhappy = sum(rebuttal_helpful == F)) %>%
+  mutate(ratio = unhappy / total) %>%
+  ungroup()
+
+confs_with_subs <- survey %>%
+  filter(!is.na(prior_subs)) %>%
+  group_by(paper_id) %>%
+  summarize(prior_subs = first(prior_subs), rebuttal_helpful = first(rebuttal_helpful)) %>% 
+  mutate(conference = gsub("_\\d\\d\\d", "", paper_id)) %>%
+  left_join(all_confs)
+
+authors_with_rebut <- survey %>%
+  filter(!is.na(rebuttal_helpful)) %>%
+  group_by(name, paper_id) %>%
+  summarize(rebuttal_helpful = first(rebuttal_helpful), position = first(position), mapped_gender = first(mapped_gender),
+            native_english = first(native_english), any_english = first(any_english), prior_subs = first(prior_subs)) %>%
+  left_join(authors, by="name")
+
+yes_rebut_help <- filter(authors_with_rebut, rebuttal_helpful == T)
+no_rebut_help <- filter(authors_with_rebut, rebuttal_helpful == F)
+
+profs_yes <- nrow(filter(yes_rebut_help, position == "Assistant Professor" | position == "Associate Professor" | position == "Professor"))
+students_yes <- nrow(filter(yes_rebut_help, position == "Student"))
+women_yes = nrow(filter(yes_rebut_help, mapped_gender == "F"))
+men_yes = nrow(filter(yes_rebut_help, mapped_gender == "M"))
+english_yes = nrow(filter(yes_rebut_help, native_english == T))
+nonenglish_yes = nrow(filter(yes_rebut_help, native_english == F))
+
+profs_no <- nrow(filter(no_rebut_help, position == "Assistant Professor" | position == "Associate Professor" | position == "Professor"))
+students_no <- nrow(filter(no_rebut_help, position == "Student"))
+women_no = nrow(filter(no_rebut_help, mapped_gender == "F"))
+men_no = nrow(filter(no_rebut_help, mapped_gender == "M"))
+english_no = nrow(filter(no_rebut_help, native_english == T))
+nonenglish_no = nrow(filter(no_rebut_help, native_english == F))
+```
+

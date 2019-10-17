@@ -1,0 +1,18 @@
+bookdown::gitbook:
+  split_by: rmd
+  config:
+    toolbar:
+      position: fixed
+    toc:
+      collapse: section
+      scroll_highlight: yes
+      before: null
+    search: yes
+
+bookdown::pdf_book:
+  keep_tex: yes
+
+bookdown::html_book:
+  css: toc.css
+  theme: cerulean
+  code_folding: hide

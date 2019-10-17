@@ -1,0 +1,29 @@
+# Paper Classification {#ch:classification}
+
+^[^[This chapter was faciliated by the work of Jillian James, with the support of Dean Nicholson and Prof. Ritz at Reed College.]
+
+
+Discoveries made in the computer systems field tend to arise primarily out of engineering systems. New systems that test the boundaries of the field are built and analyzed by researchers, and their performance is recorded in the form of systems publications. The exploratory nature of systems research tends to produce work characterized by the creation, implementation and analysis of a new system. However, some systems papers focus on studying and expanding previously created systems or ideas, while others still focus on theoretical aspects. Systems papers can be categorized by other properties as well. For example, they can base their main results on experiments, simulation, or analysis; they can publicly provide new software or datasets as a major component of their contribution; or they can attempt to reproduce or debunk past results. These qualifiers are essential to understanding the nature of both the field and its publication process. Classifying papers based on such qualifiers is not only an intriguing idea, but it could also be very useful: if many papers in computer systems were classified by such qualifiers, one could analyze the trends indicated by the distributions of certain qualifiers to better understand the field and provide quantitative evidence for  major issues like the reproducibility crisis. This characterization could also lead to better search engine capabilities of past research results as well as to meta-analyses of past studies.
+
+While the categorization of these papers can provide many benefits to the field, it’s is not feasible to read each paper and categorize it by hand. This project seeks to automate the process through machine learning. This technology can enable the rapid processing of large and complex texts—such as our corpus of some 2,500 papers from 50 conferences during 2017—and can then generate predictive models off of the data. This project seeks to use machine learning to train one or more algorithms to classify these papers according to a series of qualifiers with accuracy comparable to if it had been performed by a human. 
+Specific Aim and Hypothesis
+
+The specific aims of the project are the following: 
+Collect and categorize a representative set of systems papers using subject-matter expertise. 
+Aggregate tag statistics from this set and analyze them to uncover trends in systems research.
+Develop, train, and tune an automated program of characterizing papers using the same systems qualifiers as in the manually tagged set.
+Apply the automated algorithm to a larger set of papers from which statistics can be derived.
+
+We hypothesize that an algorithm can be trained to automatically process a paper’s text and categorize it according to a series of labels with an accuracy comparable to if the same process had been completed by a skilled human.
+Design and Procedure
+A prerequisite of the project will be to obtain a large  set of systems conference papers. While we have already acquired most of these, some remain inaccessible through Reed’s library and need to be acquired. We will then convert all papers from PDF format to a machine-readable, text-based format . We can then proceed to the textual analysis.
+The first facet of the project involves guided reading of a subset of these papers. Each will be judged by a human reader and categorized by assigning each paper one or more tags from Table \@ref(tab:content-tags).
+
+The second, and perhaps more important, facet of the project attempts to automate this process. We’ll use the previous tag data to train an algorithm to accurately apply these same tags to other systems papers. This involves programming a system to ‘read in’ the training text and then generate textual features unique to each paper. It will then rely on one or more modeling algorithms using state-of-the-art machine learning libraries (such as Bayesian Methods, Deep Neural Networks, and Support Vector Machines) to predict tags for any paper. We will compare the results of the automated tagging process with those of the human tagging process.  If the results and accuracy of the algorithm are not satisfactory, we will reiterate and fine-tune the algorithm. Finally, we will supply the algorithm with papers that are outside of its training set and re-evaluate its accuracy. 
+With a complete set of tags for a large body of papers, we can statistically analyze the tag distributions in search of meaningful insights into the field of computer systems.
+
+
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://xkcd.com/1425'}
+knitr::include_graphics('images/tasks_2x.png', dpi = NA)
+```

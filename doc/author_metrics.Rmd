@@ -1,0 +1,28 @@
+# Author Metrics {#ch:authors}
+
+```{r include=FALSE}
+library(tidyverse)
+library(psych)
+```
+
+## Reputation metrics
+
+Fig. \@ref(fig:reputation-correlations).
+
+
+```{r reputation-correlations, echo=FALSE, cache=TRUE, fig.cap="Distributions and correlations of various author reputation metrics"}
+
+persons %>%
+select(as_author, as_pc_chair, as_pc, as_session_chair, as_keynote, as_panelist,
+       npubs, citedby, hindex, hindex5y, i10index, i10index5y) %>%
+  rename("papers" = "as_author", "PC chairs" = "as_pc_chair", "PCs" = "as_pc",
+         "session chairs" = "as_session_chair", "keynotes" = "as_keynote",
+         "panels" = "as_panelist", "past papers" = npubs, "past citations" = "citedby") %>%
+  psych::pairs.panels(method = "pearson", hist.col = "#00AFBB", density = T, lm = T)
+
+# Do the same for all numeric columns of persons
+```
+
+```{r}
+knitr::include_graphics('images/academia_vs_business.png', dpi = NA)
+```

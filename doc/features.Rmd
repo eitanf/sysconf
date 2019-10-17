@@ -1,0 +1,51 @@
+# Features {#ch:features}
+
+Many of the raw data fields described in the previous section are also used as variables in the statistical models that follow in subsequent chapters. Additional variables (some predictors, some dependent, and some both) were derived from the raw data files. The complete set of variables (and their derivation) is described in this chapter.
+
+The feature files are all in tidy CSV format [@wickham14:tidy], under the `features/` sub-directory. The three primary files, `confs.csv`, `persons.csv`, and `papers.csv` roughly correspond to (and aggregate) their counterparts described in the previous chapter. But they also contain blended features computed by combining data from multiple sources. These tables can be joined by their key field (typically the first column of each file).
+
+Some of these variables are so-called dummy variables. They convert a variable type from a categorical enumeration to a set of Boolean values. For example, the data field `organization` in the `data/conf/` conference files can take on one or more of the values "IEEE", "ACM", or "USENIX". In the `data/features/all_confs.dat` file, this variable is split into three Boolean variables: `is_org_IEEE`, `is_org_ACM`, `is_org_USENIX`.
+
+## Conference-related variables
+
+```{r child='../features/confs.md'}
+```
+
+
+
+## Author-related variables
+
+```{r child='../features/persons.md'}
+```
+
+## Paper-related variables
+
+* award: Whether a paper won an award at the conference (Boolean).
+* title_length: How many words are in the paper's title?
+  has_subtitle: Does the paper title include a subtitle? (usually denoted by a colon or an em-dash)
+* title_colon: Does the paper have a single word followed by a colon in its title? Many systems papers introduce a new implemented systems and their titles are of the format: "Gizmo: an amazing new system to do something efficiently". Some have the rarer format: "main title string: sub-title string". This Boolean captures both forms.
+* is_topic_*: Dummy variables (Booleans) for the various topics a paper can discuss.
+* months_to_gs: How many months (rounded down) did it take for GS to show a record for the paper?
+* months_to_eprint: How many months (rounded down) did it take for GS to show a link to a downloadable version of the paper?
+
+## Textual-related variables {#sec:text-features}
+
+The full-text papers in PDF were first converted to textual format using pdftotext (v. 0.41.0), a utility included in the [Poppler](https://poppler.freedesktop.org/) package. In rare instances, the paper's text was embedded as an image, which required text extraction using the [Tesseract](https://github.com/tesseract-ocr/) optical character recognition package. The wrapper for this conversion can be found in `src/pdfocr.py`.
+
+Each of these text files in turn was converted to "bag-of-words" format, which is simply a mapping from words to word counts. The output of this process is one CSV file per paper, each with two columns, one for normalized words, and one for the number of time each normalized word appeared in the paper. These data files are part of the accompanying data set, and can be found in the the `features/bow/` sub-directory.
+
+The normalization of words is a process (coded in `src/normalize_text.py`) that includes the following stages:
+
+  * lower-case
+  * lemmatization
+
+<TBD>
+
+## Country-related variables {#sec:geo-features}
+
+```{r child='../features/countries.md'}
+```
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://xkcd.com/1838'}
+knitr::include_graphics('images/machine_learning_2x.png', dpi = NA)
+```

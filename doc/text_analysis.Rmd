@@ -1,0 +1,178 @@
+# Textual Analysis of Papers {#ch:text}
+
+## Understanding and classifying research distinctions
+
+```{r read_text, echo=FALSE, cache=FALSE, warning=FALSE, message=FALSE}
+
+library(ggplot2)
+library(topicmodels)
+library(tidyverse)
+library(tidytext)
+library(dplyr)
+
+
+
+setwd("~/Dropbox/code/sysconf")
+fdir = "features/"
+
+tokens.tidy <- read.csv(file=paste0(fdir, "tokens.csv"))
+
+# Top occuring tokens:
+tokens.tidy %>%
+  group_by(word) %>%
+  summarise(n=sum(n)) %>%
+  filter(n > 10000) %>%
+  arrange(desc(n)) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(word, n)) + geom_col() + xlab(NULL) + coord_flip()
+
+### TFIDF:
+tfidf <- tokens.tidy %>%
+  bind_tf_idf(word, doc_id, n)
+
+# Topic model using LDA:
+dtm <- cast_dtm(tokens.tidy, term=word, document=doc_id, value=n)
+tm15 <- LDA(dtm, k=15)
+tmp <- tidy(tm15, matrix="gamma")
+dist15 <- aggregate(gamma ~ document, tmp, 'c')
+write.csv(dist15, "topic-distributions-15.csv", row.names = F)
+
+tm50 <- LDA(dtm, k=50)
+tmp <- tidy(tm50, matrix="gamma")
+dist50 <- aggregate(gamma ~ document, tmp, 'c')
+write.csv(dist50, "topic-distributions-50.csv", row.names = F)
+
+tm56 <- LDA(dtm, k=56)
+tmp <- tidy(tm56, matrix="gamma")
+dist56 <- aggregate(gamma ~ document, tmp, 'c')
+write.csv(dist56, "topic-distributions-56.csv", row.names = F)
+
+topics15 <- aggregate(gamma ~ document, )
+topics50 <- aggregate(gamma ~ document, tidy(tm50, matrix="gamma"))
+topics56 <- aggregate(gamma ~ document, tidy(tm56, matrix="gamma"))
+
+write.csv(topics50, "topic-distribution-50.csv")
+write.csv(topics56, "topic-distribution-56.csv")
+
+# Find "characteristic" topic per conference out of 56: we probably don't need 56 distinct topics:  https://cran.r-project.org/web/packages/tidytext/vignettes/topic_modeling.html
+
+#tm <- LDA(dtm, k=16, method="tmGibbs",control=list(seed=1234, iter=200))
+#best.model <- lapply(seq(2, 60, by = 1), function(d) {LDA(dtm,d,method="Gibbs",control=list(iter=200))})
+#ll <- as.data.frame(as.matrix(lapply(best.model, logLik)))
+
+# use tm.terms? or tm.topics() instead?
+top_terms <- tidy(tm, matrix = "beta") %>%
+  group_by(topic) %>%
+  top_n(10, beta) %>%
+  ungroup() %>%
+  arrange(topic, -beta)
+
+top_terms %>%
+  mutate(term = reorder(term, beta)) %>%
+  ggplot(aes(term, beta, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") +
+  coord_flip()
+
+# Word2vec features may or may not require dealing with digits and punctuation. No lemmatization.
+## https://cran.r-project.org/web/packages/text2vec/vignettes/text-vectorization.html
+## https://gist.github.com/primaryobjects/8038d345aae48ae48988906b0525d175
+
+# Sentiment analysis features? Next to citations?
+## http://www.bernhardlearns.com/2017/04/sentiment-analysis-with-r-and-tidytext.html
+
+# Topic modeling:
+## https://github.com/mlinegar/litMagModelling
+## https://cran.r-project.org/web/packages/textmineR/index.html
+## https://cran.r-project.org/web/packages/topicmodels/index.html
+
+# Text features per doc_id, extracted from other packages:
+## https://cran.r-project.org/web/packages/textfeatures/textfeatures.pdf
+## https://cran.r-project.org/web/packages/tm/vignettes/tm.pdf
+## https://cran.r-project.org/web/packages/textTinyR/textTinyR.pdf
+## https://reaktanz.de/?c=hacking&s=koRpus
+
+
+
+# Features from package textmining, including topic_network()
+## https://cran.r-project.org/web/packages/textmining/textmining.pdf
+
+# Plagiarism and reuse with textreuse
+## https://cran.r-project.org/web/packages/textreuse/textreuse.pdf
+
+# Features from "Text Mining and Visualization" book
+
+# Readability grade: 
+## https://github.com/trinker/readability
+## https://cran.r-project.org/web/packages/koRpus/vignettes/koRpus_vignette.pdf
+## https://reaktanz.de/?c=hacking&s=koRpus
+
+# Similarity:
+## spaCy similarity: https://spacy.io/
+
+# Text rank
+## https://cran.r-project.org/web/packages/textrank/textrank.pdf
+
+
+```
+Computer systems is a large and rapidly evolving field in computer science. This field stands out from other areas of science in some key characteristics: it emphasizes scientific exploration through system development, and a combines unique blend of mathematical rigor, simulation science, and technical engineering. This project aims to better understand these characteristics, and the field of systems as a whole, with two primary goals.
+
+The first goal is to quantify these properties in contemporary systems research literature. We’ll accomplish this by reviewing a large and representative set of recent publications from established systems conferences, and by tagging these papers from a set of characteristics that are central to systems research. We’ll them collect statistics on these tags, aggregate them, correlate them with external factors, and present a clear picture of what makes published research unique in the field. 
+
+The second goal is to automate this tagging process, so it scales to any number of publications, possibly even in other fields. To this end, we’ll train and tune a machine-learning algorithm that predicts these characteristics based on properties extracted from a paper’s text, and then evaluate the accuracy of the predicted values compared to expert human tagging.
+
+The focus of the computer systems field is, in general terms, creating resource-intensive programs or computers  and analyzing their resource use. Operating systems, computer architecture, database construction, parallel and distributed computing, and networks are some of the subfields under the larger umbrella of computer systems. Work in computer systems tends to focus on practical implementation: determining what kinds of usage a particular system design will be able to handle and under which tradeoffs. For example, a design that is highly efficient or effective in a very ideal scenario may be replaced by one that is mostly efficient in many common scenarios.
+
+Generally, the field of computer systems can be characterized as fast-paced, due to the rapid and constant development of new systems. This fast-paced nature has led many systems practitioners to prefer publishing their best work in a peer-review conference, with a turn-around time of a few months, rather than through a journal with a turn-around time of a few years. Computer science conferences are also considered to have higher status and standards for novelty than journals. Consequently, most of the innovative research in the field (and computer science as a whole) is coming out of conference publications, while journal publications has been relegated to archival purposes. Since our project will be looking at innovative research in the field, the papers we’ll read for the project all come from well-known systems conferences. 
+
+Discoveries made in the computer systems field tend to arise primarily out of engineering systems. New systems that test the boundaries of the field are built and analyzed by researchers, and their performance is recorded in the form of systems publications. The exploratory nature of systems research tends to produce work characterized by the creation, implementation and analysis of a new system. However, some systems papers focus on studying and expanding previously created systems or ideas, while others still focus on theoretical aspects. Systems papers can be categorized by other properties as well. For example, they can base their main results on experiments, simulation, or analysis; they can publicly provide new software or datasets as a major component of their contribution; or they can attempt to reproduce or debunk past results. These qualifiers are essential to understanding the nature of both the field and its publication process. Classifying papers based on such qualifiers is not only an intriguing idea, but it could also be very useful: if many papers in computer systems were classified by such qualifiers, one could analyze the trends indicated by the distributions of certain qualifiers to better understand the field and provide quantitative evidence for  major issues like the reproducibility crisis. This characterization could also lead to better search engine capabilities of past research results as well as to meta-analyses of past studies.
+
+While the categorization of these papers can provide many benefits to the field, it’s is not feasible to read each paper and categorize it by hand. This project seeks to automate the process through machine learning. This technology can enable the rapid processing of large and complex texts—such as our corpus of some 2,500 papers from 50 conferences during 2017—and can then generate predictive models off of the data. This project seeks to use machine learning to train one or more algorithms to classify these papers according to a series of qualifiers with accuracy comparable to if it had been performed by a human. 
+Specific Aim and Hypothesis
+
+The specific aims of the project are the following: 
+Collect and categorize a representative set of systems papers using subject-matter expertise. 
+Aggregate tag statistics from this set and analyze them to uncover trends in systems research.
+Develop, train, and tune an automated program of characterizing papers using the same systems qualifiers as in the manually tagged set.
+Apply the automated algorithm to a larger set of papers from which statistics can be derived.
+
+We hypothesize that an algorithm can be trained to automatically process a paper’s text and categorize it according to a series of labels with an accuracy comparable to if the same process had been completed by a skilled human.
+
+<!-- text features extracted using the techniques described in the [Features chapter](#sec:topic-data)) -->
+
+A prerequisite of the project will be to obtain a large  set of systems conference papers. While we have already acquired most of these, some remain inaccessible through Reed’s library and need to be acquired. We will then convert all papers from PDF format to a machine-readable, text-based format (using a program called CERMINE, which itself builds upon machine learning). We can then proceed to the textual analysis.
+The first facet of the project involves guided reading of a subset of these papers. Each will be judged by a human reader and categorized by assigning each paper one or more tags from the following list:
+
+Positive: Reports new positive results (improvement over past work).
+Negative: Reports new negative results or failure to reproduce past results.
+Experience: Describes a new experience with a (possibly preexisting) system.
+Data: Expose or analyze new data sets.
+Survey: Focuses on existing literature.
+Position: Focuses on an opinion, optionally backed by new evidence.
+Reproduction: An attempt to reproduce or debunk a previous result.
+Open: Releases new software or data set as part of the publication.
+Experiment: Reports results that were obtained from measuring a real hardware or software system.
+Simulation: Reports results that were obtained from simulating or emulating a system.
+Analysis: Reports results that were derived analytically.
+System: Reports design, implementation, or performance of an engineered system.
+In-Progress: Describes a system or idea that isn't fully completed yet.
+Continuing: Describes a system (by the same authors) previously described in another paper.
+
+The second, and perhaps more important, facet of the project attempts to automate this process. We’ll use the previous tag data to train an algorithm to accurately apply these same tags to other systems papers. This involves programming a system to ‘read in’ the training text and then generate textual features unique to each paper. It will then rely on one or more modeling algorithms using state-of-the-art machine learning libraries (such as Bayesian Methods, Deep Neural Networks, and Support Vector Machines) to predict tags for any paper. We will compare the results of the automated tagging process with those of the human tagging process.  If the results and accuracy of the algorithm are not satisfactory, we will reiterate and fine-tune the algorithm. Finally, we will supply the algorithm with papers that are outside of its training set and re-evaluate its accuracy. 
+With a complete set of tags for a large body of papers, we can statistically analyze the tag distributions in search of meaningful insights into the field of computer systems.
+
+Predicted Outcomes and Alternative Outcomes
+
+We expect that the tags assigned to papers by the algorithm will reveal trends in computer systems research. Based on what we know of the field, we believe it is likely that the following trends will emerge from the data, among others:
+
+Few ‘Reproduction’ tags will indicate that most researchers are not attempting to recreate or debunk previous systems or results. Instead they are choosing to publish new systems and results. We predict that the vast majority of systems papers describe new systems.
+Significantly more ‘Positive’ than ‘Negative’ tags will indicate a positivity bias in the field. A positivity bias would mean that papers are more likely to be published if their research is considered successful. We predict that this bias is at least as strong in the systems field as in others, if not more so (because of the emphasis on new, working systems).
+More ‘Experimental’ tags than ‘Simulation’ or ‘Analysis’ tags will indicate that experimentation is the primary methodology for hypothesis testing in systems. We predict that most of these papers will use experimentation as their primary research method.
+
+We also expect that there will be some variability in the tagged data that results from having multiple people working on the manual tagging process. While the tags used in this project are meant to be mostly objective, it is possible that different readers may view a particular paper differently enough to categorize it with different tags. This variability increases the “noisiness” of the tag data, making the above predictions more difficult to affirm. Similarly, a machine learning algorithm would also perform worse with noisy data, leading to poor prediction accuracy. Both of these alternative outcomes are possible if the data doesn’t reveal strong statistical relationships, either because of the variability across taggers, or from other sources of noise.
+
+Yet other alternative outcomes would be those which include trends that are are contradictory to those listed as expected outcomes or those which are unrelated. In this case, we will search for alternative explanations to the emergent relationships.
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://xkcd.com/1447'}
+knitr::include_graphics('images/meta-analysis_2x.png', dpi = NA)
+```

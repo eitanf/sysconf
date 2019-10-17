@@ -1,0 +1,519 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r code = readLines("load_data.R"), echo = F, cache = F, message = F}
+```
+
+
+```{r gender-data-setup, include = F, message = F}
+library(reshape2)
+
+gender_ratios <- left_join(select(persons, c("name", "gs_email", "gender")), roles) %>%
+  left_join(select(all_confs, c("key", "double_blind", "diversity_effort", "subfield", "npapers")), by = c("conf" = "key")) %>%
+  filter(!is.na(gender)) %>%
+  group_by(conf, role, double_blind, diversity_effort, subfield, npapers) %>%
+  summarize(pct_w = 100 * sum(gender=="F") / n()) %>%
+  dcast(conf + npapers + double_blind + diversity_effort + subfield ~ role, value.var = 'pct_w') 
+```
+
+
+
+# Gender Representation {#ch:gender}
+
+>  "I hadn't been aware that there were doors closed to me until I started knocking on them." – Gertrude B. Elion
+
+>  "If you can’t measure it, you can’t improve it." – Peter Drucker
+
+
+This chapter examines gender representation across the different roles involved with systems conferences.^[Supported by the work of Rhody D. Kaner and Josh Reiss, and a grant from Social Justice Research Fund at Reed College.]
+
+Computer Systems can be considered closely related to other engineering disciplines, which have historically exhibited poor gender equality. Engineering has been the most male-dominated profession in the United States, with women accounting for only 7.4% of the engineering PhDs in 2001 [@fox06:engineering]. Although the number of undergraduate female engineering students has been growing recently, especially in association with growth in female faculty [@gerhard07:undergraduate], current numbers of female PhDs remain low, and may [@way16:gender] or may not [@holman18:gender] even reach parity, based on current trends. As discussed in the next section, women's graduation and academic employment rates in the US are particularly low for computer science (CS), Computer Engineering (CE) and electric engineering (EE), from which most Systems practitioners emerge. [@fox06:engineering; @zweben18:taulbee]. Similar percentages have been observed in the UK [@wise15:women], Israel [@kark07:women], and other countries [@elsevier17:gender].
+
+Even these low numbers don't capture the the dismal state of women's representation in the field of computer systems. There exists some anecdotal, limited, or incidental evidence of the more acute problem in systems [@holman18:gender; @jerger17:gender; @mckinley18:inclusion]. But to both quantify the problem, as well as measure our progress toward a solution, we need more data [@elsevier17:gender; @handley15:quality]. The main motivation for this chapter was to estimate the actual relative number of women in systems based on the longitudinal authorship data. This analysis immediately follows this section. But answering this question leads to even more questions about gender representation in systems, such as:
+
+  * What is the proportion of women practitioners in computer systems research? (Sec. \@ref(sec:gender-data)).
+  * Do women concentrate in specific sub-fields of computer systems? (Sec. \@ref(sec:gender-field))
+  * what is the relationship between author gender, country, and sector? (Sec. \@ref(sec:gender-geo))
+  * Is there gender bias in the peer review process? How do conference policies affect female participation? (Sec. \@ref(sec:gender-policies))
+  * Are there differences in how publications by women authors are received? (Sec. \@ref(sec:gender-citations))
+  * Do women collaborate differently than men? (Sec. \@ref(sec:gender-collaboration))
+  * How do authors of different genders feel about their review experience? (Sec. \@ref(sec:gender-authors))
+
+Some of the most surprising results we found were:
+
+  * Computer Systems as a field suffers from an even worse representation of women than the already dismal Computer Science (about half!), and within systems, some subfields are even worse.
+  * Several conferences do attempt to improve women's participation, but none of the efforts appear to have a consistent success in increasing female authorship.
+  * We found no evidence of bias against women in the peer review process, even when single-blind.
+
+Before describing our results, however, we should elaborate on what data we've used, and in particular, how we obtained gender data, which we do in the next section.
+
+## Gender data and statistics {#sec:gender-data}
+
+
+
+```{r engineering-genders, echo=FALSE, message=FALSE, cache=TRUE }
+library(kableExtra)
+
+taulbee <- data.frame(rank = c("Full Professor", "Associate Professor", "Assistant Professor", "Postdoc", "Fresh PhD (CS)", "Total CS", "Fresh PhD (CE)", "Fresh PhD (EE)"),
+                 pct = c(15.1, 22.8, 23.2, 19.6, 18.3, 20.5, 16.9, 19.0))
+knitr::kable(taulbee, format = "html", booktabs = TRUE, longtable = FALSE, col.names = c("Rank", "% Women"),
+             caption = "Percent of US women in 2017 by academic positions for CS [@zweben18:taulbee] and CE/EE PhDs [@yoder17:numbers]") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = T)
+```
+
+
+
+If we look at the contemporaneous proportion of female authors in CS journals [elsevier17:gender], we get a very similar number to the percentage of women in CS in Table \@ref(tab:engineering-genders), about 22%. We will therefore similarly estimate the percentage of female authorship percentage in 2017's longitudinal cross-section of system conferences as a proxy for the proportion of women in computer systems as a whole. This approach had been tested at a larger scale before [@elsevier17:gender; @lariviere13:bibliometrics]). A more recent study that includes both conference and journal papers finds that the percentage of CS female authors has been slowly rising over the years, and estimates its value in 2017 in the range 25--30% [@wang19:trends].
+
+
+Look here!!! https://cra.org/data/additional-reports/
+
+
+Word cloud of gs research interests, by gender (https://www.springboard.com/blog/text-mining-in-r/)
+
+
+We collected gender data for two groups of people: organizers/invitees and authors. For the former group, consisting of program committee members and chairs, keynote speakers, panelists, and session chairs, we manually verified the gender for nearly all persons involved. For the latter group, we used a combination of manual verification and a probabilistic name model to infer an author's gender. The following two sections describe our methodology in detail.
+
+
+### Verified gender for invitees
+
+The most influential people to set the technical quality of a conference are typically the PC chairs and members. It is interesting to observe their gender distributions, both because they capture a snapshot of the state of the top practitioners in the field, and because of their influence on the selection of authors and papers to be published.
+In addition to the PC, some people are invited to serve in various service capacities during the conference itself, who are not necessarily authors or PC members for this conference. These people can represent the "face" of the conference itself to attendees, since the roles they fulfill can be highly visible. It's interesting to observe the gender distributions of these invitees as well, because of their visibility, and because they are not selected to their roles based on peer review, but rather by various conference officers.
+
+We therefore looked at five conference roles in addition to authors for this analysis: PC chairs, PC members, keynote speakers (typically speaking in plenary sessions in front of all attendees), session chairs, and panelists and moderators. The lists of these people were recorded for each conference, with repeats (in case someone served in more than one role or more than one session), and their genders were manually recorded and aggregated in a single file. The painstaking process of manually verifying their gender typically involved looking up these people on the Internet for pictures or pronouns^[We recognize that gender is a complex, non-binary identity that cannot be captured adequately by just photos or pronouns. However, the focus of this study is on perceived gender, not self-identification, which is often judged by the same simplistic criteria as photos and pronouns.], and in some cases, recorded based on personal acquaintance.
+
+Our approach of manual verification reduces the bias inherent in some languages, such as Chinese 
+
+```{r child='../data/verified_gender_mapping.md'}
+```
+
+
+There were a few instances when people of different genders shared the same full name and GS affiliation. In these handful of cases we appended a unique digit to their name to disambiguate their gender.
+
+
+### Probabilistic gender for authors
+
+There are thousands of authors in our collection of papers (`r nrow(persons)` to be exact), and many of those do not have yet a significant Web presence. It is therefore impractical to find accurate gender data for everyone.
+<!-- we used a model to infer the probability of an author to be female, based on their first name and country of email affiliation. -->
+
+We use a mixed method for gender verification that has been shown to offer good accuracy [@karimi16:gender]. We start with an online gender inference service based on first name and country^[We used http::/genderize.io, as did other studies [@karimi16:gender, elsevier17:gender]]. For authors whose gender could not be easily resolved by the automated service, we applied the same manual process described above for invitees.
+
+## Discussion
+
+Table of number & percentages of men and women across all roles (with and without repeats)
+
+Review all the facts in pp 5-6 of "Women and Minorities in Science, Technology, Engineering, and Mathematics".
+
+Talk about why it's lower for systems than CS as a whole with a table of factors that influence the low % in CS. One column is the factor (leaky pipeline, childhood experience, stereotypes, role models, etc.) with references, and the other column is why it might be worse for systems (no data for leaky pipeline but anecdotal evidence).
+
+Women's participation in authorship is very low, roughly half of the 20% we'd expect from the CS PhD graduation rate. (p<0.000001)
+Is it bias against women during the review process?
+Evidence against: ~0 correlation with double blind; ~0 correlation with female participation in PC (although they may be as biased as males).
+Are women over-represented on PC or under-represented in authorship?
+
+Is it systemic to systems? Check "non-systems" conferences
+
+Difference between graduation rate and research rate. Do graduating women do less publishable research?
+
+Check correlations across conferences for pct w in all 7 roles
+
+## Systems sub-fields {#sec:gender-field}
+
+Compare my paper topics + gender (or conference classification) to these stats: By specialty: https://cra.org/crn/2012/09/taulbee_in-depth_phd_specialty_areas/
+
+
+Compare rates in groups of conferences to these categories: https://doi.org/10.1371/journal.pbio.2004956.s003 from https://journals.plos.org/plosbiology/article?id=10.1371/journal.pbio.2004956
+
+Architecture: https://www.sigarch.org/gender-diversity-in-computer-architecture/
+
+Change this figure to plot with X being topic, y (multiple points) being conference and female percentage. Sort by max %?
+Then do the averages by paper.
+
+```{r women-rep-by-topic, echo=FALSE, cache=TRUE, warning=FALSE, fig.cap="Women's representation amonth authors as a function of PC representation (without outliers)"}
+library(ggrepel)
+
+gender_ratios %>%
+  filter(!subfield %in% c("Language Engineering", "Information Retrieval", "Programming Languages", "Data Science", "Data Mining")) %>%
+  ggplot(aes(x = subfield, y = author, color = subfield, size = npapers)) +
+    geom_point() +
+    xlab("Primary conference topic") +
+    ylab("Percent women among authors") +
+    geom_text_repel(aes(label = conf), size=2.25, box.padding = 0.65) +
+    guides(size = guide_legend(title="No. of papers")) +
+    theme_dark() +
+    scale_color_manual(breaks = topic_tags$tag, values = topic_tags$color, guide = FALSE) +
+    theme(legend.position = "bottom") +
+    coord_flip()
+```
+
+... There is some limited banding across topics. For example, there appear to be more female authors in cloud conferences than in architecture or concurrency. As Sec. \@ref(sec:gender-field) shows...
+
+
+
+
+
+## Demographic factors {#sec:gender-geo}
+
+Include country, geo, sector, and author GS reputation
+Compare countries to these distributions: http://uis.unesco.org/en/topic/women-science
+Are Brazil and Portugal best indeed? Japan the worst? ([@elsevier17:gender])
+Do women collaborate less across borders and sectors? [@elsevier17:gender]
+Compare the three sector female authorship to Fig. 3 in https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0145931
+
+
+## Conference inclusivity policies {#sec:gender-policies}
+
+Some systems conferences make a deliberate attempt to improve diversity and inclusivity among their authors with various policies, such as:
+
+  * Increasing the number of women in the PC.
+  * Increasing the number of women in various visible services roles, such as keynote speakers.
+  * Instituting a double-blind policy review to reduce bias in the paper selection process.
+  * Various pro-inclusivity initiatives such as assigning a diversity or inclusivity chair, onsite childcare, diversity statements, code of conduct, etc.
+  
+  In this section we examine what measurable effect, if any, these policies have on women's representation among the the authors.
+  
+### Bias in the peer review process {#sec:bias-in-review}
+
+Several past studies have found that a more equal gender representation among reviewers of papers leads to a more equal representation among authors, since female reviewers may be less likely to bias against female authors (Although they may not be completely free of this bias.)  Other studies also found that a double-blind peer-review process, where the reviewers remain oblivious of the authors' identities, can also improve women's representation among authors [@budden08:double; @eaton19:gender; @lloyd90:gender; @wenneras01:nepotism]. Different studies found contradictory evidence for this review bias [@ceci11:understanding; @lee13:bias; @ware08:peer]. Can we confirm either bias using the data we collected for specifically systems conferences?
+
+```{r author-gender-correlations, echo=FALSE, message=FALSE, cache=TRUE }
+cors <- data.frame(stat = c("Number of papers", "Double-blind reviews", "Diversity effort", "Pct women in PC", "Pct women as PC chairs", "Pct women as panelists", "Pct women as keynote speakers"),
+                   cor = unlist(lapply(c("npapers", "double_blind", "diversity_effort", "pc", "chair", "panel", "keynote"),
+                                       function(field) round(cor(gender_ratios[,"author"], gender_ratios[,field], use = "pairw"), 3))))
+
+knitr::kable(cors, format = "html", booktabs = TRUE, longtable = FALSE, col.names = c("Conference statistic", "Pct Women as authors"),
+             caption = "Correlation across conferences of percent of women among authors (with repeats) with other conference statistics") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = T)
+```
+
+
+In this dataset, the answer appears to be 'No'. Fig. \@ref(fig:women-rep-author-vs-PC) and Tab. \@ref(tab:author-gender-correlations) don't show a clear association between the ratio of women among reviewers and among authors. Even more puzzling is the observation that the average rate of women among double-blind conferences is lower than in single-blind ones (`r filter(gender_ratios, double_blind==T) %>% summarize(mean(author)) %>% round(2)`% vs. `r filter(gender_ratios, double_blind==F) %>% summarize(mean(author)) %>% round(2)`%). In both cases, the correlation between the ratio of female reviewers and female authors is negligible (_r_=`r (filter(gender_ratios, double_blind==T) %>% select('pc', 'author') %>% cor())[1,2] %>% round(2)` vs. _r_=`r (filter(gender_ratios, double_blind==F) %>% select('pc', 'author') %>% cor())[1,2] %>% round(2)`), confirming some previous results [@moss12:science] and contradicting others [@lloyd90:gender; @murray18:gender; @wenneras01:nepotism]. The size of the conference (number of papers)  does not seem to be a significant factor either: the weighted mean ratio of women authors in double-blind conferences is `r filter(gender_ratios, double_blind==T) %>% summarize(weighted.mean(author, npapers)) %>% round(2)`% vs. `r filter(gender_ratios, double_blind==F) %>% summarize(weighted.mean(author, npapers)) %>% round(2)`% in single-blind conferences, slightly blurring the difference between the two. 
+
+
+```{r women-rep-author-vs-PC, echo = F, cache = T, warning = F, message = F, fig.cap = "Women's representation among authors as a function of PC representation, review policy, and conference size."}
+library(cowplot)
+
+plot_author_vs_pc <- function(data)
+{
+  model <- glm(formula = author ~ double_blind * npapers * diversity_effort * pc, data = data, na.action = na.omit)
+  pmain <- data %>%
+    rename("PC" = "pc") %>%
+    ggplot(aes(x = PC, y = author, color = double_blind, size = npapers)) +
+      geom_point(alpha = 0.5) +
+      xlab("Percent women among PC members") +
+      ylab("Percent women among authors") +
+  #    geom_line(data=fortify(model), aes(x = PC_member, y = .fitted)) +
+  #    geom_smooth(method = "glm", se = F, show.legend = F) +
+  #    geom_rug(alpha=.2, sides="tr", size=1) +
+      geom_text_repel(aes(label = conf), size=2.25) +
+      scale_color_manual(labels = c("Single", "Double"), values = c("purple", "orange")) +
+      guides(color = guide_legend(title="Review policy")) +
+      guides(size = guide_legend(title="No. of papers")) +
+      theme_gray() +
+      theme(legend.position = "bottom")
+  
+  xdens <- axis_canvas(pmain, axis = "x") + 
+    geom_density(data = data, aes(x = pc, fill = double_blind), alpha = 0.7, size = 0.2) +
+    scale_fill_manual(values=c("purple", "orange"))
+  
+  ydens <- axis_canvas(pmain, axis = "y", coord_flip = T) + 
+    geom_density(data = data, aes(x = author, fill = double_blind), alpha = 0.7, size = 0.2) +
+    scale_fill_manual(values=c("purple", "orange")) +
+    coord_flip()
+  
+  p1 <- insert_xaxis_grob(pmain, xdens, grid::unit(.2, "null"), position = "top")
+  p2 <- insert_yaxis_grob(p1, ydens, grid::unit(.2, "null"), position = "right")
+  ggdraw(p2)
+}
+
+plot_author_vs_pc(gender_ratios)
+```
+
+
+Note that the mode of the distribution of female author ratio is roughly centered around 10% (Fig. \@ref(fig:women-rep-author-vs-PC)), similar to the mean and the median. The tails of the distribution are thin, with the conferences HotI, HCW, MASCOTS, and ICAC representing only about `r pct(sum(filter(gender_ratios, conf %in% c("HotI_17", "HCW_17", "MASCOTS_17", "ICAC_17")) %>% select(npapers)), sum(gender_ratios$npapers))`% of the total papers. Removing these four outliers leaves us with almost all the papers in a narrow band of female author representation between 5% and 15%, centered around ~10%. Once more, this suggests that across systems conferences, the "true" rate of publishing female researchers averages about 9--11%.
+
+When sorting conferences by their ratio of female authors, eight of the top ten conferences use single-blind reviews, while seven of the bottom ten use double blind reviews. The correlation of female authorship with female reviewership is about zero.  These two important review factors, that have been found to affect bias against women in other fields, don't appear to have an effect in our data. The data suggests that these computer systems conferences exhibit no discernible review bias, so the large gap between authors and PC members is more likely to be explained by over-representation of women in the PC than in review bias that would cause under-selection of women authors. This hypothesis is supported by additional circumstantial evidence, as described next.
+
+### The representation gap {#sec:gender-rep-gap}
+
+
+
+Women appear in program committees at almost twice their rate as authors, which is atypical for scientific journal editorial boards [\@amrein11:editorial; @mauleon13:assessing; @topaz16:gender]. Since all these researchers come from the same field, are women over-represented in PCs or over-represented as authors? The two outcomes are not mutually exclusive. But our evidence favors over-representation in the PC as the larger quantitative factor.
+
+First, looking at outliers on the long tail of the distributions can explain a part of the gap in favor of this hypothesis. There are only two conferences with more than 35% female representation in the PC, OOPSLA and ISPASS. Removing this pair from our data set reduces the mean PC female rate across the remaining conferences from `r gender_ratios %>% summarize(mean(pc)) %>% round(1)`% to `r gender_ratios %>% filter(!conf %in% c("ISPASS", "OOPSLA")) %>% summarize(mean(pc)) %>% round(1)`%. On the opposite end, removing the two conferences with the lowest female author ratios (HotI and VEE) only bumps up the mean author female rate from `r gender_ratios %>% summarize(mean(author)) %>% round(1)`% to `r gender_ratios %>% filter(!conf %in% c("HotI", "VEE")) %>% summarize(mean(pc)) %>% round(1)`%. Because OOPSLA and ISPASS are also larger than VEE and HotI, the effect is even more pronounced in absolute numbers. In other words, more than the outliers are pulling the mean female author rate downwards, they are pushing the mean PC female rate upwards.
+
+
+Second, we can compare the review load of PC members across genders. On average, female PC members participate in `r wpc <- filter(pcs, gender=="F") %>% summarize(mean(as_pc + as_pc_chair)); round(wpc, 3)` program committees, compared to an average of `r mpc <- filter(pcs, gender == "M") %>% summarize(mean(as_pc + as_pc_chair)); round(mpc, 3)` for males, representing a gap of some `r pct(wpc - mpc, mpc, 2)`% towards over-representation of women in PCs. On the other hand, among all authors, women average `r wau <- filter(authors, gender == "F") %>% summarize(mean(as_author)); round(wau, 3)` papers published per author, compared to `r mau <- filter(authors, gender=="M") %>% summarize(mean(as_author)); round(mau, 3)` papers per man, representing a smaller gap of `r pct(mau - wau, wau)`% in the opposite direction. But is it possible that the two are related, for example if a higher review load leads to lower productivity in authorship?
+
+Although this proposition sounds plausible, only a minority of authors are also PC members anywhere (`r pct((authors %>% count(as_pc > 0))[2,2], nrow(authors))`%).  More importantly, those authors who do serve on several PCs tend to be more prolific as authors as well. Fig. \@ref(fig:authorship-per-PC-load) shows that as the number of PCs a persons serves on grows beyond one, so does their average number of publications (albeit at a higher rate for men). So an increased PC load on its own doesn't explain a decreased paper output. Now, it's true that the average number of papers authored by a PC member (`r round(filter(persons, as_pc > 0) %>% summarize(mean(as_author)), 2)`) is significantly lower than by non-PC authors (`r round(filter(authors, as_pc==0) %>% summarize(mean(as_author)), 2)`). But this too is explained by the same figure: most PC members (`r pct(nrow(filter(pcs, as_author == 0)), nrow(pcs))`%) published no papers at all, whereas all other authors, by definition, authored at least one paper. Female PC members publish less than their male counterparts, like the rest of the author population [@elsevier17:gender; @kyvik96:child; @lariviere13:bibliometrics]. Still, the weak but positive association between number of committees and number of papers (_r_=`r round(cor(authors$as_pc, authors$as_author), 2)`, _p_<0.00001) suggests that over-representation of women in PCs is not commensurate with under-representation among authors.
+
+
+```{r authorship-per-PC-load, echo=FALSE, cache=TRUE, warning=FALSE, fig.cap="Rate of publication as a function of rate of PC service"}
+persons %>%
+  filter(as_author + as_pc > 0, !is.na(gender)) %>%
+  group_by(as_pc) %>%
+  mutate(length = n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = as.factor(as_pc), y = as_author, fill = gender)) +
+    geom_boxplot() +
+    scale_fill_manual(values = c("#C7715F", "#C4AE5E")) +
+    xlab("Number of program committee memberships") +
+    ylab("Number of papers authored") +
+    theme(legend.position = "bottom") +
+    geom_text(aes(x = as.factor(as_pc), y = 15, label = paste("n =", length)))
+
+# gender_ratios %>% filter(!conf %in% c("HCW", "OOPSLA", "ISPASS", "ICPE",  "PODC", "HotOS")) %>% plot_author_vs_pc()
+
+# summary(glm(data = pcs, as_author ~ as_pc))
+```
+
+
+Finally, this same association brings us to the third argument in favor of over-representation of women in PCs. It suggests a third confounding variable, namely research standing. It sounds plausible that the more senior a researcher is, the more PCs they'll be asked to participate in, as well as the more opportunity they'll have to publish. We don't have direct measures (or even definition) for research experience, but we do have indirect measures collected from the Google Scholar (GS) profile of the researchers. For example, looking at the number of prior publications of each researcher, we observe that PC members with a GS profile average `r round(filter(persons, as_pc > 0, !is.na(npubs)) %>% summarize(mean(npubs)), 1)` past papers, compared to `r round(filter(persons, as_pc == 0, as_author > 0, !is.na(npubs)) %>% summarize(mean(npubs)), 1)` papers in the non-PC author population. The well-known finding that the science pipeline "leaks" (meaning that more women than men drop out of research before reaching more senior ranks [@lariviere13:bibliometrics; @symonds06:gender]) should also contribute to lower GS metrics for women overall; but concomitantly, it would suggest fewer women in PC roles compared to authors, not more, as our data shows, and as other scientific disciplines exhibit [@nature18:women, lerback17:journals].
+
+If women are in fact over-represented in PCs compared to men, as we posit, we would predict that their experience metrics would average somewhat lower than men's. For example, instead of dipping into the top 10% of researchers of both genders for its PC, a conference may invite the to 20% of women to its PC. Indeed, Table \@ref(tab:gender-seniority) confirms that all the GS seniority metrics we've collected are higher for men in PC than for women. Keep in mind that metrics based on research quantity (such as number of publications and H-index) tend to favor men [@symonds06:gender]. But notice that the GS metrics are closer together for the all-authors group, suggesting that the gap in PC metrics is not an independent gender difference or a consequence of the "pipeline leak".
+
+
+```{r gender-seniority, echo = F, message = F, cache = T, warning = F }
+g <- persons %>%
+  filter(as_pc + as_author > 0, !is.na(npubs), !is.na(gender)) %>%
+  mutate(role = ifelse(as_pc > 0, "PC member", "Non-PC author")) %>%
+  select(role, gender, npubs, citedby, hindex, hindex5y, i10index, i10index5y) %>%
+  rename("Total papers" = npubs) %>%
+  rename("Total citations" = citedby) %>%
+  rename("H-index" = hindex) %>%
+  rename("H-index (5-year)" = hindex5y) %>%
+  rename("I10-index" = i10index) %>%
+  rename("I10-index (5-year)" = i10index5y) %>%
+  melt(id.vars = c("gender", "role")) %>%
+  ggplot(aes(x = variable, y = value, fill = gender)) +
+    geom_boxplot() +
+    scale_y_continuous(trans="log10", breaks = c(1, 10, 100, 1000, 10000, 100000), labels = c("1", "10", "100", "1000", "10000", "100000")) +
+    facet_wrap(~ role) +
+    scale_fill_manual(values = c("#C7715F", "#C4AE5E")) +
+    xlab("Metric") +
+    ylab("Value") +
+    theme(legend.position = "bottom") +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+# ggdraw(g)  The logarithmic scale hides the important distinctions
+
+
+summarize_stat <- function(data, gen, stat)
+{
+  tmp <- filter(data, gender == gen, !is.na(npubs), !is.na(gender))
+  paste0(round(mean(tmp[,stat]), 0), " (", round(median(tmp[,stat]), 0), ")")
+}
+
+
+
+df <- data.frame("Experience metric" = c("Past papers", "Past citations", "Hirsch index", "i10 index"),
+                 "WA" = unlist(lapply(c("npubs", "citedby", "hindex", "i10index"), function(m) summarize_stat(authors, "F", m))),
+                 "MA" = unlist(lapply(c("npubs", "citedby", "hindex", "i10index"), function(m) summarize_stat(authors, "M", m))),
+                 "WPC" = unlist(lapply(c("npubs", "citedby", "hindex", "i10index"), function(m) summarize_stat(filter(persons, as_pc > 0), "F", m))),
+                 "MPC" = unlist(lapply(c("npubs", "citedby", "hindex", "i10index"), function(m) summarize_stat(filter(persons, as_pc > 0), "M", m))))
+
+knitr::kable(df, format = "html", booktabs = TRUE, longtable = FALSE, digits = 1, align = c("l", "r", "r", "r", "r"),
+             col.names = c("Metric", "Women (PC)", "Men (PC)", "Women (authors)", "Men (authors)"),
+             caption = "Google Scholar mean (and median) metrics from 2017 by gender and role, for all authors and all PC members for which an unambiguous profile and gender were found.") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"), full_width = T)
+```
+
+
+Why then are women so over-represented in PCs relative to the smaller author pool? One possible explanation is that in striving towards increased diversity and equity, many conferences attempt to bolster the representation of women in service roles. Unlike authors, which are selected in a peer-review process with little demonstrated bias, service roles are appointed, affording the conference organizers more agency to increase female participation. The next section looks in detail at the effects of a conference's efforts towards increased diversity.
+
+
+### Diversity efforts {#sec:diversity-efforts}
+
+None of the pairwise correlations in Tab. \@ref(tab:author-gender-correlations) indicate meaningful linear association with any other factor, and in particular, the conference's diversity efforts seem to have no effect on the ratio of women authors. 
+What about multinomial and non-linear relationships? We found no clear relationships here either.  Make footnote after verifying.
+
+... visible roles...
+
+https://www.digital-science.com/blog/perspectives/parity-podium-need-women-speakers-stmchallenges/
+
+... open access? ...
+
+... first author has more choice? ....
+   Do authors (women?) prefer double-blind review? https://arxiv.org/pdf/1802.02188.pdf
+
+
+
+
+```{r blehbleh, echo=FALSE, cache=TRUE, warning=FALSE, fig.cap="Women's representation amonth authors as a function of PC representation (without outliers)", include=FALSE}
+
+# Strategy to identify factors that affect the ratio of women in a conference:
+# - Look at all correlations with conference factors (and perhaps people factors and paper factors as well)
+# - Build a decision tree to look at which factors interact with each other.
+# - Extend to a random forest to extract variable importance (VI).
+# - Compare with VI obtained from Ridge regression and Lasso regression.
+# - Try to build a simpler regression model (including a small amount of interactions) from by_role data (not by_conf)
+# - Try to extend to a mixed model using lmer.
+# - Verify p-value using case-based bootstrap.
+
+# First, try multiple linear regression with nearly all conference parameters to find any significant coefficients:
+# just_authors <-filter(by_role, role == "Author")
+# by_conf <- just_authors %>%
+#   group_by(conf, double_blind, diversity_effort, npapers,
+#            is_org_ACM, is_org_IEEE, is_org_USENIX, 
+#            month_of_year, months_to_publish, rebuttal, open_access, age,
+#            pc_size, pc_author_ratio, mean_authors_per_paper, pc_paper_ratio,
+#            mean_pc_hindex, normalized_cur_cites, mean_months_to_eprint, eprint_ratio,
+#            past_papers, past_citations, h5_index, h5_median, h5_ratio, acceptance_rate, mean_review_days) %>%
+#   summarize(pct_w = 100 * sum(gender=="F") / n())
+# 
+# 
+# # Multiple linear regression to find significant coefficients (almost none really, just IEEE):
+# formula = paste("pct_w ~", paste(names(by_conf)[3:length(names(by_conf))-1], collapse=" + "))
+# summary(glm(data = by_conf, formula))
+# 
+# # Simple, strong model
+# summary(glm(data = by_conf, formula = pct_w ~ double_blind))
+# 
+# # Now retry, but without fields that have NAs:
+# formula = paste("pct_w ~", paste(names(by_conf)[3:20], collapse=" + "))
+# summary(glm(data = by_conf, formula))
+# 
+# # Pick a few factors and check for interaction:
+# summary(glm(data = by_conf, pct_w ~ npapers * rebuttal * double_blind * diversity_effort))
+# # But this seems unstable: add eprint_ratio and it changes dramatically:
+# summary(glm(data = by_conf, pct_w ~ npapers * rebuttal * pc_author_ratio * double_blind * diversity_effort + eprint_ratio))
+# summary(glm(data = by_conf, pct_w ~ npapers * rebuttal * pc_author_ratio * double_blind * diversity_effort * eprint_ratio))
+# 
+# # Mixed model:
+# just_authors$is_female = ifelse(just_authors$gender == "F", 1, 0)
+# 
+# diff_obs <- just_authors %>%
+#  group_by(double_blind) %>%
+#  summarize(prop_F = mean(gender == "F")) %>%
+#  summarize(diff(prop_F))
+# 
+# # How do you test that female ratio is independent from double_blind?
+# null_dist <- just_authors %>%
+#  specify(gender ~ double_blind, success = "F") %>%
+#  hypothesize(null = "independence") %>%
+#  generate(reps = 10, type = "permute") %>%
+#  calculate(stat = "diff in props", order = c(F, T))
+# 
+# null_dist %>%
+#   visualize(obs_stat = diff_obs)
+# 
+# get_p_value(null_dist, diff_obs, direction = "two_sided")
+
+```
+
+
+In summary, our data provides no evidence of gender bias based on conference policy: neither reducing female authorship where we might expect it (e.g., single-blind reviewing) nor increasing it (e.g., with diversity efforts). Increasing the number of women in the PC does not lead to a measurable increase in the acceptance of female authors either, regardless of the review blindness policy, and may even lead to a taxing review load for a small, over-represented set of women. 
+
+Increasing women's participation in the program committee in an effort to bolster equality an increase women's authorship does appear to work for double-blind conferences, but with diminishing returns. And over-representing women among the PC takes an extra toll on their time, increasing their review load by an average of XXX PC participation and YYY papers to review, compared to men in this data set.
+
+
+```{r echo=FALSE, include=FALSE, cache=TRUE}
+# 
+# # Extract plot data and sort it by descending order of percent female authors
+# plot_data <- by_role %>%
+#   filter(!is.na(gender)) %>%
+#   group_by(conf, double_blind, npapers) %>%
+#   count(role, gender) %>%
+#   group_by(conf, role) %>%
+#   mutate(pct=100*n/sum(n)) 
+# 
+# # Can right-join pct with conf for correlations
+# 
+# conf_order <- plot_data %>%
+#   filter(role=="Author", gender=="F") %>%
+#   arrange(pct) 
+# 
+# plot_data$sorted_conf <- factor(plot_data$conf, levels=conf_order$conf)
+# 
+# plot_data %>%
+# filter(gender=="F") %>%
+#   ggplot(aes(x=sorted_conf, y=pct, fill=double_blind)) +
+#     geom_bar(stat="identity", position="dodge") +
+#     coord_flip() +
+#     facet_wrap(~role)
+# 
+# by_role %>%
+#  specify(response = gender, success="F") %>%
+#  calculate(stat = "prop")
+# 
+# 
+# null_dist <- by_role %>%
+#   filter(role == "AUTHOR") %>%
+#   drop_na() %>%
+#   specify(response = gender, success="F") %>%
+#   hypothesize(null="point", p=0.2) %>%
+#   generate(reps=5000, type = "simulate") %>%
+#   calculate(stat = "prop") 
+#  
+# prop_F <- by_role %>%
+#   filter(role == "Author") %>%
+#   summarize(mean(gender == "F", na.rm = T))
+#  
+# get_p_value(null_dist, prop_F, direction = "two_sided")
+# visualise(null_dist) + shade_p_value(obs_stat=prop_F, direction="two_sided")
+
+ # null_dist <- by_role %>%
+ #   filter(role != "CHAIR") %>%
+ #   specify(gender ~ role, success = "F") %>%
+ #   hypothesize(null = "independence") %>%
+ #   generate(reps = 5000, type = "permute") %>%
+ #   calculate(stat = "diff in props", order = c("PC", "AUTHOR"))
+ # 
+ # obs_stat <- by_role %>%
+ #   filter(role == "PC_member" | role == "Author") %>%
+ #   group_by(role) %>%
+ #   summarize(prop = mean(gender == "F", na.rm = T)) %>%
+ #   pull(prop) %>%
+ #   diff()
+ # 
+ # visualise(null_dist) + 
+ #   shade_p_value(obs_stat=obs_stat, direction="two_sided")
+ # get_p_value(null_dist, obs_stat, direction = "two_sided")
+ # 
+ # # CI
+ # boot_dist <- by_role %>%
+ #   filter(role == "PC_member" | role == "Author") %>%
+ #   specify(gender ~ role, success = "F") %>%
+ #   generate(reps = 5000, type = "bootstrap") %>%
+ #   calculate(stat = "diff in props", order = c("PC_member", "Author"))
+ # 
+ # 
+ # # 95% CI
+ # z <- qnorm(.975)
+ # 
+ # # 99% CI
+ # z <- qnorm(.995)
+ # SE <- sd(boot_dist$stat)
+ # LB <- obs_stat - z * SE
+ # UB <- obs_stat + z * SE
+ # c(LB, UB)
+```
+
+
+## Differences in paper reception {#sec:gender-citations}
+
+Citations, author position
+
+The US is the only comparator country in which the impact of papers is higher for women than men.
+There is no evidence that inequalities in the representation of women researchers across countries and fields and in their scholarly output affect how their research is read or built on by others.
+
+When men appear as authors in engineering papers, they are more likely to take the first or corresponding author position; the opposite is true in the field of nursing.
+https://www.elsevier.com/connect/gender-equality-in-science-experts-tackle-the-challenges-revealed-by-data
+In applied science (such as computer systems), author ordering is typically by contribution, unlike more mathematical fields (http://www.cs.princeton.edu/~appel/papers/science.pdf). Verify against SPAA? across conferences?
+
+)
+
+
+## Collaboration patterns across genders {#sec:gender-collaboration}
+
+Women’s scholarly output is less likely to result from international collaboration than men’s
+https://www.elsevier.com/connect/gender-equality-in-science-experts-tackle-the-challenges-revealed-by-data
+
+## Author perspectives {#sec:gender-authors}
+
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://xkcd.com/385'}
+knitr::include_graphics('images/how_it_works.png', dpi = NA)
+```

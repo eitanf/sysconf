@@ -1,0 +1,67 @@
+# The Peer-Review Process {#ch:review}
+
+^[This chapter was faciliated by the work of Noah Koster, with the support of Dean Nigel Nicholson and Prof. Anna Ritz at Reed College.]
+
+Peer review is a cornerstone of modern scientific research. And yet understanding and improving the process is challenging, because controlled experiments on peer review are nearly impossible. Thus, peer-review decisions and policies for conferences are selected more based on the opinions of the steering committee and chairs, and less based on hard data and evidence.
+
+This project aims to provide evidence and strong data for the effect that such policies have on authors. These policies may include decisions such as single-blind or double-blind review; inclusion of author rebuttal in acceptance decisions; mean review load per committee member; and multiple rounds of reviews. The effects on authors we plan to measure include perceptions of fairness, review helpfulness in improving the paper, and review rigor.
+
+Reviewers, articles, and the peer review process itself can vary significantly from field to field in the sciences, and even just in computer science. To control for this variability, we plan to only include conferences from a single sub-field of computer science, namely, computer systems. On the other hand, meaningful aggregate statistics require a large data set. We will be analyzing data from a corpus of some 2,500 papers from 50 well-known systems conferences during 2017, encompassing about 10,000 authors and over a thousand reviewers. To the best of our knowledge, this would be the first large-scale study of the peer review process in the field that includes data from both authors, program committees, and conference statistics.
+
+## Author survey
+
+We’ll measure the opinions of the authors through a wide-distribution survey. The survey will have five parts: the history of the paper, rebuttal, review quality, demographic questions and finally the option for free form input. In the history part of the paper, some basic information will be collected about the paper, including how long it took to research and write the paper and the number of conferences it was submitted to prior to. The rebuttal section, if applicable, will ask the author about the helpfulness of the response. In the review section, the most important to our research, the author will be asked to categorize the review they received into categories based on helpfulness, understanding and length. Finally a few demographic questions and a free form text input will be provided as well if the author wishes to complement their answers to the questions. A current draft of the proposed survey can be read here: https://goo.gl/rk6Xqm. 
+
+We will administer the survey to a small group of authors first, to gauge its effectiveness at getting a response as well as the statistics we need. The survey will be iteratively tweaked with particular regard to the degree in which the survey can accurately provide useful data about authors opinions. We’ll scrape thousands of PDF articles to compile an email database of 2017 authors from these conferences. We will carefully work with the statistics professors to limit biases in our survey population and questionnaire. Finally, once both are ready to be released, emails will be sent out periodically to authors asking for survey completion (possibly with an incentive of a gift card drawing). We will employ common statistical tactics to improve response rate and provide more reliable statistics for correlation. We’ll then collect the data from each participant and aggregated through summary statistics to be stored in a central database.
+
+Once the data is collected, relevant statistics we’ll extract all relevant author statistics. In particular, the responses that measure the effectiveness of each review, the rebuttal process and the history of the paper will be cast into variables in CSV files that can be manipulated by statistical packages such as R. We plan to make the anonymized, aggregated statistics available to the research community as one contribution.
+
+A comparison dataset will be formed from previously collected statistics of systems publications as well as information from program committee chairs themselves. Correlations and causal inference can be drawn by comparing author statistics to conference details.
+
+By limiting our scope to conferences in a single field (computer systems), we avoid the variability that spans different disciplines. On the other hand, we aim for a very large scale survey and analysis, to increase the statistical validity and robustness of our measurements.
+Predicted outcomes and alternative outcomes
+We predict the following outcomes, among others:
+The relationship between the amount of time that each panel member has to review a paper will be positively correlated with the quality of the review
+A double-blind review process will result in significantly higher scores of helpfulness and fairness of the review compared to single-blind reviews.
+The perceived quality of the review will correlate positively with the length of the review.
+A higher review load will correlate negatively with perceived quality and helpfulness of the review.
+
+## Specific aim and hypothesis
+This study aims to measure statistical relationships between review policies and the success of the review process, from the authors’ perspective. These results could aid in the improvement of the peer review process itself, by shedding light on the degree by which various factors affect the usefulness and fairness of conference peer reviews. We will measure how these specific author perceptions vary based on whether the review was double-blind, the length of the review period, the existence and helpfulness of a rebuttal and the number of reviews written by each committee members, as well other conference statistics that we have collected from 50 systems conferences during 2017. Given this large set of data, a number of hypotheses can be drawn but we will focus here on a specific few. 
+
+The review load of each PC member has been increasing in magnitude in recent years for many top systems conferences [@. Measuring the degree to which the review load of committee members effects the quality, length, and helpfulness of a review is therefore of particular importance. We hypothesize that a higher review load leads to a measurable decrease in the perceived quality and helpfulness of the reviews, which author responses will further quantify.
+
+Whether the review policy is single- or double-blind has been shown to affect the bias of reviews. We hypothesize that this policy will directly affect review helpfulness and fairness, such that single-blind reviews will be perceived as less helpful and more unfair by authors.
+
+Further, we hypothesize that the length of a review coincides with an increase in its perceived quality. Detailed reviews might better offer suggestions on how to improve a paper, compared to a terse one. To test this hypothesis, we can simply model the perceived quality as a function of its length, while controlling for other confounding variables. 
+
+From the author perceptions, we can quantitatively correlate author perceptions to review mechanisms and policies, as well as conference statistics. From these correlations, we may be able to suggest causal relationships between variables in the peer review process and its overall success (for the authors). And from these causal hypotheses we may derive future experiments to test them, or even suggest specific changes and improvements to the peer review process.
+
+## Design and procedure
+
+We’ll measure the opinions of the authors through a wide-distribution survey. The survey will have five parts: the history of the paper, rebuttal, review quality, demographic questions and finally the option for free form input. In the history part of the paper, some basic information will be collected about the paper, including how long it took to research and write the paper and the number of conferences it was submitted to prior to. The rebuttal section, if applicable, will ask the author about the helpfulness of the response. In the review section, the most important to our research, the author will be asked to categorize the review they received into categories based on helpfulness, understanding and length. Finally a few demographic questions and a free form text input will be provided as well if the author wishes to complement their answers to the questions. A current draft of the proposed survey can be read here: https://goo.gl/rk6Xqm. 
+
+We will administer the survey to a small group of authors first, to gauge its effectiveness at getting a response as well as the statistics we need. The survey will be iteratively tweaked with particular regard to the degree in which the survey can accurately provide useful data about authors opinions. We’ll scrape thousands of PDF articles to compile an email database of 2017 authors from these conferences. We will carefully work with the statistics professors to limit biases in our survey population and questionnaire. Finally, once both are ready to be released, emails will be sent out periodically to authors asking for survey completion (possibly with an incentive of a gift card drawing). We will employ common statistical tactics to improve response rate and provide more reliable statistics for correlation. We’ll then collect the data from each participant and aggregated through summary statistics to be stored in a central database.
+
+Once the data is collected, relevant statistics we’ll extract all relevant author statistics. In particular, the responses that measure the effectiveness of each review, the rebuttal process and the history of the paper will be cast into variables in CSV files that can be manipulated by statistical packages such as R. We plan to make the anonymized, aggregated statistics available to the research community as one contribution.
+
+A comparison dataset will be formed from previously collected statistics of systems publications as well as information from program committee chairs themselves. Correlations and causal inference can be drawn by comparing author statistics to conference details.
+
+By limiting our scope to conferences in a single field (computer systems), we avoid the variability that spans different disciplines. On the other hand, we aim for a very large scale survey and analysis, to increase the statistical validity and robustness of our measurements.
+
+## Predicted outcomes and alternative outcomes
+
+We predict the following outcomes, among others:
+The relationship between the amount of time that each panel member has to review a paper will be positively correlated with the quality of the review
+A double-blind review process will result in significantly higher scores of helpfulness and fairness of the review compared to single-blind reviews.
+The perceived quality of the review will correlate positively with the length of the review.
+A higher review load will correlate negatively with perceived quality and helpfulness of the review.
+
+Alternatively, one or more of these relationship may not exhibit a clear correlation. In this case, we will dig deeper into the data, searching for confounding variables or evidence for the null hypothesis. After the initial survey testing, but before full dissemination, may be a good checkpoint to tweak the survey accordingly to add potential confounding variables. If the outcomes point towards the null, a new statistical test may be used in order to re-examine the relationships between the variable in a different alternative hypothesis.
+
+
+Extracted email addresses using CERMINE [@tkaczyk14:cermine].
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://xkcd.com/2025'}
+knitr::include_graphics('images/peer_review_2x.png', dpi = NA)
+```

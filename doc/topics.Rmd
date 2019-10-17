@@ -1,0 +1,187 @@
+# Paper Topics {#ch:topics}
+
+```{r code = readLines("load_data.R"), echo = F, cache = F, message=FALSE}
+```
+
+
+```{r load_topics, echo=FALSE, message=FALSE, cache=TRUE}
+library("jsonlite")
+library("tidyverse")
+library("plotly")
+library("reshape2")
+
+all_topic_counts <- as.data.frame.matrix(table(topics))
+all_topic_counts$conf = gsub("_\\d\\d*", "", rownames(all_topic_counts))
+overall_counts <- data.frame(Count = colSums(select(all_topic_counts, -"conf")))
+overall_counts$Topic <- row.names(overall_counts)
+```
+
+Each one of the `r sum(sys_confs$npapers)` system papers (excluding control conferences) was manually tagged with zero or more topics from a range of system sub-topics (see [Conference Topics](#sec:topic-data)). These tags tell interesting stories, both about the topics themselves, as well as the conferences that discuss them.
+
+## Overall topic Distribution {#sec:topic-distribution}
+
+The topic ocurrence distribution is shown in Fig. \@ref(fig:overall-topic-distribution). (Note that all topics add up to `r sum(overall_counts$Count)` because a paper may have more than one topic.)
+
+
+```{r overall-topic-distribution, echo=FALSE, cache=TRUE, fig.cap="Topic counts among all system papers"}
+ggplot(overall_counts, aes(reorder(Topic, -Count), Count, fill = Topic)) +
+    geom_col() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+    labs(x = "Topic") +
+    scale_fill_manual(breaks = as.character(topic_tags$tag), values = topic_tags$color) +
+    guides(fill = FALSE)
+```
+
+It may appear like security related papers are the most popular in this selection of conferences, which is indeed true if we narrow our perspective to absolute number of papers. But if we break down the distribution of topics by conference (as is shown in Fig. \@ref(fig:topic-distribution-by-conf)), we can observe a subtler distinction. The majority of the security papers are spread over only three  focused conferences (albeit very large). CCS, NDSS, and SP together `r all_topic_counts %>% filter(conf=="CCS" | conf=="NDSS" | conf=="SP") %>% filter(Security==1) %>% summarize(n=n())` security related papers (out of the `r sum(all_topic_counts[,"Security"])` total security papers). Virtually all other conferences have fewer than 10 security related papers. Contrast this with Network---the second most-popular topic, with `r sum(all_topic_counts[,"Network"])` papers. It is a much more widespread topic across conferences, with none exceeding `r max((all_topic_counts %>% group_by(conf) %>% filter(Network==1) %>% summarize(n=n()))[,2])` networking papers. It's not that Networking isn't a specialized topic with its own specialized conferences (SIGCOMM and MobiCom are two examples). But they're simply smaller in this conference set.
+
+```{r topic-distribution-by-conf, echo=FALSE, cache=TRUE, warning=FALSE, message=FALSE, fig.cap="Topic counts for each conference"}
+aggregated <- all_topic_counts %>%
+  group_by(conf) %>%
+  summarise_all(list(sum))
+p <- ggplot(gather(aggregated, Topic, Count, -conf), aes(Topic, Count, fill=conf)) +
+    geom_point() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1), legend.position = 'none') +
+    labs(x="Topic")
+
+ggplotly(p)
+```
+
+
+## Topic distribution by conference {#sec:topic-dist-by-conf}
+
+... Say something about Table \@ref(tab:conf-topic-counts) ...
+
+```{r conf-topic-counts, echo=FALSE, cache=TRUE, message=FALSE}
+tbl <- data.frame(Conference = aggregated$conf)
+tbl <- cbind(tbl, aggregated[-1])
+tbl$Total <- rowSums(aggregated[,-1])
+
+knitr::kable(tbl, format="html", digits=3, booktabs=TRUE, longtable=TRUE, align=c("r"),
+             caption = "Counts of papers by topic in each conference (a single paper can have zero or more topics)") %>%
+  kable_styling(full_width=F, bootstrap_options = c("striped", "hover", "condensed", "responsive")) %>%
+  row_spec(0, angle=-45, font_size=10, align=c("r"))
+```
+
+
+... Say something about Fig. \@ref(fig:relative-topic-counts) ... Note, this is proportion out of all the conference tags, not all papers.
+
+```{r relative-topic-counts, echo=F, cache=T, fig.cap="Relative proportion of topics per conference"}
+all_topic_counts %>%
+  group_by(conf) %>%
+  summarise_all(list(sum)) %>%
+  melt(id="conf") %>%
+  rename(Topic=variable) %>%
+  rename(Proportion=value) %>%
+  rename(Conference=conf) %>%
+  ggplot(aes(reorder(Conference, desc(Conference)), Proportion, fill=Topic)) +
+    geom_bar(stat="identity", position="fill", width = 0.8) +
+    scale_fill_manual(breaks = as.character(topic_tags$tag), values = topic_tags$color) +
+    guides(fill = guide_legend(reverse = TRUE)) +
+    xlab("Conference") +
+    ylab("Topic Proportion") +
+    theme(legend.position = "bottom", axis.text.y = element_text(size=7)) +
+    coord_flip()
+```
+
+We can also ask which topic dominates each conference (in terms of overall paper count), which produces the values in Table \@ref(tab:conf-dominating-topic). These were the topics that were selected as the "representative topic" of each conference in Tables \@ref(tab:sys-confs) and \@ref(tab:other-confs). Some of these choices may raise an eybrow. For example, we might expect the SIGMETRICS conference to be dominated by performance evaluation (Benchmarking") papers, and instead find Network as the predominant tag. Keep in mind, however, that most of these conferences are interdisciplinary (as shown in Table \@ref(tab:conf-topic-counts)), and most papers carry more than one tag. Furthermore, the distinction between sone of these tags (such as Concurrency, HPC, and GPGPU) can be muddled at times, and subjective to the evaluator. In summary, reducing these conference to a single representative topic is more a matter of parsimonious convenience, rather than of accurate description.
+
+```{r conf-dominating-topic, echo=FALSE, cache=TRUE, message=FALSE, warning=FALSE}
+data.frame(Conference = tbl$Conference, Topic = colnames(tbl[-1])[apply(tbl[,!names(tbl) %in% c("Conference", "Total")], 1, which.max)]) %>%
+  mutate(Topic = cell_spec(Topic, "html", color = topic_tags[as.character(Topic),]$contrast, bold = T, background = topic_tags[as.character(Topic),]$color)) %>%
+  knitr::kable(format = "html", escape = F, digits = 3, booktabs = T, longtable = T, align=c("l", "l"),
+               caption="Representative topic per conference") %>%
+  kable_styling(full_width=F, bootstrap_options = c("hover", "condensed", "responsive"))
+```
+Arrange on a color wheel so that highly-correlated topics are close together; use a chord diagram to link co-occurence of topics (https://jokergoo.github.io/circlize_book/book/the-chorddiagram-function.html), or perhaps sunburst (https://github.com/timelyportfolio/sunburstR)
+
+## Topic co-ocurrence
+
+Measure and plot correlations between 15 vectors
+```r
+all_topic_counts %>% select(-conf) %>% cor() %>% ggcorrplot(method = "circle", type = "upper", ggtheme = "theme_classic", lab = T)
+```
+Security has negative correlations with everything! Also Plot matrix of cotopics[i,j] = how many papers have both i and j as topics
+```r
+all_topic_counts %>% select(-conf) %>% as.matrix() %>% crossprod
+```
+Pair up topics by their closest-two correlated topics					
+Correlations among topics (by papper/conf/overall)
+Which topics are more "interdisciplinary"?
+
+## Gender differences
+
+First, look by paper topic.
+
+```{r women-rep-by-paper-topic, message = F, echo = F, cache = T, warning = F, fig.cap="Women's author representation by paper topic, ordered by percentage of women."}
+gender_by_topic <- people_tidy %>%
+  filter(role == "author", !is.na(gender)) %>%
+  select(gender, key) %>%
+  left_join(topics) %>%
+  filter(!is.na(topic)) %>%
+  group_by(topic) %>%
+  summarize(Women = sum(gender == "F"), Men = sum(gender == "M"), pct_w = round(100 * sum(gender == "F") / n(), 2)) %>%
+  melt(id.vars = c("topic", "pct_w")) %>%
+  rename(Gender = variable) %>%
+  rename(Count = value)
+
+torder <- reorder(gender_by_topic$topic, gender_by_topic$pct_w)
+
+gender_by_topic %>%
+  ggplot(aes(x = factor(topic, levels = levels(torder)), y = Count, fill = forcats::fct_rev(Gender))) +
+    geom_bar(stat = "identity") +
+    geom_text(aes(x = topic, y = 1800, label = paste0('"', pct_w, '%"')), parse = TRUE) +
+    scale_fill_manual(values = c("#C4AE5E", "#C7715F"), breaks = c("Women", "Men"), name = "Gender") +
+    coord_flip() +
+    theme_minimal() +
+    ylab("Count and women's percentage") +
+    xlab("Topic") +
+    theme(legend.position = "bottom")
+
+
+```
+
+We have another source of data to look at the relationship between gender and subfields: author interests. Google Scholar allows authors to create a profile and list up to five free-form research interests. Approximately `r pct(nrow(authors_with_profile), nrow(authors), 0)`% of our authors and `r pct(nrow(pcs_with_profile), nrow(pcs), 0)`% of our PC members filled such a profile. We collected their interests and mapped them to the topic best matching the interest from our list of `r nrow(topic_tags)` topics (many interests lay outside this set and were mapped to no topic).
+
+```{r women-rep-by-interest-topic, message = F, echo = F, cache = T, warning = F, fig.cap="Women's  representation by interest topic, ordered by percentage of women."}
+gender_by_interest <- people_tidy %>%
+  filter(role == "author" | role == "pc", !is.na(gender)) %>%
+  select(gender, name, gs_email, role) %>%
+  left_join(filter(interests)) %>%
+  filter(!is.na(topic)) %>%
+  group_by(topic, role) %>%
+  summarize(Women = sum(gender == "F"), Men = sum(gender == "M"), pct_w = round(100 * sum(gender == "F") / n(), 2)) %>%
+  melt(id.vars = c("topic", "pct_w", "role")) %>%
+  rename(Gender = variable) %>%
+  rename(Count = value)
+
+gender_by_interest %>%
+  ggplot(aes(x = factor(topic, levels = levels(torder)), y = Count, fill = forcats::fct_rev(Gender))) +
+    geom_bar(stat = "identity") +
+    facet_wrap(~role) +
+    geom_text(aes(x = topic, y = 1800, label = paste0('"', pct_w, '%"')), parse = TRUE) +
+    scale_fill_manual(values = c("#C4AE5E", "#C7715F"), breaks = c("Women", "Men"), name = "Gender") +
+    coord_flip() +
+    theme_minimal() +
+    ylab("Count and women's percentage") +
+    xlab("Topic") +
+    theme(legend.position = "bottom")
+
+
+```
+
+Questions:
+
+ * Why are there such large gaps between PC and authors?
+ * Why are there such gaps between author interests and paper topics?
+ * Correlate the last two groups using chi-square test.
+ * Correlate PC interests with those of the papers in their conferences.
+
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://phdcomics.com/comics/archive.php?comicid=84'}
+# knitr::include_graphics('images/phd100998s.gif', dpi = NA)
+```
+
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://phdcomics.com/comics/archive.php?comicid=1175'}
+knitr::include_graphics('images/phd052009s.gif', dpi = NA)
+```

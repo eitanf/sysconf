@@ -1,0 +1,174 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r code = readLines("load_data.R"), echo = F, cache = F, message=FALSE}
+```
+
+```{r include=FALSE}
+library('purrr')
+library('tidyverse')
+library('kableExtra')
+library('jsonlite')
+library('lubridate')
+library('stringr')
+```
+
+
+
+# Data {#ch:data}
+
+>  "In God we trust, all others must bring data." – W. Edwards Deming
+
+
+This chapter describes the main raw data collected, and the format of the files containing the data. All of these files reside in the `data/` directory and sub-directories in the repository. Some data files that are specific to a single chapter are described in that chapter later on.
+
+
+## Conference data
+
+### System conferences
+
+Fifty Conferences in the systems areas were chosen as a data source. These conferences were selected to represent a wide range of venues and topics in computer systems during 2017, ranging from small workshops to week-long conferences with over 100 papers. This selection was not meant to be exhaustive, and doesn't necessarily reflect the ``best'' conferences in the field. But all conferences were peer-reviewed and sponsored by major organizations such as IEEE, ACM, and USENIX. (For conferences with multiple tracks, such as research and industry, only the peer-reviewed, full-paper tracks were considered.)
+
+
+The full list of systems conferences can be found in the file `data/all_confs.json` and is reproduced in Table \@ref(tab:sys-confs). One representative topic was chosen for each conference as described in Sec. \@ref(sec:topic-dist-by-conf).
+
+```{r sys-confs, echo=FALSE, message=FALSE, cache=TRUE}
+data.frame(Name = sys_confs$key,Commencement = sys_confs$postdate,
+           Topic = sys_confs$subfield, Papers = sys_confs$npapers, URL = sys_confs$url)  %>%
+  mutate(Topic = cell_spec(Topic, color = topic_tags[as.character(Topic),]$contrast, bold = T, background = topic_tags[as.character(Topic),]$color)) %>%
+    knitr::kable(format = "html", booktabs = T, longtable = T,  align = c('l','c','l','r','l'),
+               caption = "Systems conferences used for this data set", escape = F) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+... Some of these conferences may arguably be exluded from the "systems" label. For example (copy discussion about SPAA, etc.). But as we find in Ch. [graph analysis], there are strong relationships: some of these authors publish in "systemy" conferences, or collaborate with their authors, or cite their papers...
+
+### Additional conferences
+
+In addition to the fifty systems conferences, six other conferences in related (but separate) fields were selected for contrast and comparison: three on programming languages and three on data mining/data science/information retrieval, as shown in Table \@ref(tab:other-confs)
+
+```{r other-confs, echo=FALSE, message=FALSE, cache=TRUE}
+other_confs = rbind(pl_confs, knowledge_confs)
+knitr::kable(data.frame(Name = other_confs$key, "Commencement" = other_confs$postdate,
+                        "Papers" = other_confs$npapers, "URL" = other_confs$url),
+             format = "html", booktabs = TRUE, longtable = TRUE,  align=c('l','c','r','l'),
+             caption = "Non-systems conferences used for this data set") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+Table: (\#tab:other-confs) Non-systems conferences used for this data set. 
+
+### Conferece details
+
+Each conference is described in its own data file. Most of the data was manually retrieved from the conference web sites (from the URLs in the previous tables)). Some information was personally requested from the TPC chair or obtained as described in the specific field's description. Additionally, all the papers in the collection were downloaded in PDF format via open access or through digital libraries ^[The PDF versions of the papers are excluded from the accompanying data set because of size and copyright constraints.]. The manual assignment of topics and content tags to papers, as described below, was accomplished by reviewing each of these papers.
+
+
+```{r child='../data/conf/README.md'}
+```
+
+### Paper labels
+
+Two of the paper fields require special consideration: `topics` and `content_tags`. Since these labels were assigned manually, based primarily on human judgement, the data likely includes mistakes, omission, and bias, and should therefore be considered more critically than the other fields.
+
+#### Paper topics {#sec:topic-data}
+
+more than one topic per paper; topics overlap in areas and are not exhaustive or precisely defined.
+
+For the Topic column in Table \@ref(tab:sys-confs) above, the most frequently ocurring topic was chosen to represent it, as described later in Sec. \@ref{sec:topic-dist-by-conf}. Most topics have at least one conference wherein they ocurred most, although multi-topic papers and conferences are common. Each topic also has a single color associated with it throughout this document, as a visual aid in graphical representations. The complete list of topic tags, as well as their associated colors, can be found in Table \@ref(tab:all-topics). A later chapter (Ch. \@ref(ch:topics)) explores the properties and distributions of these topics.
+
+
+```{r all-topics, echo=FALSE, message=FALSE, cache=FALSE}
+topic_tags %>%
+  mutate(tag = cell_spec(tag, color = topic_tags[as.character(tag),]$contrast, bold = T, background = topic_tags[as.character(tag),]$color)) %>%
+  select(tag, areas) %>%
+  rename(Tag = tag, Areas = areas) %>%
+  knitr::kable(format = "html", booktabs = T, longtable = T, escape = F,
+             caption = "Paper topics: each paper was associated with any number of these tags") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+#### Content tags
+
+Content tags for paper: One or more of:
+List of topics in Table \@ref(tab:content-tags).
+
+Full discussion in Ch. \@ref(ch:classification).
+
+```{r content-tags, echo=FALSE, message=FALSE, cache=TRUE}
+knitr::kable(content_tags,
+             format = "html", booktabs = TRUE, longtable = TRUE,  align="ll",
+             caption = "Content tags for systems papers") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+```
+
+<!--    - Big: A "small" systems paper tackles a modest problem and usually has a contribution that can be described in one sentence. A big systems paper, as described in this [SIGCOMM guide](http://www.sigcomm.org/for-authors/hints-tips-and-guides/author-guide), is trying to accomplish a larger set of goals, and often has three or four important contributions. -->
+
+
+
+## Person data
+
+Each person among a conference's authors and PC members was looked up on Google Scholar and recorded near the time of publication (the postdate).
+
+```{r child='../data/authors/README.md'}
+```
+
+Obtaining this data from Google Scholar presented several challenges:
+
+First, not all people actually maintain a GS profile ("NA" records). Fortunately, A large number do actually maintain such a profile. Out of `r nrow(authors)` unique authors in the data files, `r nrow(authors_with_profile)` (`r 100 * round(nrow(authors_with_profile) / nrow(authors), 4)`%) had an identifiable GS profile. The rate of profiles for the `r nrow(pcs)` unique PC members and chairs (incuding some authors) is even higher, with `r nrow(pcs_with_profile)` GS profiles (`r 100 * round(nrow(pcs_with_profile) / nrow(pcs), 4)`%).
+
+Another difficult challenge is disambiguating multiple GS profiles for the same name (but different persons). These duplicates were handled manually (by examining the affiliation, publication record, and interests). In some cases, GS itself was unable to disambiguate persons successfully, leading to authors with many aggregated papers in their profile written by their doppelgangers. These profiles were omitted, rather than overestimating their metrics. 
+
+Last, some author names appeared in multiple variants, sometimes even in the same conference (such as 'Andy' vs. 'Andrew'), leading to redundant records. Those also had to be identified and de-duped manually, with the help of a script (`src/gather_persons.py`) that searched for similar last names and/or affiliations.
+
+## Paper data
+
+In addition to the static paper data in the conference file, the following data was collected at different dates per paper, and summarized in JSON files under the `data/papers/` directory (one file per conference):
+
+* Key: same as in the `data/conf/` data, and used to key into JSON dictionary.
+* Cited-by: for any given measurement date, how many papers cited this paper, if found on GS.
+* Sprint-found: When was the first date detected (if any) that GS has a digital copy of the paper available for download.
+* ID: the GS id for the paper, for repeated searches.
+* Paper-found: The first date where a valid GS entry for this paper was detected.
+* Title: The GS-reported title for the paper. May differ slightly from the one published by the conference homepage.
+* URL: The link to a digital copy of the paper, if found.
+
+
+## Geographical data
+
+```{r child='../data/geo/README.md'}
+```
+
+## Challenges
+
+Sometimes, the hardest part of a data analysis is the collection and cleaning of the input data, before even writing a single line of analysis code. This data set is no exception, and various factors contributed to either missing, noisy, or plain erroneous data. The top two challenges in collecting this data were disambiguating author names--matching them to a single GS profile correctly, and obtaining detailed conference information in the presence of partial and non-standard proceedings and web sites.
+
+### Defining "Systems"
+
+The actual definition of the field of computer systems has immediate consequences for the conference selection and data analysis, and yet cannot be done precisely. Although most computer scientists may have an intuitive understanding of what areas belong to the field, a widely accepted and precise definition of the field and its sub-topics remains elusive. Even the definition in the introduction chapter remains ambiguous, open-ended, and non-exclusive. It is also likely to change over time, as peripheral fields and interdisciplinary papers shift in and out of traditional systems conferences. For example, should a paper on a linear-algebra machine-learning algorithm to predict weather be treated as a systems paper if it's also implemented on a supercopmuter in a way that minimizes energy use and maximizes scalability?
+
+In the absence of an objective and unobjectionable definition, we're left with the vague defintion in Ch. \@ref(ch:intro) and subjective judgements. These come into play primarily in two types of data decisions:
+
+1. Which conferences should be included in our data set? Some of the fifty systems conferences are easy to identify as such, because they're narrowly focused on an uncontroversial sub-field of systems, such as ISCA in architecture. Other conferences include papers that are more theoretical or interdisciplinary, and may legitimately be judged as "non-systems" by its practitioners. And others, like our six "control" conferences, contain a mix of topics that are certainly related to systems and may employ similar research methodologies, even if not widely considered a systems topic. This study is therefore open to critism and interpretation based on the choice of "systems" conference definition. Since all of its data and source code is openly available, the reader is encouraged to try re-running the analysis on their own subsets of conferences and see if they reach different conclusions.
+
+2. What are the subfields of computer systems? As previously described in Sec. \@ref(sec:topic-data), each paper was assigned zero or more topic tags from a set of `r nrow(topics)` sub-topics of computer systems. These topics were arbitrarily chosen, based on the author's experience with computer systems. But just like "computer systems", their definitions are also crippled by vagueness, non-exclusivity, subjective judgement, and lack of consensus. Many of these tags describe concepts that are not necessarily even exclusive to computer systems, such as the "Bencmark" tag, which describes research focused on the methodology and measurement of computer systems, but could easily apply to other fields as well. Again, recognizing that these choices are subjective and somewhat arbitrary, readers are encouraged to try their own definitions.
+
+### Author disambiguation
+Many names are common enough to have multiple GS profiles associated with them (sometimes even from the same institute or research field!). Not all conferences list the affiliation of authors, and sometimes not even their full name. Some authors had different spellings of their name (or typos), and some had contractions or initials used inconsistently. And in some cases, authors had a unique name with its own single GS profile, but one that belonged, or was mixed with, a different researcher's from a completely different field.
+
+Disambiguating author names is a well-known and difficult problem [@han04:disambiguation]. Certainly proposal like assigning each author with a unique ID [@haak12:orcid] could help in the future. But for this data set, disambiguation took place as a painstakingly manual process of verifying each name conflict and each misaligned GS profile. For every potential ambiguity, I verified the correct GS profile, for example, by comparing the author's publication list to the paper(s) in this data set, looking for recently changed affiliation, or comparing email addresses. In cases where ambiguity couldn't be confidently resolved, or when an author's GS profile appeared to be conflated by more than one actual authors, I simply dropped their GS information from the data set. In addition, the author aggregation script (`src/gather_persons.py`) checks for similar and duplicate names and warns where ambiguity is possible.
+
+### Partial conference data
+Not all proceedings of all conferences include all the data fields collected, such as the total number of reviews written (in fact, most didn't include this particular field). Some conferences had minor conflicts between the online program and the proceedings' list of papers (either in title, author list, or even paper count). In a few cases, web pages for conferences became unavailable after the conference concluded. To resolve these inconsistencies, and augment the missing data, I emailed the program committee chairs and requested the missing information. I thank all the chairs that responded to my queries.
+
+
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html'), fig.link='http://xkcd.com/154'}
+knitr::include_graphics('images/beliefs.jpg', dpi = NA)
+
+# Possible alternatives:
+# https://xkcd.com/2054/
+# https://xkcd.com/1781/
+# https://xkcd.com/2048/
+```

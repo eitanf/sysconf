@@ -151,7 +151,7 @@ df <- survey %>%
   summarize(reviews = first(reviews)) %>%
   select(reviews) %>%
   freq_and_prop()
-knitr::kable(t(df), booktabs=TRUE, align=c("rrrrrrr")) %>% kable_styling(position = "center", latex_options = "scale_down")
+knitr::kable(t(df), booktabs=TRUE, align=c("rrrrrrr")) %>% kable_styling(position = "center")
 ```
 
 The papers in our data set average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in systems. Authors were also asked to qualitatively approximate _how long each review_ was. it is encouraging to find over half of the responses showing one or more pages per review

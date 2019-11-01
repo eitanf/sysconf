@@ -1,9 +1,14 @@
 # Author survey results {#sec:survey}
 
 We designed the survey to address the questions of bias and diversity in peer review. This section details its questions, responses, and initial interpretation.^[Most data, source code, and additional survey analysis, will be made available upon publication. Survey responses will remain confidential, but detailed statistics will be publicized as well.]
-We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about the review process, repeated for up to three different papers from our data set.
+We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about the review process, repeated for up to three different papers from our data set. Non-responses to a question were marked by NA and excluded from analyses.
 
-Non-responses to a question were marked by NA and excluded from analyses. In a few cases, coauthors responded differently to the same question on the same paper, but these differences always tested statistically insignificant, so we picked an arbitrary response for the distribution analyses.
+Of the `r nrow(unique(survey$paper_id))` papers,
+`r survey %>% group_by(paper_id) %>% mutate(n = n_distinct(name)) %>% filter(n > 1) %>% select(paper_id) %>% unique() %>% nrow()`
+had responses from more than one author. For the most part, separate responses were identical or off by one unit, and always tested statistically insignificant. In five papers, the responses from different authors were so inconsistent across questions that we discarded them from our data.
+```{r code-to-see-discrepancies}
+# survey %>% group_by(paper_id) %>% summarize(rmax = range(as.numeric(months_research), na.rm = T)[2], tmin = range(as.numeric(months_research), na.rm = T)[1], diff = tmax-tmin)
+```
 
 ## Demographic Questions {#subsec:demo}
 
@@ -57,13 +62,13 @@ In addition to the English coauthor question, we asked several questions on each
 levels(survey$months_research)[5] <- "13+"
 df <- survey %>%
   group_by(paper_id) %>%
-  summarize(mor = first(months_research)) %>%
+  summarize(mor = max(ordered(months_research))) %>%
   select(mor) %>%
   freq_and_prop()
 knitr::kable(t(df), booktabs = T, align = "rrrrr") %>% kable_styling(position = "center", font_size = 8)
 ```
 
-This response is not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector. It is, however, correlated to the next question:
+The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months. Th response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector. It was, however, correlated to the next question:
 
 ### How many conferences/journals was it submitted to prior to this publication?
 \hfill
@@ -75,13 +80,13 @@ tmp$prior_subs <- factor(tmp$prior_subs)
 levels(tmp$prior_subs)[6] <- "5+"
 df <- tmp %>%
   group_by(paper_id) %>%
-  summarize(prior = last(prior_subs)) %>%
+  summarize(prior = max(ordered(prior_subs))) %>%
   select(prior) %>%
   freq_and_prop()
 knitr::kable(t(df), booktabs = T, align = "r") %>% kable_styling(position = "center", font_size = 8)
 ```
 
-It is instructive to see that $\approx$ 40% papers are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. 
+It is instructive to see that over 40% of papers are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. 
 Authors were also asked to type in the names of the venues they had previously submitted to. We note that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, which can be interpreted both positively and negatively. Some authors expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. On the other hand, other authors expressed that an effective peer review process provides feedback that improves the paper for the next submission. These mixed opinions, combined with the resubmission history of so many papers, suggests that selection bias in this survey played a lesser role in deciding authors' experience one way or another.
 
 <!--
@@ -122,7 +127,7 @@ chose "Yes".
 Contrast this with the conferences, of which only `r sum(all_confs$rebuttal)` of our `r nrow(all_confs)` offered a formal rebuttal option
 (`r pct(sum(all_confs$npapers * all_confs$rebuttal), sum(all_confs$npapers))`%
 when weighted by papers).
-The discrepancy may be explained by some authors who specifically mentioned answering "Yes" to this question despite the lack of a formal rebuttal policy, because the conference had a "provisional acceptance" policy or mandatory revisions guided by a PC "shepherd". Although this response type is clearly different than a formal rebuttal, limiting our analyses to formal rebuttals only does not meaningfully change their results.
+The discrepancy may be explained by some authors who specifically mentioned answering "Yes" to this question despite the lack of a formal rebuttal policy, because the conference had a "provisional acceptance" policy or mandatory revisions guided by a PC "shepherd". Although this response type is clearly different than a formal rebuttal, limiting our analysis to formal rebuttals only does not meaningfully change their results.
 
 
 `r rebutters <- filter(survey, allow_rebuttal == T) %>% group_by(name, paper_id) %>% summarize(use = first(use_rebuttal), grade = first(gr_overall), mor = first(months_research), gender = first(mapped_gender), native = first(native_english)); pct(nrow(filter(rebutters, use == T)), nrow(rebutters), 2)`%
@@ -154,7 +159,7 @@ df <- survey %>%
 knitr::kable(t(df), booktabs=TRUE, align=c("rrrrrrr")) %>% kable_styling(position = "center")
 ```
 
-The papers in our data set average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in systems. Authors were also asked to qualitatively approximate _how long each review_ was. it is encouraging to find over half of the responses showing one or more pages per review
+The papers in our dataset average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. it is encouraging to find over half of the responses showing one or more pages per review
 (`r pct(nrow(filter(survey, length == "A Page" | length == "Multiple Pages")), sum(!is.na(survey$length)))`%),
 whereas only about
 `r pct(nrow(filter(survey, length == "1-2 Paragraphs")), sum(!is.na(survey$length)))`%

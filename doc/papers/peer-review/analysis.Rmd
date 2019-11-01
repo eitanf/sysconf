@@ -2,37 +2,46 @@
 
 In this section we address four higher-level questions that arise from our data.
 
-## Gender Effects
+## Gender Differences
 
-The very low representation of women among authors, even compared to the rest of CS, is characteristic of the field of systems, and not just of our data set [@anon20:gender]. We also found no evidence that women receive lower overall acceptance scores than men in their peer reviews
-(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_overall, filter(survey_with_confs, mapped_gender == "M")$gr_overall))`),
+Women represent only about 20--30% of CS researchers overall [@wang19:trends]. In our data, the percentage is about half that, with only
+`r pct(nrow(filter(demographics, mapped_gender == "F")), nrow(filter(demographics, !is.na(mapped_gender))))`%
+of female survey respondents. What factors could explain this lower ratio?
+
+One potential explanation is selection bias: women might be less inclined to respond to this survey. But the percentage of women across all authors,
+`r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%,
+is very close.
+
+Another explanation may be that women publish less than men in Systems. Indeed, women in our dataset did publish fewer papers on average:
+`r round(mean(filter(persons, gender == "F")$as_author, na.rm = T), 2)` compared to mens'
+`r round(mean(filter(persons, gender == "M")$as_author, na.rm = T), 2)`.
+But this gap is not large enough to explain the 2--3x difference relative to the rest of CS, and is not unique to Systems anyway [@elsevier17:gender].
+
+A third explanation could be that female authors' papers are rejected at a higher rate than males'. We cannot test this hypothesis directly without data on rejected papers. However, three pieces of evidence weaken this explanation.
+First, limiting our observations to double-blind conferences, where reviewers presumably remain oblivious of the authors' gender, makes no statistically significant difference in the ratio of women.
+<!---(`r db <- filter(roles, role == "author") %>% left_join(persons, by = c("name", "gs_email")) %>% left_join(all_confs, by = c("conf" = "conference")) %>% filter(double_blind == T, !is.na(gender));`) --->
+The same ratio also shows up when we limit our observations to lead authors only, where gender may be more prominent. And lastly,
+we found no statistically significant evidence that women receive lower overall acceptance scores than men in their reviews,
+<!---(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_overall, filter(survey_with_confs, mapped_gender == "M")$gr_overall))`)--->
 even when limiting to lead authors or single-blind reviews.
-
-It does appear, however, that women have to work harder for their papers to be published, as has been observed in other fields [@hengel19:publishing]. On average, a female author had her paper previously submitted to
-`r round(mean(filter(survey_with_confs, mapped_gender == "F")$prior_subs, na.rm = T), 2)`
-conferences, compared to
-`r round(mean(filter(survey_with_confs, mapped_gender == "M")$prior_subs, na.rm = T), 2)`
-for males
-(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$prior_subs, filter(survey_with_confs, mapped_gender == "M")$prior_subs))`).
-This effort gap could be related to the well-known gender publication gap [@elsevier17:gender]. Surprisingly, the gap disappears when limiting the data to single-blind conferences
-(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F", double_blind == F)$prior_subs, filter(survey_with_confs, mapped_gender == "M", double_blind == F)$prior_subs))`),
-although we have no information on whether the previous submissions were single- or double-blind reviewed. We address this difference in Sec. \@ref(subsec:double-blind).
-
-From a scoring point of view, women appear to get similar overall acceptance grades to men
-(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_overall, filter(survey_with_confs, mapped_gender == "M")$gr_overall))`),
-Even when correcting for lead authorship or double-blind policies. This similarity holds for most other review grades, except for originality
-(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_originality, filter(survey_with_confs, mapped_gender == "M")$gr_originality))`),
+ This grade similarity extends to most other categories, except for originality
+<!---(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_originality, filter(survey_with_confs, mapped_gender == "M")$gr_originality))`), --->
 and technical merit, especially in single-blind conferences
-(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F", double_blind == F)$gr_technical, filter(survey_with_confs, mapped_gender == "M")$gr_technical))`).
-In both cases, women scored significantly higher than men.
-Even from a subjective point of view, women tend to find reviews more
-understanding
-(`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$understanding)), 2)`),
-more helpful,
-(`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$helpfulness)), 2)`),
-and to a lesser degree, more fair
-(`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$fairness)), 2)`).
-It is conceivable that these higher evaluations are related to the higher effort as well. In other words, papers that have gone through numerous rounds of reviews and improvement may be considered of higher quality.
+<!---(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F", double_blind == F)$gr_technical, filter(survey_with_confs, mapped_gender == "M")$gr_technical))`). --->
+In both categories, women scored significantly higher than men. 
+
+In addition to these two grade differences, women also reported reviewers as more understanding, helpful, and fair than men did
+(`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$understanding)), 2)`,
+`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$helpfulness)), 2)`, and
+`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$fairness)), 2)`, respectively).
+On the other hand, papers authored by women show more prior submissions on average: 
+`r round(mean(filter(survey, mapped_gender == "F")$prior_subs, na.rm = T), 2)` compared to mens'
+`r round(mean(filter(survey, mapped_gender == "M")$prior_subs, na.rm = T), 2)`, albeit weakly
+(`r report_t(t.test(table(survey_with_confs$gender, survey_with_confs$prior_subs)))`).
+Note, however, that review quality and prior submissions are strongly associated.  In other words, a paper with a longer submission history tends to rate higher on reviewer understanding, helpfulness, and fairness, regardless of gender.
+
+In summary, our data does not reveal statistical gender differences in the review process, and in particular it does not help to explain the large gender gap in Systems. Addressing this problem may require focusing our attention elsewhere.
+
 
 ## English Proficency
 
@@ -57,7 +66,7 @@ so clearly most of them did not feel misunderstood.
 
 We can also attempt to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We don't know who reviewed whose paper, or even the reviewer's native language or nationality. But we can try to estimate it by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. It turns out that this metric has no significant association with the reported understanding level of the reviews for the conference, which could merely be a reflection on the shortcomings of this statistic.
 
-These negative results could suggest that in the overall picture of systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
+These negative results could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
 
 
 ## Double-Blind Reviewing {#subsec:double-blind}
@@ -86,13 +95,17 @@ Indeed, the `r nrow(filter(all_confs, double_blind == T))` double-blind conferen
 (`r round(mean(filter(all_confs, double_blind == T)$h5_index, na.rm = T), 1)` vs.
 `r round(mean(filter(all_confs, double_blind == F)$h5_index, na.rm = T), 1)`).
 
-When correcting for conference quality, as measured by either metric, most of these associations fade or disappear. For example, the relationship between review length and double-blind reviews loses statistical significance when limiting ourselves to conferences with an acceptance rate of less then 0.2
+More competitive conferences also produce longer reviews
+(`r report_t(t.test(table(survey_with_confs$acceptance_rate, survey_with_confs$length)))`).
+When correcting for conference quality, as measured by either metric, most of these double-blind associations fade or disappear. For example, the relationship between review length and double-blind reviews loses statistical significance when limiting ourselves to conferences with an acceptance rate of less then 0.2
 (`r x <- filter(survey_with_confs, acceptance_rate >= 0.0, acceptance_rate < 0.2); report_chi(chisq.test(table(x$double_blind, x$length)))`),
 or between 0.2 and 0.3
 (`r x <- filter(survey_with_confs, acceptance_rate >= 0.2, acceptance_rate < 0.3); report_chi(chisq.test(table(x$double_blind, x$length)))`),
 or higher than 0.3
 (`r x <- filter(survey_with_confs, acceptance_rate >= 0.3, acceptance_rate < 0.9); report_chi(chisq.test(table(x$double_blind, x$length)))`).
 Fig. \@ref(fig:acceptance-vs-length) depicts the relationships between these three variables.
+
+which are linked to better author evaluations of the reviews.
 
 Some studies found that a double-blind peer-review process can improve women's representation among authors [@budden08:double; @eaton19:gender; @lloyd90:gender; @wenneras01:nepotism], whereas other studies disagree [@ceci11:understanding; @lee13:bias; @ware08:peer]. Our own data does not show a significant difference in women's representation
 (`r report_chi(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$mapped_gender)))`).
@@ -171,10 +184,11 @@ but the relationship appears counter-intuitive: the mean presentation grade give
 `r round(100 * mean(filter(survey, rebuttal_helpful == T)$gr_present, na.rm = T), 0)`%, compared to
 `r round(100 * mean(filter(survey, rebuttal_helpful == F)$gr_present, na.rm = T), 0)`% among the dissatisfied authors.
 
-Response helpfulness appears to have also varied greatly by conference. When limiting ourselves to the eleven conferences that had a formal rebuttal process and at least ten unique authors responding to this question, three conferences had higher than average dissatisfaction rate with the rebuttal process: ASPLOS, ISC, and SOSP. Conversely, in four conferences, no more than 8% of respondents were dissatisfied with the rebuttals: MICRO, PPoPP, SC, and PLDI.
+<!---In 9 papers, different respondents responded had conflicting views on the helpfulness of the rebuttal, but these conflicts do not show any clear relationship to gender or position.--->
+Rebuttal helpfulness does appear to be related to the conference. When limiting ourselves to the eleven conferences that had a formal rebuttal process and at least ten unique authors responding to this question, three conferences had higher than average dissatisfaction rate with the rebuttal process: ASPLOS, ISC, and SOSP. Conversely, in four conferences, no more than 8% of respondents were dissatisfied with the rebuttals: MICRO, PPoPP, SC, and PLDI.
 
 <!---
 # Related Work
 
-We are not aware of an other cross-sectional conference author survey in the systems field, and most author reviews in the literature or the Web cover either a specific conference [@beverly13:findings; @daume15:naacl; @papagiannaki07:author; @parno17:SPsurvey] or a wide journal authorship. For example, An older survey (N = 4037) found near-unanimous agreement among authors that their paper was improved as a result of peer review [@sense09:peer]. Similarly, a more recent survey of journal authors (N = 6903) found that a majority of authors found reviewer comments helpful, as we did [@editage18:perspectives]. But 70% of authors also found the peer-review process moderately to extremely difficult, which the study suggests could be linked to low English-language proficiency (our findings do not support this suggestion). Another journal author survey (N = 2128) found that about half of the papers submitted to one of four mega-journals had been previously rejected [@solomon14:survey]. A recent comprehensive report describes the modern peer review process and challenges in detail, and includes mean duration and number of reviews per paper, by field---again, only for journals [@publons18:peer].
+We are not aware of an other cross-sectional conference author survey in the Systems field, and most author reviews in the literature or the Web cover either a specific conference [@beverly13:findings; @daume15:naacl; @papagiannaki07:author; @parno17:SPsurvey] or a wide journal authorship. For example, An older survey (N = 4037) found near-unanimous agreement among authors that their paper was improved as a result of peer review [@sense09:peer]. Similarly, a more recent survey of journal authors (N = 6903) found that a majority of authors found reviewer comments helpful, as we did [@editage18:perspectives]. But 70% of authors also found the peer-review process moderately to extremely difficult, which the study suggests could be linked to low English-language proficiency (our findings do not support this suggestion). Another journal author survey (N = 2128) found that about half of the papers submitted to one of four mega-journals had been previously rejected [@solomon14:survey]. A recent comprehensive report describes the modern peer review process and challenges in detail, and includes mean duration and number of reviews per paper, by field---again, only for journals [@publons18:peer].
 -->

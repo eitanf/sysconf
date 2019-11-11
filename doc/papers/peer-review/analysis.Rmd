@@ -13,7 +13,7 @@ One potential explanation is selection bias: women might be less inclined to res
 is very close.
 
 Another explanation may be that women publish less than men in Systems. Indeed, women in our dataset did publish fewer papers on average:
-`r round(mean(filter(persons, gender == "F")$as_author, na.rm = T), 2)` compared to mens'
+`r round(mean(filter(persons, gender == "F")$as_author, na.rm = T), 2)` compared to men's
 `r round(mean(filter(persons, gender == "M")$as_author, na.rm = T), 2)`.
 But this gap is not large enough to explain the 2--3x representation gap with the rest of CS, and is not unique to Systems anyway [@elsevier17:gender].
 
@@ -43,9 +43,9 @@ Note, however, that review quality and prior submissions are strongly associated
 In summary, our data does not reveal statistical gender differences in the review process, and in particular it does not help to explain the large gender gap in Systems. Addressing this problem may require focusing our attention elsewhere.
 
 
-## English Proficency
+## English Proficiency
 
-Another aspect of diversity in scientific publication is English-level proficiency. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing]. How does the author experience vary based on this factor?
+Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing]. How does the author experience vary based on this factor?
 
 At least in our dataset, the answer appears to be "not much". From an objective grading perspective, all but one of the review categories exhibit very similar distributions, both for teams with native English speakers and for teams with none. These categories include the presentation grade
 (`r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_present, filter(survey_with_confs, any_english == T)$gr_present))`),
@@ -89,7 +89,7 @@ of longer length
 which in turn are deemed more helpful, fair, and understanding by authors (Sec. \@ref(subsec:quality)).
 
 
-We doubt that double-blinding adequately explains all these phenomena [@godlee98:peer; @mcnutt90:blinding]. Instead, we propose a third variable: the reputation or prestige of a conference. Prestige may be too abstract to measure acurately, but we did collect two proxy conference metrics: the acceptance rate and H5-index (as measured by GS).
+We doubt that double-blinding adequately explains all these phenomena [@godlee98:peer; @mcnutt90:blinding]. Instead, we propose a third variable: the reputation or prestige of a conference. Prestige may be too abstract to measure accurately, but we did collect two proxy conference metrics: the acceptance rate and H5-index (as measured by GS).
 Indeed, the `r nrow(filter(all_confs, double_blind == T))` double-blind conferences in our set average a lower acceptance rate
 (`r pct(mean(filter(all_confs, double_blind == T)$acceptance_rate, na.rm = T), 1, 1)`% vs.
 `r pct(mean(filter(all_confs, double_blind == F)$acceptance_rate, na.rm = T), 1, 1)`%) and higher H5-index

@@ -1,7 +1,7 @@
-# Author survey results {#sec:survey}
+# Author survey results {-}
 
-We designed the survey to address questions of bias and diversity in peer review. This section details its questions, responses, and initial interpretation.^[Most data, source code, and additional survey analysis, will be made available upon publication.].
-We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about the review process, repeated for up to three distinct papers from our data set. Non-responses to a question were marked by NA and excluded from analyses.
+We designed the survey to address issues of bias and diversity in peer review. This section details its questions, responses, and initial interpretation.
+We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about the review process, repeated for up to three distinct papers from our data set. Non-responses to a question were marked by NA and excluded from later analyses.
 
 Of the `r nrow(unique(survey$paper_id))` papers,
 `r survey %>% group_by(paper_id) %>% mutate(n = n_distinct(name)) %>% filter(n > 1) %>% select(paper_id) %>% unique() %>% nrow()`
@@ -12,17 +12,18 @@ had responses from more than one author. These responses were typically identica
 ```
 -->
 
-## Demographic Questions {#subsec:demo}
+## Demographic Questions {-}
 
 We asked three demographic questions to evaluate their role in the review experience. The first two also serve for comparison against external data, to assess the likelihood of selection bias in our survey.
 
-### Which best describes your position during 2017?
+### Which best describes your position during 2017? {-}
 
 As shown in Fig. \@ref(fig:position-dist), about one third (`r pct(nrow(filter(demographics, position == "Student")), nrow(demographics))`%) of the respondents were students in 2017, another third or so professors of various ranks (`r pct(str_extract(demographics$position, "Professor") %>% na.omit() %>% length(), nrow(demographics))`%), and the rest were distributed between all other categories, including unknown.
 For comparison, we looked at the inferred affiliation of `r nrow(good_affils)` total authors with an identifiable email affiliation. Of these, `r pct(sum(good_affils$sector == "COM"), nrow(good_affils))`% had an industry affiliation, compared to `r pct(nrow(filter(demographics, position == "Industry Researcher")), nrow(good_positions))`% of the non-NA survey respondents (`r report_chi(chisq.test(com_table))`). The difference for government researchers is a little larger:
 `r pct(nrow(filter(demographics, position == "Government Researcher")), nrow(good_positions))`% by affiliation vs.
 `r pct(sum(good_affils$sector == "GOV"), nrow(good_affils))`% among survey respondents,
-but still not significant enough to reject the null hypothesis of independence (`r report_chi(chisq.test(gov_table))`).
+but not significantly so
+(`r report_chi(chisq.test(gov_table))`).
 
 ```{r position-dist, echo = F, message = F, out.width = '100%', warning = F, fig.cap = "Distribution of respondent positions."}
 ggplot(demographics, aes(x = position)) +
@@ -32,7 +33,7 @@ ggplot(demographics, aes(x = position)) +
   theme_light()
 ```
 
-### What is your gender?
+### What is your gender? {-}
 
 Of the `r nrow(filter(demographics, !is.na(gender)))` non-NA responses,
 `r nrow(filter(demographics, gender == "F"))`
@@ -44,7 +45,7 @@ were female. These two proportions are close
 leading us to believe there is no significant selection bias by gender.
 
 
-### What is your English level proficiency?
+### What is your English level proficiency? {-}
 
 Of the `r nrow(filter(demographics, !is.na(native_english)))` non-NA respondents,
 `r pct(nrow(filter(demographics, native_english == T)), sum(!is.na(demographics$native_english)))`%
@@ -52,11 +53,11 @@ of respondents chose "Native" for their English level proficiency. There appears
 
 We also asked (and checked) for each paper whether there was any native English speaker among its coauthors. From this question, we estimate that about `r pct(sum(survey$any_english == T, na.rm = T), sum(!is.na(survey$any_english)), 0)`% of papers had at least one native speaking author.
 
-## Paper History
+## Paper History {-}
 
 We also asked for each unique paper, up to three per author, to understand its history.
 
-### How many months did it take to research and write?
+### How many months did it take to research and write? {-}
 \hfill
 
 ```{r mor.dist, echo = F, message = F, warning = F}
@@ -72,7 +73,7 @@ knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr") %>% kable_
 
 The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months. The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector. It was, however, correlated to the next question:
 
-### How many conferences/journals was it submitted to prior to this publication?
+### How many conferences/journals was it submitted to prior to this publication? {-}
 \hfill
 
 ```{r subs_dist, echo = F, message = F, warning = F}
@@ -90,39 +91,14 @@ knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r") %>% kable_styl
 ```
 
 It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. 
-Authors were also asked to type in the names of the venues they had previously submitted to. We note that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, which can be interpreted both positively and negatively. Some authors expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. On the other hand, other authors expressed that an effective peer review process provides feedback that improves the paper for the next submission. These mixed opinions, combined with the resubmission history of so many papers, suggests that selection bias in this survey played a lesser role in deciding authors' experience one way or another.
-
-<!--
-\hfill\break
-__Please type in their names__
-
-Because of the unstructured responses to this question, quantitative analysis is challenging. As a case study, we looked  only at computer architecture, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. we noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. This table shows in each cell how many papers were rejected from that row's conference prior to acceptance in that column's conference.
-
-```{r arch.rejections, echo=F, message=F, warning=F }
-priors <- data.frame(
-             "Previous" = c("ASPLOS", "HPCA", "ISCA", "MICRO"),
-             "ASPLOS" = c(1, 0, 4, 5),
-             "HPCA" = c(1, 2, 1, 2),
-             "ISCA" = c(0, 6, 1, 12),
-             "MICRO" = c(0, 11, 2, 3),
-             "Total" = c(10, 28, 12, 24),
-             "Acceptance" = c("17.5%", "22.3%", "16.8%", "18.6%"))
-
-priors <- t(priors)
-#rownames(priors)[1] <- "Previous"
-#rownames(priors)[7] <- "Acceptance rate"
-knitr::kable(priors, booktabs = T,  align = rep('r', 7))
-#             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference. The total rejections per conference row is self-reported by authors, and includes conferences outside these four. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers in 2017.")
-```
-
-The fact that these relationships work both ways, i.e., that several papers were accepted after previously being rejected from equivalent (or even the very same) conferences, can be interpreted both positively and negatively. Some authors expressed frustration that there the peer review process can appear arbitrary [@francois15:arbit]. On the other hand, an effective peer review process provides feedback that improves the paper for the next submission, as expressed by other authors.
-
--->
-
-## Rebuttal Process {#subsec:rebuttal-process}
+Authors were also asked to type in the names of the venues they had previously submitted to. We note that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, which can be interpreted both positively and negatively. Some authors expressed frustration in their comments that the peer-review process can appear arbitrary [@francois15:arbit; @vardi09:conferences]. On the other hand, other authors expressed that an effective peer review process provides feedback that improves the paper for the next submission. These mixed opinions, combined with the resubmission history of so many papers, suggests that selection bias in this survey played a lesser role in deciding authors' experience one way or another.
 
 
-### Did the conference allow you to address reviewers concerns before final acceptance notice?
+## Rebuttal Process {-}
+
+We asked several questions specific to author feedback on reviews.
+
+### Did the conference allow you to address reviewers concerns before final acceptance notice? {-}
 
 Of the non-NA responses,
 `r pct(nrow(filter(survey, allow_rebuttal == T)), nrow(filter(survey, !is.na(allow_rebuttal))))`%
@@ -140,17 +116,17 @@ vs.
 `r pct(filter(rebutters, use == T)$grade %>% mean(na.rm = T), 1)`%),
 possibly obviating the need to respond [@daume15:naacl].
 
-### Did you find the response process helpful?
+### Did you find the response process helpful? {-}
 
 Of the non-NA responses,
 `r pct(nrow(filter(survey, rebuttal_helpful == T)), nrow(filter(survey, !is.na(rebuttal_helpful))))`%
 were positive. This high percentage may be a little surprising, considering how many PC chairs and authors alike commented privately on how little difference rebuttals make [@daume15:naacl]. One cautionary reminder is that the survey and statistics exclude rejected papers, which could lead to survivorship bias. It is quite plausible that authors of rejected papers were less enthused about the rebuttal process.
 
-## Review Quality Assessment {#subsec:quality}
+## Review Quality Assessment {-}
 
 The following questions (one for each review and paper) were designed to assess the quality of the reviews.
 
-### How many reviews did this paper receive?
+### How many reviews did this paper receive? {-}
 \hfill
 
 ```{r reviews.dist, echo = F, message = F, warning = F}
@@ -168,7 +144,7 @@ whereas only about
 `r pct(nrow(filter(survey, length == "1-2 Paragraphs")), sum(!is.na(survey$length)))`%
 of reviews were reported to be less than half a page.
 
-### How well did the reviewer understand the paper, in your estimation?
+### How well did the reviewer understand the paper, in your estimation? {-}
 \hfill
 
 ```{r understanding.dist, echo = F, message = F, warning = F}
@@ -191,7 +167,7 @@ In terms of paper history, the better-understood papers appear to have had a lon
 and in terms of months researched as well.
 It's conceivable that previous rejections have helped improve the communication of a resubmitted paper. 
 
-### How helpful did you find this review for improving the paper?
+### How helpful did you find this review for improving the paper? {-}
 \hfill
 
 ```{r helpfulness.dist, echo = F, message = F, warning = F}
@@ -205,7 +181,7 @@ which in turn also implies that it's closely linked to the review's length
 (`r report_chi(chisq.test(table(survey$helpfulness, survey$length)))`).
 This result is consistent with other surveys of journal authors [@editage18:perspectives; @sense19:peer].
 
-### How fair would you say the review was?
+### How fair would you say the review was? {-}
 \hfill
 
 ```{r fairness.dist, echo = F, message = F, warning = F}
@@ -218,7 +194,7 @@ Once more, the perception of a review's fairness is closely tied to that of its 
 and helpfulness
 (`r report_chi(chisq.test(table(survey$fairness, survey$helpfulness)))`).
 
-## Review Scores
+## Review Scores {-}
 
 We've asked respondents to upload their reviews' text, or alternately to fill in the actual grades they received in the reviews of up to six reviews per paper and in seven different categories, when applicable. All grades were then normalized, so that the lowest grade in a category always received 0 and the highest always 1. The transcription of reviews, scaling, and calibration process are error-prone, introducing some noise to these responses. The distributions of these normalized scores are depicted in Fig. \@ref(fig:review-grades).
 
@@ -240,5 +216,5 @@ survey_with_confs %>%
          ylab("Normalized grade") 
 ```
 
-It's not surprising that all papers average above 50% for all grades---after all, they've been accepted [@vines11:cointoss]. The inter-quartile range for the overall grade is 0.5-0.75, meaning that half the papers got accepted with an overall recommendation somewhere between "weak accept" and "accept". Perhaps more surprisingly, a good proportion of papers were accepted despite fairly low reviewer confidence. Another observation is that the "Relevance" grade appears mostly irrelevant, both because of its narrow distribution, and because of the low number of conferences that ask for it. It is plausible that an out-of-scope paper would simply get a "reject" overall recommendation, instead of specifying its relevance.
+It's not surprising that all papers average above 50% for all grades---after all, they've been accepted. The inter-quartile range for the overall grade is 0.5-0.75, meaning that half the papers got accepted with an overall recommendation somewhere between "weak accept" and "accept". Perhaps more surprisingly, a good proportion of papers were accepted despite fairly low reviewer confidence. Another observation is that the "Relevance" grade appears mostly irrelevant, both because of its narrow distribution, and because of the low number of conferences that ask for it. It is plausible that an out-of-scope paper would simply get a "reject" overall recommendation, instead of specifying its relevance.
 

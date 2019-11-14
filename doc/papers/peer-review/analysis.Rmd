@@ -1,8 +1,8 @@
-# Analysis {#sec:analysis}
+# Analysis {-}
 
 In this section we address four higher-level questions that arise from our data.
 
-## Gender Differences
+## Gender Differences {-}
 
 Women represent only about 20--30% of CS researchers overall [@wang19:trends]. In our data, the percentage is about half that, with only
 `r pct(nrow(filter(demographics, mapped_gender == "F")), nrow(filter(demographics, !is.na(mapped_gender))))`%
@@ -43,9 +43,9 @@ Note, however, that review quality and prior submissions are strongly associated
 In summary, our data does not reveal statistical gender differences in the review process, and in particular it does not help to explain the large gender gap in Systems. Addressing this problem may require focusing our attention elsewhere.
 
 
-## English Proficiency
+## English Proficiency {-}
 
-Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing]. How does the author experience vary based on this factor?
+Another aspect of diversity in scientific publication is English-level proficiency [@murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@editage18:perspectives]. How does the author experience vary based on this factor?
 
 At least in our dataset, the answer appears to be "not much". From an objective grading perspective, all but one of the review categories exhibit very similar distributions, both for teams with native English speakers and for teams with none. These categories include the presentation grade
 (`r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_present, filter(survey_with_confs, any_english == T)$gr_present))`),
@@ -64,12 +64,12 @@ non-native teams in the better-understood reviews. The overall rate of non-nativ
 `r pct(nrow(filter(survey_with_confs, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%,
 so clearly most of them did not feel misunderstood.
 
-We can also attempt to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We don't know who reviewed whose paper, or even the reviewer's native language or nationality. But we can try to estimate it by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. It turns out that this metric has no significant association with the reported understanding level of the reviews for the conference, which could merely be a reflection on the shortcomings of this statistic.
+We also attempted to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We first guessed the country of residence of reviewers by looking at their email affiliation, and looked up whether this country includes English as one of its official languages. We then looked at the conference PC overall demographics, and assigned each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. PCs ranged from 91% English speakers (SOCC) to 24% (EuroPar), and averaged `r pct(mean(english_pcs$pct_english), 1, 1)`%. It turns out that this metric has no significant association with the reported understanding level of the reviews for the conference, which could merely be a reflection on the shortcomings of this statistic.
 
-These negative results could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
+These negative results could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully, and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
 
 
-## Double-Blind Reviewing {#subsec:double-blind}
+## Double-Blind Reviewing {-}
 
 Many author factors do not appear to significantly interact with double-blindness, such as: the gender, position, and research experience (based on H-index).
 In terms of review scores, there do not appear to be large differences in the mean and median grades, but the distribution of grades in double-blind reviews appears wider for some categories, especially technical merit.
@@ -86,7 +86,7 @@ and produce more reviews
 (`r report_t(t.test(table(survey_with_confs$double_blind, survey_with_confs$reviews)), 2)`)
 of longer length
 (`r report_chi(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$length)))`),
-which in turn are deemed more helpful, fair, and understanding by authors (Sec. \@ref(subsec:quality)).
+which in turn are deemed more helpful, fair, and understanding by author.
 
 
 We doubt that double-blinding adequately explains all these phenomena [@godlee98:peer; @mcnutt90:blinding]. Instead, we propose a third variable: the reputation or prestige of a conference. Prestige may be too abstract to measure accurately, but we did collect two proxy conference metrics: the acceptance rate and H5-index (as measured by GS).
@@ -107,7 +107,7 @@ or higher than 0.3
 Fig. \@ref(fig:acceptance-vs-length) depicts the relationships between these three variables.
 
 
-Some studies found that a double-blind peer-review process can improve women's representation among authors [@budden08:double; @eaton19:gender; @lloyd90:gender; @wenneras01:nepotism], whereas other studies disagree [@ceci11:understanding; @lee13:bias; @ware08:peer]. Our own data does not show a significant difference in women's representation
+Some studies found that a double-blind peer-review process can improve women's representation among authors [@budden08:double; @eaton19:gender; @lloyd90:gender], whereas other studies disagree [@ceci11:understanding; @lee13:bias; @ware08:peer]. Our own data does not show a significant difference in women's representation
 (`r report_chi(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$mapped_gender)))`).
 
 ```{r acceptance-vs-length, echo = F, message = F, warning = F, out.width = '100%', fig.cap = "Conference acceptance rate and reported review length. Observe that double-blind conferences tend to be more competitive, and more competitive conferences tend to have longer reviews."}
@@ -147,7 +147,7 @@ survey_with_confs %>%
 #    coord_flip()
 ```
 
-## Effect of Rebuttals {#subsec:rebuttal-analysis}
+## Effect of Rebuttals {-}
 
 Many conferences do not employ a formal rebuttal process. And yet most
 (`r pct(nrow(yes_rebut_help), nrow(yes_rebut_help) + nrow(no_rebut_help), 0)`%)
@@ -185,6 +185,5 @@ but the relationship appears counter-intuitive: the mean presentation grade give
 `r round(100 * mean(filter(survey, rebuttal_helpful == T)$gr_present, na.rm = T), 0)`%, compared to
 `r round(100 * mean(filter(survey, rebuttal_helpful == F)$gr_present, na.rm = T), 0)`% among the dissatisfied authors.
 
-<!---In 9 papers, different respondents responded had conflicting views on the helpfulness of the rebuttal, but these conflicts do not show any clear relationship to gender or position.--->
 Rebuttal helpfulness does appear to be related to the conference. When limiting ourselves to the eleven conferences that had a formal rebuttal process and at least ten unique authors responding to this question, three conferences had higher than average dissatisfaction rate with the rebuttal process: ASPLOS, ISC, and SOSP. Conversely, in four conferences, no more than 8% of respondents were dissatisfied with the rebuttals: MICRO, PPoPP, SC, and PLDI.
 

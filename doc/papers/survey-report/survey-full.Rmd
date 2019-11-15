@@ -54,8 +54,9 @@ conf_counts <- survey %>%
   rbind(data.frame(conf = "HotI", Response = 0))
 
 data.frame(Name = gsub("_\\d\\d", "", as.character(all_confs$key)),
-                       Commencement = all_confs$postdate,
-                       URL = all_confs$url, Papers = all_confs$npapers)  %>%
+           Commencement = all_confs$postdate,
+           URL = all_confs$url,
+           Papers = all_confs$npapers)  %>%
     left_join(conf_counts, by = c("Name" = "conf")) %>%
     mutate(Response = pct(Response, Papers, 0)) %>%
     arrange(Name) %>%

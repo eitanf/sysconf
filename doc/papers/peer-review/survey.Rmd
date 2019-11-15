@@ -1,6 +1,6 @@
 # Author survey results {#sec:survey}
 
-We designed the survey to address questions of bias and diversity in peer review. This section details its questions, responses, and initial interpretation.^[Most data, source code, and additional survey analysis, will be made available upon publication.].
+We designed the survey to address questions of bias and diversity in peer review. This section details its questions, responses, and initial interpretation.^[Most data, source code, and additional survey analysis, will be made available upon publication.]
 We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about the review process, repeated for up to three distinct papers from our data set. Non-responses to a question were marked by NA and excluded from analyses.
 
 Of the `r nrow(unique(survey$paper_id))` papers,
@@ -92,9 +92,8 @@ knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r") %>% kable_styl
 It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. 
 Authors were also asked to type in the names of the venues they had previously submitted to. We note that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, which can be interpreted both positively and negatively. Some authors expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. On the other hand, other authors expressed that an effective peer review process provides feedback that improves the paper for the next submission. These mixed opinions, combined with the resubmission history of so many papers, suggests that selection bias in this survey played a lesser role in deciding authors' experience one way or another.
 
-<!--
 \hfill\break
-__Please type in their names__
+### Please type in their names
 
 Because of the unstructured responses to this question, quantitative analysis is challenging. As a case study, we looked  only at computer architecture, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. we noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. This table shows in each cell how many papers were rejected from that row's conference prior to acceptance in that column's conference.
 
@@ -111,8 +110,8 @@ priors <- data.frame(
 priors <- t(priors)
 #rownames(priors)[1] <- "Previous"
 #rownames(priors)[7] <- "Acceptance rate"
-knitr::kable(priors, booktabs = T,  align = rep('r', 7))
-#             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference. The total rejections per conference row is self-reported by authors, and includes conferences outside these four. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers in 2017.")
+knitr::kable(priors, booktabs = T,  align = rep('r', 7),
+             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference. The total rejections per conference row is self-reported by authors, and includes conferences outside these four. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers in 2017.")
 ```
 
 The fact that these relationships work both ways, i.e., that several papers were accepted after previously being rejected from equivalent (or even the very same) conferences, can be interpreted both positively and negatively. Some authors expressed frustration that there the peer review process can appear arbitrary [@francois15:arbit]. On the other hand, an effective peer review process provides feedback that improves the paper for the next submission, as expressed by other authors.

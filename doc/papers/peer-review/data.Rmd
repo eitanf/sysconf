@@ -1,6 +1,10 @@
 # Methodology and Data {#sec:data}
 
-In addition to the main survey, described in the next section, we collected data from various external sources to complement and corroborate the survey findings, starting with the conferences themselves. We selected `r nrow(all_confs)` conferences from the Systems and related areas. These peer-reviewed conferences include some of the most prestigious in the field, as well as others for comparison. They vary in scope and in size (from 7 to 151 papers), but all are rigorously peer-reviewed and all are from 2017.^[The conferences in our set are known by these short names:
+In addition to the main survey, described in the next section, we collected data from various external sources to complement and corroborate the survey findings, starting with the conferences themselves. We selected `r nrow(all_confs)` conferences from the Systems and related areas. These peer-reviewed conferences include some of the most prestigious in the field, as well as others for comparison. They vary in scope and in size (from 7 to 151 papers), but all are rigorously peer-reviewed and all are from 2017. The complete list of conferences is given in Table \@ref(tab:sys-confs).
+
+
+<!---
+^[The conferences in our set are known by these short names:
 ASPLOS,
 ATC,
 CCGrid,
@@ -57,6 +61,7 @@ SP,
 SPAA,
 SYSTOR,
 and VEE.]
+-->
 
 For each conference we collected data from the Web and program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers. We also collected historical metrics from the IEEE, ACM, and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers. From the conference and paper text, we compiled the complete list of authors for all `r nrow(all_confs)` conferences (a total of `r nrow(authors)` unique persons), as well as their email addresses. These addresses not only served for the survey's distribution, but also to infer an author's affiliation, sector, and country of residence. If an email address was not shown in the paper, we attempted to infer authors' affiliation from their GS profile, when uniquely identifiable. These profiles also provide indirect metrics on author's research experience, such as their H-index [@hirsch05:index]. Finally, we also manually verified the gender of `r pct(nrow(filter(authors, !is.na(gender))), nrow(authors))`% of authors, by looking up their photos and pronouns on the web.^[We recognize that gender is a complex, non-binary identity that cannot be captured adequately by just photos or pronouns. However, the focus of this study is on perceived gender, not self-identification, which is often judged by the same simplistic criteria as photos and pronouns.]
 
@@ -64,3 +69,28 @@ For each conference we collected data from the Web and program committee (PC) ch
 ## Limitations {-}
 
 Our methodology involves several limitations and tradeoffs that we address throughout the paper. First, by focusing only on Systems, we may be limiting the applicability of our findings to this subfield. By focusing on a single year, we cannot report trends. These choices were deliberate, so as to eliminate extraneous variability in our data. Our survey is also subject to survivorship bias (by polling only authors of accepted papers, since we have no information on all submitted papers) and selection bias (representing only authors who responded to the survey and/or each question). As Sec. \@ref(sec:survey) details, we believe the effect of either bias is benign (see also [@daume15:naacl; @papagiannaki07:author]). Finally, the effort involved in compiling all the data in the preparation for the survey took nearly a year, by which time some authors had difficulty recalling some details, and generally lead to fewer responses.
+
+```{r sys-confs, echo=F, message=F, warning=F, cache=T}
+conf_counts <- survey %>%
+  group_by(paper_id, conf) %>%
+  summarize(n = n()) %>%
+  group_by(conf) %>%
+  summarize(Response = n()) %>%
+  rbind(data.frame(conf = "HotI", Response = 0))
+
+tmp <- data.frame(Name = gsub("_\\d\\d", "", as.character(all_confs$key)),
+           Start = all_confs$postdate,
+           Papers = all_confs$npapers)  %>%
+    left_join(conf_counts, by = c("Name" = "conf")) %>%
+    mutate(Response = pct(Response, Papers, 0)) %>%
+    arrange(Name) %>%
+#    arrange(desc(Response)) %>%
+    mutate(Response = paste0(as.character(Response), "%"))
+
+df <- cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),])
+
+df %>%
+    knitr::kable(format = "latex", longtable = T, booktabs = T, align = c('l', 'c', 'r', 'r', 'l', 'c', 'r', 'r'),
+                 caption = "Conferences in our dataset with their start date, number of accepted papers, and survey response rate by papers", escape = T) %>%
+    kable_styling(latex_options = c("scale_down", "repeat_header"), font_size = 7, position = "center")
+```

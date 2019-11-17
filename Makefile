@@ -5,12 +5,12 @@ SYSCONF_HOME=$(shell pwd)
 
 export
 
-.PHONY: all features doc
+.PHONY: all features pubs
 
-all: features doc
+all: features pubs
 
 features:
 	${MAKE} -C features
 
-doc: features
-	${MAKE} -C doc
+pubs: features
+	${MAKE} -C pubs

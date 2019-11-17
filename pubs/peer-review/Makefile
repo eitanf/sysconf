@@ -1,3 +1,9 @@
+ifndef SYSCONF_HOME
+$(error SYSCONF_HOME environment variable is not set)
+endif
+
+export
+
 all: peer-review.pdf
 
 debug: clean

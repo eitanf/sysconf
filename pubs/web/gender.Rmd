@@ -4,7 +4,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r code = readLines("load_data.R"), echo = F, cache = F, message = F}
+```{r code = readLines("../load_data.R"), echo = F, cache = F, message = F}
 ```
 
 
@@ -87,7 +87,7 @@ We therefore looked at five conference roles in addition to authors for this ana
 
 Our approach of manual verification reduces the bias inherent in some languages, such as Chinese 
 
-```{r child='../data/verified_gender_mapping.md'}
+```{r child='../../data/verified_gender_mapping.md'}
 ```
 
 
@@ -259,7 +259,7 @@ persons %>%
   ungroup() %>%
   ggplot(aes(x = as.factor(as_pc), y = as_author, fill = gender)) +
     geom_boxplot() +
-    scale_fill_manual(values = c("#C7715F", "#C4AE5E")) +
+    scale_fill_manual(values = c("#C7715F", "#C4AE5E", "000000")) +
     xlab("Number of program committee memberships") +
     ylab("Number of papers authored") +
     theme(legend.position = "bottom") +

@@ -3,7 +3,7 @@ title: "Statistical Observations of Systems Papers"
 author: "Eitan Frachtenberg"
 date: "`r Sys.Date()`"
 csl: acm-sig-proceedings-long-author-list.csl
-bibliography: sysconf.bib
+bibliography: "../sysconf.bib"
 documentclass: book
 github-repo: eitanf/sysconf
 link-citations: yes
@@ -39,7 +39,7 @@ TBD: brief description of the content of chapters?
 
 In this study we’ll be focusing almost exclusively on a single field of study, *computer systems*. Computer Systems (aka ‘*Systems*’) is the field that deals, in a nutshell, with building programs that use a lot of resources and profiling that resource usage. Computer systems is a large and rapidly evolving field in computer science. This field stands out from other areas of computer science in some key characteristics. It emphasizes scientific exploration through system implementation, and combines a unique blend of mathematical rigor, simulation science, and technical engineering. 
 
-Systems work includes building operating systems, computer architectures, databases, parallel and distributed computing, and networking among others. It is a highly practical field, focused on implementation and understanding what kinds of usage a system will be able to handle. As Craig Partridge writes [@partridge:accepted]:
+Systems work includes building operating systems, computer architectures, databases, parallel and distributed computing, and networking among others. It is a highly practical field, focused on implementation and understanding what kinds of usage a system will be able to handle. As Craig Partridge writes [@partridge98:increase]:
 
 > "The classic systems paper presents an implementation or planned implementation. The implementation can be in software or hardware or both. The implementation's contribution is usually that it either achieves some new function, never before achieved, or it realizes an existing function more efficiently or effectively than previously."
 
@@ -70,7 +70,7 @@ The description file details the field descriptions and types, as well as the so
 The R analysis code embedded in this document ran with the following R session information:
 
 ```{r echo=F, warning=F}
-source('dependencies.R')
+source('../dependencies.R')
 sessionInfo(package = dependencies)
 ```
 

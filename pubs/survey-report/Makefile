@@ -1,3 +1,9 @@
+ifndef SYSCONF_HOME
+$(error SYSCONF_HOME environment variable is not set)
+endif
+
+export
+
 all: survey-full.html
 
 survey-full.html: survey-full.Rmd

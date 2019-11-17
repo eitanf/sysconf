@@ -4,7 +4,7 @@ output:
   html_document: default
 ---
 
-```{r code = readLines("load_data.R"), echo = F, cache = F, message=FALSE}
+```{r code = readLines("../load_data.R"), echo = F, cache = F, message=FALSE}
 ```
 
 ```{r include=FALSE}
@@ -66,7 +66,7 @@ Table: (\#tab:other-confs) Non-systems conferences used for this data set.
 Each conference is described in its own data file. Most of the data was manually retrieved from the conference web sites (from the URLs in the previous tables)). Some information was personally requested from the TPC chair or obtained as described in the specific field's description. Additionally, all the papers in the collection were downloaded in PDF format via open access or through digital libraries ^[The PDF versions of the papers are excluded from the accompanying data set because of size and copyright constraints.]. The manual assignment of topics and content tags to papers, as described below, was accomplished by reviewing each of these papers.
 
 
-```{r child='../data/conf/README.md'}
+```{r child='../../data/conf/README.md'}
 ```
 
 ### Paper labels
@@ -112,7 +112,7 @@ knitr::kable(content_tags,
 
 Each person among a conference's authors and PC members was looked up on Google Scholar and recorded near the time of publication (the postdate).
 
-```{r child='../data/authors/README.md'}
+```{r child='../../data/authors/README.md'}
 ```
 
 Obtaining this data from Google Scholar presented several challenges:
@@ -138,7 +138,7 @@ In addition to the static paper data in the conference file, the following data 
 
 ## Geographical data
 
-```{r child='../data/geo/README.md'}
+```{r child='../../data/geo/README.md'}
 ```
 
 ## Challenges

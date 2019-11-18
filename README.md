@@ -7,7 +7,7 @@ subdirectory holds its own README.md file to describe the files in it.
 ## Quick start
 
 If you just want to try to recreate the processed data files and reports,
-use `cd doc; make prereq; cd ..; make`. More details are below.
+use `cd pubs; make prereq; cd ..; make`. More details are below.
 
 ## Directory description
 
@@ -22,8 +22,7 @@ There's a Makefile to recompute the feature files from data/ if necessary.
 file.
  * `src/`: The source code files to help collect raw data and convert it into 
 tidy featues.
- * `doc/`: R-markdown files (`*.Rmd`) containing the statistical analysis 
-source code and analsys description text. There's a Makefile to recreate the report.
+ * `pubs/`: Parent directory for all publications on this data. The statistical analyses and resulting output documents can be reproduced with the Makefile.
 
 ## Data addition workflow
 

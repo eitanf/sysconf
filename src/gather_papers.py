@@ -68,7 +68,7 @@ def add_gs_features(key, record, post):
     for date,cites in record['citedby'].items():
         tidy_cites.start_record()
         tidy_cites.add("key", "string", key, "Paper ID")
-        tidy_cites.add("date", "date", date, "Dated this citation count was collected")
+        tidy_cites.add("months", "int", month_diff(date, post), "Months since publiucation")
         tidy_cites.add("citations", "int", cites, "Total citations for this paper on this date")
 
 

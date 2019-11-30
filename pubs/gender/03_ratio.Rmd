@@ -37,9 +37,21 @@ gender_table <- data.frame(female = c(nrow(filter(people_tidy, gender == "F", ro
                         row.names = c("authors", "PC members"))
 ```
 
-Table \@ref(tab:pct-by-role) summarizes gender ratios in our data set. The main observation we make is that women's representation among systems authors is particularly low, at about half or less than the rest of CS (Sec. \@ref(sec:intro)). The ratio of female authors is also significantly lower than the ratio of female PC members (`r report_chi(chisq.test(gender_table))`). It is not immediately clear why either difference should be so extreme, but we offer an in-depth exploration of these questions in Sec. \@ref(sec:discussion). The rest of the service roles also appear clustered in the range of 16%--20% women (with some higher variability for these smaller groups). The people in these roles are all selected by a small set of conference organizers, as opposed to authors who undergo blind peer review and compete for often low acceptance rates (averaging `r round(100 * mean(all_confs$acceptance_rate, na.rm = T), 1)`% in our data set). The selection criteria for service roles can vary from conference to conference, and we discuss this variance in Sec. \@ref(sec:policies). For the rest of this section, however, we will focus on the two largest roles, who also most influence the research: the authors who produce it and the PC members who vet it.
+Table \@ref(tab:pct-by-role) summarizes gender ratios in our dataset. The main observation we make is that women's representation among systems authors is particularly low, at about half or less than the rest of CS (Sec. \@ref(sec:intro)). The ratio of female authors is also significantly lower than the ratio of female PC members
+(`r report_chi(chisq.test(gender_table))`).
+It is not immediately clear why either difference should be so extreme, but we offer an in-depth exploration of these questions in Sec. \@ref(sec:discussion). The rest of the service roles also appear clustered in the range of 16%--20% women (with some higher variability for these smaller groups). The people in these roles are all selected by a small set of conference organizers, as opposed to authors who undergo blind peer review and compete for often low acceptance rates (averaging
+`r round(100 * mean(all_confs$acceptance_rate, na.rm = T), 1)`%
+in our dataset). The selection criteria for service roles can vary from conference to conference, and we discuss this variance in Sec. \@ref(sec:policies). For the rest of this section, however, we will focus on the two largest roles, who also most influence the research: the authors who produce it and the PC members who vet it.
 
-A certain person can appear more than once in any given role. For example, `r pct(nrow(filter(authors, as_author > 1)), nrow(authors), 2)`% of authors are named in more than one paper. Counting authors one per paper or once per person could make a difference in the percentage of women if roles repeat differently across genders. We therefore computed the percentage of women across all roles with and without repetition, and found them to be very similar in our data set. We also looked at authorship outliers, since these do vary significantly by gender [@huang19:historical]. For example, all `r nrow(filter(authors, as_author > 7))` authors with more than 7 papers in our data set are men, and only `r nrow(filter(authors, as_author > 4, gender=="F"))` of the `r nrow(filter(authors, as_author > 4))` authors with more than 4 papers are women. But the total number of these outliers is small enough that removing them from our data set would change women's representation by less than a percentage point. The effect of outliers on PC female representation is similarly small. We will therefore use the complete data set of persons for the rest of this study (with repeats, unless otherwise noted).
+A certain person can appear more than once in any given role. For example,
+`r pct(nrow(filter(authors, as_author > 1)), nrow(authors), 2)`%
+of authors are named in more than one paper. Counting authors one per paper or once per person could make a difference in the percentage of women if roles repeat differently across genders. We therefore computed the percentage of women across all roles with and without repetition, and found them to be very similar in our dataset. We also looked at authorship outliers, since these do vary significantly by gender [@huang19:historical]. For example, all
+`r nrow(filter(authors, as_author > 7))`
+authors with more than 7 papers in our dataset are men, and only
+`r nrow(filter(authors, as_author > 4, gender=="F"))`
+of the
+`r nrow(filter(authors, as_author > 4))`
+authors with more than 4 papers are women. But the total number of these outliers is small enough that removing them from our dataset would change women's representation by less than a percentage point. The effect of outliers on PC female representation is similarly small. We will therefore use the complete dataset of persons for the rest of this study (with repeats, unless otherwise noted).
 
 Summarizing the distribution of women across roles with a single percentage can still hide significant variance. To better understand the distribution, we begin our exploration of sources of variance at the conference level.
 
@@ -88,7 +100,13 @@ ggdraw(p2)
 ```
 
 
-Interestingly, this data suggests no correlation between the female author ratio and conference size (`r report_cor(cor.test(data$author, data$npapers))`) or ratio of women in the PC (`r report_cor(cor.test(data$author, data$PC))`). In fact, the ratio of women is not significantly correlated between any two roles, except between session chairs and PC members (`r report_cor(cor.test(data$session, data$PC))`), perhaps because the former group are typically selected from the latter group. We also looked at various conference policies such as diversity initiatives or double-blind reviews (Sec. \@ref(sec:policies)), but found no correlation to the ratio of female authors.
+Interestingly, this data suggests no correlation between the female author ratio and conference size
+(`r report_cor(cor.test(data$author, data$npapers))`)
+or ratio of women in the PC
+(`r report_cor(cor.test(data$author, data$PC))`).
+In fact, the ratio of women is not significantly correlated between any two roles, except between session chairs and PC members
+(`r report_cor(cor.test(data$session, data$PC))`),
+perhaps because the former group are typically selected from the latter group. We also looked at various conference policies such as diversity initiatives or double-blind reviews (Sec. \@ref(sec:policies)), but found no correlation to the ratio of female authors.
 
 Since variance in female representation across conferences cannot be explained by conference size, policy, or representation in service roles, we next look at the topic, or systems sub-field, of each conference. 
 
@@ -104,7 +122,7 @@ TODO:
 
 Compare (across all roles) to a case study of architecture: https://www.sigarch.org/gender-diversity-in-computer-architecture/
 
-Topics may be the most important differentiator among conferences, because they represent different research communities with different gender characteristics, But they are also harder to define precisely. Additionally, conferences and even papers cannot always be easily delineated among topics, and there is a large degree of interdependence among topics. (In our systems data set, nearly all conferences cite each other or their authors collaborate across all conferences, even if their research topics are distinct.)
+Topics may be the most important differentiator among conferences, because they represent different research communities with different gender characteristics, But they are also harder to define precisely. Additionally, conferences and even papers cannot always be easily delineated among topics, and there is a large degree of interdependence among topics. (In our systems dataset, nearly all conferences cite each other or their authors collaborate across all conferences, even if their research topics are distinct.)
 
 Just like the gender representation statistics in the systems field can be starkly different than the rest of CS, so can be the different sub-fields within systems. To examine this variance, we skimmed every paper in our collection and tagged each with zero or more sub-field categories. We selected `r nrow(content_tags)` categories based on our experience in the field. Like the systems super-topic, the definition and scope of each sub-topic can be imprecise and controversial, as is the assignment of subtopics to each paper. We use this subjective method nevertheless as an approximation tool to better understand the trends in the field, rather than its precise statistics. A listing and brief explanation of the topics we selected can be found in Appendix B.
 
@@ -132,9 +150,9 @@ gender_by_topic %>%
     ylab("Count and women's percentage") +
     xlab("Topic") +
     theme(legend.position = "bottom")
-
-
 ```
 
-Fig. \@ref(fig:women-rep-by-paper-topic) shows the gender breakdown by topic. Although the sizes of the different interest groups vary by over 500%, the variance in women's relative representation is confined to a smaller range. It is nevertheless statistically significant around the extremes, such as between Data and Architecture (`r report_chi(chisq.test(data.frame(os = filter(gender_by_topic, topic == "Data")$Count, net = filter(gender_by_topic, topic == "Architecture")$Count)))`). Keeping in mind that the definitions of these topics are somewhat imprecise and fluid, we can nevertheless try to generalize these differences by observing that the top-5 group ("Benchmark" through "Data") appears to concentrate more on software and users, whereas the bottom-10 group appears to concentrate more on hardware and machines. We will touch more on this distinction in Sec. \@ref(sec:discussion).
+Fig. \@ref(fig:women-rep-by-paper-topic) shows the gender breakdown by topic. Although the sizes of the different interest groups vary by over 500%, the variance in women's relative representation is confined to a smaller range. It is nevertheless statistically significant around the extremes, such as between Data and Architecture 
+(`r report_chi(chisq.test(data.frame(os = filter(gender_by_topic, topic == "Data")$Count, net = filter(gender_by_topic, topic == "Architecture")$Count)))`).
+Keeping in mind that the definitions of these topics are somewhat imprecise and fluid, we can nevertheless try to generalize these differences by observing that the top-5 group ("Benchmark" through "Data") appears to concentrate more on software and users, whereas the bottom-10 group appears to concentrate more on hardware and machines. We will touch more on this distinction in Sec. \@ref(sec:discussion).
 

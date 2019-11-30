@@ -10,6 +10,7 @@ List of completed and ongoing publications:
 
   * `gender`: "Gender Representation in Computer Systems" (article).
   * `peer-review`: "Peer Review Effects in Computer Systems Conferences" (article).
+  * `survey-report`: A description of  distributions of survey responses (online report, http://sysconf.review/survey).
   * `web`: "Statistical Observations on Computer Systems Conferences" (online report).
   * `whpc-stats`: "State of the Stats: Women's Representation in HPC Conferences" (paper).
 

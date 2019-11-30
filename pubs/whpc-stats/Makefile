@@ -6,9 +6,9 @@ export
 
 all: stats.pdf
 
-stats.pdf: $(wildcard *.Rmd) Makefile
-	$(R) -e 'library(bookdown); bookdown::render_book("stats.Rmd", "rticles::ieee_article")'
-	mv _main.pdf $@
+stats.pdf: $(wildcard *.Rmd) Makefile ../sysconf.bib
+	$(R) -e 'library(bookdown); bookdown::render_book("stats.Rmd", "bookdown::pdf_book")'
+	mv _book/_main.pdf $@
 
 clean:
 	$(R) -e 'bookdown::clean_book(clean = T)'

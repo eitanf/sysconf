@@ -62,6 +62,9 @@ knowledge_confs <- filter(all_confs, field=="Knowledge")
 papers <- read.csv(paste0(toplevel, "features/papers.csv"), na.strings = "",
                    colClasses = c("factor", "integer", "logical", "integer", "integer", "logical", "logical", "integer", "integer", "character"))
 
+citations <- read.csv(paste0(toplevel, "features/citations.csv"), na.strings = "",
+                      colClasses = c("factor", "integer", "integer"))
+
 #### topics:
 topic_tags <- read.csv(paste0(toplevel, "data/topics.csv"), colClasses = c("factor", "character", "character", "character"), na.strings = "")
 row.names(topic_tags) <- topic_tags$tag

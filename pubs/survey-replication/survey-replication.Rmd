@@ -1,0 +1,57 @@
+---
+title: Template for preparing your research report submission to PeerJ using RMarkdown
+preprint: false
+author: 
+  - name: Barbara McClintock
+    affiliation: 1
+    corresponding: true
+    email: mcclintockb@cshl.edu
+  - name: Charles E. Darwin
+    affiliation: 2
+affiliation:
+  - code: 1
+    address: Cold Spring Harbor Laboratory, One Bungtown Road Cold Spring Harbor, NY 11724
+  - code: 2
+    address: Down House, Luxted Rd, Downe, Orpington BR6 7JT, UK
+abstract: "`r readLines('abstract.txt')`"
+header-includes: >
+  \usepackage{lipsum}
+bibliography: ../sysconf.bib
+output:
+  bookdown::pdf_book:
+    base_format: rticles::peerj_article # for using bookdown features like \@ref()
+  rticles::peerj_article: default
+---
+
+```{r code = readLines("../load_data.R"), echo = F, message = F}
+```
+
+
+```{r setup-survey, echo=F, message=F, warning=F, cache=F}
+library('tidyverse')
+library('reshape2')
+library('stringr')
+library('kableExtra')
+
+survey <- read_csv(paste0(toplevel, "/survey/survey-tidy.csv"), col_types = c("-cccffflfffillllfffffnnnnnnn"))
+survey$length = factor(survey$length, levels = c("1-2 Paragraphs", "Half a Page", "A Page", "Multiple Pages"))
+survey$understanding = factor(survey$understanding, levels = c("Perfectly", "Missed some minor points", "Misunderstood major points", "Probably didn't read it"))
+survey$helpfulness = factor(survey$helpfulness, levels = c("Very helpful", "Somewhat helpful", "Not at all"))
+survey$fairness = factor(survey$fairness, levels = c("Fair", "Somewhat fair", "Unfair", "Very unfair"))
+survey$position = factor(survey$position, levels = c("Government Researcher", "Industry Researcher", "Professor", "Associate Professor", "Assistant Professor", "Postdoctoral Researcher", "Student", "Other"))
+survey$months_research = factor(survey$months_research, levels = c("1-3", "4-6", "7-9", "10-12", ">12"))
+survey$reviews = factor(survey$reviews, levels = c("0", "1", "2", "3", "4", "5", "6+"))
+
+# Remove responses with irreconcilable conflicts between different authors:
+survey <- filter(survey, !response_id %in% c("R_3MbTlW5LmB1KdWV", "R_2pMEwlMUYFK1SYU", "R_2aD0UkJpKRx3E8B", "R_1GWkXIEN7qs4bm6", "R_1ezO6KnFkTiQ7HK", "R_24Nmp0HRk2NWRBT", "R_ABboqawDWihgkMx", "R_0Js4J4xtiVyE6at", "R_2xwRf0e0ekfjozd", "R_wQPB6YJOe7mwHjr"))
+
+raw_survey <- read_csv(paste0(toplevel, "/survey/final_responses.csv"))
+all_authors <- read_csv(paste0(toplevel, "/survey/authors-for-survey-without-bounced-emails.csv"))
+demographics <- survey %>%
+  group_by(response_id) %>%
+  summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
+
+demographics <- survey %>%
+  group_by(response_id) %>%
+  summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
+```

@@ -81,6 +81,8 @@ def add_paper_record(key, record):
     authors = [ normalized_author_name(author_name(p)[0]) for p in record['authors'] ]
     tidy_papers.add("alphabetized", "bool", authors == sorted(authors) and len(authors) > 1,
             "Whether author list sorted in alphabetical order for multi-author papers")
+    tidy_papers.add("award", "bool", "award" in record and record["award"],
+            "Award-winning (best paper, best student paper, etc.)")
 
     if 'topics' in record:
         for topic in record['topics']:

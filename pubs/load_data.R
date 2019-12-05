@@ -60,7 +60,7 @@ knowledge_confs <- filter(all_confs, field=="Knowledge")
 
 #### Paper data
 papers <- read.csv(paste0(toplevel, "features/papers.csv"), na.strings = "",
-                   colClasses = c("factor", "integer", "logical", "integer", "integer", "logical", "logical", "integer", "integer", "character"))
+                   colClasses = c("factor", "integer", "logical", "logical", "integer", "integer", "logical", "logical", "integer", "integer", "character"))
 
 citations <- read.csv(paste0(toplevel, "features/citations.csv"), na.strings = "",
                       colClasses = c("factor", "integer", "integer"))

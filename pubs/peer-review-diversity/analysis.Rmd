@@ -45,7 +45,7 @@ In summary, our data does not reveal statistical gender differences in the revie
 
 ## English Proficiency
 
-Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing]. How does the author experience vary based on this factor?
+Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing; @flowerew01:attitudes]. How does the author experience vary based on this factor?
 
 At least in our dataset, the answer appears to be "not much". From an objective grading perspective, all but one of the review categories exhibit very similar distributions, both for teams with native English speakers and for teams with none. These categories include the presentation grade
 (`r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_present, filter(survey_with_confs, any_english == T)$gr_present))`),
@@ -66,7 +66,7 @@ so clearly most of them did not feel misunderstood.
 
 We can also attempt to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We don't know who reviewed whose paper, or even the reviewer's native language or nationality. But we can try to estimate it by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. It turns out that this metric has no significant association with the reported understanding level of the reviews for the conference, which could merely be a reflection on the shortcomings of this statistic.
 
-These negative results could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
+These negative results could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
 
 
 ## Double-Blind Reviewing {#subsec:double-blind}

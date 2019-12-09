@@ -247,16 +247,16 @@ Another explanation may be that these papers are ineed of higher perceived quali
 The second explanation seems more plausible when we consider review scores. To see this, we aggregated all the review scores we received for each paper across all papers and all review categories (not all reviews included all categories). The review grade distributions is shown in Fig. \@ref(fig:review-grades-award) for both award-winning and regular papers.
 
 ```{r review-grades-award, echo=F, message=F, warning=F, out.width = '100%', fig.cap = "Review grades distributions by category and award. Grades are normalized to the range [0:1]. Mean and median grades are represented by diamonds and bars, respectively. N represents the number of scores received in each category." }
-library(reshape2)
+cats = c("Overall", "Technical", "Presentation", "Impact", "Originality", "Relevance", "Confidence")
 survey_with_award %>%
   select(c("award", starts_with("gr_"))) %>%
   rename(Award = award, Overall = gr_overall, Technical = gr_technical, Presentation = gr_present, Impact = gr_impact, Originality = gr_originality, Relevance = gr_relevance, Confidence = gr_confidence) %>%
-  melt() %>%
-  rename(Category = variable, Grade = value) %>%
+  pivot_longer(cols = cats, names_to = "Category", values_to = "Grade") %>%
   filter(!is.na(Grade)) %>%
   group_by(Category, Award) %>%
   add_count() %>%
   ungroup() %>%
+  mutate(Category = factor(Category, levels = cats)) %>%
   ggplot(aes(x = Category, y = Grade, color = Category)) +
          geom_text(aes(y = 1.0, label = paste0("N=",n)), vjust = -0.5, size = 3) +
          geom_boxplot(notch = F) +
@@ -269,7 +269,7 @@ survey_with_award %>%
 
 As expected, award-winning papers score higher across all categories, and only the sparse "Relevance" category showed a weak statistical significance of $p>0.014$ using T-test (even though most reviews of award winning papers had a perfect relevance score). This is not a coincidence, as many conferences select, or at least screen for award papers based on review scores.
 
-On the other hand, the same figure fails to affirm the two remaining predictions, as it shows wider range bands for most categories in the reviews of award-winning papers, and nearly identical mean and median reviewer confidence grades regardless of award. That said, the lowest grades received by award winning papers are higher than those of regular papers for most categories. So perhaps the distinctive trait of award-winning papers, other than higher scores, is that they elicit few negative opinions, if any.
+On the other hand, the same figure fails to affirm the two remaining predictions. It shows wider range bands for most categories in the reviews of award-winning papers, partially explained by the smaller samples. It also shows nearly identical mean and median reviewer confidence grades, regardless of award. That said, the lowest grades received by award-winning papers are higher than those of regular papers for most categories. So perhaps the distinctive trait of award-winning papers, other than higher scores, is that they elicit few negative opinions, if any.
 
 
 __[MI.07]__ Relationship between english mastery and presentation scores/overall scores
@@ -293,3 +293,9 @@ __[MI.12]__ How to deal with publication bias?
   - http://www.nature.com/news/how-scientists-fool-themselves-and-how-they-can-stop-1.18517
   - http://www.nature.com/news/tool-for-detecting-publication-bias-goes-under-spotlight-1.21728
   - http://www.nature.com/news/replication-studies-bad-copy-1.10634
+  
+__[MI.13]__ Predicting citations from reviews
+Hypothesis: high review scores and paper citations both measure some paper quality, and should therefore be correlated
+Ignoring all other factors (some of which may be very useful, such as author metrics, conf metrics, paper topics, etc.)
+Outcome variable: time to first citation, 1y, 2y citations.
+Predictor variables: each review grade + award

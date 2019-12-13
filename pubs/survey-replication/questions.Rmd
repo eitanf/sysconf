@@ -196,11 +196,76 @@ __[CQ.11]__ Do conferences with strict data policies receive fewer submissions?
 ## Misc
 
 __[MI.01]__ Are students and professors responding to the same paper differently?
-  - [Search references]
+
+```{r student-prof-setup, echo=F, warning=F}
+survey_with_profs <- survey %>% 
+  filter(position %in% c("Student", "Professor", "Associate Professor", "Assistant Professor")) %>%
+  mutate(position = case_when(
+    position == "Student" ~ "Student", 
+    position == "Professor" ~ "Professor", 
+    position == "Assistant Professor" ~ "Professor", 
+    position == "Associate Professor" ~ "Professor"), understanding = as.numeric(understanding), fairness = as.numeric(fairness), helpfulness = as.numeric(helpfulness) )%>%
+  group_by(paper_id, position) %>%  #all reviews are averaged by professor or student
+  summarise_at(c("understanding", "helpfulness", "fairness"), funs(mean), na.rm = TRUE) %>%
+  drop_na(understanding) %>%
+  group_by(paper_id) %>%
+  filter(position %in% c("Student", "Professor"),  n() > 1) %>%
+  transmute(Understanding = understanding - lag(understanding), Helpfulness = helpfulness - lag(helpfulness), Fairness = fairness - lag(fairness)) %>%
+  drop_na(Understanding) 
+```
+Students often have a different perspective and experience in the research process, and it could be that students therefore have different ideas about the rebuttal process, including helpfulness, the grades of the reviewers and quite a few subjective measures we've asked of our authors. 
+
+Of the subjective measures we've asked of are helpfulness, fairness and understanding. Could it be that professors rate higher or at least respond differently in some respect then students in these measures for papers worked on with students? For our survey results, there was around 20 papers that met the criteria of having had review scores provided by both professor and student. We looked at these results and took the difference in review scores between students and professors, then graphed these differences on a boxplot. The graph is below:
+
+```{r student-prof-setup, echo=F, warning=F} 
+melted <- melt(as.data.frame(survey_with_profs))
+melted %>% ggplot(aes(x = variable, y = value, color = variable)) +
+    geom_boxplot(notch = F) +
+    stat_summary(fun.y=mean, geom="point", shape=23, size=4) +
+    theme(legend.position = "none") +
+    ylab("Deviation in Grades") +
+    xlab("Category")
+```
+
+Looking at these boxplots, we can see that in understanding and helpfulness, the results where fairly symetric, indicating that there was perhaps not much difference between the professors and students in these ratings. However, looking at the helpfulness boxplot, we can see that there is a skew towards the professors having less positive results then students in terms of the helpfulness of the reviews. However, the conversion between these factors and numeric variables is not exactly linear, so these results only point towards a trend. In order to verify these results it is necessary to run a chi-square test or another significance test. This skew also brings about another question, does the experience of an author change the ratings of helpfulness of paper reviews? In order to answer this question, it would be necessary to look at the hindex of the authors between each paper and do a chi-square test for those differences.
 
 __[MI.02]__ Do more senior authors have fewer rejections (look for either first author, survey respondend rank, or max GS metrics in authors)
-  - [Search references]
-  
+```{r student-senior-setup, echo=F, warning=F}
+#join survey data with h-index of author
+survey_with_hindex <- survey %>%
+  left_join(select(authors, c("name", "hindex")), by = c("name" = "name"))
+
+hindex_factr_levels <- c("novice", "mid-career", "veteran")
+#turn hindex into factor 
+survey_with_factor <- survey_with_hindex %>%
+  mutate(hindex_discr = case_when(
+    hindex > 18 ~ "veteran", 
+    hindex > 13 ~ "mid-career", 
+    hindex <= 12 ~ "novice", 
+    TRUE ~ "less then or equal to ten")) %>%
+  mutate(hindex_discr = factor(hindex_discr, levels = hindex_factr_levels))
+
+pct_ovr_18 <- pct( nrow(filter(survey_with_factor, hindex_discr =="veteran")),nrow(survey_with_factor))
+pct_under_12 <- pct( nrow(filter(survey_with_factor, hindex_discr == "novice")),nrow(survey_with_factor))
+#figure out correlation between these two and come up with small narrative, write small narratives and clean this data up and push it
+```
+
+Senior authors have more experience in the review process and consequently may have an easier time in getting there papers accepted, without rejections. In order to measure seniority, we use the hindex scores of the authors and join this dataset with our survey responses. Among those that responded, we can test for correlation between hindex and there prior submissions of the paper. 
+
+First to note, is that among our respondents, there was `r pct_ovr_18` percent of respondents with an h-index over 18, while there was `r pct_under_12` percent under 12 Therefore there is a much larger proption of authors with less experience in our survey responses. In order to measure the difference here we can do a correlation between hindex and the rejections for the authors. 
+
+```{r student-senior-setup, echo=F, warning=F}
+hindex_corr <- survey_with_hindex %>% #remove repeats
+  group_by(paper_id, name) %>%
+  mutate(hindex = hindex, prior_subs = first(prior_subs))
+rcorr(hindex_corr$hindex, hindex_corr$prior_subs)
+```
+Running this correlation, we can see that there is some correlation between the hindex and the rejection count, however it does not appear to be significant. However, if we do a chi-square test on experience against prior submissions, we get the following:
+```{r student-senior-setup, echo=F, warning=F}
+chisq.test(table(survey_with_factor$hindex_discr,survey_with_factor$prior_subs))
+```
+This indicates that may be some significant relation between these two variables, however further statistical tests are needed.
+
 __[MI.03]__ Distribution of "paper readiness" and relationship to author experience
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
   - https://www.nsf.gov/statistics/2018/nsb20181/assets/968/tables/tt05-18.pdf
@@ -279,14 +344,24 @@ __[MI.08]__ Compare "overall" average to confidence-weighted "overall" average
   - [Search references]
 
 __[MI.09]__ Correlation among different review scores. How correlated are all the grades? conversely, if one reviewer loves a paper and another hates it, can they disagree even on "presentation"?
-  - [Search references]
+
+In order to answer this question, we derive a correlation matrix between the review grades of various reviews, dropping na's in a pairwise Pearson correlation matrix calculation. The correlations are shown below: 
+```{r award-setup, echo=F, warning=F}
+survey_reviews <- survey %>%
+  select(gr_technical, gr_present, gr_impact, gr_originality, gr_relevance, gr_confidence)
+rev_corr <- cor(as.data.frame(survey_reviews), use="complete.obs")
+rev_corr
+```
+Looking at these correlations, we can see that they are all highly correlated to each other, the most significant correlation between technical grades and the impact grades. To visualize these correlations, we plot them in a correlogram, show below:
+`r corrplot(rev_corr, type="upper")`
+(Further research needed)
 
 __[MI.10]__ Produce initial stats like these:
   - https://publons.com/community/gspr
 
 __[MI.11]__ Explain negative correlation between prior_subs and gr_overall
   - [Search references]
-
+  
 __[MI.12]__ How to deal with publication bias?
   - https://www.nature.com/articles/s41562-016-0034
   - http://www.nature.com/news/let-s-think-about-cognitive-bias-1.18520

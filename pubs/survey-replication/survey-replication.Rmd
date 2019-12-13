@@ -27,7 +27,7 @@ output:
 ```
 
 
-```{r setup-survey, echo=F, message=F, warning=F, cache=F}
+```{r setup-survey, echo=F, message=F, wa rning=F, cache=F}
 library('tidyverse')
 library('stringr')
 library('kableExtra')
@@ -45,7 +45,6 @@ survey$reviews = factor(survey$reviews, levels = c("0", "1", "2", "3", "4", "5",
 survey <- filter(survey, !response_id %in% c("R_3MbTlW5LmB1KdWV", "R_2pMEwlMUYFK1SYU", "R_2aD0UkJpKRx3E8B", "R_1GWkXIEN7qs4bm6", "R_1ezO6KnFkTiQ7HK", "R_24Nmp0HRk2NWRBT", "R_ABboqawDWihgkMx", "R_0Js4J4xtiVyE6at", "R_2xwRf0e0ekfjozd", "R_wQPB6YJOe7mwHjr"))
 
 raw_survey <- read_csv(paste0(toplevel, "/survey/final_responses.csv"))
-all_authors <- read_csv(paste0(toplevel, "/survey/authors-for-survey-without-bounced-emails.csv"))
 demographics <- survey %>%
   group_by(response_id) %>%
   summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))

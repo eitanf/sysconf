@@ -321,11 +321,12 @@ survey_with_award %>%
   group_by(Category, Award) %>%
   add_count() %>%
   ungroup() %>%
-  mutate(Category = factor(Category, levels = cats)) %>%
+  mutate(Category = factor(Category, levels = cats),
+         Award = recode(factor(Award), "FALSE" = "Regular", "TRUE" = "Award-winning")) %>%
   ggplot(aes(x = Category, y = Grade, color = Category)) +
          geom_text(aes(y = 1.0, label = paste0("N=",n)), vjust = -0.5, size = 3) +
          geom_boxplot(notch = F) +
-         stat_summary(fun.y=mean, geom="point", shape=23, size=4) +
+         stat_summary(fun.y = mean, geom = "point", shape = 23, size = 4) +
          theme(legend.position = "none", axis.text.x = element_text(angle = 45)) +
          ylab("Normalized grade") +
          facet_wrap(. ~ Award)
@@ -345,21 +346,19 @@ __[MI.08]__ Compare "overall" average to confidence-weighted "overall" average
 
 __[MI.09]__ Correlation among different review scores. How correlated are all the grades? conversely, if one reviewer loves a paper and another hates it, can they disagree even on "presentation"?
 
-  - [Search references]
-
-Ideally, peer review represents an expert unbiased judgement of a paper along multiple indepdent critiera [@peer reivew book?]. The reality is a bit murkier. To assess the independence of reviews, we look next at the correlation of grades among review categories.
+Ideally, peer review represents an expert unbiased judgement of a paper along multiple indepdent critiera [@hames08:peer Ch. 9]. The reality is a bit murkier. To assess the independence of reviews, we look next at the correlation of grades among review categories.
 
 All conferences ask reviewers to rank papers on an overall acceptance decision, usually on a discrete scale with 4--6 values. Most conferences also request grading papers along several other dimensions, such as clarity of presentation, technical merit, potential impact, etc. Each conference uses its own categorical scale for these, so to compare between them, we have simplified the grades and normalized them to a range of [0:1], where the lowest choice in a category is assigned a grade of zero. This normalization introduces some grade distortion, because the original scale may not have been evenly spaced, it does allow us to approximate the numeric correlation between thousands of pairwise grades.
 
-When each dimension of a paper is judged completely independetly and objectively from all others, we would expect zero corelation between categories. This is not a realistic expectation, since all categories inform the overall acceptance decision, and to some extent each other. But as the numbers in Fig. \@ref(grade-correlations) show, all categories are actually positively correlated with each other, including the reviewer's confidence! (All p-values are near zero.)
+When each dimension of a paper is judged completely independetly and objectively from all others, we would expect zero corelation between categories. This is not a realistic expectation, since all categories inform the overall acceptance decision, and to some extent each other. But as the numbers in Fig. \@ref(fig:grade-correlations) show, all categories are actually positively correlated with each other, including the reviewer's confidence! (All p-values are near zero.)
 
-Take for example the presentation and technical categories. A paper may be poorly written and describe a brilliant technical idea, and vice-versa. We have no a-priori reason to expect that an author's writing skills and technical skills are strongly correlated. Certainly, particularly bad writing can detract the reviewer to the point of completely missing the technical merits, but because we are only looking at accepted papers, the likelihood of having many such papers in our dataset is low. We would therefore expect weak correlation between the two categories, and the scatterplots certainly show examples of uncorrelated pairs. But the overall Pearson corerlation of 
+Take for example the presentation and technical categories. A paper may be poorly written and describe a brilliant technical idea, and vice-versa. We have no a-priori reason to expect that an author's writing skills and technical skills are strongly correlated. Certainly, particularly bad writing can detract the reviewer to the point of completely missing the technical merits, but because we are only looking at accepted papers, the likelihood of having many such papers in our dataset is low. We would therefore expect weak correlation between the two categories, and the scatter plots certainly show examples of uncorrelated pairs. But the overall Pearson corerlation of 
 `r round(cor(survey$gr_technical, survey$gr_present, use = "pair"), 2)`
-is relatively high (second only to the correlation between technical merit and impact). On the other hand, the lowest correlations were between ... and ..., suggesting that ...
+is relatively high (second only to the correlation between technical merit and impact).
 
-We believe these positive correlations are the result of reviewers forming an opinion of a paper that colors their judgement along all categories. The different categories are not graded independently. The implication here is that bias across categories may be high enough to bring into question the usefulness of having multiple categories in the first place. A well-argued overall grade may provide less noisy signal to final acceptance decision.
+We believe these positive correlations are the result of reviewers forming an opinion of a paper that colors their judgement along all categories [@smith06:peer]. The different categories are not graded independently. The implication here is that bias across categories may be high enough to bring into question the usefulness of having multiple categories in the first place. A well-argued overall grade may provide less noisy signal to final acceptance decision.
 
-```{r grade-correlations, echo=F, warning=F, cache=T, fig.cap = "Pearson correlations between grades in different review categories"}
+```{r grade-correlations, echo=F, warning=F, cache=T, fig.cap = "Pearson correlations between grades in different review categories."}
 survey %>%
   select(starts_with("gr_")) %>%
   rename(Overall = gr_overall, Technical = gr_technical, Presentation = gr_present, Impact = gr_impact, Originality = gr_originality, Relevance = gr_relevance, Confidence = gr_confidence) %>%

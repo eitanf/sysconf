@@ -54,13 +54,13 @@ demographics <- survey %>%
   group_by(response_id) %>%
   summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
 ```
-\newcounter{rqcounter}  % A macro for a Research Question environment
+\newcounter{rqcounter}
 
-\newenvironment{question}{%      define a custom environment
-   \bigskip\noindent%         create a vertical offset to previous material
-   \refstepcounter{rqcounter}% increment the environment's counter
+\newenvironment{question}{
+   \bigskip\noindent
+   \refstepcounter{rqcounter}
    \textbf{RQ \therqcounter}
-   \newline%
-   }{\par\bigskip}  %          create a vertical offset to following material
+   \newline
+   }{\par\bigskip}
 \numberwithin{rqcounter}{section}
 

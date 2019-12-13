@@ -4,6 +4,7 @@ dependencies <- c(
                   "bookdown",
                   "cowplot",
                   "devtools",
+                  "GGally",
                   "ggrepel",
                   "jsonlite",
                   "kableExtra",

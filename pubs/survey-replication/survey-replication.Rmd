@@ -31,6 +31,7 @@ output:
 library('tidyverse')
 library('stringr')
 library('kableExtra')
+library('GGally')
 
 survey <- read_csv(paste0(toplevel, "/survey/survey-tidy.csv"), col_types = c("-cccffflfffillllfffffnnnnnnn"))
 survey$length = factor(survey$length, levels = c("1-2 Paragraphs", "Half a Page", "A Page", "Multiple Pages"))
@@ -53,7 +54,6 @@ demographics <- survey %>%
   group_by(response_id) %>%
   summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
 ```
-
 \newcounter{rqcounter}  % A macro for a Research Question environment
 
 \newenvironment{question}{%      define a custom environment

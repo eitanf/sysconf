@@ -27,8 +27,8 @@ PERSONS_DEP=${SYSCONF_HOME}/data/verified_gender_mapping.csv \
 
 all: ${TEXT} ${DATA}
 
-tokens.csv: ${SRC}/gather_text.R
-	${R} ${SRC}/gather_text.R
+#tokens.csv: ${SRC}/gather_text.R
+#	${R} ${SRC}/gather_text.R
 
 persons.csv: ${PERSONS_DEP}
 	rm -f $@ interests.csv roles.csv coauthors.csv

@@ -7,7 +7,6 @@ dependencies <- c(
                   "ggrepel",
                   "jsonlite",
                   "kableExtra",
-                  "kableExtra",
                   "lubridate",
                   "multidplyr",
                   "plotly",

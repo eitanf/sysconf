@@ -279,6 +279,9 @@ __[MI.08]__ Compare "overall" average to confidence-weighted "overall" average
   - [Search references]
 
 __[MI.09]__ Correlation among different review scores. How correlated are all the grades? conversely, if one reviewer loves a paper and another hates it, can they disagree even on "presentation"?
+
+Narrative: correlation between technical and presentation should be close to zero: a paper should have technical merit regardless of how well it's written, and vice-versa (caveat: poorly written papers may not transmit their technical merit well, but then again, they'd probably be rejected and therefore not in our dataset).
+
   - [Search references]
 
 __[MI.10]__ Produce initial stats like these:
@@ -299,3 +302,18 @@ Hypothesis: high review scores and paper citations both measure some paper quali
 Ignoring all other factors (some of which may be very useful, such as author metrics, conf metrics, paper topics, etc.)
 Outcome variable: time to first citation, 1y, 2y citations.
 Predictor variables: each review grade + award
+
+
+----
+
+Ideally, peer review represents an expert unbiased judgement of a paper along multiple indepdent critiera [@peer reivew book?]. The reality is a bit murkier. To assess the independence of reviews, we look next at the correlation of grades among review categories.
+
+All conferences ask reviewers to rank papers on an overall acceptance decision, usually on a discrete scale with 4--6 values. Most conferences also request grading papers along several other dimensions, such as clarity of presentation, technical merit, potential impact, etc. Each conference uses its own categorical scale for these, so to compare between them, we have simplified the grades and normalized them to a range of [0:1], where the lowest choice in a category is assigned a grade of zero. This normalization introduces some grade distortion, because the original scale may not have been evenly spaced, it does allow us to approximate the numeric correlation between thousands of pairwise grades.
+
+When each dimension of a paper is judged completely independetly and objectively from all others, we would expect zero corelation between categories. This is not a realistic expectation, since all categories inform the overall acceptance decision, and to some extent each other. But as the numbers in Fig. \@ref() show, most categories are actually strongly correlated with each other (all p-values are near 0).
+
+Take for example the presentation and technical categories. A paper may be poorly written and describe a brilliant technical idea, and vice-versa. We have no a-priori reason to expect that an author's writing skills and technical skills are strongly correlated. Certainly, particularly bad writing can detract the reviewer to the point of completely missing the technical merits, but because we are only looking at accepted papers, the likelihood of having many such papers in our dataset is low. We would therefore expect weak correlation between the two categories, but in reality, a Pearson corerlation value of
+`r round(cor(survey$gr_technical, survey$gr_present, use = "pair"), 2)`
+is quite high (second only to the correlation between ... and ...). On the other hand, the lowest correlations were between ... and ..., suggesting that ...
+
+We believe these positive correlations are the result of reviewers forming an opinion of a paper that colors their judgement along all categories. The different categories are not graded independently. The implication here is that bias across categories may be high enough to bring into question the usefulness of having multiple categories in the first place. A well-argued overall grade may provide less noisy signal to final acceptance decision.

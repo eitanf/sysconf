@@ -195,46 +195,56 @@ __[CQ.11]__ Do conferences with strict data policies receive fewer submissions?
 
 ## Misc
 
-__[MI.01]__ Are students and professors responding to the same paper differently?
+__[MI.01]__ Are there differences in survey responses based on authors' position or experience?
 
 ```{r student-prof-setup, echo=F, warning=F}
-survey_with_profs <- survey %>% 
+survey_with_pos <- survey %>% 
   filter(position %in% c("Student", "Professor", "Associate Professor", "Assistant Professor")) %>%
-  mutate(position = case_when(
-    position == "Student" ~ "Student", 
-    position == "Professor" ~ "Professor", 
-    position == "Assistant Professor" ~ "Professor", 
-    position == "Associate Professor" ~ "Professor"), understanding = as.numeric(understanding), fairness = as.numeric(fairness), helpfulness = as.numeric(helpfulness) )%>%
-  group_by(paper_id, position) %>%  #all reviews are averaged by professor or student
-  summarise_at(c("understanding", "helpfulness", "fairness"), funs(mean), na.rm = TRUE) %>%
   drop_na(understanding) %>%
+  mutate(
+    position = case_when(
+      position == "Student" ~ "Student", 
+      position == "Professor" ~ "Professor", 
+      position == "Assistant Professor" ~ "Professor", 
+      position == "Associate Professor" ~ "Professor")) %>%
   group_by(paper_id) %>%
-  filter(position %in% c("Student", "Professor"),  n() > 1) %>%
-  transmute(Understanding = understanding - lag(understanding), Helpfulness = helpfulness - lag(helpfulness), Fairness = fairness - lag(fairness)) %>%
-  drop_na(Understanding) 
-```
-Students often have a different perspective and experience in the research process, and it could be that students therefore have different ideas about the rebuttal process, including helpfulness, the grades of the reviewers and quite a few subjective measures we've asked of our authors. 
-
-Of the subjective measures we've asked of are helpfulness, fairness and understanding. Could it be that professors rate higher or at least respond differently in some respect then students in these measures for papers worked on with students? For our survey results, there was around 20 papers that met the criteria of having had review scores provided by both professor and student. We looked at these results and took the difference in review scores between students and professors, then graphed these differences on a boxplot. The graph is below:
-
-```{r student-prof-deviation, echo=F, warning=F} 
-#melted <- melt(as.data.frame(survey_with_profs))
-#melted %>% ggplot(aes(x = variable, y = value, color = variable)) +
-#    geom_boxplot(notch = F) +
-#    stat_summary(fun.y=mean, geom="point", shape=23, size=4) +
-#    theme(legend.position = "none") +
-#    ylab("Deviation in Grades") +
-#    xlab("Category")
+  filter(n_distinct(position) > 1) 
 ```
 
-Looking at these boxplots, we can see that in understanding and helpfulness, the results where fairly symetric, indicating that there was perhaps not much difference between the professors and students in these ratings. However, looking at the helpfulness boxplot, we can see that there is a skew towards the professors having less positive results then students in terms of the helpfulness of the reviews. However, the conversion between these factors and numeric variables is not exactly linear, so these results only point towards a trend. In order to verify these results it is necessary to run a chi-square test or another significance test. This skew also brings about another question, does the experience of an author change the ratings of helpfulness of paper reviews? In order to answer this question, it would be necessary to look at the hindex of the authors between each paper and do a chi-square test for those differences.
+Students can have a different perspective and experience from professors in the research process, which could affect their survey responses to subjective questions. Three such questions we asked about each review in our survey were: did the reviewer understand your paper? was the review helpful?  was it fair?
+
+To evaluate this question, we first look for all papers that had responses to the questions from at least one professor and one student. There are only `r length(unique(survey_with_pos$paper_id))` such papers in our dataset. This may partially explain why we found no statistically significant differences in the response to the first two questions. Only on fairness it appears that professors are statistically more inclined to judge reviews as fair
+(`r report_chi(chisq.test(table(survey_with_pos$position, survey_with_pos$fairness)[,-4]))`).
+
+To expand our data we can look at experience instead of position, which would also include postdocs, industry researchers, and others. We can approximate this experience by identifying the unique GS profile of researchers whenever possible (in our dataset, about two thirds of authors had a uniquely identifiable GS profile). The profile contains various bibliometric measures that can approximate the experience and research influence of a person. we then stratified all our researchers into the following three groups, using the experience metric of H-index [@hirsch05:index]: those with an H-index of less than 13, those with an H-index of 13 to 18, and the rest. We conveniently named these groups novices, mid-career, and experienced, although these breaks are arbitrary [@hirsch05:index].
+
+```{r subjective-grades-by-experience, echo=F, message=F, fig.cap="Distribution of subjective review evaluations by experience."}
+survey_with_hindex <- survey %>%
+  left_join(select(authors, c("name", "hindex")), by = c("name" = "name")) %>%
+  drop_na(hindex) %>%
+  mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
+
+survey_with_hindex %>%
+  rename(Understanding = understanding, Helpfulness = helpfulness, Fairness = fairness) %>%
+  pivot_longer(cols = c("Understanding", "Helpfulness", "Fairness"), names_to = "Category", values_to = "Grade") %>%
+  ggplot(aes(fill = Grade, x = Experience)) +
+    geom_bar(position = "stack") +
+    facet_grid(Category ~ .) +
+    ylab("Response count") +
+    theme(legend.position = "bottom") +
+#    scale_fill_viridis_d() + 
+    coord_flip()
+```
+
+Fig. \@ref(fig:subjective-grades-by-experience) shows how the distributions of responses to the three subjective questions vary by the respondents experience. They too indicate that more experienced researchers view reviews as generally more fair
+(`r report_chi(chisq.test(table(survey_with_hindex$Experience, survey_with_hindex$fairness)))`),
+with no significant differences for the other two questions.
+
+ -- [Find sources to back this up.]
 
 __[MI.02]__ Do more senior authors have fewer rejections (look for either first author, survey respondend rank, or max GS metrics in authors)
 ```{r student-senior-rej, echo=F, warning=F}
 #join survey data with h-index of author
-survey_with_hindex <- survey %>%
-  left_join(select(authors, c("name", "hindex")), by = c("name" = "name"))
-
 hindex_factr_levels <- c("novice", "mid-career", "veteran")
 #turn hindex into factor 
 survey_with_factor <- survey_with_hindex %>%
@@ -278,7 +288,6 @@ __[MI.05]__ Does submission order affect paper's chances?
   - http://onlinelibrary.wiley.com/doi/10.1002/asi.22747/abstract
 
 __[MI.06]__ Do award-winning papers have an easier path through peer review?
-
 
 Many conferences confer an award to one or more papers, such as "Best Paper", "Best Student Paper", and "Best Artifact". Presumably, these papers received the award because their peer reviews agreed on its high quality, and ranked it accordingly. This presumption leads to the testable predictions that award-winning papers have shorter submission histories, higher review scores, fewer dissenting reviews, and higher reviewer confidence.
 
@@ -344,7 +353,7 @@ __[MI.07]__ Relationship between english mastery and presentation scores/overall
 __[MI.08]__ Compare "overall" average to confidence-weighted "overall" average
   - [Search references]
 
-__[MI.09]__ Correlation among different review scores. How correlated are all the grades? conversely, if one reviewer loves a paper and another hates it, can they disagree even on "presentation"?
+__[MI.09]__ What is the correlation in review scores across categories?
 
 Ideally, peer review represents an expert unbiased judgement of a paper along multiple indepdent critiera [@hames08:peer Ch. 9]. The reality is a bit murkier. To assess the independence of reviews, we look next at the correlation of grades among review categories.
 

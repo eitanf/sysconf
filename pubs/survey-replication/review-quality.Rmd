@@ -1,0 +1,86 @@
+# Review Quality {#sec:review-quality}
+
+\question{What is the correlation in review scores across categories?}{score-corr}
+
+
+Ideally, peer review represents an expert unbiased judgement of a paper along multiple indepdent critiera [@hames08:peer Ch. 9]. The reality is a bit murkier. To assess the independence of reviews, we look next at the correlation of grades among review categories.
+
+All conferences ask reviewers to rank papers on an overall acceptance decision, usually on a discrete scale with 4--6 values. Most conferences also request grading papers along several other dimensions, such as clarity of presentation, technical merit, potential impact, etc. Each conference uses its own categorical scale for these, so to compare between them, we have simplified the grades and normalized them to a range of [0:1], where the lowest choice in a category is assigned a grade of zero. This normalization introduces some grade distortion, because the original scale may not have been evenly spaced, it does allow us to approximate the numeric correlation between thousands of pairwise grades.
+
+When each dimension of a paper is judged completely independetly and objectively from all others, we would expect zero corelation between categories. This is not a realistic expectation, since all categories inform the overall acceptance decision, and to some extent each other. But as the numbers in Fig. \@ref(fig:grade-correlations) show, all categories are actually positively correlated with each other, including the reviewer's confidence! (All p-values are near zero.)
+
+Take for example the presentation and technical categories. A paper may be poorly written and describe a brilliant technical idea, and vice-versa. We have no a-priori reason to expect that an author's writing skills and technical skills are strongly correlated. Certainly, particularly bad writing can detract the reviewer to the point of completely missing the technical merits, but because we are only looking at accepted papers, the likelihood of having many such papers in our dataset is low. We would therefore expect weak correlation between the two categories, and the scatter plots certainly show examples of uncorrelated pairs. But the overall Pearson corerlation of 
+`r round(cor(survey$gr_technical, survey$gr_present, use = "pair"), 2)`
+is relatively high (second only to the correlation between technical merit and impact).
+
+We believe these positive correlations are the result of reviewers forming an opinion of a paper that colors their judgement along all categories [@smith06:peer]. The different categories are not graded independently. The implication here is that bias across categories may be high enough to bring into question the usefulness of having multiple categories in the first place. A well-argued overall grade may provide less noisy signal to final acceptance decision.
+
+```{r grade-correlations, echo=F, warning=F, cache=T, fig.cap = "Pearson correlations between grades in different review categories."}
+survey %>%
+  select(starts_with("gr_")) %>%
+  rename(Overall = gr_overall, Technical = gr_technical, Presentation = gr_present, Impact = gr_impact, Originality = gr_originality, Relevance = gr_relevance, Confidence = gr_confidence) %>%
+  GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F)
+```
+
+
+
+\question{Do award-winning papers have an easier path through peer review?}{award-papers}
+
+Many conferences confer an award to one or more papers, such as "Best Paper", "Best Student Paper", and "Best Artifact". Presumably, these papers received the award because their peer reviews agreed on its high quality, and ranked it accordingly. This presumption leads to the testable predictions that award-winning papers have shorter submission histories, higher review scores, fewer dissenting reviews, and higher reviewer confidence.
+
+```{r award-setup, echo=F, warning=F}
+survey_with_award <- survey %>%
+  left_join(select(papers, c("key", "award")), by = c("paper_id" = "key"))
+
+award_means <- survey_with_award %>%
+  group_by(paper_id) %>%
+  summarise_all(funs(mean(., na.rm = T))) %>%
+  ungroup()
+```
+
+To test these hypotheses, we marked every award winning paper in our dataset, and interesected these with the papers in our survey responses.
+We have responses from `r nrow(filter(award_means, award == 1))` papers that won an award. Of these,
+`r pct(nrow(filter(award_means, award == 1, prior_subs == 0)), nrow(filter(award_means, award == 1, !is.nan(prior_subs))))`%
+Were accepted on the first attempt, compared to
+`r pct(nrow(filter(award_means, award == 0, prior_subs == 0)), nrow(filter(award_means, award == 0, !is.nan(prior_subs))))`%
+of the papers who did not win an award.
+(`r report_chi(chisq.test(table(award_means$award, award_means$prior_subs == 0)))`),
+which is not as significant as we might expect. Looking at paper history from a different perspective, award-winning papers had only been rejected
+`r mean(filter(award_means, award == 1)$prior_subs, na.rm = T) %>% round(2)`
+times on average prior to acceptance, compared to 
+`r mean(filter(award_means, award == 0)$prior_subs, na.rm = T) %>% round(2)`
+with other papers, and all but one have been accepted by the third attempt. This is still not a very significant difference
+(`r report_t(t.test(table(award_means$award, award_means$prior_subs)))`).
+
+One possible explanation to this metric's similarity is that awards are somewhat arbitrary or subjective, and the winning papers are not substantially different than the rest.^[See for example this lively debate: https://academia.stackexchange.com/questions/114072]
+Another explanation may be that these papers are ineed of higher perceived quality than the rest, but to reach this point they too had to go through numerous iterations of improvement.^[See for example Eric Price's explanation on his award-winning paper in the NIPS experiment http://blog.mrtz.org/2014/12/15/the-nips-experiment.html].
+
+The second explanation seems more plausible when we consider review scores. To see this, we aggregated all the review scores we received for each paper across all papers and all review categories (not all reviews included all categories). The review grade distributions is shown in Fig. \@ref(fig:review-grades-award) for both award-winning and regular papers.
+
+```{r review-grades-award, echo=F, message=F, warning=F, out.width = '100%', fig.cap = "Review grades distributions by category and award. Grades are normalized to the range [0:1]. Mean and median grades are represented by diamonds and bars, respectively. N represents the number of scores received in each category."}
+cats = c("Overall", "Technical", "Presentation", "Impact", "Originality", "Relevance", "Confidence")
+survey_with_award %>%
+  select(c("award", starts_with("gr_"))) %>%
+  rename(Award = award, Overall = gr_overall, Technical = gr_technical, Presentation = gr_present, Impact = gr_impact, Originality = gr_originality, Relevance = gr_relevance, Confidence = gr_confidence) %>%
+  pivot_longer(cols = cats, names_to = "Category", values_to = "Grade") %>%
+  filter(!is.na(Grade)) %>%
+  group_by(Category, Award) %>%
+  add_count() %>%
+  ungroup() %>%
+  mutate(Category = factor(Category, levels = cats),
+         Award = recode(factor(Award), "FALSE" = "Regular", "TRUE" = "Award-winning")) %>%
+  ggplot(aes(x = Category, y = Grade, color = Category)) +
+         geom_text(aes(y = 1.0, label = paste0("N=",n)), vjust = -0.5, size = 3) +
+         geom_boxplot(notch = F) +
+         stat_summary(fun.y = mean, geom = "point", shape = 23, size = 4) +
+         theme(legend.position = "none", axis.text.x = element_text(angle = 45)) +
+         ylab("Normalized grade") +
+         facet_wrap(. ~ Award)
+```
+
+
+As expected, award-winning papers score higher across all categories, and only the sparse "Relevance" category showed a weak statistical significance of $p>0.014$ using T-test (even though most reviews of award winning papers had a perfect relevance score). This is not a coincidence, as many conferences select, or at least screen for award papers based on review scores.
+
+On the other hand, the same figure fails to affirm the two remaining predictions. It shows wider range bands for most categories in the reviews of award-winning papers, partially explained by the smaller samples. It also shows nearly identical mean and median reviewer confidence grades, regardless of award. That said, the lowest grades received by award-winning papers are higher than those of regular papers for most categories. So perhaps the distinctive trait of award-winning papers, other than higher scores, is that they elicit few negative opinions, if any.
+
+

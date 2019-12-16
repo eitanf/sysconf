@@ -55,12 +55,13 @@ demographics <- survey %>%
   summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
 ```
 \newcounter{rqcounter}
-
-\newenvironment{question}{
+\newcommand{\question}[2]{
    \bigskip\noindent
    \refstepcounter{rqcounter}
    \textbf{RQ \therqcounter}
+   #1
+   \label{rq:#2}
    \newline
-   }{\par\bigskip}
+   }
 \numberwithin{rqcounter}{section}
 

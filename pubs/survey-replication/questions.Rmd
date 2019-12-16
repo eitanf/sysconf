@@ -2,13 +2,21 @@
 
 Contains a mix of both replication questions and open questions. Replication questions look at published past results on peer review effects and attempts to replicate or refute these findings on our data set. Open questions look at some controversial questions on peer-review effects for which we found opinionated answers, but little or no prior studies.
 
-
 ## On double-blindness
 
-__[DB.01]__ Does blinding affect the quality of the reviews? (separate confounders like conference reputation). Does-double blind really help quality in any way? How about non-blind review where reviewers "sign" their review? Does it lead to more balanced geography/institution/gender bias?
-  - https://jamanetwork.com/journals/jama/article-abstract/380957
+\question{Does blinding affect the quality of the reviews?}{blind-quality}
 
-__[DB.02]__ Does it lead to more citations? Fit citations to conference reputation, then look at the residuals.
+(separate confounders like conference reputation). Does-double blind really help quality in any way?
+How about non-blind review where reviewers "sign" their review?
+Does it lead to more balanced geography/institution/gender bias?
+
+ - https://jamanetwork.com/journals/jama/article-abstract/380957
+
+
+\question{Does it lead to more citations?}{blind-citations}
+
+Fit citations to conference reputation, then look at the residuals.
+
   - https://chairs-blog.acl2017.org/2017/03/02/arxiv-and-double-blind-reviewing-revisited/
   - https://2017.splashcon.org/track/splash-2017-OOPSLA#FAQ-on-Double-Blind-Reviewing
   - http://cra.org/statement-diversity-micro-50/
@@ -31,10 +39,15 @@ __[DB.02]__ Does it lead to more citations? Fit citations to conference reputati
   - https://jamanetwork.com/journals/jama/article-abstract/376228
 
 
-__[DB.03]__ Does blinding reduce the h-index of authors of accepted papers?
+\question{Does blinding reduce the h-index of authors of accepted papers?}{blind-hindex}
+
   - https://www.usenix.org/sites/default/files/atc19_message.pdf
 
-__[DB.04]__ Does double-blind at least bias less against junior faculty? fit author hindex against double-blindWhat about country diversity? Sector diversity? Non-english speakersLow-prestige institutions?Content based?Other types of diversity?
+\question{Does double-blind at least bias less against junior faculty?}{blind-diversity}
+
+fit author hindex against double-blind
+What about country diversity? Sector diversity? Non-english speakers Low-prestige institutions? Content based? Other types of diversity?
+
   - https://www.frontiersin.org/articles/10.3389/fnins.2015.00169/full
   - https://www.researchgate.net/profile/Anthony_Tung/publication/220416127_Impact_of_double_blind_reviewing_on_SIGMOD_publication/links/55b8691d08ae9289a08d5678.pdf
   - https://arxiv.org/pdf/1802.02188.pdf
@@ -47,15 +60,23 @@ __[DB.04]__ Does double-blind at least bias less against junior faculty? fit aut
 
 ## On review quality
 
-__[Q.01]__ What is the relationship between review length and conference reputation?
+\question{What is the relationship between review length and conference reputation?}{length-reputation}
+
   - https://publons.com/static/Publons-Global-State-Of-Peer-Review-2018.pdf
 
-__[RQ.02]__ Do authors "like" "kind" reviews?
+\question{How is review length related to quality?}{review-length}
+
+  - http://retractionwatch.com/2017/11/27/make-reviews-public-says-peer-review-expert/
+
+
+\question{Do authors "like" "kind" reviews?}{kind-reviews}
+
   - https://nlpers.blogspot.co.uk/2015/06/some-naacl-2013-statistics-on-author.html
   - [@anderson08:towards]
   - [@papagiannaki07:author]
 
-__[RQ.03]__ Problems and arbitrariness in peer review
+\question{Problems and arbitrariness in peer review}{arbitrary}
+
   - http://blog.mrtz.org/2014/12/15/the-nips-experiment.html
   - https://cacm.acm.org/blogs/blog-cacm/181996-the-nips-experiment/fulltext
   - [@vardi09:conferences]
@@ -69,50 +90,73 @@ __[RQ.03]__ Problems and arbitrariness in peer review
   - https://petsymposium.org/experiment.php
 
 
-__[RQ.04]__ Effect of review days on number of submissions or author author satisfactionAuthors want 3m or less for reviews
+\question{Effect of review days on number of submissions or author author satisfaction}{review-days}
+
+Authors want 3m or less for reviews
+
   - [@editage18:perspectives]
   - [@wallach11:rebooting]
 
-__[RQ.05]__ Effect of reviewer load
-  - [@beverly13:findings]
+\question{Does review time materially impact quality?}{time-quality}
 
-__[RQ.06]__ Does review time materially impact quality?
+Does it really take about 5/6 hours per review?
+Most reviewers are done in 4 weeks
+
+  - https://senseaboutscience.org/wp-content/uploads/2016/12/Peer_Review_Survey.pdf
   - https://www.sigmetrics.org/sigmetrics2017/SIGMETRICSInfoforAuthors.html)
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
   - https://cacm.acm.org/magazines/2009/5/24644-program-committee-overload-in-systems/abstract
+  - https://publons.com/static/Publons-Global-State-Of-Peer-Review-2018.pdf
+  - https://senseaboutscience.org/wp-content/uploads/2016/12/Peer_Review_Survey.pdf
+  - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
 
-__[RQ.07]__ Should we have post-publication review/comments?
+
+
+\question{Effect of reviewer load}{reviewer-load}
+
+  - [@beverly13:findings]
+
+\question{Should we have post-publication review/comments?}{post-pub}
+
   - https://scholarlykitchen.sspnet.org/2013/03/27/how-rigorous-is-the-post-publication-review-process-at-f1000-research/
   - http://journals.plos.org/plosmedicine/article?id=10.1371/journal.pmed.1001772
   - https://link.springer.com/article/10.1007/s11948-016-9854-2
   - https://www.sciencedirect.com/science/article/pii/S016895251500044X
   - https://search.proquest.com/docview/1697484361?pq-origsite=gscholar
 
-__[RQ.08]__ Is a revision cycle effective? How long?
+\question{Is a revision cycle effective?}{revision-cycle}
+
+How long should it be?
+
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
 
-__[RQ.08]__ Open peer review--no one is doing it?
+\question{Open peer review--no one is doing it?}{open-peer}
+
   - http://www.nature.com/news/watch-out-for-cheats-in-citation-game-1.20246
   - http://www.nature.com/news/let-s-make-peer-review-scientific-1.20194
 
-__[RQ.09]__ Can we improve reviews from one venue to the next?
+\question{Can we improve reviews from one venue to the next?}{improve-reviews}
+
   - https://www.nature.com/articles/546352a
   - https://www.sigarch.org/a-proposal-to-coordinate-reviewing-across-computer-architecture-conferences/
 
-__[RQ.10]__ How does the average number of reviews compare to other fields?
+\question{How does the average number of reviews compare to other fields?}{reviews-num}
+
   - https://scholarlykitchen.sspnet.org/2018/09/12/guest-post-what-a-new-publons-report-on-peer-review-says-about-diversity-and-more/?informz=1
 
-__[RQ.11]__ How is review length related to quality?
-  - http://retractionwatch.com/2017/11/27/make-reviews-public-says-peer-review-expert/
+\question{Are reviews unfair?}{reviews-unfair}
 
-__[RQ.12]__ Are reviews unfair?
   - https://www.sigarch.org/r2-the-future-of-isca-or-not/
 
-__[RQ.13]__ Effect of over-positive PC members
+\question{Effect of over-positive PC members}{positive-pc}
+
   - https://www.sigarch.org/overwhelming-statistical-evidence-that-our-review-process-is-broken/
   - https://www.sigarch.org/false-accepts-and-false-rejects/
 
-__[RQ.14]__ Does rebuttal/author response help? probably useless
+\question{Does rebuttal/author response help?}{rebuttal-help}
+
+Probably useless
+
   - https://chairs-blog.acl2017.org/2017/03/27/author-response-does-it-help/
   - https://nlpers.blogspot.co.uk/2015/06/some-naacl-2013-statistics-on-author.html
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
@@ -121,29 +165,26 @@ __[RQ.14]__ Does rebuttal/author response help? probably useless
   - https://www.sigarch.org/how-pc-chairs-and-pc-members-can-help-improve-our-process/
   - Dave Evans, CCS: "I think the author responses are valuable, even if they don't change paper decisions since (1) they make reviewers take the early reviews more seriously and know they risk being embarrassed if they say something incorrect/lazy, (2) they give authors a sense that they had an opportunity to respond, and (3) they help PC chairs decide if a paper needs additional reviews. I think the responses did change the outcomes of some papers for CCS - one for sure, that was considered dropped after the first round, but revived by the responses and eventually accepted, and for the borderline papers, the responses were considered seriously in making decisions (but can't know for sure how things would have gone without them). In some cases, the authors responses made it easier to reject papers since they made it clear that the problems reviewers found were legitimate, and a handful of papers were withdraw by the authors after seeing the early reviews.  We had a "Discussion Committee" that assigned a PC member to oversee each paper to ensure the reviewers took the author responses into consideration, which helped a lot since for a conference of this scale it would be too much for the PC chairs to check on all papers."
 
-__[RQ.15]__ Do reviewers want anonymity?
+\question{Do reviewers want anonymity?}{reviewer-anon}
+
   - https://senseaboutscience.org/wp-content/uploads/2016/12/Peer_Review_Survey.pdf
 
-__[RQ.16]__ Most reviewers are done in 4 weeks
-  - https://senseaboutscience.org/wp-content/uploads/2016/12/Peer_Review_Survey.pdf
+\question{Effect of reviewer award on their own submission's grade?}{reviewer-award}
 
-__[RQ.17]__ Does it really take about 5/6 hours per review?
-  - https://publons.com/static/Publons-Global-State-Of-Peer-Review-2018.pdf
-  - https://senseaboutscience.org/wp-content/uploads/2016/12/Peer_Review_Survey.pdf
-  - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
-
-__[RQ.18]__ Effect of reviewer award on their own submission's grade?
   - [Search references]
 
-__[RQ.19]__ Effect of shepherding, where known.
+\question{Effect of shepherding, where known}{shepherd}
+
   - [Search references]
 
-__[RQ.20]__ Properties of "real" papers, based on Ulfar's email from 10/4/17
+\question{Properties of "real" papers, based on Ulfar's email from 10/4/17}{real-papers}
+
   1) Reviewers are less likely to agree on "real" papers.
   2) Reviewers are less likely to state high confidence on "real" papers, especially if they're saying reject/strong reject.
   - [Search references]
 
-__[RQ.21]__ How does the average number of reviews compare to other fields?
+\question{How does the average number of reviews compare to other fields?}{num-reviews}
+
   - https://scholarlykitchen.sspnet.org/2018/09/12/guest-post-what-a-new-publons-report-on-peer-review-says-about-diversity-and-more/?informz=1
 
 
@@ -151,43 +192,62 @@ __[RQ.21]__ How does the average number of reviews compare to other fields?
 
 ## On conference quality
 
-__[CQ.01]__ What matters more for a conference: scope, review length, or impact factor?
+\question{What matters more for a conference: scope, review length, or impact factor?}{conf-metric}
+
   - https://www.editage.com/files/Editage-Global-Author-Survey.pdf
   - https://peerj.com/articles/365/#p-17
 
-__[CQ.02]__ Correlate everything with conference metrics and policies (features)
+\question{Correlate everything with conference metrics and policies (features)}{conf-corr}
+  
   - [Search references]
 
-__[CQ.03]__ Diversity of reviewers (first answer why diversity is needed). Also specifically when limited to HPC (look at whpc-summit paper)
+\question{Diversity of reviewers}{reviewer-diversity}
+
+(first answer why diversity is needed). Also specifically when limited to HPC (look at whpc-summit paper)
+  
   - https://scholarlykitchen.sspnet.org/2018/09/07/ask-the-chefs-diversity-in-peer-review/?informz=1
   - https://scholarlykitchen.sspnet.org/2018/09/13/eight-ways-to-tackle-diversity-and-inclusion-in-peer-review/?informz=1
   - https://www.nature.com/news/journals-invite-too-few-women-to-referee-1.21337
 
-__[CQ.04]__ Compare to other conferences:
-* ATC'19  https://www.usenix.org/sites/default/files/atc19_message.pdf
-* Compare to SIGCOMM09  https://dl.acm.org/citation.cfm?id=1568623
-* What do authors in MICRO think about the review process?  https://www.sigmicro.org/2019/01/09/micro-survey-results/
+\question{Compare to other conferences}{conf-comp}
+
+  - ATC'19  https://www.usenix.org/sites/default/files/atc19_message.pdf
+  - Compare to SIGCOMM09  https://dl.acm.org/citation.cfm?id=1568623
+  - What do authors in MICRO think about the review process?  https://www.sigmicro.org/2019/01/09/micro-survey-results/
 
 
-__[CQ.05]__ Quality is multi-dimensional:
+\question{Quality is multi-dimensional}{quality-multidim}
+
 https://scholarlykitchen.sspnet.org/2019/09/16/quality-is-multi-dimensional-how-many-ways-can-you-define-quality-in-peer-review/?unapproved=84111&moderation-hash=47b56366ddaf68dffef86ee501020c54#comment-84111
 
-__[CQ.06]__ Textual difference between 1st-version pre-print, last version, and published version. Not just similarity, but change in meaning
+\question{Textual difference between 1st-version pre-print, last version, and published version}{ver-diff}
+
+Not just similarity, but change in meaning
+
   - https://scholarlykitchen.sspnet.org/2018/03/15/a-comment-on-klein-et-als-comparing-articles-to-preprints/?informz=1
 
-__[CQ.07]__ Do authors aim for the highest possible venue that will still accept them? Correlate conference prestige with no. of previous attempts.
+\question{Do authors aim for the highest possible venue that will still accept them?}{highest-venue}
+
+Correlate conference prestige with no. of previous attempts.
+
   - https://scholarlykitchen.sspnet.org/2011/12/08/is-peer-review-a-coin-toss/
 
-__[CQ.08]__ Do two-cycle conferences lead to better papers? Is round-based reviewing better?
+\question{Do two-cycle conferences lead to better papers? Is round-based reviewing better?}{two-cycle}
+
   - http://from-a-to-remzi.blogspot.com/2012/07/why-you-shouldnt-feel-too-badly-about.html
 
-__[CQ.09]__ Effect of submission Day-of-week and months-to-publish on submissions no. and acceptance rate. Correct for confounders, which you can find by plotting.
+\question{Effect of submission Day-of-week and months-to-publish on submissions no. and acceptance rate}{day-of-week}
+
+Correct for confounders, which you can find by plotting.
+
   - [Search references]
 
-__[CQ.10]__ Effect of "collisions" of multiple due dates next to each other, especially with similar paper topics
+\question{Effect of "collisions" of multiple due dates next to each other, especially with similar paper topics}{collisions}
+
   - https://www.sigarch.org/r2-the-future-of-isca-or-not/
 
-__[CQ.11]__ Do conferences with strict data policies receive fewer submissions?
+\question{Do conferences with strict data policies receive fewer submissions?}{data-policy}
+
   - https://scholarlykitchen.sspnet.org/2018/09/25/does-adopting-a-strict-data-sharing-policy-affect-submissions/?informz=1
 
 
@@ -195,7 +255,9 @@ __[CQ.11]__ Do conferences with strict data policies receive fewer submissions?
 
 ## Misc
 
-__[MI.01]__ Are there differences in survey responses based on authors' position or experience?
+
+\question{Are there differences in survey responses based on authors' position or experience?}{response-pos}
+
 
 ```{r student-prof-setup, echo=F, warning=F}
 survey_with_pos <- survey %>% 
@@ -240,9 +302,12 @@ Fig. \@ref(fig:subjective-grades-by-experience) shows how the distributions of r
 (`r report_chi(chisq.test(table(survey_with_hindex$Experience, survey_with_hindex$fairness)))`),
 with no significant differences for the other two questions.
 
- -- [Find sources to back this up.]
+ - [Find sources to back this up.]
 
-__[MI.02]__ Do more senior authors have fewer rejections (look for either first author, survey respondend rank, or max GS metrics in authors)
+\question{Do more senior authors have fewer rejections?}{senior-reject}
+
+(look for either first author, survey respondend rank, or max GS metrics in authors)
+
 ```{r student-senior-rej, echo=F, warning=F}
 #join survey data with h-index of author
 hindex_factr_levels <- c("novice", "mid-career", "veteran")
@@ -271,23 +336,27 @@ hindex_corr <- survey_with_hindex %>% #remove repeats
 cor(hindex_corr$hindex, hindex_corr$prior_subs, use = "pair")
 ```
 Running this correlation, we can see that there is some correlation between the hindex and the rejection count, however it does not appear to be significant. However, if we do a chi-square test on experience against prior submissions, we get the following:
-```{r student-senior-2, echo=F, warning=F}
-chisq.test(table(survey_with_factor$hindex_discr,survey_with_factor$prior_subs))
-```
+`r report_chi(chisq.test(table(survey_with_factor$hindex_discr,survey_with_factor$prior_subs)))`
 This indicates that may be some significant relation between these two variables, however further statistical tests are needed.
 
-__[MI.03]__ Distribution of "paper readiness" and relationship to author experience
+\question{What is the relationship between prior subs and conference quality?}{prior-subs-quality}
+
+
+\question{Distribution of "paper readiness" and relationship to author experience}{paper-readiness}
+
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
   - https://www.nsf.gov/statistics/2018/nsb20181/assets/968/tables/tt05-18.pdf
 
-__[MI.04]__ How is survey response rate affected by experience? acceptance?
+\question{How is survey response rate affected by experience? acceptance?}{response-rate}
+
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
   - https://www.nsf.gov/statistics/2018/nsb20181/assets/968/tables/tt05-18.pdf
 
-__[MI.05]__ Does submission order affect paper's chances?
+\question{Does submission order affect paper's chances?}{sub-order}
+
   - http://onlinelibrary.wiley.com/doi/10.1002/asi.22747/abstract
 
-__[MI.06]__ Do award-winning papers have an easier path through peer review?
+\question{Do award-winning papers have an easier path through peer review?}{award-papers}
 
 Many conferences confer an award to one or more papers, such as "Best Paper", "Best Student Paper", and "Best Artifact". Presumably, these papers received the award because their peer reviews agreed on its high quality, and ranked it accordingly. This presumption leads to the testable predictions that award-winning papers have shorter submission histories, higher review scores, fewer dissenting reviews, and higher reviewer confidence.
 
@@ -347,13 +416,16 @@ As expected, award-winning papers score higher across all categories, and only t
 On the other hand, the same figure fails to affirm the two remaining predictions. It shows wider range bands for most categories in the reviews of award-winning papers, partially explained by the smaller samples. It also shows nearly identical mean and median reviewer confidence grades, regardless of award. That said, the lowest grades received by award-winning papers are higher than those of regular papers for most categories. So perhaps the distinctive trait of award-winning papers, other than higher scores, is that they elicit few negative opinions, if any.
 
 
-__[MI.07]__ Relationship between english mastery and presentation scores/overall scores
+\question{Relationship between english mastery and presentation scores/overall scores}{english-present}
+
   - [previous paper]
 
-__[MI.08]__ Compare "overall" average to confidence-weighted "overall" average
+\question{Compare "overall" average to confidence-weighted "overall" average}{confidence}
+
   - [Search references]
 
-__[MI.09]__ What is the correlation in review scores across categories?
+\question{What is the correlation in review scores across categories?}{score-corr}
+
 
 Ideally, peer review represents an expert unbiased judgement of a paper along multiple indepdent critiera [@hames08:peer Ch. 9]. The reality is a bit murkier. To assess the independence of reviews, we look next at the correlation of grades among review categories.
 
@@ -374,20 +446,26 @@ survey %>%
   GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F)
 ```
 
-__[MI.10]__ Produce initial stats like these:
+\question{Produce initial stats like these}{stats}
+
   - https://publons.com/community/gspr
 
-__[MI.11]__ Explain negative correlation between prior_subs and gr_overall
+\question{Explain negative correlation between prior_subs and gr_overall}{prior-overall}
+
   - [Search references]
-  
-__[MI.12]__ How to deal with publication bias?
+
+
+\question{How to deal with publication bias?}{pub-bias}
+
   - https://www.nature.com/articles/s41562-016-0034
   - http://www.nature.com/news/let-s-think-about-cognitive-bias-1.18520
   - http://www.nature.com/news/how-scientists-fool-themselves-and-how-they-can-stop-1.18517
   - http://www.nature.com/news/tool-for-detecting-publication-bias-goes-under-spotlight-1.21728
   - http://www.nature.com/news/replication-studies-bad-copy-1.10634
 
-__[MI.13]__ Predicting citations from reviews
+
+\question{Predicting citations from reviews}{cites-reviews}
+
 Hypothesis: high review scores and paper citations both measure some paper quality, and should therefore be correlated
 Ignoring all other factors (some of which may be very useful, such as author metrics, conf metrics, paper topics, etc.)
 Outcome variable: time to first citation, 1y, 2y citations.

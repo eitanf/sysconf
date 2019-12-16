@@ -22,11 +22,11 @@ affiliation:
       author:
         - name: Rhody Kaner
 abstract: |
-  Women are severely under-represented in the HPC workforce. Following the aphorism "if you can't measure it, you can't improve it," this paper aims to provide tangible and reproducible data on this gender gap. Specifically, this paper provides statistics on women's representation in HPC conferences, focusing mainly on authors of peer-reviewed papers, who serve as the keystone for future advances in the field.
+  Women are severely underrepresented in the HPC workforce. Following the aphorism "if you can't measure it, you can't improve it," this paper aims to provide tangible and reproducible data on this gender gap. Specifically, this paper provides statistics on women's representation in HPC conferences, focusing mainly on authors of peer-reviewed papers, who serve as the keystone for future advances in the field.
 
   To this end, we analyzed participant data for nine HPC and HPC-related academic conferences from a single year. In addition to examining gender distributions, we looked at other demographic factors, such as the authors' country and sector, and at post-publication statistics of the papers.
 
-  Our main finding are that women represent only about 10% of all HPC paper authors, with some geographical variations. Women are even more under-represented among industry researchers and at higher experience levels.
+  Our main finding is that women represent only about 10% of all HPC paper authors, with some geographical variations. Representation of women is particularly low among industry researchers and at higher experience levels.
 bibliography: ../sysconf.bib
 csl: ieee.csl
 output:
@@ -72,12 +72,12 @@ hindex <- demo %>%
 
 # Motivation {#sec:intro}
 
-Variance in gender distribution by field of study is an active area of research [@cohoon06:critical; @cohoon11:cspapers], but some subfields remain poorly examined [@fox06:engineering]. One of these areas is High-Performance Computing (HPC), a large and vibrant research field with significant impact on the economy and the sciences, including computer science (CS). Despite the enormous significance of the field, less than 17% of its workforce is estimated to be women, although the exact number is difficult to ascertain [@trader16:whpc]. The focus of this paper is to reduce some of this uncertainty by computing reproducible metrics, specifically on one important population of the HPC community, namely, HPC researchers. Although this paper cannot fully address the complex question of why women are so severely under-represented in HPC, it attempts to quantify this under-representation, with two goals in mind: to better understand its causes, and to establish a baseline against which to measure the effects of future efforts and policies to increase gender diversity.
+Variance in gender distribution by field of study is an active area of research [@cohoon06:critical; @cohoon11:cspapers], but some subfields remain poorly examined [@fox06:engineering]. One example is High-Performance Computing (HPC), a large and vibrant research field with significant impact on the economy and the sciences, including computer science (CS). Despite the importance of the field, less than 17% of its workforce is estimated to be women, although the exact number is difficult to ascertain [@trader16:whpc]. The focus of this paper is to reduce some of this uncertainty by computing reproducible metrics, specifically on one important population of the HPC community, namely, HPC researchers. Although this paper cannot fully address the complex question of why women are so severely underrepresented in HPC, it attempts to quantify this underrepresentation, with two goals in mind: to better understand its causes and to establish a baseline against which to measure the effects of future efforts and policies to increase gender diversity.
 
 
 # Methodology and Data {#sec:methodology}
 
-As in most subfields of computer science, the primary channel for publishing research results in HPC is peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences]. For this study we collected extensive data from nine HPC-related conferences that took place in 2017 (Table \@ref(tab:hpc-confs)).
+As in most subfields of computer science, the primary channel for publishing research results in HPC is peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences]. For this study, we collected extensive data from nine HPC-related conferences that took place in 2017 (Table \@ref(tab:hpc-confs)).
 
 ```{r hpc-confs, echo=F}
 hpc_confs %>%
@@ -88,12 +88,12 @@ hpc_confs %>%
 ```
 
 
-The largest of these conferences, [SC](http://supercomputing.org/) takes place in the US every November and attracts many thousands of attendees. SC is also notable for its diversity initiatives, including an inclusivity chair, on-site childcare, a code of conduct, and diversity-related content. The other flagship HPC conference, [ISC](https://www.isc-hpc.com/) takes place in Germany every summer and also has a diversity chair. The other seven conferences are not exclusive to HPC, but contain numerous HPC papers. None of them displayed diversity initiatives on their website for 2017.
+The largest of these conferences, [SC](http://supercomputing.org/), takes place in the US every November and attracts many thousands of attendees. SC is also notable for its diversity initiatives, including an inclusivity chair, on-site childcare, a code of conduct, and diversity-related content. The other flagship HPC conference, [ISC](https://www.isc-hpc.com/), takes place in Germany every summer and also has a diversity chair. The seven other conferences we investigate are not exclusive to HPC, but contain numerous HPC papers. None of them displayed diversity initiatives for 2017.
 
-For each of these conferences we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
+For each of these conferences, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
 The most crucial piece of our data is, of course, gender information. Given the full name and affiliation of most researchers, we searched online for each person's pronouns or picture to infer their gender.
 
-This approach has several limitations. First, gender identity is complex and non-binary, and yet as in many similar studies, we are confined to representing gender as a simple binary choice because of the available data [@cohoon11:cspapers; @elsevier17:gender; @fox16:gender; @holman18:gender; @huang19:historical; @karimi16:gender]. Second, not all researchers presented unambiguous Web presence or gender. For those
+This approach has several limitations. First, gender identity is complex and non-binary, and yet as in many similar studies, we are confined to representing gender as a simple binary choice because of the available data [@cohoon11:cspapers; @elsevier17:gender; @fox16:gender; @holman18:gender; @huang19:historical; @karimi16:gender]. Second, not all researchers presented unambiguous Web presence or genders. For those
 `r nrow(filter(hpc_people, is.na(gender)))` out of `r nrow(hpc_people)` persons
 for whom we couldn't confidently infer gender from the Web or their name,
 we marked their gender as NA and omitted them from most analyses, which may introduce a small bias.
@@ -108,11 +108,12 @@ We organized our statistical observations into three perspectives: the conferenc
 
 ##  Conferences {#subsec:confs}
 
-We analyzed the conferences in our set through the lens of the ratio of women in different roles across all conference papers (Fig. \@ref(fig:female-ratios)).
+We analyze the conferences in our set through the lens of the ratio of women in different roles across all conference papers (Fig. \@ref(fig:female-ratios)).
 
 ```{r female-ratios, fig.fullwidth = TRUE, echo = F, cache = T, fig.cap = "Representation of women across six conference roles"}
 hpc_people %>%
   drop_na(gender) %>%
+  mutate(role = recode(role, "PC chair" = "PC and area chair")) %>%
   group_by(conf, role) %>%
   summarize(pctw = 100 * sum(gender == "F") / n()) %>%
   ggplot(aes(x = conf, y = pctw, fill = conf)) +
@@ -131,14 +132,14 @@ The result, if indeed indicative of the overall population, is alarming. Only ab
 `r pct(nrow(filter(hpc_people, role == "Author", gender == "F")), nrow(filter(hpc_people, role == "Author", !is.na(gender))), 2)`%
 of all
 `r nrow(filter(hpc_people, role == "Author"))`
-authors are women, far lower than the already-low 20--30% for the rest of CS [@cohoon11:cspapers; @wang19:trends; @zweben18:taulbee].
+authors are women, far lower than the already low 20--30% for the rest of CS [@cohoon11:cspapers; @wang19:trends; @zweben18:taulbee].
 It is particularly dismal for the HPC flagship conferences, with only
 `r pct(nrow(filter(hpc_people, conf == "SC", role == "Author", gender == "F")), nrow(filter(hpc_people, conf == "SC", role == "Author", !is.na(gender))), 2)`%
 female authors in SC and 
 `r pct(nrow(filter(hpc_people, conf == "ISC", role == "Author", gender == "F")), nrow(filter(hpc_people, conf == "ISC", role == "Author", !is.na(gender))), 2)`%
 in ISC (for authors for which we have gender information).
 
-It is possible these results are biased. For example, survivorship bias or peer-review bias would lead to a higher percentage of women among submitted papers than the percentage we observe across accepted papers. However, variations in the visibility of the author's gender do not support this hypothesis. For example, SC and ISC are the only double-blind conferences in our dataset, where the identity of authors are hidden from reviewers, and yet these conferences show the least female representation. And the ratio of female lead authors, where their gender could potentially be more prominent, is for the most part comparable.
+It is possible these results are biased. For example, survivor bias [@shermer14:survivor] or peer-review bias [@lee13:bias] would lead to a higher percentage of women among submitted papers than the percentage we observe across accepted papers. However, variations in the visibility of the author's gender do not support this hypothesis. For example, SC and ISC are the only double-blind conferences in our dataset, where the identity of authors are hidden from reviewers, and yet these conferences show the least female representation. And the ratio of female lead authors, where their gender could potentially be more prominent, is for the most part comparable.
 
 ### Program Committee
 
@@ -149,14 +150,14 @@ Among the
 `r nrow(filter(hpc_people, role == "PC member"))`
 total PC members (with repeats),
 `r pct(nrow(filter(hpc_people, role == "PC member", gender == "F")), nrow(filter(hpc_people, role == "PC member", !is.na(gender))), 2)`%
-are women, about twice the rate among authors. Even without the larger SC, the ratio is still 
+are women, about twice the rate among authors. Even without the larger SC conference, the ratio is still 
 `r pct(nrow(filter(hpc_people, role == "PC member", conf != "SC", gender == "F")), nrow(filter(hpc_people, role == "PC member", conf != "SC", !is.na(gender))), 2)`%.
 Conceivably, women are not as poorly represented in this population because conferences often aspire to intentionally increase diversity, which can directly lead to selecting more women for this role. SC's example supports this explanation, with its explicit push for diversity. Then again, the other conference with a diversity chair, ISC, had a more average ratio of women in the PC.
 But even if these ratios are more representative of the overall female HPC population than the authors statistics, they are still far from equitable, and are ostensibly insufficient to increase the ratios among authors.
 
 ### Visible Roles
 
-Finally, we look at two more conference roles: keynote speakers and session chairs. These roles are only collateral to the main technical content of a conference. But they can be very visible to conference attendees, and as such, can represent the "face" of the conference. A conference with low female visibility in these roles could conceivably deter further women from joining or staying in the conference or field. Like PC chairs, keynote speakers are few, but again we see four conferences with no women. Perhaps worse still, three conferences had no female session chairs whatsoever, out of a total of
+Finally, we look at two more conference roles: keynote speakers and session chairs. These roles are only collateral to the main technical content of a conference. But they can be very visible to conference attendees, and as such, can represent the "face" of the conference. A conference with low female visibility in these roles could conceivably further deter women from joining or staying in the conference or field. Like PC chairs, keynote speakers are few, but again we see four conferences with no women. Perhaps worse still, three conferences had no female session chairs whatsoever, out of a total of
 `r nrow(filter(hpc_people, conf %in% c("HPDC", "HPCC", "HiPC"), role == "Session chair"))`
 session chairs for these three!
 Only SC shows a ratio that is approaching equitability, again perhaps because of its explicit push for diversity and inclusivity.
@@ -166,8 +167,8 @@ Only SC shows a ratio that is approaching equitability, again perhaps because of
 
 ### Topic
 
-Not all papers in our conference set relate directly to HPC. To limit our discussion only to HPC papers, as opposed to HPC conferences, we skimmed each paper and tagged it as "HPC" if its topic related directly to high performance hardware or software.^[The determination of this tag was based on our experience in HPC research, and is therefore subjective and error-prone.]
-The resulting list of `r nrow(hpc_papers)` papers is approximately a third of the complete list of `r sum(hpc_confs$npapers)` papers in our `r nrow(hpc_confs)` conferences, and can help us determine what the representation of women looks like among paper authors when we restrict ourselves to only HPC research.
+Not all papers in our conference set relate directly to HPC. To limit our discussion only to HPC papers, as opposed to HPC conferences, we skimmed each paper and tagged it as "HPC" if its topic related directly to high performance hardware or software.^[The determination of this tag was based on our experience in HPC research and is therefore subjective and error-prone.]
+The resulting list of `r nrow(hpc_papers)` papers is approximately a third of the complete list of `r sum(hpc_confs$npapers)` papers in our `r nrow(hpc_confs)` conferences and can help us determine what the representation of women looks like among paper authors when we restrict ourselves to only HPC research.
 
 Of the
 `r hpc_a <- filter(hpc_people, role == "Author", key %in% hpc_papers$key, !is.na(gender)); nrow(hpc_a)`
@@ -193,7 +194,7 @@ cites <-
 hpc_people %>%
   drop_na(gender) %>%
   filter(role == "Lead author") %>%
-  left_join(filter(citations, near(months, 24, 2)))
+  left_join(filter(citations, near(months, 24, 1)))
 
 cites %>%
   ggplot(aes(x = citations, color = gender)) +
@@ -234,21 +235,22 @@ countryd <- demo %>% drop_na(country.y);
 
 tbl <- countryd %>%
   group_by(country.y) %>%
-  summarize(total = n(), pct_w = round(100 * sum(gender == "F", na.rm = T) / sum(!is.na(gender)), 2)) %>%
+  summarize(pct_w = round(100 * sum(gender == "F", na.rm = T) / sum(!is.na(gender)), 2), total = n()) %>%
   arrange(desc(total)) %>%
   head(10)
-names(tbl) <- c("Country", "Total", "% Women")
+names(tbl) <- c("Country", "% Women", "Total")
 knitr::kable(tbl, booktabs = T, align = c("l", "r", "r"), caption = "Top ten countries by number of researchers")
 ```
 
-Another way to break down these numbers is by geographic region and conference role (Table \@ref(tab:region)). This perspective confirms the stark lack of geographic diversity in the field, with a full half of the authors
-(`r pct(nrow(filter(countryd, role=="Author", country == "US")), nrow(filter(countryd, role=="Author")), 2)`%)
-associated with US email addresses, and another 
-`r pct(nrow(filter(countryd, role=="Author", subregion == "Western Europe")), nrow(filter(countryd, role=="Author")), 2)`%
+Another way to break down these numbers is by geographic region and conference role (Table \@ref(tab:region)). This perspective confirms the stark lack of geographic diversity in the field, with a full half of the
+`r nrow(filter(countryd, role == "Author", !is.na(country)))`
+<!--(`r pct(nrow(filter(countryd, role=="Author", country == "US")), nrow(filter(countryd, role=="Author")), 2)`%)-->
+identified authors associated with US email addresses, and another 
+`r pct(nrow(filter(countryd, role == "Author", subregion == "Western Europe")), nrow(filter(countryd, role=="Author")), 2)`%
 from Western Europe.
 It is encouraging to note, however, that Western reviewers are not over-represented compared to authors, as has been observed in journals of other fields [@publons18:peer]. For example, the percentage of PC members from the US or Western Europe are fairly similar to the authors'
-(`r pct(nrow(filter(countryd, role=="PC member", country == "US")), nrow(filter(countryd, role=="PC member")), 2)`% and
-`r pct(nrow(filter(countryd, role=="PC member", subregion == "Western Europe")), nrow(filter(countryd, role=="PC member")), 2)`%, respectively).
+(`r pct(nrow(filter(countryd, role == "PC member", country == "US")), nrow(filter(countryd, role=="PC member")), 2)`% and
+`r pct(nrow(filter(countryd, role == "PC member", subregion == "Western Europe")), nrow(filter(countryd, role=="PC member")), 2)`%, respectively).
 
 In terms of representation of women, none of the larger regions deviates much from the $\approx{10\%}$ overall percentage. The regions with fewer than 25 authors or so exhibit more variance, due to the small denominators (for example, a single female author from Eastern Europe would have bumped the percentage from zero to $\approx{8\%}$).
 
@@ -278,7 +280,7 @@ and "GOV" for government and national labs
 (`r pct(nrow(filter(demo, sector == "GOV")), nrow(filter(demo, !is.na(sector))), 1)`%).
 Fig. \@ref(fig:sector) depicts the percentage of women in each sector, by role. It shows that among PC members, there is better female representation in government and academia than in industry. This result agrees with past studies that found relatively fewer female engineers in industry research positions [@fox06:engineering; @ghiasi15:compliance; @tao16:employment].
 
-```{r sector, echo = F, message = F, fig.cap = "Representation of Women by sector and role"}
+```{r sector, echo = F, message = F, fig.cap = "Representation of women by sector and role"}
 demo %>%
   drop_na(gender) %>%
   drop_na(sector) %>%
@@ -301,7 +303,7 @@ demo %>%
 
 ### Experience
 
-Another statistic we can evaluate from this data set is the previous research experience of researchers. We can approximate this experience by identifying the unique GS profile of researchers when possible (in our dataset,
+Another statistic we can evaluate from this data set is the previous research experience of researchers. We can approximate this experience by identifying the unique GS profile of researchers whenever possible (in our dataset,
 `r pct(nrow(filter(demo, !is.na(hindex))), nrow(demo), 2)`
 had a uniquely identifiable GS profile). The profile contains various bibliometric measures that can approximate the experience and research influence of a person. For example, Fig. \@ref(fig:npubs) depicts the distribution of one such metric, the total number of previous publications (circa their publication's date).
 
@@ -322,9 +324,9 @@ demo %>%
     facet_grid(. ~ Role)
 ```
 
-As expected, PC members generally have more experience (publications) than authors, especially among women, suggesting that perhaps more of the female authors are novices, in relative terms. Another interesting observation is that the males' distribution "pulls to the right" (note the long-tailed distribution). In other words, there appear to be relatively more men in more experienced or senior positions. This disparity may be attributed to the observation from other fields that women do not continue to senior research positions in the same rate as men [@fox06:engineering; @gerhard07:undergraduate; @mattis07:upstream].
+As expected, PC members generally have more experience (publications) than authors, especially among women, suggesting that perhaps more of the female authors are novices, in relative terms. Another interesting observation is that the males' distribution "pulls to the right" (note the long-tailed distribution). In other words, there appear to be relatively more men in more experienced or senior positions among authors. This disparity may be attributed to the observation from other fields that women do not continue to senior research positions in the same rate as men [@fox06:engineering; @gerhard07:undergraduate; @mattis07:upstream].
 
-To confirm these observations, we stratified all our researchers into the following three groups, using the experience metric of H-index [@hirsch05:index]: those with an H-index of less than 12, those with an H-index of 13 to 18, and the rest. We conveniently named these groups novices, mid-career, and experienced, although these breaks are arbitrary [@hirsch05:index]. Indeed, Fig. \@ref(fig:seniority) shows that fewer women in HPC reach the senior ranks of research, especially among authors
+To confirm these observations, we stratified all our researchers into the following three groups, using the experience metric of H-index [@hirsch05:index]: those with an H-index of less than 13, those with an H-index of 13 to 18, and the rest. We conveniently named these groups novices, mid-career, and experienced, although these breaks are arbitrary [@hirsch05:index]. Indeed, Fig. \@ref(fig:seniority) shows that fewer women than men reach the senior ranks of research, especially among authors
 (`r pct(nrow(filter(hindex, gender == "F", Experience == "Novice")), nrow(filter(hindex, gender == "F")))`%
 novice female authors compared to
 `r pct(nrow(filter(hindex, gender == "M", Experience == "Novice")), nrow(filter(hindex, gender == "M")))`%
@@ -345,11 +347,11 @@ hindex %>%
 
 # Conclusion {#sec:conclusion}
 
-This paper presented recent statistics on the representation of women in nine HPC conferences during 2017. The picture that emerges shows a field of research very far from achieving gender equality. Men in HPC comprise the vast majority of researchers ($\approx{90\%}$), occupy most visible conference roles, and exhibit on average more research experience and somewhat higher citation counts.
+This paper presented recent statistics on the representation of women in nine HPC conferences during 2017. The picture that emerges shows a field far from achieving gender equality. Men in HPC comprise the vast majority of researchers, occupy most visible conference roles, and exhibit more research experience and somewhat higher citation counts than women.
 
-There are some indications that representation is improving, however. Both SC and ISC are actively measuring inclusivity metrics and have shown steady progress in female representation in 2018 and 2019. As the two conferences with a dedicated diversity chair and active push toward inclusion, they may serve as a benchmark to estimate the effect of diversity efforts. In this short term, the generality of these improvements may be limited, but is encouraging. At the very least, these efforts are designed to make conferences more hospitable to all attendees, which may result in a long term improvement in gender representation. We plan to follow up at regular frequency to evaluate this hypothesis.
+Nevertheless, there are some indications that representation is improving. Both SC and ISC are actively measuring inclusivity metrics and have shown steady progress in female representation in 2018 and 2019. As the two conferences with a dedicated diversity chair and active push toward inclusion, they may serve as a benchmark to estimate the effect of diversity efforts. It is hard to generalize from these improvements given the short term since 2017, but they are encouraging. At the very least, these efforts are designed to make conferences more hospitable to all attendees, which may result in long-term improvement in gender representation. We plan to follow up at regular intervals to evaluate this hypothesis.
 
-Other future work includes expanding this analysis to the full set of `r nrow(all_confs)` conferences we have collected from all subfields of computer systems, and to address more questions that emerge from the data, such as the differences in collaboration patterns between women and men.
+Other future work includes expanding this analysis to the full set of `r nrow(all_confs)` conferences we have collected from all subfields of computer systems and to address more questions that emerge from the data, such as the differences in collaboration patterns between women and men.
 
 
 \newpage
@@ -357,7 +359,7 @@ Other future work includes expanding this analysis to the full set of `r nrow(al
 <!--
 ## Acknowledgments {-}
 
-I would like to thank Kelly Shaw for spearheading this research, as well as Josh Reiss for his part in the collection of gender data. This work was supported by a grant from the Social Justice Fund at Reed College.
+We would like to thank Kelly Shaw for spearheading this research and providing detailed feedback along the way. We would also like to thank Josh Reiss for his part in the collection of gender data. This work was supported by a grant from the Social Justice Fund at Reed College.
 -->
 
 References {-}

@@ -16,6 +16,7 @@ The following describes the subdirectories in this repository.
   * `data/`: All files with raw data, downloaded or scraped from the internet, 
 or manually collected. Each file and subdirectory has a data description file 
 in the corresponding .md file.
+  * `docs/`: HTML documentation of the project, output of pubs/web.
   * `features/`: Data files in tidy CSV format processed from the raw data.
 Each file and subdirectory has a data description file in the corresponding .md 
 There's a Makefile to recompute the feature files from data/ if necessary.

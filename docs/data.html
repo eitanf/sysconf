@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>2 Data | Statistical Observations on Systems Papers</title>
+  <meta name="description" content="2 Data | Statistical Observations on Systems Papers" />
+  <meta name="generator" content="bookdown 0.14 and GitBook 2.6.7" />
+
+  <meta property="og:title" content="2 Data | Statistical Observations on Systems Papers" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  <meta name="github-repo" content="eitanf/sysconf" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="2 Data | Statistical Observations on Systems Papers" />
+  
+  
+  
+
+<meta name="author" content="Eitan Frachtenberg" />
+
+
+<meta name="date" content="2019-12-20" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+  
+  
+<link rel="prev" href="index.html"/>
+<link rel="next" href="features.html"/>
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-table.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-clipboard.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<script src="libs/kePrint-0.0.1/kePrint.js"></script>
+
+
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="1" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#research-in-computer-systems"><i class="fa fa-check"></i>Research in Computer Systems</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#result-highlights"><i class="fa fa-check"></i>Result Highlights</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#reproducibility"><i class="fa fa-check"></i>Reproducibility</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#acknowledgements"><i class="fa fa-check"></i>Acknowledgements</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#license"><i class="fa fa-check"></i>License</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#citation"><i class="fa fa-check"></i>Citation</a></li>
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html#version-history"><i class="fa fa-check"></i>Version history</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="data.html"><a href="data.html"><i class="fa fa-check"></i><b>2</b> Data</a><ul>
+<li class="chapter" data-level="2.1" data-path="data.html"><a href="data.html#conference-data"><i class="fa fa-check"></i><b>2.1</b> Conference data</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="data.html"><a href="data.html#system-conferences"><i class="fa fa-check"></i><b>2.1.1</b> System conferences</a></li>
+<li class="chapter" data-level="2.1.2" data-path="data.html"><a href="data.html#additional-conferences"><i class="fa fa-check"></i><b>2.1.2</b> Additional conferences</a></li>
+<li class="chapter" data-level="2.1.3" data-path="data.html"><a href="data.html#conferece-details"><i class="fa fa-check"></i><b>2.1.3</b> Conferece details</a></li>
+<li class="chapter" data-level="" data-path="data.html"><a href="data.html#field-description"><i class="fa fa-check"></i>Field description</a></li>
+<li class="chapter" data-level="2.1.4" data-path="data.html"><a href="data.html#paper-labels"><i class="fa fa-check"></i><b>2.1.4</b> Paper labels</a></li>
+</ul></li>
+<li class="chapter" data-level="2.2" data-path="data.html"><a href="data.html#person-data"><i class="fa fa-check"></i><b>2.2</b> Person data</a><ul>
+<li class="chapter" data-level="" data-path="data.html"><a href="data.html#field-description-1"><i class="fa fa-check"></i>Field description</a></li>
+</ul></li>
+<li class="chapter" data-level="2.3" data-path="data.html"><a href="data.html#paper-data"><i class="fa fa-check"></i><b>2.3</b> Paper data</a></li>
+<li class="chapter" data-level="2.4" data-path="data.html"><a href="data.html#geographical-data"><i class="fa fa-check"></i><b>2.4</b> Geographical data</a></li>
+<li class="chapter" data-level="2.5" data-path="data.html"><a href="data.html#challenges"><i class="fa fa-check"></i><b>2.5</b> Challenges</a><ul>
+<li class="chapter" data-level="2.5.1" data-path="data.html"><a href="data.html#defining-systems"><i class="fa fa-check"></i><b>2.5.1</b> Defining “Systems”</a></li>
+<li class="chapter" data-level="2.5.2" data-path="data.html"><a href="data.html#author-disambiguation"><i class="fa fa-check"></i><b>2.5.2</b> Author disambiguation</a></li>
+<li class="chapter" data-level="2.5.3" data-path="data.html"><a href="data.html#partial-conference-data"><i class="fa fa-check"></i><b>2.5.3</b> Partial conference data</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="features.html"><a href="features.html"><i class="fa fa-check"></i><b>3</b> Features</a><ul>
+<li class="chapter" data-level="3.1" data-path="features.html"><a href="features.html#conference-related-variables"><i class="fa fa-check"></i><b>3.1</b> Conference-related variables</a><ul>
+<li class="chapter" data-level="" data-path="features.html"><a href="features.html#field-description-2"><i class="fa fa-check"></i>Field description</a></li>
+</ul></li>
+<li class="chapter" data-level="3.2" data-path="features.html"><a href="features.html#author-related-variables"><i class="fa fa-check"></i><b>3.2</b> Author-related variables</a><ul>
+<li class="chapter" data-level="" data-path="features.html"><a href="features.html#field-description-3"><i class="fa fa-check"></i>Field description</a></li>
+</ul></li>
+<li class="chapter" data-level="3.3" data-path="features.html"><a href="features.html#paper-related-variables"><i class="fa fa-check"></i><b>3.3</b> Paper-related variables</a></li>
+<li class="chapter" data-level="3.4" data-path="features.html"><a href="features.html#sec:text-features"><i class="fa fa-check"></i><b>3.4</b> Textual-related variables</a></li>
+<li class="chapter" data-level="3.5" data-path="features.html"><a href="features.html#sec:geo-features"><i class="fa fa-check"></i><b>3.5</b> Country-related variables</a><ul>
+<li class="chapter" data-level="" data-path="features.html"><a href="features.html#field-description-4"><i class="fa fa-check"></i>Field description</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="references.html"><a href="references.html"><i class="fa fa-check"></i>Bibliography</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">Statistical Observations on Systems Papers</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="ch:data" class="section level1">
+<h1><span class="header-section-number">2</span> Data</h1>
+<blockquote>
+<p>“In God we trust, all others must bring data.” – W. Edwards Deming</p>
+</blockquote>
+<p>This chapter describes the main raw data collected, and the format of the files containing the data. All of these files reside in the <code>data/</code> directory and sub-directories in the repository. Some data files that are specific to a single chapter are described in that chapter later on.</p>
+<div id="conference-data" class="section level2">
+<h2><span class="header-section-number">2.1</span> Conference data</h2>
+<div id="system-conferences" class="section level3">
+<h3><span class="header-section-number">2.1.1</span> System conferences</h3>
+<p>Fifty Conferences in the systems areas were chosen as a data source. These conferences were selected to represent a wide range of venues and topics in computer systems during 2017, ranging from small workshops to week-long conferences with over 100 papers. This selection was not meant to be exhaustive, and doesn’t necessarily reflect the ``best’’ conferences in the field. But all conferences were peer-reviewed and sponsored by major organizations such as IEEE, ACM, and USENIX. (For conferences with multiple tracks, such as research and industry, only the peer-reviewed, full-paper tracks were considered.)</p>
+<p>The full list of systems conferences can be found in the file <code>data/all_confs.json</code> and is reproduced in Table <a href="data.html#tab:sys-confs">2.1</a>. One representative topic was chosen for each conference as described in Sec. <a href="#sec:topic-dist-by-conf"><strong>??</strong></a>.</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:sys-confs">Table 2.1: </span>Systems conferences used for this data set
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:center;">
+Commencement
+</th>
+<th style="text-align:left;">
+Topic
+</th>
+<th style="text-align:right;">
+Papers
+</th>
+<th style="text-align:left;">
+URL
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+CIDR_17
+</td>
+<td style="text-align:center;">
+2017-01-08
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6194B !important;">Data</span>
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:left;">
+<a href="http://cidrdb.org/cidr2017/" class="uri">http://cidrdb.org/cidr2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PPoPP_17
+</td>
+<td style="text-align:center;">
+2017-02-04
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+<a href="http://ppopp17.sigplan.org/" class="uri">http://ppopp17.sigplan.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HPCA_17
+</td>
+<td style="text-align:center;">
+2017-02-04
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6BEFF !important;">Architecture</span>
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:left;">
+<a href="http://hpca2017.org" class="uri">http://hpca2017.org</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NDSS_17
+</td>
+<td style="text-align:center;">
+2017-02-26
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #AA6E28 !important;">Security</span>
+</td>
+<td style="text-align:right;">
+68
+</td>
+<td style="text-align:left;">
+<a href="https://www.ndss-symposium.org/ndss2017/" class="uri">https://www.ndss-symposium.org/ndss2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+FAST_17
+</td>
+<td style="text-align:center;">
+2017-02-27
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #911EB4 !important;">Storage</span>
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:left;">
+<a href="https://www.usenix.org/conference/fast17/" class="uri">https://www.usenix.org/conference/fast17/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NSDI_17
+</td>
+<td style="text-align:center;">
+2017-03-27
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #D2F53C !important;">Network</span>
+</td>
+<td style="text-align:right;">
+42
+</td>
+<td style="text-align:left;">
+<a href="https://www.usenix.org/conference/nsdi17/" class="uri">https://www.usenix.org/conference/nsdi17/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ASPLOS_17
+</td>
+<td style="text-align:center;">
+2017-04-08
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6BEFF !important;">Architecture</span>
+</td>
+<td style="text-align:right;">
+56
+</td>
+<td style="text-align:left;">
+<a href="http://novel.ict.ac.cn/ASPLOS2017/" class="uri">http://novel.ict.ac.cn/ASPLOS2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+VEE_17
+</td>
+<td style="text-align:center;">
+2017-04-09
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFe119 !important;">VM</span>
+</td>
+<td style="text-align:right;">
+18
+</td>
+<td style="text-align:left;">
+<a href="http://conf.researchr.org/home/vee-2017" class="uri">http://conf.researchr.org/home/vee-2017</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ICPE_17
+</td>
+<td style="text-align:center;">
+2017-04-22
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+<a href="https://icpe2017.spec.org/" class="uri">https://icpe2017.spec.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ISPASS_17
+</td>
+<td style="text-align:center;">
+2017-04-24
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+<a href="http://www.ispass.org/ispass2017/" class="uri">http://www.ispass.org/ispass2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EuroSys_17
+</td>
+<td style="text-align:center;">
+2017-04-23
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:left;">
+<a href="https://eurosys2017.github.io/" class="uri">https://eurosys2017.github.io/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HotOS_17
+</td>
+<td style="text-align:center;">
+2017-05-07
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F58231 !important;">OS</span>
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+<a href="https://www.sigops.org/hotos/hotos17/" class="uri">https://www.sigops.org/hotos/hotos17/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CCGrid_17
+</td>
+<td style="text-align:center;">
+2017-05-14
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFFAC8 !important;">Cloud</span>
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:left;">
+<a href="https://www.arcos.inf.uc3m.es/wp/ccgrid2017/" class="uri">https://www.arcos.inf.uc3m.es/wp/ccgrid2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SIGMOD_17
+</td>
+<td style="text-align:center;">
+2017-05-14
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F032E6 !important;">DB</span>
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:left;">
+<a href="http://sigmod2017.org/" class="uri">http://sigmod2017.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PODS_17
+</td>
+<td style="text-align:center;">
+2017-05-14
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F032E6 !important;">DB</span>
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+<a href="http://sigmod2017.org/pods-program/" class="uri">http://sigmod2017.org/pods-program/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SYSTOR_17
+</td>
+<td style="text-align:center;">
+2017-05-22
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #911EB4 !important;">Storage</span>
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:left;">
+<a href="https://www.systor.org/2017/" class="uri">https://www.systor.org/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HCW_17
+</td>
+<td style="text-align:center;">
+2017-05-29
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #3CB44B !important;">GPGPU</span>
+</td>
+<td style="text-align:right;">
+7
+</td>
+<td style="text-align:left;">
+<a href="http://hcw.eecs.wsu.edu/" class="uri">http://hcw.eecs.wsu.edu/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IPDPS_17
+</td>
+<td style="text-align:center;">
+2017-05-29
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+116
+</td>
+<td style="text-align:left;">
+<a href="http://www.ipdps.org/ipdps2017/" class="uri">http://www.ipdps.org/ipdps2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SIGMETRICS_17
+</td>
+<td style="text-align:center;">
+2017-06-05
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:right;">
+27
+</td>
+<td style="text-align:left;">
+<a href="http://www.sigmetrics.org/sigmetrics2017" class="uri">http://www.sigmetrics.org/sigmetrics2017</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ISC_17
+</td>
+<td style="text-align:center;">
+2017-06-18
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #008080 !important;">HPC</span>
+</td>
+<td style="text-align:right;">
+22
+</td>
+<td style="text-align:left;">
+<a href="http://isc-hpc.com/id-2017.html" class="uri">http://isc-hpc.com/id-2017.html</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ISCA_17
+</td>
+<td style="text-align:center;">
+2017-06-24
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6BEFF !important;">Architecture</span>
+</td>
+<td style="text-align:right;">
+54
+</td>
+<td style="text-align:left;">
+<a href="http://isca17.ece.utoronto.ca/doku.php" class="uri">http://isca17.ece.utoronto.ca/doku.php</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CLOUD_17
+</td>
+<td style="text-align:center;">
+2017-06-25
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFFAC8 !important;">Cloud</span>
+</td>
+<td style="text-align:right;">
+29
+</td>
+<td style="text-align:left;">
+<a href="http://www.thecloudcomputing.org/2017/" class="uri">http://www.thecloudcomputing.org/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HPDC_17
+</td>
+<td style="text-align:center;">
+2017-06-28
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #008080 !important;">HPC</span>
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:left;">
+<a href="http://www.hpdc.org/2017/" class="uri">http://www.hpdc.org/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HotCloud_17
+</td>
+<td style="text-align:center;">
+2017-07-10
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFFAC8 !important;">Cloud</span>
+</td>
+<td style="text-align:right;">
+19
+</td>
+<td style="text-align:left;">
+<a href="https://www.usenix.org/conference/hotcloud17" class="uri">https://www.usenix.org/conference/hotcloud17</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HotStorage_17
+</td>
+<td style="text-align:center;">
+2017-07-10
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #911EB4 !important;">Storage</span>
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:left;">
+<a href="https://www.usenix.org/conference/hotstorage17" class="uri">https://www.usenix.org/conference/hotstorage17</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ATC_17
+</td>
+<td style="text-align:center;">
+2017-07-12
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F58231 !important;">OS</span>
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:left;">
+<a href="https://www.usenix.org/conference/atc17" class="uri">https://www.usenix.org/conference/atc17</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SPAA_17
+</td>
+<td style="text-align:center;">
+2017-07-24
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:left;">
+<a href="http://spaa.acm.org/2017/index.html" class="uri">http://spaa.acm.org/2017/index.html</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PODC_17
+</td>
+<td style="text-align:center;">
+2017-07-25
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+38
+</td>
+<td style="text-align:left;">
+<a href="https://www.podc.org/podc2017/" class="uri">https://www.podc.org/podc2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ICPP_17
+</td>
+<td style="text-align:center;">
+2017-08-14
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:left;">
+<a href="http://www.icpp-conf.org/2017/index.php" class="uri">http://www.icpp-conf.org/2017/index.php</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SIGCOMM_17
+</td>
+<td style="text-align:center;">
+2017-08-21
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #D2F53C !important;">Network</span>
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:left;">
+<a href="http://conferences.sigcomm.org/sigcomm/2017/" class="uri">http://conferences.sigcomm.org/sigcomm/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EuroPar_17
+</td>
+<td style="text-align:center;">
+2017-08-30
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+50
+</td>
+<td style="text-align:left;">
+<a href="http://europar2017.usc.es/" class="uri">http://europar2017.usc.es/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cluster_17
+</td>
+<td style="text-align:center;">
+2017-09-05
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #008080 !important;">HPC</span>
+</td>
+<td style="text-align:right;">
+65
+</td>
+<td style="text-align:left;">
+<a href="https://cluster17.github.io/" class="uri">https://cluster17.github.io/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PACT_17
+</td>
+<td style="text-align:center;">
+2017-09-11
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6BEFF !important;">Architecture</span>
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:left;">
+<a href="https://parasol.tamu.edu/pact17/" class="uri">https://parasol.tamu.edu/pact17/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MASCOTS_17
+</td>
+<td style="text-align:center;">
+2017-09-20
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+<a href="http://mascots2017.cs.ucalgary.ca/" class="uri">http://mascots2017.cs.ucalgary.ca/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SOCC_17
+</td>
+<td style="text-align:center;">
+2017-09-25
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFFAC8 !important;">Cloud</span>
+</td>
+<td style="text-align:right;">
+45
+</td>
+<td style="text-align:left;">
+<a href="https://acmsocc.github.io/2017/" class="uri">https://acmsocc.github.io/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IISWC_17
+</td>
+<td style="text-align:center;">
+2017-10-02
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:right;">
+31
+</td>
+<td style="text-align:left;">
+<a href="http://www.iiswc.org/iiswc2017/index.html" class="uri">http://www.iiswc.org/iiswc2017/index.html</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SP_17
+</td>
+<td style="text-align:center;">
+2017-05-22
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #AA6E28 !important;">Security</span>
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:left;">
+<a href="https://www.ieee-security.org/TC/SP2017/index.html" class="uri">https://www.ieee-security.org/TC/SP2017/index.html</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MICRO_17
+</td>
+<td style="text-align:center;">
+2017-10-16
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6BEFF !important;">Architecture</span>
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:left;">
+<a href="https://www.microarch.org/micro50/" class="uri">https://www.microarch.org/micro50/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MobiCom_17
+</td>
+<td style="text-align:center;">
+2017-10-17
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #D2F53C !important;">Network</span>
+</td>
+<td style="text-align:right;">
+35
+</td>
+<td style="text-align:left;">
+<a href="https://sigmobile.org/mobicom/2017/" class="uri">https://sigmobile.org/mobicom/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IGSC_17
+</td>
+<td style="text-align:center;">
+2017-10-23
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #AAFFC3 !important;">Energy</span>
+</td>
+<td style="text-align:right;">
+23
+</td>
+<td style="text-align:left;">
+<a href="http://igsc.eecs.wsu.edu/" class="uri">http://igsc.eecs.wsu.edu/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ICAC_17
+</td>
+<td style="text-align:center;">
+2017-07-18
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F58231 !important;">OS</span>
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+<a href="http://icac2017.ece.ohio-state.edu/" class="uri">http://icac2017.ece.ohio-state.edu/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CCS_17
+</td>
+<td style="text-align:center;">
+2017-10-31
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #AA6E28 !important;">Security</span>
+</td>
+<td style="text-align:right;">
+151
+</td>
+<td style="text-align:left;">
+<a href="https://www.sigsac.org/ccs/CCS2017/" class="uri">https://www.sigsac.org/ccs/CCS2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SOSP_17
+</td>
+<td style="text-align:center;">
+2017-10-29
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F58231 !important;">OS</span>
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:left;">
+<a href="https://www.sigops.org/sosp/sosp17/" class="uri">https://www.sigops.org/sosp/sosp17/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IMC_17
+</td>
+<td style="text-align:center;">
+2017-11-01
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:right;">
+28
+</td>
+<td style="text-align:left;">
+<a href="http://conferences.sigcomm.org/imc/2017/" class="uri">http://conferences.sigcomm.org/imc/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SC_17
+</td>
+<td style="text-align:center;">
+2017-11-14
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #008080 !important;">HPC</span>
+</td>
+<td style="text-align:right;">
+61
+</td>
+<td style="text-align:left;">
+<a href="http://sc17.supercomputing.org/" class="uri">http://sc17.supercomputing.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Middleware_17
+</td>
+<td style="text-align:center;">
+2017-12-11
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F58231 !important;">OS</span>
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+<a href="http://2017.middleware-conference.org/" class="uri">http://2017.middleware-conference.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CoNEXT_17
+</td>
+<td style="text-align:center;">
+2017-12-13
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #D2F53C !important;">Network</span>
+</td>
+<td style="text-align:right;">
+32
+</td>
+<td style="text-align:left;">
+<a href="http://conferences2.sigcomm.org/co-next/2017/#!/home" class="uri">http://conferences2.sigcomm.org/co-next/2017/#!/home</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HiPC_17
+</td>
+<td style="text-align:center;">
+2017-12-18
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:right;">
+41
+</td>
+<td style="text-align:left;">
+<a href="http://hipc.org/" class="uri">http://hipc.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HPCC_17
+</td>
+<td style="text-align:center;">
+2017-12-18
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #008080 !important;">HPC</span>
+</td>
+<td style="text-align:right;">
+77
+</td>
+<td style="text-align:left;">
+<a href="http://hpcl.seas.gwu.edu/hpcc2017/" class="uri">http://hpcl.seas.gwu.edu/hpcc2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+HotI_17
+</td>
+<td style="text-align:center;">
+2017-08-28
+</td>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #D2F53C !important;">Network</span>
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+<a href="http://www.hoti.org/hoti25/archives/" class="uri">http://www.hoti.org/hoti25/archives/</a>
+</td>
+</tr>
+</tbody>
+</table>
+<p>… Some of these conferences may arguably be exluded from the “systems” label. For example (copy discussion about SPAA, etc.). But as we find in Ch. [graph analysis], there are strong relationships: some of these authors publish in “systemy” conferences, or collaborate with their authors, or cite their papers…</p>
+</div>
+<div id="additional-conferences" class="section level3">
+<h3><span class="header-section-number">2.1.2</span> Additional conferences</h3>
+<p>In addition to the fifty systems conferences, six other conferences in related (but separate) fields were selected for contrast and comparison: three on programming languages and three on data mining/data science/information retrieval, as shown in Table <a href="data.html#tab:other-confs">2.2</a></p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:other-confs">Table 2.2: </span>Non-systems conferences used for this data set
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Name
+</th>
+<th style="text-align:center;">
+Commencement
+</th>
+<th style="text-align:right;">
+Papers
+</th>
+<th style="text-align:left;">
+URL
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+OOPSLA_17
+</td>
+<td style="text-align:center;">
+2017-10-25
+</td>
+<td style="text-align:right;">
+66
+</td>
+<td style="text-align:left;">
+<a href="https://2017.splashcon.org/track/splash-2017-OOPSLA" class="uri">https://2017.splashcon.org/track/splash-2017-OOPSLA</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PLDI_17
+</td>
+<td style="text-align:center;">
+2017-06-18
+</td>
+<td style="text-align:right;">
+47
+</td>
+<td style="text-align:left;">
+<a href="http://pldi17.sigplan.org/home" class="uri">http://pldi17.sigplan.org/home</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SLE_17
+</td>
+<td style="text-align:center;">
+2017-10-23
+</td>
+<td style="text-align:right;">
+24
+</td>
+<td style="text-align:left;">
+<a href="http://www.sleconf.org/2017/" class="uri">http://www.sleconf.org/2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ICDM_17
+</td>
+<td style="text-align:center;">
+2017-11-19
+</td>
+<td style="text-align:right;">
+72
+</td>
+<td style="text-align:left;">
+<a href="http://icdm2017.bigke.org/" class="uri">http://icdm2017.bigke.org/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+KDD_17
+</td>
+<td style="text-align:center;">
+2017-08-15
+</td>
+<td style="text-align:right;">
+64
+</td>
+<td style="text-align:left;">
+<a href="http://www.kdd.org/kdd2017/" class="uri">http://www.kdd.org/kdd2017/</a>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SIGIR_17
+</td>
+<td style="text-align:center;">
+2017-08-07
+</td>
+<td style="text-align:right;">
+78
+</td>
+<td style="text-align:left;">
+<a href="http://sigir.org/sigir2017/" class="uri">http://sigir.org/sigir2017/</a>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Table: (#tab:other-confs) Non-systems conferences used for this data set.</p>
+</div>
+<div id="conferece-details" class="section level3">
+<h3><span class="header-section-number">2.1.3</span> Conferece details</h3>
+<p>Each conference is described in its own data file. Most of the data was manually retrieved from the conference web sites (from the URLs in the previous tables)). Some information was personally requested from the TPC chair or obtained as described in the specific field’s description. Additionally, all the papers in the collection were downloaded in PDF format via open access or through digital libraries.<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> The manual assignment of topics and content tags to papers, as described below, was accomplished by reviewing each of these papers.</p>
+<p>The JSON files under the <code>data/conf/</code> directory hold information about each conference (one per file, with the filename being the short conference name). The data was copied from the conferences’ web pages, with supplemental information from the CFP, the proceedings and its frontmatter, and sometimes directory from program chairs.</p>
+<p>Empty fields (where not data was available or applicable) are denoted as empty strings or lists, according to the field’s type.</p>
+</div>
+<div id="field-description" class="section level3 unnumbered">
+<h3>Field description</h3>
+<ul>
+<li><code>key</code> (string): Short conference name.</li>
+<li><code>conference</code> (string): Full conference name.</li>
+<li><code>url</code> (string): the URL of the main page for the conference.</li>
+<li><code>ogranization</code> (list of categorical strings): List of organizations sponsonring the event (only IEEE/ACM/USENIX are recorded since the rest are too infrequent to provide useful signal).</li>
+<li><code>country</code> (two-letter categorical string): Country code where conference took place.</li>
+<li><code>postdate</code> (date): First day of technical program.</li>
+<li><code>last_deadline</code> (date): The last date when author could upload the full version of their paper for review (before rebuttals and revisions).</li>
+<li><code>review_days</code> (int): The number of days between full paper submission due date and author notification.</li>
+<li><code>mean_pages</code> (numeric): Average number of pages in the PDF versions of accepted papers.</li>
+<li><code>submissions</code> (int): Total number of papers submitted for review. Papers rejected outright for formatting violations are not counted.</li>
+<li><code>min_reviews</code> (int): The minimum number of reviews received by each paper.</li>
+<li><code>total_reviews</code> (int): The total number of formal reviews written by the PC, overall.</li>
+<li><code>double_blind</code> (bool): Whether the review process was double-blind, i.e., author identities were hidden.</li>
+<li><code>rebuttal</code> (bool): Were authors afforded an opportunity to answer the reviews before final acceptance decision was made?</li>
+<li><code>open_access</code> (bool): Whether conference is open access. Are all papers freely available to download?</li>
+<li><code>age</code> (int): Approximate age (in years) of this conference series (trying to account for splits and mergers).</li>
+<li><code>past_papers</code> (int): How many papers were published in this series prior to 2017. This datum was either taken from the ACM digital library, IEEE Xplore, or counted manually.</li>
+<li><code>past_citations</code> (int): How many total citations have papers in this series received, at approximately the postdate. This information was also copied from ACM digital library or IEEE Xplore, where available. Note, however, that because of differences in methods of citation counting, they are likely not directly comparable to each other or to Google Scholar’s count.</li>
+<li><code>h5_index</code> (int): The “H-index” of the conference in the past 5 years, taken from Google Scholar Metrics, where available, at approximately the postdate.</li>
+<li><code>h5_median (int)</code>: The median number of citations for papers in the h5 set, taken from Google Scholar Metrics, where available, at approximately the postdate.</li>
+<li><code>field</code> (categorical string): The top-level category of the conference’s topic.</li>
+<li><code>subfield</code> categorical string): The top-ocurring topic of interest for this conference (selected from <code>topics.json</code> for systems conferences).</li>
+<li><code>diversity_effort</code> (bool): Did the conference website describe some effort to improve diversity (with details in the <code>notes</code> field).</li>
+<li><code>notes</code> (string): free-form text with comments on the review proccess, if applicatible.</li>
+<li><code>pc_chairs</code> (list of strings): Name(s) of the Program Committe (PC) chairs and their affiliations</li>
+<li><code>pc_members</code> (list of strings): Names of the PC members and their affiliations.</li>
+<li><code>keynote_speakers</code> (list of strings): Names of keynote (or invited) speakers.</li>
+<li><code>session_chairs</code> (list of strings): Names of session chairs copied from the program (with repeats).</li>
+<li><code>panelists</code> (list of strings): Names of panelists and moderators of panels.</li>
+<li>papers (list of dictionaries): Accepted peer-reviewed papers. For each paper, the following data were recorded:
+<ul>
+<li><code>key</code> (string): A unique identifier combining the conference name and the paper’s ordinal number.</li>
+<li><code>title</code> (string): Paper title, copied from the conference web page</li>
+<li><code>authors</code> (list of strings): Author names, and sometimes affiliation in parenthesis. The affiliation wasn’t used for any features or training, but rather to help disambiguate among multiple scholar profiles with the same name, as described in the next section.</li>
+<li><code>award</code> (bool): Did the paper receive an award, such as “Best Paper” or “Best Student Paper”?</li>
+<li><code>artifact</code> (bool): Did the paper receive an “artifacts evaluated”, “artifacts available” or similar seal? (primarily ACM papers; see <a href="https://www.acm.org/publications/policies/artifact-review-badging" class="uri">https://www.acm.org/publications/policies/artifact-review-badging</a>)</li>
+<li><code>s2pid</code> (hexadecimal string)`: An identifier for the paper in semanticscholar.org.</li>
+<li><code>words</code> (int): Approximate number of words in the paper (wc of text file).</li>
+<li><code>topics</code> (list of categorical strings): List of keywords (see <code>topics.csv</code> for full list). These are high-level topics that roughly correspond to undergraduate courses in computer systems, such as “Operating Systems”, “Networking”, or “Security”. They were manually assigned, and as such, likely include some errors, misrepresentations, and ommisions. Each topic had at least one conference focused primarily on this topic, although multi-topic papers are common. The following table lists the topic selection that was used.</li>
+<li><code>content_tags</code> (dictionary of lists of categorical strings): List of research categories for the paper, taken from <code>data/content_tags.json</code> (currently all are manually assigned).</li>
+</ul></li>
+</ul>
+</div>
+<div id="paper-labels" class="section level3">
+<h3><span class="header-section-number">2.1.4</span> Paper labels</h3>
+<p>Two of the paper fields require special consideration: <code>topics</code> and <code>content_tags</code>. Since these labels were assigned manually, based primarily on human judgement, the data likely includes mistakes, omission, and bias, and should therefore be considered more critically than the other fields.</p>
+<div id="sec:topic-data" class="section level4">
+<h4><span class="header-section-number">2.1.4.1</span> Paper topics</h4>
+<p>more than one topic per paper; topics overlap in areas and are not exhaustive or precisely defined.</p>
+<p>For the Topic column in Table <a href="data.html#tab:sys-confs">2.1</a> above, the most frequently ocurring topic was chosen to represent it, as described later in Sec. @ref{sec:topic-dist-by-conf}. Most topics have at least one conference wherein they ocurred most, although multi-topic papers and conferences are common. Each topic also has a single color associated with it throughout this document, as a visual aid in graphical representations. The complete list of topic tags, as well as their associated colors, can be found in Table <a href="data.html#tab:all-topics">2.3</a>. A later chapter (Ch. <a href="#ch:topics"><strong>??</strong></a>) explores the properties and distributions of these topics.</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:all-topics">Table 2.3: </span>Paper topics: each paper was associated with any number of these tags
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Tag
+</th>
+<th style="text-align:left;">
+Areas
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6BEFF !important;">Architecture</span>
+</td>
+<td style="text-align:left;">
+Computer architecture
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #800000 !important;">Benchmark</span>
+</td>
+<td style="text-align:left;">
+Workloads, bechnmarking, metrics, and methodology
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFFAC8 !important;">Cloud</span>
+</td>
+<td style="text-align:left;">
+Cloud computing and related infrastructure
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #000080 !important;">Compilers</span>
+</td>
+<td style="text-align:left;">
+Compilers, language and debugging sopport, runtime systems
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #0082C8 !important;">Concurrency</span>
+</td>
+<td style="text-align:left;">
+Parallel and distributed computing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #E6194B !important;">Data</span>
+</td>
+<td style="text-align:left;">
+Big data applications and infrastructure
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F032E6 !important;">DB</span>
+</td>
+<td style="text-align:left;">
+Databases, key-value stores, and DBMS
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #AAFFC3 !important;">Energy</span>
+</td>
+<td style="text-align:left;">
+Power and energy efficiency
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #3CB44B !important;">GPGPU</span>
+</td>
+<td style="text-align:left;">
+Accelerator technologies
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #008080 !important;">HPC</span>
+</td>
+<td style="text-align:left;">
+High performance computing and supercomputing applications
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #D2F53C !important;">Network</span>
+</td>
+<td style="text-align:left;">
+Networking algorithms and protocols, wireless networks, switching and routing
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #F58231 !important;">OS</span>
+</td>
+<td style="text-align:left;">
+Operating systems, scheduling, resource management
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #AA6E28 !important;">Security</span>
+</td>
+<td style="text-align:left;">
+Security, privacy, encryption, resilience
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: white !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #911EB4 !important;">Storage</span>
+</td>
+<td style="text-align:left;">
+Persistent storage: disk, flash, ram, and emerging technologies
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<span style=" font-weight: bold;    color: black !important;border-radius: 4px; padding-right: 4px; padding-left: 4px; background-color: #FFe119 !important;">VM</span>
+</td>
+<td style="text-align:left;">
+Virtual machines, networks, and containers
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="content-tags" class="section level4">
+<h4><span class="header-section-number">2.1.4.2</span> Content tags</h4>
+<p>Content tags for paper: One or more of:
+List of topics in Table <a href="data.html#tab:content-tags">2.4</a>.</p>
+<p>Full discussion in Ch. <a href="#ch:classification"><strong>??</strong></a>.</p>
+<table class="table table-striped table-hover table-condensed table-responsive" style="margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:content-tags">Table 2.4: </span>Content tags for systems papers
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Tag
+</th>
+<th style="text-align:left;">
+Description
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+system
+</td>
+<td style="text-align:left;">
+Reports design, implementation, or performance of a newly engineered system.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+positive
+</td>
+<td style="text-align:left;">
+Reports new positive results (improvement over past work).
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+negative
+</td>
+<td style="text-align:left;">
+Reports new negative results or failure to reproduce past results. Examples include a system that doesn’t yield the expected results, or workloads under which the proposed system performs worse than before.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+experience
+</td>
+<td style="text-align:left;">
+Focuses on a new experience with a (possibly extant) system. Most systems papers describe experiences, but this tag is assigned only to papers where the experience is described in detail and consists of a top contribution for the paper.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+data
+</td>
+<td style="text-align:left;">
+Exposes or analyzes a dataset that hadn’t been previously discussed.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+survey
+</td>
+<td style="text-align:left;">
+Relies primarily on reviewing, or summarizing, previous work (literature or software).
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+position
+</td>
+<td style="text-align:left;">
+Promotes opinions, optionally backed by new evidence. Positions represent suggestions or point of view that may be argued even based on the same data.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reproduction
+</td>
+<td style="text-align:left;">
+Attempts to reproduce or debunk a previous result. A mere comparison to past results or systems does not constitute a reproduction.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+open
+</td>
+<td style="text-align:left;">
+Releases code or data openly set as part of the publication.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+experiment
+</td>
+<td style="text-align:left;">
+Reports results that were obtained from measuring a representative hardware or software system. An experimental result includes all hidden assumptions as well (as distinguished from a simulation, wherein all assumptions are coded).
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+simulation
+</td>
+<td style="text-align:left;">
+Reports results that were obtained from simulating or emulating a system, for examle using a hardware simulator or a workload generator.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+analysis
+</td>
+<td style="text-align:left;">
+Reports results that were derived analytically, possibly with proofs.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+preliminary
+</td>
+<td style="text-align:left;">
+Describes a system or idea that isn’t fully completed or evaluated yet.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+continuing
+</td>
+<td style="text-align:left;">
+Describes a system (by the same authors) previously described in another paper.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bigscale
+</td>
+<td style="text-align:left;">
+Describes experience on experiment on a uniquely large-scale system or software, one not easily reproducible by other research groups.
+</td>
+</tr>
+</tbody>
+</table>
+<!--    - Big: A "small" systems paper tackles a modest problem and usually has a contribution that can be described in one sentence. A big systems paper, as described in this [SIGCOMM guide](http://www.sigcomm.org/for-authors/hints-tips-and-guides/author-guide), is trying to accomplish a larger set of goals, and often has three or four important contributions. -->
+</div>
+</div>
+</div>
+<div id="person-data" class="section level2">
+<h2><span class="header-section-number">2.2</span> Person data</h2>
+<p>Each person among a conference’s authors and PC members was looked up on Google Scholar and recorded near the time of publication (the postdate).</p>
+<p>The JSON files in the <code>data/authors/</code> directory hold author information about each author and PC member, with one file per conference (the filename being the short conference name). Authors in multiple conferences appear in each conference’s file, but possibly with data more current for that postdate. All author metrics correspond to the latest data in the record (last <em>citedby</em> date).</p>
+<p>These author records were derived from the person’s Google Scholar (GS) profile using <code>src/extract_authors.py</code> and manual editing. Authors that couldn’t be uniquely identified on GS have a single empty string instead of a record. The rest hold the following items (empty fields, where no data was available or applicable) are denoted as empty strings or lists, according to the field’s type):</p>
+<div id="field-description-1" class="section level3 unnumbered">
+<h3>Field description</h3>
+<ul>
+<li><code>name</code> (string): Person’s name (also used as the key to each author record)</li>
+<li><code>affiliation</code> (string): Person’s institute, if included in the conference data file in parenthesis (not necessarily reflecting the GS affiliation).</li>
+<li><code>citedby</code> (map from date to int): For each date recorded, the total number of paper citations on GS.</li>
+<li><code>gs_email</code> (string): Email institution from GS, starting with ‘@’ (such as <code>@csail.mit.edu</code>), or empty string if they haven’t entered any.</li>
+<li><code>hindex</code> (int): H-index of person (see <a href="https://en.wikipedia.org/wiki/H-index" class="uri">https://en.wikipedia.org/wiki/H-index</a>).</li>
+<li><code>hindex5y</code> (int): H-index in the past 5 years.</li>
+<li><code>i10index</code> (int): Number of papers with 10 or more citations (see <a href="http://guides.library.cornell.edu/c.php?g=32272&amp;p=203393" class="uri">http://guides.library.cornell.edu/c.php?g=32272&amp;p=203393</a>).</li>
+<li><code>i10index5y</code> (int): I-10 index in the past 5 years.</li>
+<li><code>interests</code> (list of strings): List of free-form interests, as filled in by the author in their GS profile.</li>
+<li><code>npubs</code> (int): Total number of publications on GS. This metric wasn’t measured reliabily, often under-reporting the actual GS data.</li>
+</ul>
+<p>Obtaining this data from Google Scholar presented several challenges:</p>
+<p>First, not all people actually maintain a GS profile (“NA” records). Fortunately, A large number do actually maintain such a profile. Out of 8196 unique authors in the data files, 5231 (63.82%) had an identifiable GS profile. The rate of profiles for the 3286 unique PC members and chairs (incuding some authors) is even higher, with 2762 GS profiles (84.05%).</p>
+<p>Another difficult challenge is disambiguating multiple GS profiles for the same name (but different persons). These duplicates were handled manually (by examining the affiliation, publication record, and interests). In some cases, GS itself was unable to disambiguate persons successfully, leading to authors with many aggregated papers in their profile written by their doppelgangers. These profiles were omitted, rather than overestimating their metrics.</p>
+<p>Last, some author names appeared in multiple variants, sometimes even in the same conference (such as ‘Andy’ vs. ‘Andrew’), leading to redundant records. Those also had to be identified and de-duped manually, with the help of a script (<code>src/gather_persons.py</code>) that searched for similar last names and/or affiliations.</p>
+</div>
+</div>
+<div id="paper-data" class="section level2">
+<h2><span class="header-section-number">2.3</span> Paper data</h2>
+<p>In addition to the static paper data in the conference file, the following data was collected at different dates per paper, and summarized in JSON files under the <code>data/papers/</code> directory (one file per conference):</p>
+<ul>
+<li>Key: same as in the <code>data/conf/</code> data, and used to key into JSON dictionary.</li>
+<li>Cited-by: for any given measurement date, how many papers cited this paper, if found on GS.</li>
+<li>Sprint-found: When was the first date detected (if any) that GS has a digital copy of the paper available for download.</li>
+<li>ID: the GS id for the paper, for repeated searches.</li>
+<li>Paper-found: The first date where a valid GS entry for this paper was detected.</li>
+<li>Title: The GS-reported title for the paper. May differ slightly from the one published by the conference homepage.</li>
+<li>URL: The link to a digital copy of the paper, if found.</li>
+</ul>
+</div>
+<div id="geographical-data" class="section level2">
+<h2><span class="header-section-number">2.4</span> Geographical data</h2>
+<p>The <code>data/geo</code> directory contains imported input files from various Web sources to compose
+geographical data. The files included are:</p>
+<ul>
+<li><code>countries.json</code> (from <a href="https://github.com/mledoze/countries" class="uri">https://github.com/mledoze/countries</a>): Country name (common), code, region and subregion, central lat/long coordinates, official languages, and land area (retrieved 2018-01-02).
+<ul>
+<li><code>weoreptc.aspx</code> (from the IMF’s <a href="http://www.imf.org/external/pubs/ft/weo/2017/02/weodata/download.aspx" class="uri">http://www.imf.org/external/pubs/ft/weo/2017/02/weodata/download.aspx</a>: 2016 nominal gross domestic product (retrieved 2018-01-02).</li>
+<li><code>WPP2017_MIGR_F01_NET_MIGRATION_RATE.xlsx</code> (from the UN DESA’s <a href="https://esa.un.org/unpd/wpp/Download/Standard/Population/" class="uri">https://esa.un.org/unpd/wpp/Download/Standard/Population/</a>): 2015 net migration rate (retrieved 2018-01-02).</li>
+</ul></li>
+<li><code>WPP2017_POP_F01_1_TOTAL_POPULATION_BOTH_SEXES.xlsx</code> (from the UN DESA’s <a href="https://esa.un.org/unpd/wpp/Download/Standard/Population/" class="uri">https://esa.un.org/unpd/wpp/Download/Standard/Population/</a>): 2015 total population size (retrieved 2018-01-02).</li>
+<li><code>WPP2017_POP_F02_POPULATION_GROWTH_RATE.xlsx</code> (from the UN DESA’s <a href="https://esa.un.org/unpd/wpp/Download/Standard/Population/" class="uri">https://esa.un.org/unpd/wpp/Download/Standard/Population/</a>: 2015 population growth rate (retrieved 2018-01-02).</li>
+<li><code>WPP2017_POP_F04_SEX_RATIO_OF_TOTAL_POPULATION.xlsx</code> (from the UN DESA’s <a href="https://esa.un.org/unpd/wpp/Download/Standard/Population/" class="uri">https://esa.un.org/unpd/wpp/Download/Standard/Population/</a>): 2015 ratio of males to females (retrieved 2018-01-02).</li>
+<li><code>WPP2017_POP_F05_MEDIAN_AGE.xlsx</code> (from the UN DESA’s <a href="https://esa.un.org/unpd/wpp/Download/Standard/Population/" class="uri">https://esa.un.org/unpd/wpp/Download/Standard/Population/</a>): 2015 median population age (retrieved 2018-01-02).</li>
+</ul>
+</div>
+<div id="challenges" class="section level2">
+<h2><span class="header-section-number">2.5</span> Challenges</h2>
+<p>Sometimes, the hardest part of a data analysis is the collection and cleaning of the input data, before even writing a single line of analysis code. This data set is no exception, and various factors contributed to either missing, noisy, or plain erroneous data. The top two challenges in collecting this data were disambiguating author names–matching them to a single GS profile correctly, and obtaining detailed conference information in the presence of partial and non-standard proceedings and web sites.</p>
+<div id="defining-systems" class="section level3">
+<h3><span class="header-section-number">2.5.1</span> Defining “Systems”</h3>
+<p>The actual definition of the field of computer systems has immediate consequences for the conference selection and data analysis, and yet cannot be done precisely. Although most computer scientists may have an intuitive understanding of what areas belong to the field, a widely accepted and precise definition of the field and its sub-topics remains elusive. Even the definition in the introduction chapter remains ambiguous, open-ended, and non-exclusive. It is also likely to change over time, as peripheral fields and interdisciplinary papers shift in and out of traditional systems conferences. For example, should a paper on a linear-algebra machine-learning algorithm to predict weather be treated as a systems paper if it’s also implemented on a supercopmuter in a way that minimizes energy use and maximizes scalability?</p>
+<p>In the absence of an objective and unobjectionable definition, we’re left with the vague defintion in Ch. <a href="index.html#ch:intro">1</a> and subjective judgements. These come into play primarily in two types of data decisions:</p>
+<ol style="list-style-type: decimal">
+<li><p>Which conferences should be included in our data set? Some of the fifty systems conferences are easy to identify as such, because they’re narrowly focused on an uncontroversial sub-field of systems, such as ISCA in architecture. Other conferences include papers that are more theoretical or interdisciplinary, and may legitimately be judged as “non-systems” by its practitioners. And others, like our six “control” conferences, contain a mix of topics that are certainly related to systems and may employ similar research methodologies, even if not widely considered a systems topic. This study is therefore open to critism and interpretation based on the choice of “systems” conference definition. Since all of its data and source code is openly available, the reader is encouraged to try re-running the analysis on their own subsets of conferences and see if they reach different conclusions.</p></li>
+<li><p>What are the subfields of computer systems? As previously described in Sec. <a href="data.html#sec:topic-data">2.1.4.1</a>, each paper was assigned zero or more topic tags from a set of 3829 sub-topics of computer systems. These topics were arbitrarily chosen, based on the author’s experience with computer systems. But just like “computer systems”, their definitions are also crippled by vagueness, non-exclusivity, subjective judgement, and lack of consensus. Many of these tags describe concepts that are not necessarily even exclusive to computer systems, such as the “Bencmark” tag, which describes research focused on the methodology and measurement of computer systems, but could easily apply to other fields as well. Again, recognizing that these choices are subjective and somewhat arbitrary, readers are encouraged to try their own definitions.</p></li>
+</ol>
+</div>
+<div id="author-disambiguation" class="section level3">
+<h3><span class="header-section-number">2.5.2</span> Author disambiguation</h3>
+<p>Many names are common enough to have multiple GS profiles associated with them (sometimes even from the same institute or research field!). Not all conferences list the affiliation of authors, and sometimes not even their full name. Some authors had different spellings of their name (or typos), and some had contractions or initials used inconsistently. And in some cases, authors had a unique name with its own single GS profile, but one that belonged, or was mixed with, a different researcher’s from a completely different field.</p>
+<p>Disambiguating author names is a well-known and difficult problem <span class="citation">[<a href="#ref-han04:disambiguation">3</a>]</span>. Certainly proposal like assigning each author with a unique ID <span class="citation">[<a href="#ref-haak12:orcid">2</a>]</span> could help in the future. But for this data set, disambiguation took place as a painstakingly manual process of verifying each name conflict and each misaligned GS profile. For every potential ambiguity, I verified the correct GS profile, for example, by comparing the author’s publication list to the paper(s) in this data set, looking for recently changed affiliation, or comparing email addresses. In cases where ambiguity couldn’t be confidently resolved, or when an author’s GS profile appeared to be conflated by more than one actual authors, I simply dropped their GS information from the data set. In addition, the author aggregation script (<code>src/gather_persons.py</code>) checks for similar and duplicate names and warns where ambiguity is possible.</p>
+</div>
+<div id="partial-conference-data" class="section level3">
+<h3><span class="header-section-number">2.5.3</span> Partial conference data</h3>
+<p>Not all proceedings of all conferences include all the data fields collected, such as the total number of reviews written (in fact, most didn’t include this particular field). Some conferences had minor conflicts between the online program and the proceedings’ list of papers (either in title, author list, or even paper count). In a few cases, web pages for conferences became unavailable after the conference concluded. To resolve these inconsistencies, and augment the missing data, I emailed the program committee chairs and requested the missing information. I thank all the chairs that responded to my queries.</p>
+<p><a href="http://xkcd.com/154" target="_blank"><img src="images/beliefs.jpg" style="display: block; margin: auto;" /></a></p>
+
+</div>
+</div>
+</div>
+<h3>Bibliography</h3>
+<div id="refs" class="references">
+<div id="ref-haak12:orcid">
+<p>[2] Haak, L.L., Fenner, M., Paglione, L., Pentz, E. and Ratner, H. 2012. ORCID: A system to uniquely identify researchers. <em>Learned Publishing</em>. 25, 4 (2012), 259–264.</p>
+</div>
+<div id="ref-han04:disambiguation">
+<p>[3] Han, H., Giles, L., Zha, H., Li, C. and Tsioutsiouliklis, K. 2004. Two supervised learning approaches for name disambiguation in author citations. <em>Proceedings of the 2004 joint ACM/IEEE conference on digital libraries</em> (2004), 296–305.</p>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="1">
+<li id="fn1"><p>The PDF versions of the papers are excluded from the accompanying data set because of size and copyright constraints.<a href="data.html#fnref1" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="index.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="features.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/clipboard.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-clipboard.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapaper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"history": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "section",
+"scroll_highlight": true
+},
+"toolbar": {
+"position": "fixed"
+},
+"search": true
+});
+});
+</script>
+
+</body>
+
+</html>

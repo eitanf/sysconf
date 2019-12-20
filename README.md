@@ -1,4 +1,4 @@
-# System Conference Analysis
+# Systems Conferences Analysis
 
 These files represent all the raw and processed data, as well as the code to 
 process it, to analyze some of the top systems conferences during 2017. Each 
@@ -33,7 +33,7 @@ The following describes the process of adding new data for a new, single confere
   2. Create a new file for this conference, named after its short-name and year (e.g., `/data/conf/ISCA_17.json`), and using any of the other conferences as a template.
   3. Edit this conference file and add as many fields as you can gather 
 yourself (follow the example from existing files and description in 
-`data/conf/README.md). Several fields can be obtained from the CFP and conference web 
+`data/conf/README.md`). Several fields can be obtained from the CFP and conference web 
 page. Some statistics can be obtained after the conference from the proceedings 
 (e.g., number of submissions) or from the PC chairs. The past papers and 
 citations statistics can sometimes be obtained from IEEE or ACM (try to get 

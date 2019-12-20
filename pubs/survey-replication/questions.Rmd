@@ -256,7 +256,30 @@ Correct for confounders, which you can find by plotting.
 ## Misc
 
 \question{What is the relationship between prior subs and conference quality?}{prior-subs-quality}
+```{r prior-subs-quality echo=F, warning=F}
+library(stringr)
 
+paper_confs <- survey %>%
+  drop_na(prior_subs) %>%
+  group_by(paper_id) %>%
+  summarise(prior_subs = mean(prior_subs), conference = str_sub(first(paper_id), end=-5)) %>% #get average previous submissions
+  left_join(select(all_confs, c("conference", "h5_median")), by=c("conference" = "conference")) %>%
+  drop_na(h5_median) 
+  # group_by(conference) %>% #take averages
+  # summarise(prior_avg = mean(prior_subs), h5 = first(h5_median))
+
+cor.test(paper_confs$h5_median, paper_confs$prior_subs, use="complete")
+
+#try averages instead
+paper_confs <- paper_confs %>%
+  group_by(conference) %>%
+  summarise(prior_avg = mean(prior_subs), h5_median = first(h5_median))
+
+cor.test(paper_confs$h5_median, paper_confs$prior_avg, use="complete")
+
+```
+
+Not correlated 
 
 \question{Distribution of "paper readiness" and relationship to author experience}{paper-readiness}
 
@@ -267,18 +290,109 @@ Correct for confounders, which you can find by plotting.
 
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
   - https://www.nsf.gov/statistics/2018/nsb20181/assets/968/tables/tt05-18.pdf
+```{r response-rate, echo=F, warning=F}
+people_with_hindex <- survey %>%
+  left_join(select(authors, c("name", "hindex")), by = c("name" = "name")) %>%
+  drop_na(hindex) %>%
+  mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced"))) %>%
+  group_by(name) %>%
+  filter(row_number() == 1)  
+  
+resp_position_exp <- people_with_hindex %>% 
+  drop_na(position) %>%
+  mutate(position = ifelse(position == "Professor" || position == "Assistant Professor" || position == "Associate Professor", "Professor", 
+                            ifelse(position == "Student", "Student", 
+                                   ifelse(position == "Goverment Researcher" || position == "Industry Researcher", "Researcher", "Other")))) %>%
+  filter(!position == "Other") %>% #~ position filters ~
+  group_by(position, Experience) %>%
+  mutate(perc = pct(n(), nrow(authors_with_profile))) %>%
+  filter(row_number() == 1)
 
+#graph of position and percent responded divided on experience
+ggplot(resp_position_exp, aes(x=position, y = perc, group=Experience, label=perc)) + 
+  geom_bar(aes(fill = factor(..x..)), stat = "identity") + 
+  geom_text(vjust=-0.3, size=3.5) +
+  theme_minimal() +
+  theme(legend.position = "none")+
+  facet_grid(~Experience) +
+  ylab("Response Rate %") + 
+  xlab("Position") 
+
+
+#graph of acceptance and percent responded with experience fill
+people_with_hindex %>%  
+  filter(prior_subs < 4) %>%
+  ggplot(aes(x=prior_subs)) + 
+  geom_bar(aes(fill = Experience, y= pct((..count..),nrow(authors_with_profile)))) + 
+  theme_minimal() +
+  ylab("Response Rate %") + 
+  xlab("Prior Submissions") 
+
+#flipped around
+people_with_hindex %>%  
+  filter(prior_subs < 4) %>%
+  mutate(prior_subs=as.character(prior_subs)) %>%
+  ggplot(aes(x=Experience)) + 
+  geom_bar(aes(fill = prior_subs, y= pct((..count..),nrow(authors_with_profile)))) + 
+  theme_minimal() +
+  ylab("Response Rate %") + 
+  xlab("Experience") 
+```
 \question{Does submission order affect paper's chances?}{sub-order}
 
   - http://onlinelibrary.wiley.com/doi/10.1002/asi.22747/abstract
+  
+```{r sub-order, echo=F, warning=F}
+papers_grades_order <- survey %>% 
+  group_by(paper_id) %>% 
+  summarise(gr_overall = mean(gr_overall)) %>%
+  left_join(select(papers, c("key", "months_to_gs", "months_to_eprint")), by=c("paper_id" = "key"))  %>%
+  drop_na(gr_overall, months_to_gs, months_to_eprint)
+
+cor.test(papers_grades_order$gr_overall, papers_grades_order$months_to_gs)
+cor.test(papers_grades_order$gr_overall, papers_grades_order$months_to_eprint)
+```
 
 \question{Relationship between english mastery and presentation scores/overall scores}{english-present}
 
   - [previous paper]
+  
+```{r english-present, echo=F, warning=F}
+#take average "english-mastery" per paper  and average presentation scores for paper
+eng_mastery_tbl <- survey %>%
+  drop_na(gr_present) %>% #drop responses with no presentation score
+  mutate(native_english = ifelse(native_english == TRUE, 1, 0)) %>%
+  group_by(paper_id) %>%
+  summarise(english_mastery = mean(native_english), present_avg = mean(gr_present)) 
+#what do we do if two people have submitted different number of reviews, how do we determine which review is which? i'll just do weighted average for now
 
+cor.test(eng_mastery_tbl$english_mastery, eng_mastery_tbl$present_avg) #no-correlation for any of them
+```
+According to the correlation measures, there does not appear to be a significant relationship, at least in our data
 \question{Compare "overall" average to confidence-weighted "overall" average}{confidence}
 
   - [Search references]
+  
+```{r confidence, echo=F, warning=F}
+conf_tbl <- survey %>%
+  drop_na(gr_overall, gr_confidence) %>%
+  group_by(paper_id) %>%
+  mutate(conf_weight = gr_overall * gr_confidence) %>%
+  summarise(gr_overall_avg = mean(gr_overall), gr_conf_avg = mean(conf_weight))
+
+cor.test(conf_tbl$gr_overall_avg, conf_tbl$gr_conf_avg) #strong correlation between overall and confidence weighted overall (obviously)
+#now, make nice chart for it
+library(reshape)
+melted <- melt(as.data.frame(conf_tbl), id=c("paper_id"))
+ggplot(melted, aes(x=variable, y=value, color=variable)) +
+  geom_boxplot() + 
+  stat_summary(fun.y=mean, geom="point", shape=23, size=4)  +
+  xlab(NULL) + 
+  ylab("Grade") +
+  theme_minimal()
+
+t.test(conf_tbl$gr_conf_avg, conf_tbl$gr_overall_avg)
+```
 
 \question{Produce initial stats like these}{stats}
 

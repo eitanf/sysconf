@@ -263,12 +263,12 @@ paper_confs <- survey %>%
   drop_na(prior_subs) %>%
   group_by(paper_id) %>%
   summarise(prior_subs = mean(prior_subs), conference = str_sub(first(paper_id), end=-5)) %>% #get average previous submissions
-  left_join(select(all_confs, c("conference", "h5_median")), by=c("conference" = "conference")) %>%
-  drop_na(h5_median) 
+  left_join(select(all_confs, c("conference", "mean_historical_citations")), by=c("conference" = "conference")) %>%
+  drop_na(mean_historical_citations) 
   # group_by(conference) %>% #take averages
   # summarise(prior_avg = mean(prior_subs), h5 = first(h5_median))
 
-cor.test(paper_confs$h5_median, paper_confs$prior_subs, use="complete")
+cor.test(paper_confs$mean_historical_citations, paper_confs$prior_subs, use="complete")
 
 #try averages instead
 paper_confs <- paper_confs %>%
@@ -276,6 +276,8 @@ paper_confs <- paper_confs %>%
   summarise(prior_avg = mean(prior_subs), h5_median = first(h5_median))
 
 cor.test(paper_confs$h5_median, paper_confs$prior_avg, use="complete")
+
+#produce h5_index, median and citations
 
 ```
 
@@ -318,6 +320,7 @@ ggplot(resp_position_exp, aes(x=position, y = perc, group=Experience, label=perc
   ylab("Response Rate %") + 
   xlab("Position") 
 
+#do density plot, geom_density()
 
 #graph of acceptance and percent responded with experience fill
 people_with_hindex %>%  
@@ -349,7 +352,7 @@ papers_grades_order <- survey %>%
   left_join(select(papers, c("key", "months_to_gs", "months_to_eprint")), by=c("paper_id" = "key"))  %>%
   drop_na(gr_overall, months_to_gs, months_to_eprint)
 
-cor.test(papers_grades_order$gr_overall, papers_grades_order$months_to_gs)
+cor.test(papers_grades_order$gr_overall,  papers_grades_order$months_to_gs)
 cor.test(papers_grades_order$gr_overall, papers_grades_order$months_to_eprint)
 ```
 
@@ -392,6 +395,9 @@ ggplot(melted, aes(x=variable, y=value, color=variable)) +
   theme_minimal()
 
 t.test(conf_tbl$gr_conf_avg, conf_tbl$gr_overall_avg)
+
+#blurb about more confident if positive about data
+#cavat that there is no rejected paper reviews to compare to
 ```
 
 \question{Produce initial stats like these}{stats}

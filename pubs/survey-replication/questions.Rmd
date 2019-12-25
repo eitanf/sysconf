@@ -11,6 +11,31 @@ How about non-blind review where reviewers "sign" their review?
 Does it lead to more balanced geography/institution/gender bias?
 
  - https://jamanetwork.com/journals/jama/article-abstract/380957
+ 
+In order to look at this question, it is first necessary to look at the correlations and interactions of the other variables in our dataset that may influence the ratings of review quality by each author. From looking at correlations between conference variables, we know that there is correlation between most, therefore we must take into account there confounding variables towards our model for review quality. Also, we know further that there is correlation between the scores of the papers and the quality of the reviews as rated by authors. 
+
+```{r blind-quality, echo=F, warning=F}
+#first join the conference stats to the survey data
+survey_with_blind <- survey %>%
+  mutate(conference = str_sub(paper_id, end=-5), isVeryHelpful = (helpfulness == "Somewhat helpful")) %>% #turn to same conference label in order to join
+  left_join(all_confs, by=c("conference" = "conference")) %>%
+  select(-c(conference))
+
+survey_with_blind %>%
+  select(c("helpfulness", "age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load")) %>%
+  rename(Age = age, Citations = mean_historical_citations, h5 = h5_index, PC_Author = pc_author_ratio, Authors_Paper  = mean_authors_per_paper, Acceptance = acceptance_rate, PC_Paper = pc_paper_ratio, Review_Load = mean_review_load) %>%
+  GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F)
+```
+
+Let us make a first model depending on the overall grade for each review, the conference quality, the age of the conference, the acceptance rate, the average citations, the pc's per paper, and the review load. 
+```{r blind-quality, echo=F, warning=F}
+lrfit <- glm(helpfulness ~ 1 + double_blind + age + h5_index + mean_historical_citations + pc_author_ratio  , 
+             data=survey_with_blind, 
+             family="binomial")
+coef(summary(lrfit))
+
+#in order to make our models the best fit, we can look at the deviance measure of GOF 
+```
 
 
 \question{Does it lead to more citations?}{blind-citations}
@@ -199,7 +224,34 @@ Probably useless
 
 \question{Correlate everything with conference metrics and policies (features)}{conf-corr}
   
-  - [Search references]
+First, we will look at the correlations between the key metrics of each conference. The one's chosen first are age, the mean historical citations, the h5 score (as measured by the h5 index score), the ratio between PC's and authors, the average authors per paper, the acceptance rate, the average PC's per paper, and the review load (number of reviews required per reviewer)
+The correlegram below depicts these relations:
+```{r conf-corr echo=F, warning=F}
+#first correlations between conference metrics
+all_confs %>%
+  select(c("age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load")) %>%
+  rename(Age = age, Citations = mean_historical_citations, h5 = h5_index, PC_Author = pc_author_ratio, Authors_Paper  = mean_authors_per_paper, Acceptance = acceptance_rate, PC_Paper = pc_paper_ratio, Review_Load = mean_review_load) %>%
+  GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F)
+```
+Looking at the above correlegram, we can see that almost all appear to be correlated in some way or another, the question is to what degree? We will divide the correlations into those that seem obvious at first, as they are built-in to the metric in the first place and those that require further investigation.
+
+Interesting:
+-age and h5-index - conferences that are older are more reputable?
+-age and acceptance rate - conferences that are older will reject more papers?
+-mean_historical_citations and h5_index - could it be that conferences that are cited more are rated less as more people get into them? 
+-mean_historical_citations and acceptance and review-load
+-h5_index and acceptance_rate - conferences that are harder to get into are rated higher?
+-acceptance and pc_paper_ratio - There are more PC's so the ratings are harder for each paper?
+
+Built-in:
+-age and mean_historical_citations - clearly this will happen as conferences with more age have been cited more
+-pc_author and pc_paper ratios  - this correlation makes sense, if there ar emore pc's there will clearly be a higher pc per paper ratio
+-pc_author and review_load - that correlation is also obvious, clearly if there are more pc's there will be less review load
+
+I haven't included the following metrics for each conference as they are measures of counts not averages: past-papers, past_citations, chairs_num, pc_size, npapers, authors_num
+These scores don't take into account the time the conference has been running and the number of papers. However, I haven't included mean_historical_length or h5_median, both of these could be important as well. 
+
+Now onto the policies of the conferences. For this, we will first look at if it is double_blind, allows rebuttals and if it is making a diversity effort. In this case, as there are only two categories - true or false, we can do a paired t-test or independent t-test depending on the context. 
 
 \question{Diversity of reviewers}{reviewer-diversity}
 

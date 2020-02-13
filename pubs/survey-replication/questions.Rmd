@@ -19,38 +19,22 @@ In order to look at this question, it is first necessary to look at the correlat
 survey_with_blind <- survey %>%
   mutate(conference = str_sub(paper_id, end=-5), isVeryHelpful = (helpfulness == "Somewhat helpful")) %>% #turn to same conference label in order to join
   left_join(all_confs, by=c("conference" = "conference")) %>%
-  dplyr::select(c("helpfulness", "understanding", "fairness", "double_blind", "age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load")) %>%
-  rename(Age = age, Blind = double_blind, Citations = mean_historical_citations, h5 = h5_index, PC_Author = pc_author_ratio, Authors_Paper  = mean_authors_per_paper, Acceptance = acceptance_rate, PC_Paper = pc_paper_ratio, Review_Load = mean_review_load)
+  dplyr::select(c("gr_overall", "submissions", "helpfulness", "understanding", "fairness", "double_blind", "age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load")) %>%
+  rename(Age = age, Blind = double_blind, Citations = mean_historical_citations, h5 = h5_index, PC_Author = pc_author_ratio, Authors_Paper  = mean_authors_per_paper, Acceptance = acceptance_rate, PC_Paper = pc_paper_ratio, Review_Load = mean_review_load) %>%
+  drop_na()
 
 survey_with_blind <- na.omit(survey_with_blind)
 
 summary(survey_with_blind) #look at data's IQR's
   # GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F)
+
 #just to confirm from earlier question, lets look at the univariate regressions between each variable and then boxplots for categorical variables
-
-#regressions not shown
-ggplot(survey_with_blind, aes(x=helpfulness, y=Age)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=Citations)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=h5)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=PC_Author)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=Authors_Paper)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=Acceptance)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=PC_Paper)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=helpfulness, y=Review_Load)) + geom_boxplot()
-
-ggplot(survey_with_blind, aes(x=Blind, y=Age)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=Citations)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=h5)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=PC_Author)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=Authors_Paper)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=Acceptance)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=PC_Paper)) + geom_boxplot()
-ggplot(survey_with_blind, aes(x=Blind, y=Review_Load)) + geom_boxplot()
 
 #Not Correlated - Age x PC_Author, h5 x PC_author among the conference variables
 #Not Correlated - Helpfulness x All Variables
 #Not Correlated - Blind with everything except possibly Acceptance and PC_Author (based on boxplots), slight association with Review Load
 ```
+
 
 Now that we've found the correlations between variables that do exist, let us now make a model and infer from the model whether blinding affects the quality of reviews via the coefficient of the model. By making a model, in essence, we are performing an ANCOVA - because we are checking for correlations between both categorical and numeric predictors associated with a categorical effector. 
 
@@ -63,6 +47,8 @@ lrfit <- glm(helpfulness ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper 
 coef(summary(lrfit))
 ```
 
+#review-length and double-blind
+
 Looking at this model, it can be seen that none of the variables have a significant effect, and further the model is not explanatory as it has a very high F-Stat and a very low R^2. Let's use some packages that performs exhaustive step-wise selection of our variables in order to select the most accurate model.
 
 ```{r blind-quality, echo=F, warning=F}
@@ -72,6 +58,8 @@ fit <- glm(helpfulness ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + 
 step <- stepAIC(fit, direction="both")
 step$anova 
 ```
+
+#add submissions in order to look at popularity of conference that PC_Author indicates
 Finally, through backwards selection, it was determined that in no possible model at all - with every combination of interactions between variables - was there any reason to believe being double blind or not effected the helpfulness of reviews
 
 We repeat the process for usefulness and understanding:
@@ -80,19 +68,23 @@ fit_fairness <- glm(fairness ~ 1 + Age + Citations + h5 + PC_Author + Authors_Pa
 step <- stepAIC(fit, direction="both")
 step$anova 
 
-fit_understanding <- glm(understanding ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_with_blind, family="binomial")
-step <- stepAIC(fit, direction="both")
+fit_understanding <- glm(Blind ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_with_blind, family="binomial")
+step <- stepAIC(fit_understanding, direction="both")
 step$anova 
 
 fit_fairness <- glm(fairness ~ Authors_Paper, data=survey_with_blind, family="binomial")
 fit_understanding <- glm(understanding ~ Blind, data=survey_with_blind, family="binomial")
 ```
 
+#authors/paper affects response-rate?
+
 According to the above fitness tests, fairness is best fit by a model that consists of just its relation to the number of authors per paper, and understanding is best fit by a model that is associated only with the blinding of the conference. These tests look for pairwise correlations and penalize fits that have correlated data, using the AIC metric in order to gather information about the fit that is most strongly correlated and has the smallest amount of confounding variables. 
 
 All in all, this data does point towards the possibility of a correlation between blinding of a conference and the understanding of a paper as rated by its authors, and further makes the argument that there is likely little such correlation between any possible combination of effector variables and blindness towards fairness and helpfulness ratings by the authors.
 
 A more thorough test is needed for understanding, including both a logit regression and an ANCOVA. 
+
+#caret - decisision trees and machine learning
 
 \question{Does it lead to more citations?}{blind-citations}
 
@@ -155,7 +147,7 @@ plot(survey_with_citations$Citations_Conf, fitc.resid, ylab="Residuals", xlab="C
 abline(0, 0)
 ```
 
-The fit above does point towards a high positive significant relationship between double blind conferences and references, however as before the results are inconclusive given the high amount of residual deviance and low R^2 values. 
+The fit above does point towards a high positive significant relationship between double blind conferences and references, however as before the results are inconclusive given the high amount of residual deviance and low R^2 values. More research is needed in order to account for this high deviance in the data and make a correct fit. 
 
 \question{Does blinding reduce the h-index of authors of accepted papers?}{blind-hindex}
 
@@ -211,6 +203,48 @@ What about country diversity? Sector diversity? Non-english speakers Low-prestig
   - https://onlinelibrary.wiley.com/doi/full/10.1002/asi.22784
   - https://www.timeshighereducation.com/world-university-rankings/2019/world-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats
 
+```{r blind-diversity, warning=F, echo=F}
+survey_exp <- survey_blind_hindex %>%
+  mutate(hindex = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
+nsimple <- glm(hindex == "Novice" ~ Blind, data=survey_exp, family = "binomial")
+midsimple <- glm(hindex == "Mid-career" ~ Blind, data=survey_exp, family = "binomial")
+expsimple <- glm(hindex == "Experienced" ~ Blind, data=survey_exp, family = "binomial")
+summary(nsimple)
+summary(midsimple)
+summary(expsimple)
+```
+Stepwise-regression analysis
+```{r blind-diversity, warning=F, echo=F}
+library(MASS)
+
+nfit <- glm(hindex == "Novice" ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_exp, family="binomial")
+step <- stepAIC(nfit, direction="both")
+step$anova 
+
+midfit <- glm(hindex == "Mid-career" ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_exp, family="binomial")
+step <- stepAIC(midfit, direction="both")
+step$anova 
+
+expfit <- glm(hindex == "Experienced" ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_exp, family="binomial")
+step <- stepAIC(expfit, direction="both")
+step$anova 
+```
+
+R^2, F-score and ASIc 
+```{r blind-diversity, warning=F, echo=F}
+library(leaps)
+leaps <- regsubsets(hindex == "Novice" ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_exp)
+summary(leaps)
+plot(leaps,scale="r2")
+
+leaps <- regsubsets(hindex == "Mid-career" ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_exp)
+summary(leaps)
+plot(leaps,scale="r2")
+
+leaps <- regsubsets(hindex == "Experienced" ~ 1 + Age + Citations + h5 + PC_Author + Authors_Paper + Acceptance + PC_Paper + Review_Load + Blind, data=survey_exp)
+summary(leaps)
+plot(leaps,scale="r2")
+```
 
 --------------------------
 
@@ -361,21 +395,22 @@ The correlegram below depicts these relations:
 ```{r conf-corr echo=F, warning=F}
 #first correlations between conference metrics
 all_confs %>%
-  select(c("age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load")) %>%
+  dplyr::select(c("age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load")) %>%
   rename(Age = age, Citations = mean_historical_citations, h5 = h5_index, PC_Author = pc_author_ratio, Authors_Paper  = mean_authors_per_paper, Acceptance = acceptance_rate, PC_Paper = pc_paper_ratio, Review_Load = mean_review_load) %>%
   GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F)
 ```
 Looking at the above correlegram, we can see that almost all appear to be correlated in some way or another, the question is to what degree? We will divide the correlations into those that seem obvious at first, as they are built-in to the metric in the first place and those that require further investigation.
 
 Interesting:
--age and h5-index - conferences that are older are more reputable?
+-age and mean_historical_citations - clearly this will happen as conferences with more age have been cited more
 -age and acceptance rate - conferences that are older will reject more papers?
 -mean_historical_citations and h5_index - could it be that conferences that are cited more are rated less as more people get into them? 
 -mean_historical_citations and acceptance and review-load
 -h5_index and acceptance_rate - conferences that are harder to get into are rated higher?
 -acceptance and pc_paper_ratio - There are more PC's so the ratings are harder for each paper?
-
+#expander 
 Built-in:
+-age and h5-index - conferences that are older are more reputable?
 -age and mean_historical_citations - clearly this will happen as conferences with more age have been cited more
 -pc_author and pc_paper ratios  - this correlation makes sense, if there ar emore pc's there will clearly be a higher pc per paper ratio
 -pc_author and review_load - that correlation is also obvious, clearly if there are more pc's there will be less review load

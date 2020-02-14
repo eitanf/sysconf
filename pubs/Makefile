@@ -12,7 +12,7 @@ endif
 export
 
 
-SUBDIRS = web gender survey-report peer-review whpc-stats
+SUBDIRS = web gender survey-report diversity-survey whpc-stats
 
 .PHONY: subdirs $(SUBDIRS) clean
 

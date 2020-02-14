@@ -8,7 +8,7 @@ export
 
 .PHONY: all book clean
 
-all: $(OUTDIR)/index.html $(OUTDIR)/index.md
+all: $(OUTDIR)/index.html # $(OUTDIR)/index.md
 
 $(OUTDIR)/index.html: $(wildcard *.Rmd) $(wildcard *.yml)
 	${R} -e "bookdown::render_book('index.Rmd', 'bookdown::gitbook', output_dir='$(OUTDIR)')"

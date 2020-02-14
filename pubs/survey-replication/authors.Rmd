@@ -3,6 +3,8 @@
 
 \question{Are there differences in survey responses based on authors' position or experience?}{response-pos}
 
+This addresses some of the selection bias
+
 
 ```{r student-prof-setup, echo=F, warning=F}
 survey_with_pos <- survey %>% 
@@ -50,6 +52,8 @@ with no significant differences for the other two questions.
  - [Find sources to back this up.]
 
 \question{Do more senior authors have fewer rejections?}{senior-reject}
+
+This addresses some of the survivorship bias
 
 (look for either first author, survey respondend rank, or max GS metrics in authors)
 

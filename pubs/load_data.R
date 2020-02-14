@@ -126,4 +126,3 @@ freq_and_prop <- function(x, usena = "no") {
   names(df) <- c("Response", "Count", "Ratio")
   df
 }
-

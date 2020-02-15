@@ -9,10 +9,21 @@ In addition, this directory contains some common files, shared by all the public
 List of completed and ongoing publications:
 
   * `gender`: "Gender Representation in Computer Systems" (article).
-  * `peer-review`: "Peer Review Effects in Computer Systems Conferences" (article).
-  * `survey-report`: A description of  distributions of survey responses (online report, http://sysconf.review/survey).
-  * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/)
-  * `whpc-stats`: "State of the Stats: Women's Representation in HPC Conferences" (paper).
+  * `diversity-survey`: "A Survey of Published Authors in Computer Systems Research" (article).
+  * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
+  * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
+  * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (Conference paper).
 
-The following lists in bibtex format the published documents:
+The following lists in bibtex format the published documents in reverse calenda order:
 
+```
+@InProceedings{frachtenberg20:whpc,
+  author =	 {Eitan Frachtenberg and Rhody Kaner},
+  title =	 {Representation of Women in High-Performance
+                  Computing Conferences},
+  year =	 2020,
+  month =	 April,
+  address =	 {Vancouver, {BC}},
+  organization = {WHPC}
+}
+```

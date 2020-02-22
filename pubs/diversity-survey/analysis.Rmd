@@ -1,8 +1,8 @@
 # Author Diversity {#sec:analysis}
 
-In this section we address aspects of author diversity that arise from the available data.
+In this section we address differences in survey responses based on aspects of author diversity that arise from the available data.
 
-## Gender Differences
+## Gender
 
 Women represent only about 20--30% of CS researchers overall [@wang19:trends]. In our data, the percentage is about half that, with only
 `r pct(nrow(filter(demographics, mapped_gender == "F")), nrow(filter(demographics, !is.na(mapped_gender))))`%
@@ -21,7 +21,7 @@ A third explanation could be that female authors' papers are rejected at a highe
 First, limiting our observations to double-blind conferences, where reviewers presumably remain oblivious of the authors' gender, makes no statistically significant difference in the ratio of women.
 <!---(`r db <- filter(roles, role == "author") %>% left_join(persons, by = c("name", "gs_email")) %>% left_join(all_confs, by = c("conf" = "conference")) %>% filter(double_blind == T, !is.na(gender));`) --->
 Second, the same ratio also shows up when we limit our observations to lead authors only, where gender may be more prominent. And lastly,
-we found no statistically significant evidence that women receive lower overall acceptance scores than men in their reviews,
+we found no statistically significant evidence that women receive lower overall acceptance grades than men in their reviews,
 <!---(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_overall, filter(survey_with_confs, mapped_gender == "M")$gr_overall))`)--->
 even when limiting to lead authors or single-blind reviews.
  This equitability extends to most other grade categories, except for originality
@@ -45,27 +45,111 @@ In summary, our data does not reveal statistical gender differences in the revie
 
 ## English Proficiency
 
-Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but not all authors or reviewers are native English speakers. The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing; @flowerdew01:attitudes]. How does the author experience vary based on this factor?
+Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conference set were conducted in English, but many authors and reviewers are non-native English speakers (NNES). The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing; @flowerdew01:attitudes]. How does the author experience vary based on this factor?
 
 At least in our dataset, the answer appears to be "not much". From an objective grading perspective, all but one of the review categories exhibit very similar distributions, both for teams with native English speakers and for teams with none. These categories include the presentation grade
 (`r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_present, filter(survey_with_confs, any_english == T)$gr_present))`),
-where language skills presumably would make the most difference. The only exception was the originality grade, where teams with no native speakers averaged a normalized score a little higher than the native speakers' teams: 
+where language skills presumably would make the most difference. The only exception was the originality grade, where teams with no native speakers averaged a normalized grade a little higher than the native speakers' teams: 
 (`r round(mean(filter(survey, any_english == F)$gr_originality, na.rm = T), 3)` vs.
 `r round(mean(filter(survey, any_english == T)$gr_originality, na.rm = T), 3)`,
 `r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_originality, filter(survey_with_confs, any_english == T)$gr_originality), 3)`).
 
-As for the subjective experience of authors, non-native speakers do feel differently about how well reviewers understand their work 
+As for the subjective experience of authors, NNES do feel differently about how well reviewers understand their work 
 (`r report_chi(chisq.test(t(table(survey$native_english, survey$understanding))))`),
 but perhaps not in the way we would expect: of those reviews with reportedly poor understanding, only
 `r pct(nrow(filter(poor_understanding, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%
-were from teams with no native English speakers, compared to
+were from all-NNES teams, compared to
 `r pct(nrow(filter(good_understanding, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%
-non-native teams in the better-understood reviews. The overall rate of non-native teams among survey responses was
+all-NNES teams in the better-understood reviews. The overall rate of NNES teams among survey responses was
 `r pct(nrow(filter(survey_with_confs, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%,
-so clearly most of them did not feel misunderstood.
+so clearly most of them did not feel misunderstood. But just like women, NNES average higher prior submissions,
+`r round(mean(filter(survey, native_english == T)$prior_subs, na.rm = T), 2)`,
+compared to native speakers'
+`r round(mean(filter(survey, native_english == F)$prior_subs, na.rm = T), 2)`
+(`r report_t(t.test(table(survey_with_confs$native_english, survey_with_confs$prior_subs)), 2)`), which may be the stronger explanatory variable.
 
-We can also attempt to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We don't know who reviewed whose paper, or even the reviewer's native language or nationality. But we can try to estimate it by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. It turns out that this metric has no significant association with the reported understanding level of the reviews for the conference, which could merely be a reflection on the shortcomings of this statistic.
+We also tried to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We do not know who reviewed whose paper, or even a reviewer's native language or nationality. But we can try to estimate it by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. As it turns out, this metric has no significant association with the reported understanding level of the reviews for the conference, which could merely be a reflection on the shortcomings of this statistic.
 
-These negative results could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone [@ferguson11:English].
+<!--- These negative findings could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone. -->
 
 
+## Publication Experience
+
+As mentioned in Sec. \@ref(sec:data), we collected data from authors' GS profile whenever available and uniquely identifiable
+(`r expr <- left_join(demographics, filter(authors, !is.na(npubs)), by=c("name", "gender")); pct(nrow(filter(expr, !is.na(hindex))), nrow(expr), 1)`%
+of our survey respondents).
+We can use this bibliometric data as an approximate proxy for the previous research experience of authors. For example, Fig.  \@ref(fig:npubs) depicts the distribution of one such metric, the number of previous publications of each author (circa their conference's date).
+
+```{r npubs, echo = F, message = F, out.width = '100%', fig.cap = "Distribution of past publications by gender and role, as of 2017"}
+expr %>%
+  drop_na(npubs) %>%
+  ggplot(aes(x = npubs)) +
+    geom_histogram(binwidth = 10) +
+#    scale_color_manual(values = c("brown", "aquamarine")) +
+#    scale_x_log10() +
+    xlab("Number of previous publications (binsize = 10)") +
+    ylab("Author count") +
+    theme(legend.position = "bottom")
+
+survey_with_hindex <- survey %>%
+  left_join(select(authors, c("name", "hindex")), by = c("name" = "name")) %>%
+  drop_na(hindex) %>%
+  mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
+```
+
+
+Since we collected this metric for all authors, not just survey respondents, we can compare the distributions among the two. They are similar enough to lead us to believe that no selection bias by experience occurred in this survey
+(`r report_t(t.test(filter(authors, !is.na(npubs))$npubs, filter(expr, !is.na(npubs))$npubs), 2)`).
+
+We can also look at the more complex H-index metric [@hirsch05:index] to evaluate differences in response rate by researcher seniority. Some
+`r pct(nrow(filter(expr, !is.na(hindex), hindex <= 5)), nrow(filter(expr, !is.na(hindex))), 1)`%
+of respondents had an H-index of 5 or less, roughly corresponding to the percentage of self-identified students from Question \@ref(question:position). This percentage is nearly identical in the overall author population
+(`r pct(nrow(filter(authors, !is.na(hindex), hindex <= 5)), nrow(filter(authors, !is.na(hindex))), 1)`%),
+again confirming that the large number of students in our survey is representative of the author population. 
+
+This large representation of students is important in light of our previous findings about the differences between survey responses for students and more experienced researchers. For example, students overwhelmingly prefer a rebuttal process (Sec. \@ref(subsec:rebuttal-process)). In survey comments, more experienced researchers tend to value this process less, which may affect conference policies, because those are also decided by experienced researchers. But their high value to inexperienced researchers (as well as non-native English speakers) may render the effort worthwhile [@langford13:reviewing].
+
+As previously discussed, we found no correlation between the experience of a paper's lead author and its research or submission history (Questions \@ref(question:mor) and \@ref(question:priors)). We also found no correlation between an author's experience and their response to the understanding (Question \@ref(question:understanding)) or helpfulness (Question \@ref(question:helpfulness)) of the reviews. We did find a small correlation, however, with the reviews' fairness
+(`r report_chi(chisq.test(table(survey_with_hindex$Experience, survey_with_hindex$fairness)))`).
+The implications are unclear. These relationships could be construed to either support the notion that the peer-review process is blind and fair or that it is arbitrary and preferential to senior authors. To reach a conclusive finding we would have to examine additional information, such as the relationship between author name recognition and conference competitiveness, the responses from rejected authors, or the experience metrics of all coauthors on a paper.
+
+
+
+## Geographical Regions
+
+Although we did not specifically ask authors for their country of residence, we can infer this information for most authors from their email addresses. We can then aggregate authors based on the region of the world their email affiliation belongs to and compare the distribution of ratios between survey respondents and all authors. The following table shows these distributions (omitting any authors with unidentifiable country and regions with two authors or fewer).
+
+
+```{r top-countries, echo=F, message=F, warning=F}
+survey_regions <- survey %>%
+  group_by(name) %>%
+  summarize(author = first(name)) %>%
+  left_join(select(authors, name, country), by = c("author" = "name")) %>%
+  left_join(countries, by = c("country" = "code")) %>%
+  drop_na(subregion) %>%
+  group_by(subregion) %>%
+  summarize(total = n()) %>%
+  filter(total > 2)
+survey_regions$pct <- pct(survey_regions$total, sum(survey_regions$total), 1)
+
+author_regions <- authors %>%
+  group_by(name, gs_email) %>%
+  left_join(countries, by = c("country" = "code")) %>%
+  drop_na(subregion) %>%
+  group_by(subregion) %>%
+  summarize(total = n()) %>%
+  filter(total > 2)
+author_regions$pct <- pct(author_regions$total, sum(author_regions$total), 1)
+
+tbl <- left_join(survey_regions, author_regions, by = c("subregion"))
+colnames(tbl) <- c("Region", "Respondents", "Percentage", "All authors", "Percentage")
+
+knitr::kable(tbl, booktabs = T, align = "lrrrr") %>%
+  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
+```
+
+It is encouraging to see that the two distributions are fairly similar
+(`r (report_t(t.test(survey_regions$total, author_regions$total)))`),
+suggesting that any selection bias based on geographical region is also limited.
+
+Unsurprisingly, most of these researchers hail from the West, although Asian countries such as China, Japan, and India are also prominent. One possible explanation is that Systems research can require expensive hardware, and therefore more likely to occur in the well-endowed research institutions and companies of the developed world. Regardless of explanation, this data shows a strong mismatch between country population and representation in published systems research, leading in turn to poor geographical diversity.

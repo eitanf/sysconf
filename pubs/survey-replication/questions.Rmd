@@ -194,8 +194,7 @@ According to above, the appears to be little correlation between hindex and the 
 
 \question{Does double-blind at least bias less against junior faculty?}{blind-diversity}
 
-fit author hindex against double-blind
-What about country diversity? Sector diversity? country? gender? Non-english speakers Low-prestige institutions? Content based? Other types of diversity?
+fit author hindex against double-blind (use max hindex per paper, or sum, or min, or median, or mean). Correlate also to prior_subs.
 
   - [@tomkins17:reviewer]
   - https://www.frontiersin.org/articles/10.3389/fnins.2015.00169/full
@@ -203,6 +202,8 @@ What about country diversity? Sector diversity? country? gender? Non-english spe
   - https://arxiv.org/pdf/1802.02188.pdf
   - https://onlinelibrary.wiley.com/doi/full/10.1002/asi.22784
   - https://www.timeshighereducation.com/world-university-rankings/2019/world-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats
+  - What about country diversity? Sector diversity? country? gender? Non-english speakers Low-prestige institutions? Content based? Other types of diversity?
+
 
 ```{r blind-diversity, warning=F, echo=F}
 survey_exp <- survey_blind_hindex %>%
@@ -381,12 +382,14 @@ Most reviewers are done in 4 weeks
   - https://publons.com/static/Publons-Global-State-Of-Peer-Review-2018.pdf
   - https://senseaboutscience.org/wp-content/uploads/2016/12/Peer_Review_Survey.pdf
   - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
+  - [@parno17:SPsurvey]
 
 
 
 \question{Effect of reviewer load}{reviewer-load}
 
   - [@beverly13:findings]
+  - https://cacm.acm.org/blogs/blog-cacm/165288-representative-reviewing/fulltext  --> affects name bias
 
 \question{Should we have post-publication review/comments?}{post-pub}
 

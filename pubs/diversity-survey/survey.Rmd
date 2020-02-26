@@ -13,15 +13,17 @@ For comparison, we looked at the inferred affiliation of `r nrow(good_affils)` t
 `r pct(sum(good_affils$sector == "GOV"), nrow(good_affils))`% among survey respondents,
 but still not significant enough to suggest selection bias by position (`r report_chi(chisq.test(gov_table))`).
 
-```{r position-dist, echo = F, message = F, out.width = '100%', warning = F, fig.cap = "Distribution of respondent positions."}
+```{r position-dist, echo = F, message = F, out.width = '90%', warning = F, fig.cap = "Distribution of respondent positions."}
 ggplot(demographics, aes(x = position)) +
          geom_histogram(stat = "count") + 
          scale_x_discrete(limits = c(NA, "Other", "Government Researcher", "Industry Researcher", "Professor", "Associate Professor", "Assistant Professor", "Postdoctoral Researcher", "Student")) +
   coord_flip() +
+  ylab("Count") +
+  xlab("Position") +
   theme_light()
 ```
 
-Computer Systems is a field with numerous practical applications and commercial implications. It is not surprising therefore to find a large proportion of researchers in industrial and government positions, diversifying authors across sectors.
+Systems is a field with numerous practical applications and commercial implications. It is not surprising therefore to find a large proportion of researchers in industrial and government positions, diversifying authors across sectors.
 
 ### What is your gender?
 
@@ -58,7 +60,7 @@ df <- survey %>%
 df$Response = ordered(df$Response, levels = c("1-3", "4-6", "7-9", "10-12", "13+", NA))
 
 knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr") %>%
-  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
+  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
 The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months. The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector. It was, however, correlated to the next question:
@@ -103,11 +105,11 @@ priors <- t(priors)
 #rownames(priors)[7] <- "Acceptance rate"
 knitr::kable(priors, booktabs = T,  align = rep('r', 7)) %>%
 #             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference. The total rejections per conference row is self-reported by authors, and includes conferences outside these four. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers in 2017.") %>%
-  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
+  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
 
-The fact that these relationships work both ways, i.e., that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, can be interpreted both positively and negatively. Some respondents expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. On the other hand, other authors expressed that an effective peer review process provides feedback that improves the paper for the next submission. These mixed opinions, combined with the long resubmission history of so many papers, suggests that selection bias in this survey played a lesser role in deciding authors' experience one way or another.
+The fact that these relationships work both ways, i.e., that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, can be interpreted both positively and negatively. Some respondents expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. Other authors expressed that an effective peer review process provides feedback that improves the paper for the next submission. These mixed opinions, combined with the long resubmission history of so many papers, suggests that selection bias in this survey played a lesser role in deciding authors' experience one way or another.
 
 
 ## Rebuttal Process {#subsec:rebuttal-process}
@@ -197,7 +199,7 @@ df <- survey %>%
   select(reviews) %>%
   freq_and_prop(usena = "ifany")
 knitr::kable(t(df), booktabs=TRUE, align=c("rrrrrrr")) %>%
-    kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
+    kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
 The papers in our dataset average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. It is encouraging to find over half of the responses showing one or more pages per review
@@ -212,7 +214,7 @@ of reviews were reported to be less than half a page.
 ```{r understanding.dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$understanding, usena = "ifany")
 knitr::kable(df, booktabs = T, align = "lrr") %>%
-  kable_styling(position = "center", font_size = 8)
+  kable_styling(position = "center", font_size = 6)
 
 poor_understanding <- filter(survey_with_confs, understanding == "Probably didn't read it" | understanding == "Misunderstood major points")
 good_understanding <- filter(survey_with_confs, understanding != "Probably didn't read it" & understanding != "Misunderstood major points")
@@ -237,7 +239,7 @@ It is conceivable that previous rejections have helped improve the communication
 ```{r helpfulness.dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$helpfulness)
 knitr::kable(df, booktabs = T, align = "lrr") %>%
-  kable_styling(position = "center", font_size = 8)
+  kable_styling(position = "center", font_size = 6)
 ```
 
 The helpfulness of a review is closely linked to its reported level of understanding
@@ -252,7 +254,7 @@ This result is consistent with other surveys of journal authors [@editage18:pers
 ```{r fairness.dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$fairness)
 knitr::kable(df, booktabs = T, align = "lrr") %>%
-  kable_styling(position = "center", font_size = 8)
+  kable_styling(position = "center", font_size = 6)
 ```
 
 Once more, the perception of a review's fairness is closely tied to that of its understanding

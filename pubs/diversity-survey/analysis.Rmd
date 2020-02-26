@@ -70,15 +70,17 @@ compared to native speakers'
 
 We also tried to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We do not know who reviewed whose paper, or even a reviewer's native language or nationality. But we can try to estimate it indirectly by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. As it turns out, this proportion has no significant association with the reported understanding level of the reviews for the conference.
 
+<!---
 These negative findings could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone.
-
+--->
 
 ## Publication Experience
 
 As mentioned in Sec. \@ref(sec:data), we collected data from authors' GS profile whenever available and uniquely identifiable
 (`r expr <- left_join(demographics, filter(authors, !is.na(npubs)), by=c("name", "gender")); pct(nrow(filter(expr, !is.na(hindex))), nrow(expr), 1)`%
 of our survey respondents).
-We can use this bibliometric data as an approximate proxy for the previous research experience of authors. For example, Fig.  \@ref(fig:npubs) depicts the distribution of one such metric, the number of previous publications of each author (circa their conference's date).
+We can use this bibliometric data as an approximate proxy for the previous research experience of authors. 
+<!---For example, Fig.  \@ref(fig:npubs) depicts the distribution of one such metric, the number of previous publications of each author (circa their conference's date).
 
 ```{r npubs, echo = F, message = F, out.width = '100%', fig.cap = "Distribution of past publications by gender and role, as of 2017"}
 expr %>%
@@ -96,8 +98,7 @@ survey_with_hindex <- survey %>%
   drop_na(hindex) %>%
   mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
 ```
-
-
+-->
 Since we collected this metric for all authors, not just survey respondents, we can compare the distributions among the two. They are similar enough to lead us to believe that no selection bias by experience occurred in this survey
 (`r report_t(t.test(filter(authors, !is.na(npubs))$npubs, filter(expr, !is.na(npubs))$npubs), 2)`).
 

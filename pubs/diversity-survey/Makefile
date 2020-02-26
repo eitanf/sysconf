@@ -23,4 +23,4 @@ endif
 
 clean:
 	$(R) -e 'bookdown::clean_book(clean = T)'
-	rm -rf peer-review.pdf _main.* libs _book _bookdown_files *.html *.log *.aux *.bbl *.blg *.dvi *.out *.xcp
+	rm -rf diversity.pdf _main.* libs _book _bookdown_files *.html *.log *.aux *.bbl *.blg *.dvi *.out *.xcp

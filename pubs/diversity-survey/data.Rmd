@@ -27,14 +27,14 @@ df <- cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),])
 df %>%
     knitr::kable(format = "latex", longtable = F, booktabs = T, align = c('l', 'c', 'r', 'r', 'l', 'c', 'r', 'r'),
                  caption = "Conferences in our dataset with their start date, number of accepted papers, and survey response rate by papers", escape = T) %>%
-    kable_styling(latex_options = c("scale_down", "repeat_header"), font_size = 7, position = "center")
+    kable_styling(latex_options = c("scale_down", "repeat_header"), font_size = 6, position = "center")
 ```
 
 We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about their paper and about the review process, repeated for up to three distinct papers from our dataset. Non-responses to a question were marked as "NA".
 
 Of the `r length(unique(survey$paper_id))+5` papers,
 `r survey %>% group_by(paper_id) %>% mutate(n = n_distinct(name)) %>% filter(n > 1) %>% select(paper_id) %>% unique() %>% nrow()`
-had responses from more than one author. 
+had responses from multiple authors.
 The distribution of responses per paper was statistically similar to the distribution of co-authors per paper,
 (`r dist_survey <- survey %>% group_by(paper_id) %>% summarize(nauthors = n()); dist_authors <- roles %>% filter(role == "author") %>% group_by(key) %>% summarize(nauthors = n()); report_t(t.test(dist_authors$nauthors, dist_survey$nauthors), 2)`), 
 suggesting that authors were equally likely to respond to the survey, regardless of the paper.

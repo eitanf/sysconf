@@ -8,11 +8,11 @@ In addition, this directory contains some common files, shared by all the public
 
 List of completed and ongoing publications:
 
-  * `gender`: "Gender Representation in Computer Systems" (article).
-  * `diversity-survey`: "A Survey of Published Authors in Computer Systems Research" (article).
+<!---  * `gender`: "Gender Representation in Computer Systems" -->
+  * `diversity-survey`: "Author Experience and Diversity in Computer Systems Conferences"
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
-  * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (Conference paper).
+  * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (conference paper).
 
 The following lists in bibtex format the published documents in reverse calenda order:
 

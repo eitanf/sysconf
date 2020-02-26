@@ -200,7 +200,7 @@ knitr::kable(t(df), booktabs=TRUE, align=c("rrrrrrr")) %>%
     kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
 ```
 
-The papers in our dataset average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. it is encouraging to find over half of the responses showing one or more pages per review
+The papers in our dataset average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. It is encouraging to find over half of the responses showing one or more pages per review
 (`r pct(nrow(filter(survey, length == "A Page" | length == "Multiple Pages")), sum(!is.na(survey$length)))`%),
 whereas only about
 `r pct(nrow(filter(survey, length == "1-2 Paragraphs")), sum(!is.na(survey$length)))`%
@@ -218,8 +218,9 @@ poor_understanding <- filter(survey_with_confs, understanding == "Probably didn'
 good_understanding <- filter(survey_with_confs, understanding != "Probably didn't read it" & understanding != "Misunderstood major points")
 ```
 
+Of the reviews that missed major points or worse,
 `r pct(nrow(filter(poor_understanding, length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(poor_understanding, !is.na(length))))`%
-of reviews that missed major points or worse spanned half a page or shorter, demonstrating how these two factors are linked
+were short, spanning half a page or less. This relationship demonstrates the link between review understanding and length
 (`r report_chi(chisq.test(table(survey$understanding, survey$length)))`) [@papagiannaki07:author]. But longer is not always better or necessary, as these short reviews still comprise
 `r pct(nrow(filter(survey_with_confs, understanding == "Perfectly", length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(survey_with_confs, understanding == "Perfectly", !is.na(length))))`%
 of the "perfect understanding" reviews, whereas multi-page reviews only comprise
@@ -294,9 +295,9 @@ survey_with_confs %>%
          ylab("Normalized grade") 
 ```
 
-It is not surprising that all papers average above 50% for all grades---after all, they have all been accepted [@vines11:cointoss]. The inter-quartile range for the overall grade is 0.5-0.75, meaning that half the papers probably got accepted with an overall recommendation somewhere between "weak accept" and "accept". Perhaps more surprisingly, a good proportion of papers were accepted despite fairly low reviewer confidence. It is also illuminating to see that there is no correlation between a paper's overall grade and the number of past rejections
+One observation is that the "Relevance" grade appears mostly irrelevant, both because of its narrow distribution, and because of the low number of conferences that ask for it. Conceivably, an out-of-scope paper could simply get rejected and excluded from our dataset.
+
+It is also not surprising that all papers average above 50% for all grades---after all, they have all been accepted [@vines11:cointoss]. The inter-quartile range for the overall grade is 0.5-0.75, meaning that half the papers probably got accepted with an overall recommendation somewhere between "weak accept" and "accept". Perhaps more surprisingly, a good proportion of papers were accepted despite fairly low reviewer confidence. It is also illuminating to see that there is no correlation between a paper's overall grade and the number of past rejections
 (`r report_cor(cor.test(survey$prior_subs, survey$gr_overall), 2)`).
 Perhaps multiple submissions do not improve a paper, or if they do, they merely bring it to the levels where other accepted papers are evaluated.
-
-One last observation is that the "Relevance" grade appears mostly irrelevant, both because of its narrow distribution, and because of the low number of conferences that ask for it. Conceivably, an out-of-scope paper could simply get rejected and excluded from our dataset.
 

@@ -3,7 +3,7 @@
 # Should be set to the top level directory (typically one above this one).
 #
 
-R = Rscript
+R=Rscript
 
 ifndef SYSCONF_HOME
 $(error SYSCONF_HOME environment variable is not set)
@@ -12,7 +12,7 @@ endif
 export
 
 
-SUBDIRS = web gender survey-report diversity-survey whpc-stats
+SUBDIRS=web gender survey-report diversity-survey whpc-stats survey-replication
 
 .PHONY: subdirs $(SUBDIRS) clean
 

@@ -1,90 +1,72 @@
 # Author Statistics {#sec:authors}
 
 
-\question{Are there differences in survey responses based on authors' position or experience?}{response-pos}
+\question{Distribution of "paper readiness" and relationship to author experience}{paper-readiness}
 
-This addresses some of the selection bias
+  - http://www.ieee-security.org/TC/Reports/2017/SP2017-PCChairReport.pdf
+  - https://www.nsf.gov/statistics/2018/nsb20181/assets/968/tables/tt05-18.pdf
 
+\question{Does submission order affect paper's chances?}{sub-order}
 
-```{r student-prof-setup, echo=F, warning=F}
-survey_with_pos <- survey %>% 
-  filter(position %in% c("Student", "Professor", "Associate Professor", "Assistant Professor")) %>%
-  drop_na(understanding) %>%
-  mutate(
-    position = case_when(
-      position == "Student" ~ "Student", 
-      position == "Professor" ~ "Professor", 
-      position == "Assistant Professor" ~ "Professor", 
-      position == "Associate Professor" ~ "Professor")) %>%
+  - http://onlinelibrary.wiley.com/doi/10.1002/asi.22747/abstract
+  
+```{r sub-order, echo=F, warning=F}
+#papers_grades_order <- survey %>% 
+#  group_by(paper_id) %>% 
+#  summarise(gr_overall = mean(gr_overall)) %>%
+#  left_join(select(papers, c("key", "months_to_gs", "months_to_eprint")), by=c("paper_id" = "key"))  %>%
+#  drop_na(gr_overall, months_to_gs, months_to_eprint)
+
+#cor.test(papers_grades_order$gr_overall,  papers_grades_order$months_to_gs)
+#cor.test(papers_grades_order$gr_overall, papers_grades_order$months_to_eprint)
+```
+
+\question{Compare "overall" average to confidence-weighted "overall" average}{confidence}
+
+  - [Search references]
+  
+```{r confidence, echo=F, warning=F}
+conf_tbl <- survey %>%
+  drop_na(gr_overall, gr_confidence) %>%
   group_by(paper_id) %>%
-  filter(n_distinct(position) > 1) 
+  mutate(conf_weight = gr_overall * gr_confidence) %>%
+  summarise(gr_overall_avg = mean(gr_overall), gr_conf_avg = mean(conf_weight))
+
+cor.test(conf_tbl$gr_overall_avg, conf_tbl$gr_conf_avg) #strong correlation between overall and confidence weighted overall (obviously)
+#now, make nice chart for it
+library(reshape)
+melted <- melt(as.data.frame(conf_tbl), id=c("paper_id"))
+ggplot(melted, aes(x=variable, y=value, color=variable)) +
+  geom_boxplot() + 
+  stat_summary(fun.y=mean, geom="point", shape=23, size=4)  +
+  xlab(NULL) + 
+  ylab("Grade") +
+  theme_minimal()
+
+t.test(conf_tbl$gr_conf_avg, conf_tbl$gr_overall_avg)
+
+#blurb about more confident if positive about data
+#cavat that there is no rejected paper reviews to compare to
 ```
 
-Students can have a different perspective and experience from professors in the research process, which could affect their survey responses to subjective questions. Three such questions we asked about each review in our survey were: did the reviewer understand your paper? was the review helpful?  was it fair?
+\question{Produce initial stats like these}{stats}
 
-To evaluate this question, we first look for all papers that had responses to the questions from at least one professor and one student. There are only `r length(unique(survey_with_pos$paper_id))` such papers in our dataset. This may partially explain why we found no statistically significant differences in the response to the first two questions. Only on fairness it appears that professors are statistically more inclined to judge reviews as fair
-(`r report_chi(chisq.test(table(survey_with_pos$position, survey_with_pos$fairness)[,-4]))`).
+  - https://publons.com/community/gspr
 
-To expand our data we can look at experience instead of position, which would also include postdocs, industry researchers, and others. We can approximate this experience by identifying the unique GS profile of researchers whenever possible (in our dataset, about two thirds of authors had a uniquely identifiable GS profile). The profile contains various bibliometric measures that can approximate the experience and research influence of a person. we then stratified all our researchers into the following three groups, using the experience metric of H-index [@hirsch05:index]: those with an H-index of less than 13, those with an H-index of 13 to 18, and the rest. We conveniently named these groups novices, mid-career, and experienced, although these breaks are arbitrary [@hirsch05:index].
+\question{Explain zero correlation between prior_subs and gr_overall}{prior-overall}
 
-```{r subjective-grades-by-experience, echo=F, message=F, fig.cap="Distribution of subjective review evaluations by experience."}
-survey_with_hindex <- survey %>%
-  left_join(select(authors, c("name", "hindex")), by = c("name" = "name")) %>%
-  drop_na(hindex) %>%
-  mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
+  - [Search references] + diversity/survey paper
 
-survey_with_hindex %>%
-  rename(Understanding = understanding, Helpfulness = helpfulness, Fairness = fairness) %>%
-  pivot_longer(cols = c("Understanding", "Helpfulness", "Fairness"), names_to = "Category", values_to = "Grade") %>%
-  ggplot(aes(fill = Grade, x = Experience)) +
-    geom_bar(position = "stack") +
-    facet_grid(Category ~ .) +
-    ylab("Response count") +
-    theme(legend.position = "bottom") +
-#    scale_fill_viridis_d() + 
-    coord_flip()
-```
 
-Fig. \@ref(fig:subjective-grades-by-experience) shows how the distributions of responses to the three subjective questions vary by the respondents experience. They too indicate that more experienced researchers view reviews as generally more fair
-(`r report_chi(chisq.test(table(survey_with_hindex$Experience, survey_with_hindex$fairness)))`),
-with no significant differences for the other two questions.
+\question{How to deal with publication bias?}{pub-bias}
 
- - [Find sources to back this up.]
+  - https://www.nature.com/articles/s41562-016-0034
+  - http://www.nature.com/news/let-s-think-about-cognitive-bias-1.18520
+  - http://www.nature.com/news/how-scientists-fool-themselves-and-how-they-can-stop-1.18517
+  - http://www.nature.com/news/tool-for-detecting-publication-bias-goes-under-spotlight-1.21728
+  - http://www.nature.com/news/replication-studies-bad-copy-1.10634
 
-\question{Do more senior authors have fewer rejections?}{senior-reject}
 
-This addresses some of the survivorship bias
 
-(look for either first author, survey respondend rank, or max GS metrics in authors)
-
-```{r student-senior-rej, echo=F, warning=F}
-#join survey data with h-index of author
-hindex_factr_levels <- c("novice", "mid-career", "veteran")
-#turn hindex into factor 
-survey_with_factor <- survey_with_hindex %>%
-  mutate(hindex_discr = case_when(
-    hindex > 18 ~ "veteran", 
-    hindex > 13 ~ "mid-career", 
-    hindex <= 12 ~ "novice", 
-    TRUE ~ "less then or equal to ten")) %>%
-  mutate(hindex_discr = factor(hindex_discr, levels = hindex_factr_levels))
-
-pct_ovr_18 <- pct( nrow(filter(survey_with_factor, hindex_discr =="veteran")),nrow(survey_with_factor))
-pct_under_12 <- pct( nrow(filter(survey_with_factor, hindex_discr == "novice")),nrow(survey_with_factor))
-#figure out correlation between these two and come up with small narrative, write small narratives and clean this data up and push it
-```
-
-Senior authors have more experience in the review process and consequently may have an easier time in getting there papers accepted, without rejections. In order to measure seniority, we use the hindex scores of the authors and join this dataset with our survey responses. Among those that responded, we can test for correlation between hindex and there prior submissions of the paper. 
-
-First to note, is that among our respondents, there was `r pct_ovr_18` percent of respondents with an h-index over 18, while there was `r pct_under_12` percent under 12 Therefore there is a much larger proption of authors with less experience in our survey responses. In order to measure the difference here we can do a correlation between hindex and the rejections for the authors. 
-
-```{r student-senior-1, echo=F, warning=F}
-hindex_corr <- survey_with_hindex %>% #remove repeats
-  group_by(paper_id, name) %>%
-  mutate(hindex = hindex, prior_subs = first(prior_subs))
-cor(hindex_corr$hindex, hindex_corr$prior_subs, use = "pair")
-```
-Running this correlation, we can see that there is some correlation between the hindex and the rejection count, however it does not appear to be significant. However, if we do a chi-square test on experience against prior submissions, we get the following:
-`r report_chi(chisq.test(table(survey_with_factor$hindex_discr,survey_with_factor$prior_subs)))`
-This indicates that may be some significant relation between these two variables, however further statistical tests are needed.
+----
 

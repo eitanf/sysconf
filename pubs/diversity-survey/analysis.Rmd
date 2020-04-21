@@ -110,11 +110,29 @@ again confirming that the large number of students in our survey is representati
 
 This large representation of students is important in light of our previous findings about the differences between survey responses for students and more experienced researchers. For example, students overwhelmingly prefer a rebuttal process (Sec. \@ref(subsec:rebuttal-process)). In survey comments, more experienced researchers tend to value this process less, which may affect conference policies, because those are also decided by experienced researchers. But their high value to inexperienced researchers (as well as non-native English speakers) may render the effort worthwhile [@langford13:reviewing].
 
-As previously discussed, we found no correlation between the experience of a paper's lead author and its research or submission history (Questions \@ref(question:mor) and \@ref(question:priors)). We also found no correlation between an author's experience and their response to the understanding (Question \@ref(question:understanding)) or helpfulness (Question \@ref(question:helpfulness)) of the reviews. We did find a small correlation, however, with the reviews' fairness
-(`r report_chi(chisq.test(table(survey_with_hindex$Experience, survey_with_hindex$fairness)))`).
-The implications of this correlation are unclear. These relationships could be construed to either support the notion that the peer-review process is blind and fair or that it is arbitrary and preferential to senior authors. To reach a conclusive finding we would have to examine additional information, such as the relationship between author name recognition and conference competitiveness, the responses from rejected authors, or the experience metrics of all coauthors on a paper.
+```{r experience-rejections, echo=F, message=F, warning=F}
+exp_by_paper <- roles %>%
+  filter(role == "author") %>%
+  left_join(authors, by = c("name", "gs_email")) %>%
+  drop_na(npubs) %>%
+  group_by(key) %>%
+  summarize(maxe = max(npubs), meane = mean(npubs), mediane = median(npubs), mine = min(npubs), sume = sum(npubs))
+
+exp_by_survey <- survey %>%
+  drop_na(prior_subs) %>%
+  group_by(paper_id) %>%
+  summarize(rejections = mean(prior_subs)) %>%
+  left_join(exp_by_paper, by = c("paper_id" = "key"))
+```
 
 
+As previously discussed, we found no correlation between the experience of a paper's lead author and its research or submission history (Questions \@ref(question:mor) and \@ref(question:priors)). The same is true when comparing the number of past rejections with the past publications of a paper's most-experienced author
+(`r report_cor(cor.test(exp_by_survey$rejections, exp_by_survey$maxe))`),
+least-experienced, mean and median experience. We also found no correlation between an author's experience and their response to the understanding (Question \@ref(question:understanding)) or helpfulness (Question \@ref(question:helpfulness)) of the reviews. We believe that these lack of correlation are an overall positive indication that the peer-review process is fair and blind to experience, although a full analysis requires understanding rejected papers better.
+
+
+We did find a small correlation, however, between authors' experience and the reviews' perceived fairness
+(`r report_chi(chisq.test(table(survey_with_hindex$Experience, survey_with_hindex$fairness)))`), which was also observed in the ISCA community for fairness and helpfulness [@jerger17:isca].
 
 ## Geographical Regions
 
@@ -153,4 +171,4 @@ It is encouraging to see that the two distributions are fairly similar
 (`r (report_t(t.test(survey_regions$total, author_regions$total)))`),
 suggesting that any selection bias based on geographical region is also limited.
 
-Unsurprisingly, most of these researchers hail from the West, although Asian countries such as China, Japan, and India are also prominent. One possible explanation is that Systems research can require expensive hardware, and therefore more likely to occur in the well-endowed research institutions and companies of the developed world. Regardless of explanation, this data shows a strong mismatch between country population and representation in published systems research, leading in turn to poor geographical diversity.
+Unsurprisingly, most of these researchers hail from the West, much more so than in other fields [@publons18:peer]. Asian countries such as China, Japan, and India are also prominent. One possible explanation is that Systems research can require expensive hardware, and therefore more likely to occur in the well-endowed research institutions and companies of the developed world. Regardless of explanation, this data shows a strong mismatch between country population and representation in published systems research, leading in turn to poor geographical diversity.

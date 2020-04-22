@@ -34,7 +34,7 @@ chose "Female". In our hand-verified gender data of all authors,
 `r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%
 were female. These two proportions are close
 (`r report_chi(chisq.test(gender_table))`),
-leading us to believe there is no significant selection bias by gender.
+leading us to believe there is no significant selection bias by gender. Only a handful of respondents chose the non-binary option ("Other").
 
 
 ### What is your English level proficiency?
@@ -48,7 +48,7 @@ We also asked (and checked) for each paper whether there was any native English 
 ## Paper History
 
 ### How many months did it take to research and write? {#question:mor}
-\hfill
+
 
 ```{r mor.dist, echo = F, message = F, warning = F}
 levels(survey$months_research)[5] <- "13+"
@@ -63,10 +63,9 @@ knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr") %>%
   kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
-The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months. The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector. It was, however, correlated to the next question:
+The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months. The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector.
 
 ### How many conferences/journals was it submitted to prior to this publication? {#question:priors}
-\hfill
 
 ```{r subs_dist, echo = F, message = F, warning = F}
 tmp <- survey
@@ -83,12 +82,12 @@ knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r") %>%
   kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
 ```
 
-It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. 
+It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. We also observed a tendency of papers with a longer submission history to have a longer research history (previous question), perhaps conflating the two variables.
 
-\hfill\break
-### Please type in their names
 
-Because of the free-form responses to this question, quantitative analysis is challenging. As a case study, we turn our attention to computer architecture alone, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. we noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. This table shows in each cell how many papers were rejected from that row's conference prior to acceptance in that column's conference.
+### Please type in their names {#question:prior-names}
+
+Because of the free-form responses to this question, quantitative analysis is challenging. As a case study, we turn our attention to computer architecture alone, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. We noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. This table shows in each cell how many papers were rejected from that row's conference prior to acceptance in that column's conference.
 
 ```{r arch.rejections, echo=F, message=F, warning=F }
 priors <- data.frame(check.names = F,
@@ -133,7 +132,7 @@ vs.
 `r pct(filter(rebutters, use == T)$grade %>% mean(na.rm = T), 1)`%),
 possibly obviating the need to rebut [@daume15:naacl].
 
-There were no statistically significant differences in responses to this question by position, English proficiency, or gender, although it should be noted that only men answered "no" to this question
+There were no statistically significant differences in responses to this question by position, English proficiency, or gender. Notably, however, only men answered "no" to this question
 (`r sum(rebutters$gender == "M" & rebutters$use == F)` respondents), and that
 `r pct(nrow(filter(rebutters, native == F, use == T)), nrow(filter(rebutters, native == F, !is.na(use))))`%
 of non-native speakers opted to respond to reviews, vs.
@@ -190,7 +189,7 @@ When asked to explain their previous answer, responses varied. The main themes t
 The following questions (one for each review and paper) were designed to assess the quality of the reviews.
 
 ### How many reviews did this paper receive?
-\hfill
+
 
 ```{r reviews.dist, echo = F, message = F, warning = F}
 df <- survey %>%
@@ -209,7 +208,7 @@ whereas only about
 of reviews were reported to be less than half a page.
 
 ### How well did the reviewer understand the paper, in your estimation? {#question:understanding}
-\hfill
+
 
 ```{r understanding.dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$understanding, usena = "ifany")
@@ -234,7 +233,7 @@ and in terms of months researched as well.
 It is conceivable that previous rejections have helped improve the communication of a resubmitted paper. 
 
 ### How helpful did you find this review for improving the paper? {#question:helpfulness}
-\hfill
+
 
 ```{r helpfulness.dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$helpfulness)
@@ -249,7 +248,7 @@ which in turn also implies that it is closely linked to the review's length
 This result is consistent with other surveys of journal authors [@editage18:perspectives; @sense19:peer].
 
 ### How fair would you say the review was?
-\hfill
+
 
 ```{r fairness.dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$fairness)

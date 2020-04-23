@@ -2,14 +2,20 @@
 
 library(tidyverse)
 
-toplevel <- "/home/eitan/Dropbox/code/sysconf"
+toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
 
 # Read in the cleaned-up final survey responses, gender data, and author data
 raw <- read_csv(paste0(toplevel, "/survey/final_responses.csv")) %>%
   mutate(Position = ifelse(!is.na(PositionOther) & PositionOther == "Postdoc", "Postdoctoral Researcher", Position)) %>%
-#  mutate(Position = ifelse(Position == "Other", "Yahoo", Position)) %>%
-  mutate(Gender = ifelse(Gender == "Male", "M", ifelse(Gender == "Female",  "F", NA)))
-
+  mutate(Gender = case_when(
+    Gender == "Male" ~ "M",
+    Gender == "Man" ~ "M",
+    Gender == "Female" ~ "F",
+    Gender == "Woman" ~ "F",
+    Gender == "Other" ~ "Other",
+    TRUE ~ "NA"))
+raw$Gender = ifelse(raw$Gender == "NA", NA, raw$Gender)
+raw$Gender = as.factor(raw$Gender)
 
 verified <- read_csv(paste0(toplevel, "/data/verified_gender_mapping.csv"))
 inferred <- read_csv(paste0(toplevel, "/data/inferred_gender_mapping.csv"))

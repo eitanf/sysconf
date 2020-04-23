@@ -27,14 +27,23 @@ Systems is a field with numerous practical applications and commercial implicati
 
 ### What is your gender?
 
+```{r gender.dist, echo = F, message = F, warning = F}
+df <- survey %>%
+  group_by(name) %>%
+  summarize(gender = first(gender)) %>%
+  select(gender) %>%
+  freq_and_prop(usena = "ifany")
+knitr::kable(t(df), booktabs=TRUE, align=c("rrrrr")) %>%
+    kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
+```
+
 Of the `r nrow(filter(demographics, !is.na(gender)))` non-NA responses,
-`r nrow(filter(demographics, gender == "F"))`
-(`r pct(nrow(filter(demographics, gender == "F")), sum(!is.na(demographics$gender)))`%)
+`r pct(nrow(filter(demographics, gender == "F")), sum(!is.na(demographics$gender)))`%
 chose "Female". In our hand-verified gender data of all authors,
 `r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%
 were female. These two proportions are close
 (`r report_chi(chisq.test(gender_table))`),
-leading us to believe there is no significant selection bias by gender. Only a handful of respondents chose the non-binary option ("Other").
+leading us to believe there is no significant selection bias by gender.
 
 
 ### What is your English level proficiency?
@@ -132,8 +141,10 @@ vs.
 `r pct(filter(rebutters, use == T)$grade %>% mean(na.rm = T), 1)`%),
 possibly obviating the need to rebut [@daume15:naacl].
 
-There were no statistically significant differences in responses to this question by position, English proficiency, or gender. Notably, however, only men answered "no" to this question
-(`r sum(rebutters$gender == "M" & rebutters$use == F)` respondents), and that
+
+There were no statistically significant differences in responses to this question by position, English proficiency, or gender. Note that only men answered "no" to this question
+(`r sum(rebutters$gender == "M" & rebutters$use == F)` authors, `r report_chi(chisq.test(table(rebutters$gender, rebutters$use)))`),
+and that
 `r pct(nrow(filter(rebutters, native == F, use == T)), nrow(filter(rebutters, native == F, !is.na(use))))`%
 of non-native speakers opted to respond to reviews, vs.
 `r pct(nrow(filter(rebutters, native == T, use == T)), nrow(filter(rebutters, native == T, !is.na(use))))`%

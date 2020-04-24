@@ -13,7 +13,7 @@ For comparison, we looked at the inferred affiliation of `r nrow(good_affils)` t
 `r pct(sum(good_affils$sector == "GOV"), nrow(good_affils))`% among survey respondents,
 but still not significant enough to suggest selection bias by position (`r report_chi(chisq.test(gov_table))`).
 
-```{r position-dist, echo = F, message = F, out.width = '90%', warning = F, fig.cap = "Distribution of respondent positions."}
+```{r position-dist, echo = F, message = F, out.width = '90%', warning = F, fig.cap = "Distribution of respondent positions"}
 ggplot(demographics, aes(x = position)) +
          geom_histogram(stat = "count") + 
          scale_x_discrete(limits = c(NA, "Other", "Government Researcher", "Industry Researcher", "Professor", "Associate Professor", "Assistant Professor", "Postdoctoral Researcher", "Student")) +
@@ -27,19 +27,20 @@ Systems is a field with numerous practical applications and commercial implicati
 
 ### What is your gender?
 
-```{r gender.dist, echo = F, message = F, warning = F}
+```{r gender-dist, echo = F, message = F, warning = F}
 df <- survey %>%
   group_by(name) %>%
   summarize(gender = first(gender)) %>%
   select(gender) %>%
   freq_and_prop(usena = "ifany")
-knitr::kable(t(df), booktabs=TRUE, align=c("rrrrr")) %>%
+knitr::kable(t(df), booktabs=TRUE, align=c("rrrrr"),
+             caption = "Respondents' gender") %>%
     kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
 Of the `r nrow(filter(demographics, !is.na(gender)))` non-NA responses,
 `r pct(nrow(filter(demographics, gender == "F")), sum(!is.na(demographics$gender)))`%
-chose "Female". In our hand-verified gender data of all authors,
+chose "Female" (Table \@ref(tab:gender-dist)). In our hand-verified gender data of all authors,
 `r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%
 were female. These two proportions are close
 (`r report_chi(chisq.test(gender_table))`),
@@ -59,7 +60,7 @@ We also asked (and checked) for each paper whether there was any native English 
 ### How many months did it take to research and write? {#question:mor}
 
 
-```{r mor.dist, echo = F, message = F, warning = F}
+```{r mor-dist, echo = F, message = F, warning = F}
 levels(survey$months_research)[5] <- "13+"
 df <- survey %>%
   group_by(paper_id) %>%
@@ -68,15 +69,16 @@ df <- survey %>%
   freq_and_prop(usena = "ifany")
 df$Response = ordered(df$Response, levels = c("1-3", "4-6", "7-9", "10-12", "13+", NA))
 
-knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr") %>%
+knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr",
+             caption = "Months of research") %>%
   kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
-The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months. The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector.
+The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months (Table \@ref(tab:mor-dist)). The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector.
 
 ### How many conferences/journals was it submitted to prior to this publication? {#question:priors}
 
-```{r subs_dist, echo = F, message = F, warning = F}
+```{r subs-dist, echo = F, message = F, warning = F}
 tmp <- survey
 tmp[!is.na(tmp$prior_subs) & tmp$prior_subs>4,]$prior_subs = 9  # Make table a little smaller
 tmp$prior_subs <- factor(tmp$prior_subs)
@@ -87,18 +89,19 @@ df <- tmp %>%
   select(prior) %>%
   freq_and_prop(usena = "ifany")
 df$Response = ordered(df$Response, levels = c("0", "1", "2", "3", "4", "5+", NA))
-knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r") %>%
+knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r",
+             caption = "Number of paper's prior submissions") %>%
   kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
 ```
 
-It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication. We also observed a tendency of papers with a longer submission history to have a longer research history (previous question), perhaps conflating the two variables.
+It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication (Table \@ref(tab:subs-dist)). We also observed a tendency of papers with a longer submission history to have a longer research history (previous question), perhaps conflating the two variables.
 
 
 ### Please type in their names {#question:prior-names}
 
-Because of the free-form responses to this question, quantitative analysis is challenging. As a case study, we turn our attention to computer architecture alone, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. We noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. This table shows in each cell how many papers were rejected from that row's conference prior to acceptance in that column's conference.
+Because of the free-form responses to this question, quantitative analysis is challenging. As a case study, we turn our attention to computer architecture alone, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. We noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. 
 
-```{r arch.rejections, echo=F, message=F, warning=F }
+```{r arch-rejections, echo=F, message=F, warning=F }
 priors <- data.frame(check.names = F,
              "Previous conf" = c("ASPLOS", "HPCA", "ISCA", "MICRO"),
              "ASPLOS" = c(1, 0, 4, 5),
@@ -111,13 +114,13 @@ priors <- data.frame(check.names = F,
 priors <- t(priors)
 #rownames(priors)[1] <- "Previous"
 #rownames(priors)[7] <- "Acceptance rate"
-knitr::kable(priors, booktabs = T,  align = rep('r', 7)) %>%
-#             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference. The total rejections per conference row is self-reported by authors, and includes conferences outside these four. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers in 2017.") %>%
+knitr::kable(priors, booktabs = T,  align = rep('r', 7),
+             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference, so for example, 6 papers that had been rejected from ISCA were accepted to HPCA in 2017, out of the 28 HPCA'17 papers for which we have responses. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers.") %>%
   kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
 
-The fact that these relationships work both ways, i.e., that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences, can be interpreted both positively and negatively. Some respondents expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. Other authors opined that effetive peer review provides feedback that improves the paper for the next submission. Most of the papers had been rejected at least once prior to their acceptance in 2017, perhaps helping to explain why authors' views on the process were mixed. It may also support an argument that selection bias in this survey played a lesser role in deciding authors' experience one way or another, because even though these are all accepted authors, most of them experienced the rejection of the same paper as well.
+As Table \@ref(tab:arch-rejections) shows, these relationships work both ways, i.e., that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences. This fact can be interpreted both positively and negatively. Some respondents expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. Other authors opined that effetive peer review provides feedback that improves the paper for the next submission. Most of the papers had been rejected at least once prior to their acceptance in 2017, perhaps helping to explain why authors' views on the process were mixed. It may also support an argument that selection bias in this survey played a lesser role in deciding authors' experience one way or another, because even though these are all accepted authors, most of them experienced the rejection of the same paper as well.
 
 
 ## Rebuttal Process {#subsec:rebuttal-process}
@@ -202,17 +205,18 @@ The following questions (one for each review and paper) were designed to assess 
 ### How many reviews did this paper receive?
 
 
-```{r reviews.dist, echo = F, message = F, warning = F}
+```{r reviews-dist, echo = F, message = F, warning = F}
 df <- survey %>%
   group_by(paper_id) %>%
   summarize(reviews = first(reviews)) %>%
   select(reviews) %>%
   freq_and_prop(usena = "ifany")
-knitr::kable(t(df), booktabs=TRUE, align=c("rrrrrrr")) %>%
+knitr::kable(t(df), booktabs = TRUE, align = c("rrrrrrr"),
+             caption = "Number of reviews received per paper") %>%
     kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
 ```
 
-The papers in our dataset average more than four reviews per paper, far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. It is encouraging to find over half of the responses showing one or more pages per review
+The papers in our dataset average more than four reviews per paper (Table \@ref(tab:reviews-dist)), far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. It is encouraging to find over half of the responses showing one or more pages per review
 (`r pct(nrow(filter(survey, length == "A Page" | length == "Multiple Pages")), sum(!is.na(survey$length)))`%),
 whereas only about
 `r pct(nrow(filter(survey, length == "1-2 Paragraphs")), sum(!is.na(survey$length)))`%
@@ -221,9 +225,9 @@ of reviews were reported to be less than half a page.
 ### How well did the reviewer understand the paper, in your estimation? {#question:understanding}
 
 
-```{r understanding.dist, echo = F, message = F, warning = F}
+```{r understanding-dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$understanding, usena = "ifany")
-knitr::kable(df, booktabs = T, align = "lrr") %>%
+knitr::kable(df, booktabs = T, align = "lrr", caption = "Reviewer understanding") %>%
   kable_styling(position = "center", font_size = 6)
 
 poor_understanding <- filter(survey_with_confs, understanding == "Probably didn't read it" | understanding == "Misunderstood major points")
@@ -232,7 +236,7 @@ good_understanding <- filter(survey_with_confs, understanding != "Probably didn'
 
 Of the reviews that missed major points or worse,
 `r pct(nrow(filter(poor_understanding, length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(poor_understanding, !is.na(length))))`%
-were short, spanning half a page or less. This correlation demonstrates the relationship between review quality and length
+were short, spanning half a page or less (Table \@ref(tab:understanding-dist)). This correlation demonstrates the relationship between review quality and length
 (`r report_chi(chisq.test(table(survey$understanding, survey$length)))`) [@hames08:peer; @papagiannaki07:author]. But longer is not always better or necessary, as these short reviews still comprise
 `r pct(nrow(filter(survey_with_confs, understanding == "Perfectly", length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(survey_with_confs, understanding == "Perfectly", !is.na(length))))`%
 of the "perfect understanding" reviews, whereas multi-page reviews only comprise
@@ -246,13 +250,13 @@ It is conceivable that previous rejections have helped improve the communication
 ### How helpful did you find this review for improving the paper? {#question:helpfulness}
 
 
-```{r helpfulness.dist, echo = F, message = F, warning = F}
+```{r helpfulness-dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$helpfulness)
-knitr::kable(df, booktabs = T, align = "lrr") %>%
+knitr::kable(df, booktabs = T, align = "lrr", caption = "Review helpfulness") %>%
   kable_styling(position = "center", font_size = 6)
 ```
 
-The helpfulness of a review is closely linked to its reported level of understanding
+Table \@ref(tab:helpfulness-dist) shows that accepted authors found most of their reviews at least somewhat helpful. The helpfulness of a review is closely linked to its reported level of understanding
 (`r report_chi(chisq.test(table(survey$helpfulness, survey$understanding)), 2)`),
 which in turn also implies that it is closely linked to the review's length
 (`r report_chi(chisq.test(table(survey$helpfulness, survey$length)), 2)`).
@@ -261,13 +265,13 @@ This result is consistent with other surveys of journal authors [@editage18:pers
 ### How fair would you say the review was?
 
 
-```{r fairness.dist, echo = F, message = F, warning = F}
+```{r fairness-dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$fairness)
-knitr::kable(df, booktabs = T, align = "lrr") %>%
+knitr::kable(df, booktabs = T, align = "lrr", caption = "Review fairness") %>%
   kable_styling(position = "center", font_size = 6)
 ```
 
-Fairness in reviews is a high priority for the Systems community [@jerger17:isca]. Once more, the data shows that the perception of a review's fairness is closely tied to that of its understanding
+Fairness in reviews is a high priority for the Systems community [@jerger17:isca]. Once more, the data in Table \@ref(tab:fairness-dist) shows that the perception of a review's fairness is closely tied to that of its understanding
 (`r report_chi(chisq.test(table(survey$fairness, survey$understanding)), 2)`)
 and helpfulness
 (`r report_chi(chisq.test(table(survey$fairness, survey$helpfulness)), 2)`).

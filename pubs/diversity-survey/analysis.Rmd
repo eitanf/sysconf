@@ -138,7 +138,7 @@ We did find a small correlation, however, between authors' experience and the re
 
 ## Geographical Regions
 
-Although we did not specifically ask authors for their country of residence, we can infer this information for most authors from their email addresses. We can then aggregate authors based on the region of the world their email affiliation belongs to and compare the distribution of ratios between survey respondents and all authors. The following table shows these distributions (omitting any authors with unidentifiable country and any regions with two authors or fewer).
+Although we did not specifically ask authors for their country of residence, we can infer this information for most authors from their email addresses. We can then aggregate authors based on the region of the world their email affiliation belongs to and compare the distribution of ratios between survey respondents and all authors (Table \@ref(tab:top-countries)). The following table shows these distributions (omitting any authors with unidentifiable country and any regions with two authors or fewer).
 
 
 ```{r top-countries, echo=F, message=F, warning=F}
@@ -165,7 +165,8 @@ author_regions$pct <- pct(author_regions$total, sum(author_regions$total), 1)
 tbl <- left_join(survey_regions, author_regions, by = c("subregion"))
 colnames(tbl) <- c("Region", "Respondents", "Percentage", "All authors", "Percentage")
 
-knitr::kable(tbl, booktabs = T, align = "lrrrr") %>%
+knitr::kable(tbl, booktabs = T, align = "lrrrr",
+             caption = "Number and percentage of survey respondents and total authors by geographical region") %>%
   kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
 ```
 

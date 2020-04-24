@@ -18,7 +18,9 @@ Another explanation may be that women publish less than men in Systems. Indeed, 
 But this gap is not large enough to explain the 2--3x representation gap with the rest of CS, and is not unique to Systems [@elsevier17:gender].
 
 A third explanation could be that female authors' papers are rejected at a higher rate than males'. We cannot test this hypothesis directly without data on rejected papers. However, three pieces of evidence counter this explanation.
-First, limiting our observations to double-blind conferences, where reviewers presumably remain oblivious of the authors' gender, makes no statistically significant difference in the ratio of women.
+First, limiting our observations to the
+`r all_confs %>% filter(double_blind) %>% nrow()`
+double-blind conferences, where reviewers presumably remain oblivious of the authors' gender, makes no statistically significant difference in the ratio of women.
 <!---(`r db <- filter(roles, role == "author") %>% left_join(persons, by = c("name", "gs_email")) %>% left_join(all_confs, by = c("conf" = "conference")) %>% filter(double_blind == T, !is.na(gender));`) --->
 Second, the same ratio also shows up when we limit our observations to lead authors only, where gender may be more prominent. And lastly,
 we found no statistically significant evidence that women receive lower overall acceptance grades than men in their reviews,
@@ -28,7 +30,7 @@ even when limiting to lead authors or single-blind reviews.
 <!---(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_originality, filter(survey_with_confs, mapped_gender == "M")$gr_originality))`), --->
 and technical merit, especially in single-blind conferences.
 <!---(`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F", double_blind == F)$gr_technical, filter(survey_with_confs, mapped_gender == "M")$gr_technical))`). --->
-In both categories, women scored significantly higher than men. 
+In both categories, women scored significantly higher than men. It's not clear whether there is any causal relationship here, and if so, in which direction: do women have to score higher than men in single-blind conferences to be accepted, or do they submit higher-quality papers to begin with?
 
 In addition to these two grade differences, women also reported reviewers as somewhat more understanding, helpful, and fair than men did
 (`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$understanding)), 2)`,

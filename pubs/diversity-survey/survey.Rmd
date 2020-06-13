@@ -1,9 +1,9 @@
-# Author survey results {#sec:survey}
+# Author Survey Results {#sec:survey}
 
 
 ## Demographic Questions {#subsec:demo}
 
-We asked three demographic questions to evaluate their role in the review experience. We intentionally kept these questions to a minimum to reduce the risk of priming or other biases.
+We asked three demographic questions to evaluate their role in the review experience. We intentionally kept these questions to a minimum to reduce the risk of priming or selection bias.
 
 ### Which best describes your position during 2017? {#question:position}
 
@@ -33,18 +33,16 @@ df <- survey %>%
   summarize(gender = first(gender)) %>%
   select(gender) %>%
   freq_and_prop(usena = "ifany")
-knitr::kable(t(df), booktabs=TRUE, align=c("rrrrr"),
-             caption = "Respondents' gender") %>%
-    kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
+knitr::kable(t(df), booktabs=TRUE, align=c("rrrrr"), caption = "Respondents' gender")
 ```
 
-Of the `r nrow(filter(demographics, !is.na(gender)))` non-NA responses,
+Among those who provided a binary response,
 `r pct(nrow(filter(demographics, gender == "F")), sum(!is.na(demographics$gender)))`%
 chose "Female" (Table \@ref(tab:gender-dist)). In our hand-verified gender data of all authors,
 `r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%
-were female. These two proportions are close
+were female. These two proportions are not statistically different
 (`r report_chi(chisq.test(gender_table))`),
-leading us to believe there is no significant selection bias by gender.
+leading us to believe that significant selection bias by gender is unlikely.
 
 
 ### What is your English level proficiency?
@@ -69,12 +67,10 @@ df <- survey %>%
   freq_and_prop(usena = "ifany")
 df$Response = ordered(df$Response, levels = c("1-3", "4-6", "7-9", "10-12", "13+", NA))
 
-knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr",
-             caption = "Months of research") %>%
-  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
+knitr::kable(t(arrange(df, Response)), booktabs = T, align = "rrrrr", caption = "Months of research")
 ```
 
-The answers to this question varied most among different responses to the same paper, although typically by no more than 3 months (Table \@ref(tab:mor-dist)). The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector.
+The answers to this question (Table \@ref(tab:mor-dist)) varied most among different responses to the same paper, although typically by no more than 3 months. The response to this question was not significantly associated with the team size (number of coauthors), or lead author's experience, gender, or sector.
 
 ### How many conferences/journals was it submitted to prior to this publication? {#question:priors}
 
@@ -89,17 +85,15 @@ df <- tmp %>%
   select(prior) %>%
   freq_and_prop(usena = "ifany")
 df$Response = ordered(df$Response, levels = c("0", "1", "2", "3", "4", "5+", NA))
-knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r",
-             caption = "Number of paper's prior submissions") %>%
-  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 8)
+knitr::kable(t(arrange(df, Response)), booktabs = T, align = "r", caption = "Number of paper's prior submissions")
 ```
 
-It is instructive to see that over 40% of papers with responses are rejected on their first submission [@solomon14:survey; @wallach11:rebooting], and can take as many as 12 attempts to reach publication (Table \@ref(tab:subs-dist)). We also observed a tendency of papers with a longer submission history to have a longer research history (previous question), perhaps conflating the two variables.
+It is instructive to see that at least 40% of papers with responses had been rejected at least once [@solomon14:survey; @wallach11:rebooting], with one respondent taking as many as 12 attempts to reach publication (Table \@ref(tab:subs-dist)). We also observed a tendency of papers with a longer submission history of having a longer research history (previous question), perhaps conflating the two variables in respondents' mind.
 
 
 ### Please type in their names {#question:prior-names}
 
-Because of the free-form responses to this question, quantitative analysis is challenging. As a case study, we turn our attention to computer architecture alone, for which four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. We noted that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. 
+Because of the unstructured responses to this question, quantitative analysis is challenging. As a case study, we focus our attention on computer architecture alone. Four of the leading conferences are represented in our data set, and are of similar size and acceptance rates. We note that most papers that had been previously rejected from these conferences, had been mostly submitted to one of these four as well. 
 
 ```{r arch-rejections, echo=F, message=F, warning=F }
 priors <- data.frame(check.names = F,
@@ -115,12 +109,11 @@ priors <- t(priors)
 #rownames(priors)[1] <- "Previous"
 #rownames(priors)[7] <- "Acceptance rate"
 knitr::kable(priors, booktabs = T,  align = rep('r', 7),
-             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference, so for example, 6 papers that had been rejected from ISCA were accepted to HPCA in 2017, out of the 28 HPCA'17 papers for which we have responses. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers.") %>%
-  kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
+             caption = "Prior submission counts for architecture conferences. Each row counts how many papers were rejected from that conference prior to acceptance in that column's conference. For example, 6 papers that had been rejected from ISCA were accepted to HPCA in 2017, out of the 28 HPCA'17 papers for which we have responses. The overall acceptance rates are computed by dividing the number of submitted papers by the number of accepted papers.")
 ```
 
 
-As Table \@ref(tab:arch-rejections) shows, these relationships work both ways, i.e., that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences. This fact can be interpreted both positively and negatively. Some respondents expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. Other authors opined that effetive peer review provides feedback that improves the paper for the next submission. Most of the papers had been rejected at least once prior to their acceptance in 2017, perhaps helping to explain why authors' views on the process were mixed. It may also support an argument that selection bias in this survey played a lesser role in deciding authors' experience one way or another, because even though these are all accepted authors, most of them experienced the rejection of the same paper as well.
+As Table \@ref(tab:arch-rejections) shows, these relationships work both ways, meaning that many papers were accepted after previously being rejected from equivalent (or even the very same) conferences. This fact can be interpreted both positively and negatively. Some respondents expressed frustration that the peer-review process can appear arbitrary [@anderson08:towards; @francois15:arbit; @vardi09:conferences; @vines11:cointoss]. Other authors opined that effective peer review provides feedback that improves the paper for the next submission. Most of the papers had been rejected at least once prior to their acceptance in 2017, perhaps helping to explain why authors' views on the process were mixed. It may also support an argument that selection bias in this survey played a lesser role in painting authors' reported experience one way or another, because even though these are all accepted authors, most of them experienced the rejection of the subject paper as well.
 
 
 ## Rebuttal Process {#subsec:rebuttal-process}
@@ -128,37 +121,42 @@ As Table \@ref(tab:arch-rejections) shows, these relationships work both ways, i
 
 ### Did the conference allow you to address reviewers concerns before final acceptance notice?
 
-Of the `r ar <- group_by(survey, response_id) %>% filter(!is.na(allow_rebuttal)) %>% summarize(f = first(allow_rebuttal)); nrow(ar)` non-NA responses,
+Of the
+`r ar <- group_by(survey, response_id) %>% filter(!is.na(allow_rebuttal)) %>% summarize(f = first(allow_rebuttal)); nrow(ar)`
+non-NA responses,
 `r pct(nrow(filter(ar, f == T)), nrow(ar))`%
 chose "Yes".
-Contrast this with the conferences, of which only `r sum(all_confs$rebuttal)` of our `r nrow(all_confs)` offered a formal rebuttal option
+Contrast this with the conferences, of which only `r sum(all_confs$rebuttal)`  offered a formal rebuttal option
 (`r pct(sum(all_confs$npapers * all_confs$rebuttal), sum(all_confs$npapers))`%
 when weighted by papers).
-The discrepancy may be explained by some authors who specifically mentioned answering "Yes" to this question despite the lack of a formal rebuttal policy, because the conference had a "provisional acceptance" policy or mandatory revisions guided by a PC "shepherd". Although this response type is clearly different than a formal rebuttal, limiting our analysis to formal rebuttals only does not meaningfully change their results.
+The discrepancy may be explained by some authors who specifically explained answering "Yes" to this question despite the lack of a formal rebuttal policy, because the conference had a "provisional acceptance" policy or mandatory revisions guided by a PC "shepherd". Although this response type is clearly different than a formal rebuttal, limiting our analysis to formal rebuttals only does not meaningfully change our results.
 
 
 `r rebutters <- filter(survey, allow_rebuttal == T) %>% group_by(name, paper_id) %>% summarize(use = first(use_rebuttal), grade = first(gr_overall), mor = first(months_research), gender = first(mapped_gender), native = first(native_english)); pct(nrow(filter(rebutters, use == T)), nrow(rebutters), 2)`%
 of the "Yes" respondents also reported that they took advantage of the rebuttal option. The few who didn't received higher overall acceptance grades on average,
 (`r pct(filter(rebutters, use == F)$grade %>% mean(na.rm = T), 1)`%
 vs. 
-`r pct(filter(rebutters, use == T)$grade %>% mean(na.rm = T), 1)`%),
+`r pct(filter(rebutters, use == T)$grade %>% mean(na.rm = T), 1)`%,
+`r report_t(t.test(table(rebutters$use, rebutters$grade)), 2)`),
 possibly obviating the need to rebut [@daume15:naacl].
 
 
-There were no statistically significant differences in responses to this question by position, English proficiency, or gender. Note that only men answered "no" to this question
-(`r sum(rebutters$gender == "M" & rebutters$use == F)` authors, `r report_chi(chisq.test(table(rebutters$gender, rebutters$use)))`),
+There were no statistically significant differences in responses to this question by position, English proficiency, or gender, although only men chose not to rebut
+(`r sum(rebutters$gender == "M" & rebutters$use == F)` authors, `r report_chi(chisq.test(table(rebutters$gender, rebutters$use)))`).
+<!---
 and that
 `r pct(nrow(filter(rebutters, native == F, use == T)), nrow(filter(rebutters, native == F, !is.na(use))))`%
 of non-native speakers opted to respond to reviews, vs.
 `r pct(nrow(filter(rebutters, native == T, use == T)), nrow(filter(rebutters, native == T, !is.na(use))))`%
 of native speakers
 (`r report_chi(chisq.test(table(rebutters$native, rebutters$use)))`).
+--->
 
 ### Did you find the response process helpful?
 
 Of the non-NA responses,
 `r pct(nrow(filter(survey, rebuttal_helpful == T)), nrow(filter(survey, !is.na(rebuttal_helpful))))`%
-were positive. This high percentage may be a little surprising, considering how many PC chairs and authors alike commented privately on how little difference rebuttals make [@daume15:naacl]. One cautionary reminder is that the survey and statistics exclude rejected papers, which could lead to survivorship bias. It is quite plausible that authors of rejected papers were less enthused about the rebuttal process. But even among authors of accepted papers there are some noteworthy differences between those who found rebuttals valuable and those who did not.
+were affirmative. This high percentage may be a little surprising, considering how many PC chairs and authors alike commented privately on how little difference rebuttals make [@daume15:naacl]. One cautionary reminder is that the survey and statistics exclude rejected papers, which could lead to survivorship bias. It is quite plausible that authors of rejected papers were less enthused about the rebuttal process. But even among authors of accepted papers there are some noteworthy differences between those who found rebuttals valuable and those who did not.
 
  Professors comprise only
 `r pct(profs_yes, nrow(yes_rebut_help), 0)`%
@@ -172,11 +170,11 @@ In contradistinction, students found rebuttals more helpful
 `r report_chi(chisq.test(data.frame(c(students_yes, students_no), c(nrow(yes_rebut_help) - students_yes, nrow(no_rebut_help) - students_no))), 2)`),
 perhaps because of their lack of experience.
 
-More generally, the experience level of authors who found rebuttals helpful, as measured by median publications count from their GS profile, is about half that of those who did not
-(`r yes <- filter(yes_rebut_help, !is.na(npubs)); no <- filter(no_rebut_help, !is.na(npubs)); round(median(yes$npubs), 0)` vs.
+More generally, the experience level of authors who found rebuttals helpful, as measured by median publications count in their GS profile, is about half that of those who did not
+(`r yes <- filter(yes_rebut_help, !is.na(npubs)); no <- filter(no_rebut_help, !is.na(npubs)); round(median(yes$npubs), 2)` vs.
 `r round(median(no$npubs), 0)`,
-`r report_t(t.test(no$npubs, yes$npubs))`).
-We have also collected information on which authors serve on PCs in any of our conferences, as another measure of experience. It agrees with the previous metrics: those authors satisfied with the rebuttal process serve on an average of `r round(mean(yes$as_pc), 1)` PCs, compared to `r round(mean(no$as_pc), 1)` PCs for those who were not (`r report_t(t.test(no$as_pc, yes$as_pc))`). This is consistent with the mixed opinions we got directly from PC chairs on the question of rebuttals.
+`r report_t(t.test(no$npubs, yes$npubs), 2)`).
+We have also collected information on which authors serve on PCs in any of our conferences, as another measure of experience. It agrees with the previous metric: authors satisfied with the rebuttal process serve on an average of `r round(mean(yes$as_pc), 1)` PCs, compared to `r round(mean(no$as_pc), 1)` PCs for authors who were not (`r report_t(t.test(no$as_pc, yes$as_pc), 2)`). This is consistent with the mixed opinions we got directly from PC chairs on the question of rebuttals.
 
  Non-native English speakers were also more likely to find the rebuttals helpful
 (`r pct(nonenglish_yes, nonenglish_yes + nonenglish_no, 0)`% vs.
@@ -200,7 +198,7 @@ When asked to explain their previous answer, responses varied. The main themes t
 
 ## Review Quality Assessment {#subsec:quality}
 
-The following questions (one for each review and paper) were designed to assess the quality of the reviews.
+The following questions, one per review and paper, were designed to assess the quality of the reviews.
 
 ### How many reviews did this paper receive?
 
@@ -211,14 +209,19 @@ df <- survey %>%
   summarize(reviews = first(reviews)) %>%
   select(reviews) %>%
   freq_and_prop(usena = "ifany")
-knitr::kable(t(df), booktabs = TRUE, align = c("rrrrrrr"),
-             caption = "Number of reviews received per paper") %>%
-    kable_styling(latex_options = c("scale_down"), position = "center", font_size = 6)
+knitr::kable(t(df), booktabs = TRUE, align = c("rrrrrrr"), caption = "Number of reviews received per paper")
 ```
 
-The papers in our dataset average more than four reviews per paper (Table \@ref(tab:reviews-dist)), far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was. It is encouraging to find over half of the responses showing one or more pages per review
-(`r pct(nrow(filter(survey, length == "A Page" | length == "Multiple Pages")), sum(!is.na(survey$length)))`%),
-whereas only about
+```{r reviews-len, echo = F, message = F, warning = F}
+df <- survey %>%
+  group_by(paper_id) %>%
+  summarize(length = first(length)) %>%
+  select(length) %>%
+  freq_and_prop(usena = "ifany")
+knitr::kable(df, booktabs = TRUE, align = c("lrr"), caption = "Distribution of review lengths")
+```
+
+The papers in our dataset average more than four reviews per paper (Table \@ref(tab:reviews-dist)), far better than the typical 2+ reviews in an average CS journal [@publons18:peer, p. 21]). This could partially explain the attractiveness of conferences over journals, at least in Systems. Authors were also asked to qualitatively approximate _how long each review_ was (Table \@ref(tab:reviews-len)). It is encouraging to find over half of the non-NA responses showing one or more pages per review, whereas only about
 `r pct(nrow(filter(survey, length == "1-2 Paragraphs")), sum(!is.na(survey$length)))`%
 of reviews were reported to be less than half a page.
 
@@ -227,16 +230,15 @@ of reviews were reported to be less than half a page.
 
 ```{r understanding-dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$understanding, usena = "ifany")
-knitr::kable(df, booktabs = T, align = "lrr", caption = "Reviewer understanding") %>%
-  kable_styling(position = "center", font_size = 6)
+knitr::kable(df, booktabs = T, align = "lrr", caption = "Reviewer understanding")
 
 poor_understanding <- filter(survey_with_confs, understanding == "Probably didn't read it" | understanding == "Misunderstood major points")
 good_understanding <- filter(survey_with_confs, understanding != "Probably didn't read it" & understanding != "Misunderstood major points")
 ```
 
-Of the reviews that missed major points or worse,
+Of the minority of reviews that missed major points or worse (Table \@ref(tab:understanding-dist)),
 `r pct(nrow(filter(poor_understanding, length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(poor_understanding, !is.na(length))))`%
-were short, spanning half a page or less (Table \@ref(tab:understanding-dist)). This correlation demonstrates the relationship between review quality and length
+were short, spanning half a page or less. This correlation demonstrates the relationship between review quality and length
 (`r report_chi(chisq.test(table(survey$understanding, survey$length)))`) [@hames08:peer; @papagiannaki07:author]. But longer is not always better or necessary, as these short reviews still comprise
 `r pct(nrow(filter(survey_with_confs, understanding == "Perfectly", length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(survey_with_confs, understanding == "Perfectly", !is.na(length))))`%
 of the "perfect understanding" reviews, whereas multi-page reviews only comprise
@@ -244,16 +246,15 @@ of the "perfect understanding" reviews, whereas multi-page reviews only comprise
 
 As for paper history, the better-understood papers appear to have had a longer history, in terms of prior submissions
 (`r report_t(t.test(poor_understanding$prior_subs, good_understanding$prior_subs), 2)`),
-and in terms of months researched as well.
-It is conceivable that previous rejections have helped improve the communication of a resubmitted paper. 
+as well as in terms of months researched.
+Conceivably, previous rejections have helped improve the communication of a resubmitted paper. 
 
 ### How helpful did you find this review for improving the paper? {#question:helpfulness}
 
 
 ```{r helpfulness-dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$helpfulness)
-knitr::kable(df, booktabs = T, align = "lrr", caption = "Review helpfulness") %>%
-  kable_styling(position = "center", font_size = 6)
+knitr::kable(df, booktabs = T, align = "lrr", caption = "Review helpfulness")
 ```
 
 Table \@ref(tab:helpfulness-dist) shows that accepted authors found most of their reviews at least somewhat helpful. The helpfulness of a review is closely linked to its reported level of understanding
@@ -267,11 +268,10 @@ This result is consistent with other surveys of journal authors [@editage18:pers
 
 ```{r fairness-dist, echo = F, message = F, warning = F}
 df <- freq_and_prop(survey$fairness)
-knitr::kable(df, booktabs = T, align = "lrr", caption = "Review fairness") %>%
-  kable_styling(position = "center", font_size = 6)
+knitr::kable(df, booktabs = T, align = "lrr", caption = "Review fairness")
 ```
 
-Fairness in reviews is a high priority for the Systems community [@jerger17:isca]. Once more, the data in Table \@ref(tab:fairness-dist) shows that the perception of a review's fairness is closely tied to that of its understanding
+Fairness in reviews is a high priority for the Systems community [@jerger17:isca], and most of our respondents thought their reviews were fair (Table \@ref(tab:fairness-dist)). Once more, the perception of a review's fairness is closely tied to that of its understanding
 (`r report_chi(chisq.test(table(survey$fairness, survey$understanding)), 2)`)
 and helpfulness
 (`r report_chi(chisq.test(table(survey$fairness, survey$helpfulness)), 2)`).
@@ -279,19 +279,19 @@ and helpfulness
 Only
 `r nrow(filter(survey, fairness == "Unfair" | fairness == "Very unfair"))` of non-NA responses
 (`r pct(nrow(filter(survey, fairness == "Unfair" | fairness == "Very unfair")), nrow(filter(survey, !is.na(fairness))), 2)`%)
-ranked a review as 'Unfair' or 'Very unfair'. However, this relatively low number may be distorted by survivorship bias more than for any other question.
+ranked a review as 'Unfair' or 'Very unfair'. However, this relatively low number may be distorted by survivorship bias more than for any other question in this survey.
 Of these responses, SOSP stands out as the conference with most 'Unfair' reviews
 (`r nrow(filter(survey, fairness == "Unfair" | fairness == "Very unfair", conf == "SOSP"))`, or
 `r pct(nrow(filter(survey, fairness == "Unfair" | fairness == "Very unfair", conf == "SOSP")), nrow(filter(survey, !is.na(fairness), conf == "SOSP")), 2)`%)
 and ICPE as the conference with the highest percentage
 (`r nrow(filter(survey, fairness == "Unfair" | fairness == "Very unfair", conf == "ICPE"))`, or
 `r pct(nrow(filter(survey, fairness == "Unfair" | fairness == "Very unfair", conf == "ICPE")), nrow(filter(survey, !is.na(fairness), conf == "ICPE")), 2)`%).
-The only other unusual aspect of these responses is that only one came from a woman
+One other notable aspect of these negative responses is that only one came from a woman
 (`r pct(nrow(filter(survey, gender == "F", fairness == "Unfair" | fairness == "Very unfair")), nrow(filter(survey, !is.na(gender), fairness == "Unfair" | fairness == "Very unfair")), 1)`%).
 
 ## Review Scores
 
-We asked respondents to upload their reviews' text, or alternately to fill in the actual grades they received in the reviews of up to six reviews per paper and in seven different categories, when applicable. All grades were then normalized, so that the lowest grade in a category always received 0 and the highest always 1. The transcription of reviews, scaling, and calibration process were error-prone, possibly introducing some noise to these responses. The distributions of these normalized scores are depicted in Fig. \@ref(fig:review-grades).
+We asked respondents to upload their reviews' text, or alternately to fill in the actual grades they received in the reviews of up to six reviews per paper and in seven different categories, when applicable. All grades were then normalized, so that the lowest grade in a category always received 0 and the highest always 1.  The distributions of these normalized scores are depicted in Fig. \@ref(fig:review-grades). Keep in mind, however, that the transcription of reviews, scaling, and calibration process were error-prone, possibly introducing some noise to these responses.
 
 ```{r review-grades, echo = F, message = F, warning = F, out.width = '100%', fig.cap = "Normalized grades and response distribution. Diamonds represent mean scores. Bars represent median scores, with a notched 95-pct confidence. N is the number of scores received in each category." }
 survey_with_confs %>%
@@ -306,8 +306,9 @@ survey_with_confs %>%
   ggplot(aes(x = Category, y = Grade, color = Category)) +
          geom_text(aes(y = 1.0, label = paste0("N=",n)), vjust = -0.5) +
          geom_boxplot(notch = T) +
-         stat_summary(fun.y=mean, geom="point", shape=23, size=4) +
+         stat_summary(fun.y = mean, geom = "point", shape = 23, size=4) +
          theme(legend.position = "none") +
+#         theme_minimal() +
          ylab("Normalized grade") 
 ```
 
@@ -317,5 +318,5 @@ It is also not surprising that all papers average above 50% for all grades---aft
 
 It is illuminating to see that there is no correlation between a paper's overall grade and the number of past rejections
 (`r report_cor(cor.test(survey$prior_subs, survey$gr_overall), 2)`).
-If multiple submissions do indeed improve a paper's quality, as we suggested in Question \@ref(question:understanding), they appear to only bring it to the same levels of evaluation as other accepted papers in the same conference.
+If multiple submissions do indeed improve a paper's quality, as we suggested in the understanding question, they appear to only bring it to the same level of evaluation as other accepted papers in the same conference. Once the paper is accepted, the improvement process is presumablly halted.
 

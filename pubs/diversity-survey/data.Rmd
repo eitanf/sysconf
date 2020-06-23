@@ -1,23 +1,37 @@
 # Materials and Methods {#sec:data}
 
-Before issuing our survey, we collected data from various external sources to complement and corroborate its findings, starting with the conferences themselves. We selected `r nrow(all_confs)` conferences from Systems and related areas. These peer-reviewed conferences include some of the most prestigious in the field, as well as others for comparison. They vary in scope and size (from 7 to 151 papers), but all are rigorously peer-reviewed and all are from 2017. The complete list of conferences is given in Table \@ref(tab:sys-confs).
+Before issuing our survey, we collected data from various external sources to complement and corroborate its findings, starting with the conferences themselves. We selected `r nrow(all_confs)` conferences from systems and related areas. These peer-reviewed conferences include some of the most prestigious in the field, as well as others for comparison. They vary in scope and size (from 7 to 151 papers), but all are rigorously peer-reviewed and all are from 2017. The complete list of conferences is given in Table \@ref(tab:sys-confs).
 
-For each conference we collected data from the Web and program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers. We also collected historical metrics from the IEEE, ACM, and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers. From the conference and paper text, we compiled the complete list of authors for all `r nrow(all_confs)` conferences (a total of `r nrow(authors)` unique researchers), as well as their email addresses. These addresses not only served for the survey's distribution, but also to infer an author's affiliation, sector, and country of residence. If an email address was not shown in the paper, we attempted to infer authors' affiliation from their GS profile, when uniquely identifiable. These profiles also provide indirect metrics on author's research experience, such as their H-index [@hirsch05:index]. Finally, we also manually verified the gender of `r pct(nrow(filter(authors, !is.na(gender))), nrow(authors))`% of authors, by looking up their photos and pronouns on the web.^[We recognize that gender is a complex, non-binary identity that cannot be captured adequately by just photos or pronouns. However, the focus of this study is on perceived gender, not self-identification, which is often judged by the same simplistic criteria.]
+For each conference we collected data from the Web and program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers. We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers. From the conference and paper text, we compiled the complete list of authors for all `r nrow(all_confs)` conferences (a total of `r nrow(authors)` unique authors), as well as their email addresses. These addresses were used not only for the survey's distribution but also to infer an author's affiliation, sector, and country of residence. If an email address was not shown in the paper, we attempted to infer the authors' affiliation from their GS profile when uniquely identifiable. These profiles also provide indirect metrics on the authors' research experience, such as their H-index [@hirsch05:index]. Finally, we also manually assigned the gender of `r pct(nrow(filter(authors, !is.na(gender))), nrow(authors))`% of authors, by looking up their photos and pronouns on the web.^[We recognize that gender is a complex, nonbinary identity that cannot be captured adequately by just photos or pronouns. However, the focus of this study is on perceived gender, not self-identification, which is often judged by the same simplistic criteria.]
 
 
 ```{r sys-confs, echo=F, message=F, warning=F, cache=T}
+authors_per_paper <- roles %>%
+  mutate(conf = gsub('.{3}$', '', conf)) %>%
+  filter(role == "author") %>%
+  group_by(key) %>%
+  add_count() %>%
+  ungroup() %>%
+  group_by(conf) %>%
+  summarize(app = median(n)) %>%
+  ungroup() %>%
+  arrange(conf)
+
 conf_counts <- survey %>%
   group_by(paper_id, conf) %>%
   summarize(n = n()) %>%
   group_by(conf) %>%
   summarize(Response = n()) %>%
-  rbind(data.frame(conf = "HotI", Response = 0))
+  ungroup() %>%
+  rbind(data.frame(conf = "HotI", Response = 0)) %>%
+  arrange(as.character(conf))
 
 tmp <- data.frame(Name = gsub("_\\d\\d", "", as.character(all_confs$key)),
-           Start = all_confs$postdate,
+           Date = all_confs$postdate,
            Blind = ifelse(all_confs$double_blind, "Yes", "No"),
-           Papers = all_confs$npapers
-           )  %>%
+           Papers = all_confs$npapers,
+           Acceptance = ifelse(is.na(all_confs$acceptance_rate), "Unknown", paste0(round(all_confs$acceptance_rate * 100, 0), "%"))
+           ) %>%
     left_join(conf_counts, by = c("Name" = "conf")) %>%
     mutate(Response = pct(Response, Papers, 0)) %>%
     arrange(Name) %>%
@@ -27,21 +41,23 @@ tmp <- data.frame(Name = gsub("_\\d\\d", "", as.character(all_confs$key)),
 df <- cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),])
 
 df %>%
-    knitr::kable(format = "latex", longtable = F, booktabs = T, align = c('l', 'c', 'c', 'r', 'r', 'l', 'c', 'c', 'r', 'r'),
-                 caption = "Conferences in our dataset with their start date, double-blind policy, number of accepted papers, and survey response rate by papers", escape = T) %>%
+    knitr::kable(format = "latex", longtable = F, booktabs = T, align = "lccrrrlccrrr",
+                 caption = "Conferences in our dataset with their start date, double-blind policy, number of accepted papers, acceptance rate, and survey response rate by papers", escape = T) %>%
     kable_styling(latex_options = c("scale_down", "repeat_header"), font_size = 6, position = "center")
 ```
 
-We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about their paper and about the review process, repeated for up to three distinct papers from our dataset. Non-responses to a question were marked as "NA".
+We sent our survey to all 5919 valid email addresses during the summer of 2018, and `r nrow(raw_survey)` authors responded. We asked a few demographic questions, as well as questions about their paper and about the review process, repeated for up to three distinct papers from our dataset. Nonresponses to a question were marked as NA.
 
 Of the `r length(unique(survey$paper_id))+5` papers,
 `r survey %>% group_by(paper_id) %>% mutate(n = n_distinct(name)) %>% filter(n > 1) %>% select(paper_id) %>% unique() %>% nrow()`
-had responses from multiple authors.
-The distribution of responses per paper was statistically similar to the distribution of co-authors per paper,
+had responses from multiple authors. Response rates by paper varied considerably among different conferences but appear to be positively correlated with the median number of authors per paper
+(Pearson's `r report_cor(cor.test(authors_per_paper$app, conf_counts$Response / tmp$Papers), 2)`).
+In other words, the more coauthors per paper, the more likely it was that at least one author would respond and represent that paper.
+The distribution of responses per paper was statistically similar to the distribution of coauthors per paper
 (`r dist_survey <- survey %>% group_by(paper_id) %>% summarize(nauthors = n()); dist_authors <- roles %>% filter(role == "author") %>% group_by(key) %>% summarize(nauthors = n()); report_t(t.test(dist_authors$nauthors, dist_survey$nauthors), 2)`), 
 suggesting that authors were equally likely to respond to the survey, regardless of the paper.
 
-Survey responses from different authors to the same paper typically identical or off by one unit, and always tested statistically insignificant in aggregate. In five papers, the responses from different authors were so inconsistent across questions that we elided them from our data. These inconsistencies relate mostly to the paper's history, and may be the results of authors joining or leaving the project at different times.
+Survey responses from different authors to the same paper were typically identical or very similar, and always tested statistically insignificant in aggregate. In five papers, the responses from different authors were so inconsistent across questions that we elided them from our data. These inconsistencies relate mostly to the paper's history, whereas responses to most other questions remain consistent across respondents.
 
 <!---
 ```{r code-to-see-discrepancies}
@@ -52,14 +68,14 @@ Survey responses from different authors to the same paper typically identical or
 
 ## Limitations {-}
 
-Our methodology involves several limitations and tradeoffs worthy of mention. First, by focusing only on Systems, we may be limiting the applicability of our findings to this subfield. By focusing on a single year, we cannot report trends. These choices were deliberate, so as to eliminate extraneous variability in our data. Second, our survey is subject to selection bias (representing only authors who responded to the survey or to each question). Since we found no statistically significant demographic differences between survey respondents and the group of all authors, we believe the effect of this bias is minimal (see also [@daume15:naacl; @papagiannaki07:author]). Third, the effort involved in compiling all the data in preparation for the survey took nearly a year, by which time some authors reported difficulty recalling some details, leading to fewer responses. Fourth, the manual verification of genders is a laborious process, prone to human error. But automated approaches based on first names and country can have even higher error rates and uncertainty, especially for female and Asian names [@huang19:historical; @karimi16:gender; @mattauch20:bibliometric]. In fact, for the
+Our methodology involves several limitations and tradeoffs worthy of mention. First, by focusing only on systems, we may be limiting the applicability of our findings to this subfield. By focusing on a single year, we cannot report trends. These choices were deliberate, to eliminate extraneous variability in our data. Second, our survey is subject to selection bias (representing only authors who responded to the survey or to each question). Since we found no statistically significant demographic differences between survey respondents and the group of all authors, we believe the effect of this bias is minimal (see also [@daume15:naacl; @papagiannaki07:author]). Third, the effort involved in compiling all of the data in preparation for the survey took nearly a year, by which time some authors reported difficulty recalling some details, leading to fewer responses. Fourth, the manual assignment of genders is a laborious process, prone to human error. However, automated approaches based on first names and country can have even higher error rates and uncertainty, especially for female and Asian names [@huang19:historical; @karimi16:gender; @mattauch20:bibliometric]. In fact, for the
 `r group_by(survey, name) %>% summarize(gender = first(gender)) %>% filter(gender == "M" | gender == "F") %>% nrow()`
 respondents who provided a binary gender, we found no disagreements with our manual gender assignments.
 
-Last, but certainly not least, is survivorship bias. Since we only polled authors of accepted papers, we have no information on all submitted papers.  Our survey data is insufficient to distinguish between the demographics of accepted and rejected authors, leaving the door open to undetected biases in the peer-review process. That said, we found no difference in the demographics of accepted papers between otherwise similar conferences with double-blind or single-blind review policies. This indirect evidence reduces the likelihood that the demographic section of the survey would be answered differently for rejected papers. Other survey sections on paper history and review process may prove more sensitive to survivorship bias. We therefore limit any conclusions we draw in this study to accepted authors only. Even with this restriction, it can be instructive to compare the responses across different demographics within accepted authors.
+Last, but certainly not least, is survivorship bias. Since we only polled authors of accepted papers, we have no information on all submitted papers.  Our survey data is insufficient to distinguish between the demographics of accepted and rejected authors, which leaves the door open to undetected biases in the peer-review process. That said, we found no difference in the demographics of accepted papers between otherwise similar conferences with double-blind or single-blind review policies. This indirect evidence reduces the likelihood that the demographic section of the survey would be answered differently for rejected papers. Other survey sections on paper history and review process may prove more sensitive to survivorship bias. We therefore limit any conclusions we draw in this study to accepted authors only. Even with this restriction, it can be instructive to compare the responses across different demographics within accepted authors.
 
 We found very few controlled studies that evaluate the peer-review process on both accepted and rejected papers, and they are typically limited in scope to one conference or journal [@parno17:SPsurvey; @tomkins17:reviewer]. We chose an observational approach instead, which lets us examine an entire field of study, but at the cost of survivorship bias and experimental control. We believe both approaches to be complementary and valuable.
 
-## Ethics statement
+## Ethics statement {-}
 
-This study and the survey question were approved by the Reed College IRB (number 2018-S13). As an opt-in email survey, participants could choose to share their responses with us after they were informed of the questions and the purpose of the survey. All individual responses remain confidential, and are not shared as part of the code and the data accompanying this paper. The data shared in the supplementary material was collated and collected from publicly available sources on the Web.
+This study and the survey questions were approved by the Reed College IRB (number 2018-S13). As an opt-in email survey, participants could choose to share their responses with us after they were informed of the questions and the purpose of the survey. All of the individual responses remain confidential and are not shared as part of the code and the data accompanying this paper. The data shared in the supplementary material was collated and collected from publicly available sources on the Web.

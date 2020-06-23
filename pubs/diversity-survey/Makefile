@@ -9,7 +9,7 @@ all: diversity.pdf
 debug: clean
 	$(R) -e 'library(bookdown); options(tinytex.verbose = TRUE); bookdown::render_book("diversity.Rmd", "bookdown::pdf_book")'
 
-diversity.pdf: $(wildcard *.Rmd) main.tex _bookdown.yml abstract.txt
+diversity.pdf: $(wildcard *.Rmd) main.tex _bookdown.yml
 ifeq (,$(wildcard $(SYSCONF_HOME)/survey/survey-tidy.csv))
 	@echo "********************************************************************"
 	@echo "Can't compile survey report without survey data, which is protected"

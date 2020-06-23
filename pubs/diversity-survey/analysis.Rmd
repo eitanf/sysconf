@@ -4,18 +4,18 @@ In this section we address differences in survey responses based on aspects of a
 
 ## Gender
 
-Women represent only about 20--30% of CS researchers overall [@wang19:trends]. In our data, the percentage is about half that, with only
+Women represent only approximately 20--30% of CS researchers overall [@wang19:trends]. In our data, the percentage is about half that, with only
 `r pct(nrow(filter(demographics, mapped_gender == "F")), nrow(filter(demographics, !is.na(mapped_gender))))`%
 female survey respondents. What factors could explain this lower ratio?
 
-One potential explanation is selection bias: women might be less inclined to respond to this survey. But the percentage of women across respondents and non-respondents alike,
+One potential explanation is selection bias: women might be less inclined to respond to this survey. However, the percentage of women across respondents and nonrespondents alike,
 `r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%,
 is actually very close.
 
-Another explanation may be that women publish less than men in Systems. Indeed, women in our dataset did publish fewer papers on average:
+Another explanation may be that women publish less than men in systems. Indeed, women in our dataset did average fewer total past publications:
 `r round(mean(filter(persons, gender == "F")$as_author, na.rm = T), 2)` compared to men's
 `r round(mean(filter(persons, gender == "M")$as_author, na.rm = T), 2)`.
-But this gap is not large enough to explain the 2--3x representation gap with the rest of CS, and is not unique to Systems [@elsevier17:gender].
+Nevertheless, this gap is not large enough to explain the 2--3x representation gap with the rest of CS and is not unique to systems [@elsevier17:gender].
 
 A third explanation could be that female authors' papers are rejected at a higher rate than males'. We cannot test this hypothesis directly without data on rejected papers. However, three pieces of evidence weaken this explanation:
 
@@ -26,19 +26,26 @@ double-blind conferences, where reviewers presumably remain oblivious of the aut
   `r report_t(t.test(table(db$gender, db$double_blind)))`). This ratio does not support an explanation that reviewers reject females at a higher rate when they can look up the author's gender.
 
   `r la <- filter(roles, role == "lead_author" | role == "author") %>% left_join(persons, by = c("name", "gs_email")) %>% filter(!is.na(gender))`
- 2) When we limit our observation to lead authors only, where gender may be more prominent, the ratio of women is actually slightly higher than in the overall author population
+ 
+ 2) When we limit our observation to lead authors only, where the author's gender may be more visible to the reviewers, the ratio of women is actually slightly higher than in the overall author population
   (`r pct(nrow(filter(la, gender == 'F', role == "lead_author")), nrow(filter(la, role == "lead_author")), 2)`% vs.
   `r pct(nrow(filter(la, gender == 'F', role == "author")), nrow(filter(la, role == "author")), 2)`%,
-  `r report_t(t.test(filter(la, role == "lead_author")$gender == "F", filter(la, role=="author")$gender == "F"))`). Again, female authors in the visible first author position appear to suffer no more rejections than male authors.
+  `r report_t(t.test(filter(la, role == "lead_author")$gender == "F", filter(la, role=="author")$gender == "F"))`). If we assume no differences in the submission rates to a conference based on gender, then female lead authors appear to suffer no more rejections than male authors.
  
  3) We found no statistically significant differences in the overall acceptance grades of women and men
- (`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_overall, filter(survey_with_confs, mapped_gender == "M")$gr_overall))`),
- even when limiting to lead authors or single-blind reviews.
+ (`r female_reviews <- filter(survey_with_confs, mapped_gender == "F"); male_reviews <- filter(survey_with_confs, mapped_gender == "M"); report_t(t.test(female_reviews$gr_overall, male_reviews$gr_overall))`),
+ even when limiting to lead authors 
+ (`r report_t(t.test(inner_join(female_reviews, filter(roles, role == "lead_author"), by = c("name" = "name", "paper_id" = "key"))$gr_overall, inner_join(male_reviews, filter(roles, role == "lead_author"), by = c("name" = "name", "paper_id" = "key"))$gr_overall))`),
+ papers accepted on their first attempt
+ (`r report_t(t.test(filter(female_reviews, prior_subs == 0)$gr_overall, filter(male_reviews, prior_subs == 0)$gr_overall))`),
+ or 
+ single-blind reviews
+ (`r report_t(t.test(filter(female_reviews, double_blind == F)$gr_overall, filter(male_reviews, double_blind == F)$gr_overall))`).
  This equitability extends to most other grade categories, except for originality
  (`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_originality, filter(survey_with_confs, mapped_gender == "M")$gr_originality))`),
  and technical merit in single-blind conferences
  (`r report_t(t.test(filter(survey_with_confs, mapped_gender == "F", double_blind == F)$gr_technical, filter(survey_with_confs, mapped_gender == "M")$gr_technical))`).
-In both categories, women scored significantly higher than men. It remains unclear whether there is any causal relationship here, and if so, in which direction: do women have to score higher than men in the technical categories to be accepted in single-blind conferences, or do they submit higher-quality papers to begin with? At any rate, this small difference is unlikely to explain the 2--3x difference in women's ratio compared to CS, but it does provide a case for wider adoption of double-blind reviewing.
+In both categories, women scored significantly higher than men. It remains unclear whether there is any causal relationship here, and if so, in which direction; do women have to score higher than men in the technical categories to be accepted in single-blind conferences, or do women submit higher-quality papers to begin with? At any rate, this small difference is unlikely to explain the 2--3x difference in women's ratio compared to CS but does provide a case for wider adoption of double-blind reviewing.
 
 These distinctions were not the only gender differences in our survey. Women also reported reviewers as somewhat more understanding, helpful, and fair than men did
 (`r report_chi(chisq.test(table(survey_with_confs$gender, survey_with_confs$understanding)), 2)`,
@@ -50,37 +57,37 @@ On the other hand, papers authored by women averaged a few more prior submission
 (`r report_t(t.test(table(survey_with_confs$gender, survey_with_confs$prior_subs)), 2)`).
 Note, however, that review quality and prior submissions are strongly linked.  In other words, a paper with a longer submission history tends to rate higher on reviewer understanding, helpfulness, and fairness. When correcting for submission history length, these gender differences lose statistical significance.
 
-In summary, our data does not exhibit large statistical gender differences in the review process, and in particular it does not help to explain the large gender gap in Systems. Addressing this problem may require focusing our attention elsewhere [@ceci11:understanding].
+In summary, our data does not exhibit large statistical gender differences in the review process, and in particular it does not help to explain the large gender gap in systems. Addressing this problem may require focusing our attention elsewhere [@ceci11:understanding].
 
 
 ## English Proficiency
 
-Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conferences were conducted in English, but many authors and reviewers are non-native English speakers (NNES). The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing; @flowerdew01:attitudes]. How does the author experience vary based on this factor?
+Another aspect of diversity in scientific publication is English-level proficiency [@lee13:bias; @murray19:gender]. All of the papers, reviews, and communications in our conferences were conducted in English, but many authors and reviewers are nonnative English speakers (NNES). The effective use of language can affect both reviewers' understanding of the works and authors' understanding of the reviews [@crovella08:openness; @editage18:perspectives; @flowerdew99:writing; @flowerdew01:attitudes]. How does the author experience vary based on this factor?
 
-At least in our dataset, the answer appears to be "not much". From an objective grading perspective, all but one of the review categories exhibit very similar distributions, both for teams with native English speakers and for teams with none. These categories include the presentation grade
+At least in our dataset, the answer appears to be "not much." From an objective grading perspective, all but one of the review categories exhibit very similar distributions, both for teams with native English speakers and for teams with none. These categories include the presentation grade
 (`r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_present, filter(survey_with_confs, any_english == T)$gr_present))`),
-where language skills presumably would make the most difference. The only exception was the originality grade, where teams with no native speakers averaged a normalized grade a little higher than the native speakers' teams
+where language skills presumably would make the most difference. The only exception was the originality grade, where teams with no native speakers averaged a normalized grade that was slightly higher than the native speakers' teams
 (`r round(mean(filter(survey, any_english == F)$gr_originality, na.rm = T), 3)` vs.
 `r round(mean(filter(survey, any_english == T)$gr_originality, na.rm = T), 3)`,
 `r report_t(t.test(filter(survey_with_confs, any_english == F)$gr_originality, filter(survey_with_confs, any_english == T)$gr_originality), 3)`).
 
 As for the subjective experience of authors, NNES do feel differently about how well reviewers understand their work 
 (`r report_chi(chisq.test(t(table(survey$native_english, survey$understanding))))`),
-but perhaps not in the way we would expect: of those reviews with reportedly poor understanding, only
+but perhaps not in the way that we would expect; of those reviews with reportedly poor understanding, only
 `r pct(nrow(filter(poor_understanding, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%
 were from all-NNES teams, compared to
 `r pct(nrow(filter(good_understanding, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%
 all-NNES teams in the better-understood reviews. The overall rate of NNES teams among survey responses was
 `r pct(nrow(filter(survey_with_confs, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%,
-so clearly most of them did not feel misunderstood. But just like women, NNES average higher prior submissions,
+so clearly most of them did not feel misunderstood. Similar to women, NNES average higher prior submissions,
 `r round(mean(filter(survey, native_english == T)$prior_subs, na.rm = T), 2)`,
 compared to native speakers'
 `r round(mean(filter(survey, native_english == F)$prior_subs, na.rm = T), 2)`
 (`r report_t(t.test(table(survey_with_confs$native_english, survey_with_confs$prior_subs)), 2)`), which may be the stronger explanatory variable.
 
-We also tried to look in the opposite direction: how does the English level of the reviewers affect how well understood the authors feel. We do not know who reviewed whose paper, or even a reviewer's native language or nationality. But we can try to estimate it indirectly by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. As it turns out, this proportion has no significant association with the reported understanding level of the reviews for the conference.
+We also tried to look in the opposite direction; how does the English level of the reviewers affect how well understood the authors feel? We do not know who reviewed whose paper, or even a reviewer's native language or nationality. However, we can try to estimate it indirectly by looking at their affiliation's country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics and assign each conference a value corresponding to the percent of PC members affiliated with an English-speaking country. Program committees range from 91% English speakers (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. As it turns out, this proportion has no significant association with the reported understanding level of the reviews for the conference.
 
-These negative findings could suggest that in the overall picture of Systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical], and that the binary distinction of native/non-native speaker may be inadequate to capture even this skill alone.
+These negative findings could suggest that in the overall picture of systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical] and that the binary distinction of native/nonnative speaker may be inadequate to capture even this skill alone.
 
 ## Publication Experience
 
@@ -110,7 +117,7 @@ survey_with_hindex <- survey %>%
   mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
 ```
 
-Since we collected this metric for all authors, not just survey respondents, we can compare the distributions for both populations. They are similar enough to lead us to believe that no selection bias by experience occurred in this survey
+Since we collected this metric for all authors, not just survey respondents, we can compare the distributions for both populations. Both distributions are similar enough to lead us to believe that no selection bias by experience occurred in this survey
 (`r report_t(t.test(filter(authors, !is.na(npubs))$npubs, filter(expr, !is.na(npubs))$npubs), 2)`).
 
 We can also look at the more complex H-index metric [@hirsch05:index] to evaluate differences in response rate by researcher seniority. Some
@@ -119,7 +126,7 @@ of respondents had an H-index of 5 or less, roughly corresponding to the percent
 (`r pct(nrow(filter(authors, !is.na(hindex), hindex <= 5)), nrow(filter(authors, !is.na(hindex))), 1)`%),
 again confirming that the large number of students in our survey is representative of the author population. 
 
-This large representation of students is important in light of our previous findings about the differences between survey responses of students and of more experienced researchers. For example, students in our survey overwhelmingly prefer a rebuttal process. More experienced researchers commented in the survey that they tend to value this process less, which may affect conference policies, because those are also decided by experienced researchers. But their high value to inexperienced researchers (as well as non-native English speakers) may render the effort worthwhile [@langford13:reviewing].
+This large representation of students is important in light of our previous findings about the differences between survey responses of students and of more experienced researchers. For example, students in our survey overwhelmingly prefer a rebuttal process. More experienced researchers commented in the survey that they tend to value this process less, which may affect conference policies, because those are also decided by experienced researchers. Nevertheless, their high value to inexperienced researchers (as well as NNES) may render the effort worthwhile [@langford13:reviewing].
 
 ```{r experience-rejections, echo=F, message=F, warning=F}
 exp_by_paper <- roles %>%
@@ -147,7 +154,7 @@ We did find a weak association, however, between authors' experience and the rev
 
 ## Geographical Regions
 
-Although we did not specifically ask authors for their country of residence, we can infer this information for most authors from their email addresses. We can then aggregate authors based on the region of the world their email affiliation belongs to and compare the distribution of ratios between survey respondents and all authors. Table \@ref(tab:top-countries) shows these distributions (omitting any authors with unidentifiable country and any regions with two authors or fewer).
+Although we did not specifically ask authors for their country of residence, we can infer this information for most authors from their email addresses. We can then aggregate authors based on the region of the world that their email affiliation belongs to and compare the distribution of ratios between survey respondents and all of the authors. Table \@ref(tab:top-countries) shows these distributions (omitting any authors with unidentifiable country and any regions with two authors or fewer).
 
 
 ```{r top-countries, echo=F, message=F, warning=F}
@@ -171,15 +178,16 @@ author_regions <- authors %>%
   filter(total > 2)
 author_regions$pct <- pct(author_regions$total, sum(author_regions$total), 1)
 
-tbl <- left_join(survey_regions, author_regions, by = c("subregion"))
+tbl <- left_join(survey_regions, author_regions, by = c("subregion")) %>%
+  arrange(desc(total.y))
 colnames(tbl) <- c("Region", "Respondents", "Percentage", "All authors", "Percentage")
 
 knitr::kable(tbl, booktabs = T, align = "lrrrr",
-             caption = "Number and percentage of survey respondents and total authors by geographical region")
+             caption = "Number and percentage of survey respondents and total authors by geographical region, in descending number of total authors.")
 ```
 
 It is encouraging to see that the two distributions are fairly similar
 (`r (report_t(t.test(survey_regions$total, author_regions$total)))`),
-suggesting that any selection bias based on geographical region is also limited.
+which suggests that any selection bias based on geographical region is also limited.
 
-Unsurprisingly, most of these researchers hail from the West, much more so than in other fields [@publons18:peer]. One possible explanation is that Systems research can require expensive hardware, and is therefore more likely to occur in the well-endowed research institutions and companies of the developed world. Regardless of explanation, this data shows a strong dissonance between country population and representation in published systems research, leading in turn to poor geographical diversity.
+Unsurprisingly, most of these researchers hail from the West, much more so than in other fields [@publons18:peer]. One possible explanation is that systems research can require expensive hardware, and is therefore more likely to occur in the well-endowed research institutions and companies of the developed world. Regardless of explanation, this data shows a strong dissonance between country population and representation in published systems research, leading in turn to poor geographical diversity.

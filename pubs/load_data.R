@@ -7,36 +7,6 @@ library('lubridate')
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
 sep <- ';'
 
-################# People data
-#### roles.csv
-roles <- read.csv(paste0(toplevel, "features/roles.csv"), na.strings = "",
-                  colClasses = c("character", "character", "factor", "factor")) %>%
-  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key)))
-
-#### persons.csv:
-persons <- read.csv(paste0(toplevel, "features/persons.csv"),
-                    na.strings = "",
-                    colClasses = c(rep("character", 2), rep("factor", 3), rep("numeric", 6))) %>%
-  left_join(group_by(roles, name, gs_email) %>%
-              summarize(as_author = sum(role == "author"), as_lead = sum(role == "lead_author"), as_keynote = sum(role == "keynote"),
-                        as_pc_chair = sum(role == "chair"), as_pc = sum(role == "pc"),
-                        as_panelist = sum(role == "panel"), as_session_chair = sum(role == "session")))
-
-authors <- persons %>% filter(as_author > 0)
-authors_with_profile <- filter(authors, !is.na(npubs))
-pcs <- persons %>% filter(as_pc + as_pc_chair > 0)
-pcs_with_profile <- filter(pcs, !is.na(npubs))
-
-people_tidy <- left_join(roles, persons)
-
-#### Gender:
-inferred_gender <- read.csv(paste0(toplevel, "data/inferred_gender_mapping.csv"), na.strings = "")
-verified_gender <- read.csv(paste0(toplevel, "data/verified_gender_mapping.csv"), na.strings = "")
-
-#### interests.csv:
-interests <- read.csv(paste0(toplevel, "features/interests.csv"), na.strings = "",
-                  colClasses = c("character", "character", "character", "factor"))
-
 ############# Conference data
 #### confs.csv:
 all_confs <- read.csv(paste0(toplevel, "features/confs.csv"), na.strings = "", stringsAsFactors = F, colClasses = c(
@@ -57,6 +27,42 @@ sys_confs <- filter(all_confs, field=="Systems")
 pl_confs <- filter(all_confs, field=="PL")
 knowledge_confs <- filter(all_confs, field=="Knowledge")
 
+
+################# People data
+#### roles.csv
+roles <- read.csv(paste0(toplevel, "features/roles.csv"), na.strings = "",
+                  colClasses = c("character", "character", "factor", "factor")) %>%
+  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key)))
+sys_roles <- filter(roles, conf %in% sys_confs$conf)
+
+#### persons.csv:
+persons <- read.csv(paste0(toplevel, "features/persons.csv"),
+                    na.strings = "",
+                    colClasses = c(rep("character", 2), rep("factor", 3), rep("numeric", 6))) %>%
+  left_join(group_by(roles, name, gs_email) %>%
+              summarize(as_author = sum(role == "author"), as_lead = sum(role == "lead_author"), as_keynote = sum(role == "keynote"),
+                        as_pc_chair = sum(role == "chair"), as_pc = sum(role == "pc"),
+                        as_panelist = sum(role == "panel"), as_session_chair = sum(role == "session")))
+
+sys_persons <- select(sys_roles, name, gs_email) %>%
+  unique() %>%
+  left_join(persons)
+
+authors <- persons %>% filter(as_author > 0)
+authors_with_profile <- filter(authors, !is.na(npubs))
+pcs <- persons %>% filter(as_pc + as_pc_chair > 0)
+pcs_with_profile <- filter(pcs, !is.na(npubs))
+
+people_tidy <- left_join(roles, persons)
+sys_people_tidy <- filter(people_tidy, conf %in% sys_confs$key)
+
+#### Gender:
+inferred_gender <- read.csv(paste0(toplevel, "data/inferred_gender_mapping.csv"), na.strings = "")
+verified_gender <- read.csv(paste0(toplevel, "data/verified_gender_mapping.csv"), na.strings = "")
+
+#### interests.csv:
+interests <- read.csv(paste0(toplevel, "features/interests.csv"), na.strings = "",
+                  colClasses = c("character", "character", "character", "factor"))
 
 #### Paper data
 papers <- read.csv(paste0(toplevel, "features/papers.csv"), na.strings = "",

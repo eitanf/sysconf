@@ -51,10 +51,10 @@ We sent our survey to all 5919 valid email addresses during the summer of 2018, 
 Of the `r length(unique(survey$paper_id))+5` papers,
 `r survey %>% group_by(paper_id) %>% mutate(n = n_distinct(name)) %>% filter(n > 1) %>% select(paper_id) %>% unique() %>% nrow()`
 had responses from multiple authors. Response rates by paper varied considerably among different conferences but appear to be positively correlated with the median number of authors per paper
-(Pearson's `r report_cor(cor.test(authors_per_paper$app, conf_counts$Response / tmp$Papers), 2)`).
+(Pearson's `r report_stat(cor.test(authors_per_paper$app, conf_counts$Response / tmp$Papers), 2)`).
 In other words, the more coauthors per paper, the more likely it was that at least one author would respond and represent that paper.
 The distribution of responses per paper was statistically similar to the distribution of coauthors per paper
-(`r dist_survey <- survey %>% group_by(paper_id) %>% summarize(nauthors = n()); dist_authors <- roles %>% filter(role == "author") %>% group_by(key) %>% summarize(nauthors = n()); report_t(t.test(dist_authors$nauthors, dist_survey$nauthors), 2)`), 
+(`r dist_survey <- survey %>% group_by(paper_id) %>% summarize(nauthors = n()); dist_authors <- roles %>% filter(role == "author") %>% group_by(key) %>% summarize(nauthors = n()); report_stat(t.test(dist_authors$nauthors, dist_survey$nauthors), 2)`), 
 suggesting that authors were equally likely to respond to the survey, regardless of the paper.
 
 Survey responses from different authors to the same paper were typically identical or very similar, and always tested statistically insignificant in aggregate. In five papers, the responses from different authors were so inconsistent across questions that we elided them from our data. These inconsistencies relate mostly to the paper's history, whereas responses to most other questions remain consistent across respondents.

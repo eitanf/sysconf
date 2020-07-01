@@ -14,7 +14,6 @@ This document describes the full results of a survey of authors of computer syst
 ```{r setup-survey, echo=F, message=F, warning=F, cache=F}
 library('tidyverse')
 library('kableExtra')
-library('reshape2')
 library('wordcloud')
 library('stringr')
 
@@ -103,8 +102,8 @@ gov_table <- data.frame(gov = c(sum(good_affils$sector == "GOV"), sum(good_posit
 
 We can see that about one third (`r pct(total_students, nrow(demographics))`%) of the respondents were students in 2017, another third or so professors (`r pct(total_profs, nrow(demographics))`%), and the rest (`r pct(nrow(demographics) - total_students - total_profs, nrow(demographics))`%) is distributed between all other categories, including unknown. 
 
-We can check for response bias in industry or government responses, by looking at another data source: the affiliation of an author's email address (or their Google Scholar profile if we couldn't find an email address in the paper). Of our `r nrow(authors)` unique authors, `r nrow(good_affils)` had an identifiable affiliation. Of these, `r pct(sum(good_affils$sector == "COM"), nrow(good_affils))`% had an industry affiliation, compared to `r pct(nrow(filter(demographics, position == "Industry Researcher")), nrow(good_positions))`% of the non-NA survey respondents (`r report_chi(chisq.test(com_table))`).
-The difference for government researchers is a little larger --- `r pct(sum(good_affils$sector == "GOV"), nrow(good_affils))`% among survey respondents vs. `r pct(nrow(filter(demographics, position == "Government Researcher")), nrow(good_positions))`% in author emails (`r report_chi(chisq.test(gov_table))`), but still not significant enough to reject the null hypothesis of independence.
+We can check for response bias in industry or government responses, by looking at another data source: the affiliation of an author's email address (or their Google Scholar profile if we couldn't find an email address in the paper). Of our `r nrow(authors)` unique authors, `r nrow(good_affils)` had an identifiable affiliation. Of these, `r pct(sum(good_affils$sector == "COM"), nrow(good_affils))`% had an industry affiliation, compared to `r pct(nrow(filter(demographics, position == "Industry Researcher")), nrow(good_positions))`% of the non-NA survey respondents (`r report_stat(chisq.test(com_table))`).
+The difference for government researchers is a little larger --- `r pct(sum(good_affils$sector == "GOV"), nrow(good_affils))`% among survey respondents vs. `r pct(nrow(filter(demographics, position == "Government Researcher")), nrow(good_positions))`% in author emails (`r report_stat(chisq.test(gov_table))`), but still not significant enough to reject the null hypothesis of independence.
 
 As for the ratios within academia, it's unclear whether this response distribution is representative of the field's academic population or even of just among our set of `r nrow(authors)` authors. It is plausible, for example, that students are less inclined to respond to this survey than professors (especially in the summer), introducing a bias in the responses. On the other hand, it is also plausible that the senior researcher in an academic team (the professor) is the corresponding author, and therefore the most informed author to respond to a survey from their coauthors, which would improve the accuracy of the responses. Unfortunately, we don't have a separate data source to compare these ratios against, so the existence of this bias remains unknown.
 
@@ -152,7 +151,7 @@ Of the non-NA answers,
 `r pct(nrow(filter(demographics, gender == "F")), sum(!is.na(demographics$gender)))`%
 of respondents chose "Female".  We have manually verified the gender of `r nrow(good_genders)` unique authors on the web, and found the percentage of women among those to be
 `r pct(nrow(filter(good_genders, gender=="F")), nrow(good_genders))`%.
-These two proportions are very close (`r report_chi(chisq.test(gender_table))`), leading us to believe there is no significant selection bias in respondent gender.
+These two proportions are very close (`r report_stat(chisq.test(gender_table))`), leading us to believe there is no significant selection bias in respondent gender.
 
 We compared the values of the last two questions and found no significant difference between the English proficiency of women and men.
 
@@ -172,18 +171,17 @@ unique papers. In a few cases, two authors responded with different values to th
 month_data <- survey %>%
   group_by(paper_id) %>%
   summarize(A = first(months_research), B = last(months_research)) %>%
-  melt(id.vars = "paper_id") %>%
-  rename("Author" = variable)
+  pivot_longer(-paper_id, names_to = "Author", values_to = "Months")
 
 month_data %>%
-  ggplot(aes(x = value, fill = Author)) +
+  ggplot(aes(x = Months, fill = Author)) +
          geom_histogram(stat = "count", position = "dodge") + 
          scale_x_discrete(limits = c("1-3", "4-6", "7-9", "10-12", ">12", NA)) +
          xlab("months of research") +
          scale_fill_discrete(name = "author group")
 
-month_table <- data.frame(A = c(nrow(filter(month_data, Author == "A", value == "1-3")), nrow(filter(month_data, Author == "A", value == "4-6")), nrow(filter(month_data, Author == "A", value == "7-9")), nrow(filter(month_data, Author == "A", value == "10-12")), nrow(filter(month_data, Author == "A", value == ">12"))),
-                          B = c(nrow(filter(month_data, Author == "B", value == "1-3")), nrow(filter(month_data, Author == "B", value == "4-6")), nrow(filter(month_data, Author == "B", value == "7-9")), nrow(filter(month_data, Author == "B", value == "10-12")), nrow(filter(month_data, Author == "B", value == ">12"))))
+month_table <- data.frame(A = c(nrow(filter(month_data, Author == "A", Months == "1-3")), nrow(filter(month_data, Author == "A", Months == "4-6")), nrow(filter(month_data, Author == "A", Months == "7-9")), nrow(filter(month_data, Author == "A", Months == "10-12")), nrow(filter(month_data, Months == "A", Months == ">12"))),
+                          B = c(nrow(filter(month_data, Author == "B", Months == "1-3")), nrow(filter(month_data, Months == "B", Months == "4-6")), nrow(filter(month_data, Author == "B", Months == "7-9")), nrow(filter(month_data, Author == "B", Months == "10-12")), nrow(filter(month_data, Author == "B", Months == ">12"))))
 
 months_research <- survey %>%
   group_by(paper_id) %>%
@@ -191,7 +189,7 @@ months_research <- survey %>%
   summarize(mor = first(months_research))
 ```
 
-The distributions are very similar overall (`r report_chi(chisq.test(month_table), 2)`), so we'll arbitrarily stick with the first non-NA response per paper in our future analyses.
+The distributions are very similar overall (`r report_stat(chisq.test(month_table), 2)`), so we'll arbitrarily stick with the first non-NA response per paper in our future analyses.
 
 Note that the distribution seems to be monotonically increasing, with the exception of a mode at the 4-6 months range. It would be interesting to see how the 12+ months group would have broken down further if we had asked for more detail. But since we haven't, we unfortunately can't tell at which point (duration of research) the paper count would start going down.
 
@@ -217,7 +215,8 @@ roles %>%
 leads <- roles %>%
   filter(role == "lead_author") %>%
   right_join(months_research, by = c("key" = "paper_id")) %>%
-  left_join(persons, by = c("name", "gs_email"))
+  left_join(persons, by = c("name", "gs_email")) %>%
+  drop_na(gender)
 ```
 
 ### Relationship with lead author
@@ -241,9 +240,9 @@ leads %>%
 ```
 
 We also looked at the sector of the lead author (as inferred from their affiliation), but found no meaningful relationship to the length of time the paper took to research
-(`r report_chi(chisq.test(table(leads$sector, leads$mor)))`).
+(`r report_stat(chisq.test(table(leads$sector, leads$mor)))`).
 Gender also didn't seem to play a role in duration of research (not depicted,
-`r report_chi(chisq.test(table(leads$gender, leads$mor)))`).
+`r report_stat(chisq.test(table(leads$gender, leads$mor)[-3,]))`).
 
 ```{r paper-months-vs-lead-sector, echo=F, message=F, warning=F, cache=T }
 leads %>%
@@ -280,9 +279,8 @@ survey %>%
   group_by(paper_id) %>%
   mutate(prior_subs = cut(prior_subs, breaks = seq(-1,9), labels = c(seq(0,8), "9+"))) %>%
   summarize(A = first(prior_subs), B = last(prior_subs)) %>%
-  melt(id.vars = "paper_id") %>%
-  rename("Author" = variable) %>%
-  ggplot(aes(x = value, fill = Author)) +
+  pivot_longer(-paper_id, names_to = "Author", values_to = "Prior") %>%
+  ggplot(aes(x = Prior, fill = Author)) +
          geom_histogram(stat = "count", position = "dodge") + 
          scale_x_discrete(limits = c(seq(0,8), "9+", NA)) +
          xlab("prior submissions") +
@@ -378,9 +376,8 @@ This question tries to ascertain whether any of the authors of a paper were nati
 survey %>%
   group_by(paper_id) %>%
   summarize(A = first(any_english), B = last(any_english)) %>%
-  melt(id.vars = "paper_id") %>%
-  rename("Author" = variable) %>%
-  ggplot(aes(x = value, fill = Author)) +
+  pivot_longer(-paper_id, names_to = "Author", values_to = "Native") %>%
+  ggplot(aes(x = Native, fill = Author)) +
          geom_histogram(stat = "count", position = "dodge") + 
          scale_x_discrete(limits = c(NA, "TRUE", "FALSE"), labels = c("NA", "Yes", "No")) +
          xlab("Any native English coauthor?") +
@@ -418,9 +415,8 @@ Some conferences allow for some form of rebuttal or author response before an ac
 survey %>%
   group_by(paper_id) %>%
   summarize(A = first(allow_rebuttal), B = last(allow_rebuttal)) %>%
-  melt(id.vars = "paper_id") %>%
-  rename("Author" = variable) %>%
-  ggplot(aes(x = value, fill = Author)) +
+  pivot_longer(-paper_id, names_to = "Author", values_to = "Rebut") %>%
+  ggplot(aes(x = Rebut, fill = Author)) +
          geom_histogram(stat = "count", position = "dodge") + 
          scale_x_discrete(limits = c(NA, "TRUE", "FALSE"), labels = c("NA", "Yes", "No")) +
          xlab("Did the conference allow rebuttals?") +
@@ -458,7 +454,7 @@ There were no statistically significant differences to responses by position, En
 of non-native speakers opted to respond to reviews, vs.
 `r pct(nrow(filter(rebutters, native == T, use == T)), nrow(filter(rebutters, native == T, !is.na(use))))`%
 of native speakers
-(`r report_chi(chisq.test(table(rebutters$native, rebutters$use)))`).
+(`r report_stat(chisq.test(table(rebutters$native, rebutters$use)))`).
 
 
 ---------------------------------------------------------------------------------
@@ -530,29 +526,29 @@ There are some noteworthy differences between the two groups:
 of the respondents who found rebuttals helpful, compared to
 `r pct(profs_no, nrow(no_rebut_help), 0)`%
 among those who didn't
-(`r report_chi(chisq.test(data.frame(c(profs_yes, profs_no), c(nrow(yes_rebut_help) - profs_yes, nrow(no_rebut_help) - profs_no))), 4)`).
+(`r report_stat(chisq.test(data.frame(c(profs_yes, profs_no), c(nrow(yes_rebut_help) - profs_yes, nrow(no_rebut_help) - profs_no))), 4)`).
 Students in particular found rebuttals more helpful
 (`r pct(students_yes, nrow(yes_rebut_help), 0)`% vs.
 `r pct(students_no, nrow(no_rebut_help), 0)`%,
-`r report_chi(chisq.test(data.frame(c(students_yes, students_no), c(nrow(yes_rebut_help) - students_yes, nrow(no_rebut_help) - students_no))), 4)`),
+`r report_stat(chisq.test(data.frame(c(students_yes, students_no), c(nrow(yes_rebut_help) - students_yes, nrow(no_rebut_help) - students_no))), 4)`),
 perhaps because of their lack of experience.
 
 * More generally, the experience of authors who found rebuttals helpful, as measured by median previous publications, is about half that of those who did not
 (`r yes <- filter(yes_rebut_help, !is.na(npubs)); no <- filter(no_rebut_help, !is.na(npubs)); round(median(yes$npubs), 0)` vs.
 `r round(median(no$npubs), 0)`,
-`r report_t(t.test(no$npubs, yes$npubs))`).
-We've also collected information on which authors serve on program committees (PCs) in any of our conferences, as another measure of experience. It agrees with the previous metrics: those authors satisified with the rebuttal process serve on an average of `r round(mean(yes$as_pc), 1)` PCs, compared to `r round(mean(no$as_pc), 1)` PCs for those who weren't (`r report_t(t.test(no$as_pc, yes$as_pc))`). This is consistent with the mixed opinions we got directly from PC chairs on the question of rebuttals.
+`r report_stat(t.test(no$npubs, yes$npubs))`).
+We've also collected information on which authors serve on program committees (PCs) in any of our conferences, as another measure of experience. It agrees with the previous metrics: those authors satisified with the rebuttal process serve on an average of `r round(mean(yes$as_pc), 1)` PCs, compared to `r round(mean(no$as_pc), 1)` PCs for those who weren't (`r report_stat(t.test(no$as_pc, yes$as_pc))`). This is consistent with the mixed opinions we got directly from PC chairs on the question of rebuttals.
 
  * Non-native English speakers were also more likely to find the rebuttals helpful
 (`r pct(nonenglish_yes, nonenglish_yes + nonenglish_no, 0)`% vs.
 `r pct(english_yes, english_yes + english_no, 0)`%,
-`r report_chi(chisq.test(data.frame(c(english_yes, english_no), c(nonenglish_yes, nonenglish_no))))`),
+`r report_stat(chisq.test(data.frame(c(english_yes, english_no), c(nonenglish_yes, nonenglish_no))))`),
 perhaps because it allowed them to address gaps in communication, as the next survey question details. This difference also extends weakly to the entire team:
 `r pct(sum(yes_rebut_help$any_english == F), nrow(filter(authors_with_rebut, any_english == F)), 0)`%
 of responses where no team member was a native English speaker found the rebuttal helpful, vs.
 `r pct(sum(yes_rebut_help$any_english == T), sum(yes_rebut_help$any_english == T) + sum(no_rebut_help$any_english == T), 0)`%
 in responses from the other teams. Satisfaction with the rebuttal process is also correlated with the grade reviewers gave to a paper's presentation
-(`r report_t(t.test(filter(survey, rebuttal_helpful == T)$gr_present, filter(survey, rebuttal_helpful == F)$gr_present), 3)`),
+(`r report_stat(t.test(filter(survey, rebuttal_helpful == T)$gr_present, filter(survey, rebuttal_helpful == F)$gr_present), 3)`),
 but the relationship appears counter-intuitive: the mean presentation grade given to authors satisified with the rebuttals was
 `r round(100 * mean(filter(survey, rebuttal_helpful == T)$gr_present, na.rm = T), 0)`%, compared to
 `r round(100 * mean(filter(survey, rebuttal_helpful == F)$gr_present, na.rm = T), 0)`% among the dissatisfied authors.
@@ -568,10 +564,10 @@ On the other hand, some factors don't seem to play a role in satisfaction from t
 * Gender: women are about as likely
 (`r pct(women_yes, women_yes + women_no, 1)`%) as men (`r pct(men_yes, men_yes + men_no, 1)`%)
 to appreciate the rebuttal process
-(`r report_chi(chisq.test(data.frame(c(women_yes, women_no), c(men_yes, men_no))))`).
+(`r report_stat(chisq.test(data.frame(c(women_yes, women_no), c(men_yes, men_no))))`).
 
 * Perhaps surprisingly, the level of reviewer understanding, as expressed by authors, is not strongly associated with their satisfaction in the rebuttal process
-(`r report_chi(chisq.test(data.frame(yes = summary(filter(survey, rebuttal_helpful == T)$understanding), no = summary(filter(survey, rebuttal_helpful == F)$understanding))))`).
+(`r report_stat(chisq.test(data.frame(yes = summary(filter(survey, rebuttal_helpful == T)$understanding), no = summary(filter(survey, rebuttal_helpful == F)$understanding))))`).
 Even among authors who felt their reviewers understood their paper perfectly,
 `r pct(nrow(filter(survey, rebuttal_helpful == T, understanding == "Perfectly")), nrow(filter(survey, !is.na(rebuttal_helpful), understanding == "Perfectly")), 0)`%
 found the rebuttal process helpful.
@@ -582,11 +578,11 @@ found the rebuttal process helpful.
  
 
 One last observation is that those who answered "yes" to this question experienced fewer prior rejections, `r round(mean(yes_rebut_help$prior_subs), 2)` on average, compared to `r round(mean(no_rebut_help$prior_subs), 2)` for those who answered no
-(`r report_t(t.test(no_rebut_help$prior_subs, yes_rebut_help$prior_subs))`).
+(`r report_stat(t.test(no_rebut_help$prior_subs, yes_rebut_help$prior_subs))`).
 One possible explanation could be that a rebuttal process leads to fewer rejections overall (because of the opportunity to correct flaws in the paper), and subsequently to increased satisfaction with the process. However, this argument doesn't withstand scrutiny. First, only a few authors reported that the rebuttal process improved their review scores (and possibly their acceptance decision), and several chairs dismissed the possibility of significant acceptance reversals based on rebuttals. Second, there isn't a statistically significant difference in the mean number of prior submissions in conferences that allow rebuttals vs. those who don't
-(`r report_t(t.test(filter(confs_with_subs, rebuttal == F)$prior_subs, filter(confs_with_subs, rebuttal == T)$prior_subs))`).
+(`r report_stat(t.test(filter(confs_with_subs, rebuttal == F)$prior_subs, filter(confs_with_subs, rebuttal == T)$prior_subs))`).
 And third, there's isn't a statistically significant difference between the mean acceptance rate of confernces with a formal rebuttal process vs. those who don't
-(`r report_t(t.test(filter(all_confs, rebuttal == F, !is.na(acceptance_rate))$acceptance_rate, filter(all_confs, rebuttal == T)$acceptance_rate))`).
+(`r report_stat(t.test(filter(all_confs, rebuttal == F, !is.na(acceptance_rate))$acceptance_rate, filter(all_confs, rebuttal == T)$acceptance_rate))`).
 So we don't believe that the chances of a paper to be accepted to a conference significantly affects the satisfaction with the conference's rebuttal process.
 
 
@@ -621,7 +617,7 @@ After reading all the comments and rephrasing the original text, these are the c
 
 Similarly, the following word cloud arose from the negative responses:
 
-```{r why-not-helpful, echo=F}
+```{r why-not-helpful, echo=F, warning=F}
 nothelpful <- c(get_field_text(1, "WhyRebuttalNotHelpful"), get_field_text(2, "WhyRebuttalNotHelpful"), get_field_text(3, "WhyRebuttalNotHelpful")) %>%
   { gsub("the|some|reviewer|paper", "", ., ignore.case = T)} %>%
   { gsub('"', "", .)}
@@ -653,11 +649,11 @@ $mean~review~load~=~\frac{total~reviews \times  mean~pages~per~paper}{PC~size \t
 where gross review days is the duration between the last submission deadline and author notification dates. When the total number of reviews wasn't available to us, we approximated it by multiplying the number of submissions by the minimum number of reviews per paper. 
 
 Conferences with many submissions do tend to have larger PCs
-(`r report_cor(cor.test(all_confs$submissions, all_confs$pc_size, use = "pairw"))`),
+(`r report_stat(cor.test(all_confs$submissions, all_confs$pc_size, use = "pairw"))`),
 but not necessarily more days to review
-(`r report_cor(cor.test(all_confs$submissions, all_confs$review_days, use = "pairw"))`)
+(`r report_stat(cor.test(all_confs$submissions, all_confs$review_days, use = "pairw"))`)
 or shorter papers
-(`r report_cor(cor.test(all_confs$submissions, -all_confs$mean_pages, use = "pairw"))`).
+(`r report_stat(cor.test(all_confs$submissions, -all_confs$mean_pages, use = "pairw"))`).
 The overall range of reviewer load across conferences spans more than 20x difference, with OOPSLA on one extreme (9.68 pages per day) to CLOUD on the other (0.46 pages per day). 
 
 The following figures show the distribution of responses to each question and compares the different metrics.
@@ -671,9 +667,8 @@ survey %>%
   group_by(paper_id) %>%
   mutate(reviews = factor(reviews)) %>%
   summarize(A = first(reviews), B = last(reviews)) %>%
-  melt(id.vars = "paper_id") %>%
-  rename("Author" = variable) %>%
-  ggplot(aes(x = value, fill = Author)) +
+  pivot_longer(-paper_id, names_to = "Author", values_to = "RPP") %>%
+  ggplot(aes(x = RPP, fill = Author)) +
          geom_histogram(stat = "count", position = "dodge") + 
          xlab("reviews per paper") +
          scale_fill_discrete(name = "author group")
@@ -696,7 +691,7 @@ Some aspects in this chart stand out. Two papers were ostensibly accepted withou
 Curiously, there is a more pronounced disagreement here among different coauthors of the same paper, despite the fact that there is nothing subjective about this question. This question has many more non-NA answers than the questions that specifically require the respondents for information taken from the review text, so it's possible that some respondents answered from memory, which could explain some discrepancy. At any rate, we will not be using this number elsewhere in this report to count reviews. Instead, we'll use the actual review data provided by the authors.
 
 There is a small positive correlation between the number of reviews and the mean reviewer load
-(`r tmp <- review_counts %>% mutate(conference = gsub("_\\d\\d\\d", "", paper_id)) %>% left_join(all_confs); report_cor(cor.test(tmp$reviews, tmp$mean_review_load))`).
+(`r tmp <- review_counts %>% mutate(conference = gsub("_\\d\\d\\d", "", paper_id)) %>% left_join(all_confs); report_stat(cor.test(tmp$reviews, tmp$mean_review_load))`).
 But overall it appears that conferences that solicit more reviews per paper compensate by having additional reviewers or review days available.
 
 ---------------------------------------------------------------------------------
@@ -777,23 +772,23 @@ good_understanding <- filter(survey_with_confs, understanding != "Probably didn'
 ```
 
 Another positive sign is that very few authors reported a low level of reviewer understanding. Women generally felt more understood than men
-(`r report_chi(chisq.test(table(survey$mapped_gender, survey$understanding)))`),
+(`r report_stat(chisq.test(table(survey$mapped_gender, survey$understanding)))`),
 especially in double-blind reviews, but not clearly so in single-blind reviews
-(`r report_chi(chisq.test(table(filter(survey_with_confs, double_blind == F)$mapped_gender, filter(survey_with_confs, double_blind == F)$understanding)))`).
+(`r report_stat(chisq.test(table(filter(survey_with_confs, double_blind == F)$mapped_gender, filter(survey_with_confs, double_blind == F)$understanding)))`).
 In terms of paper history, the better-understood papers appear to have had a longer history, both in terms of months researched and prior submissions
-(`r report_t(t.test(poor_understanding$prior_subs, good_understanding$prior_subs))`).
+(`r report_stat(t.test(poor_understanding$prior_subs, good_understanding$prior_subs))`).
 The reason may be that previous rejections have helped improve the communication of a resubmitted paper. 
 
 `r pct(nrow(filter(poor_understanding, length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(poor_understanding, !is.na(length))))`%
 of reviews with reportedly poor understanding (defined here as missing major points or worse) were also short, half a page or shorter, demonstraing how these two factors are linked
-(`r report_chi(chisq.test(table(survey$understanding, survey$length)))`). But longer is not always better or necessary, as these short reviews still comprise
+(`r report_stat(chisq.test(table(survey$understanding, survey$length)))`). But longer is not always better or necessary, as these short reviews still comprise
 `r pct(nrow(filter(survey_with_confs, understanding == "Perfectly", length == "1-2 Paragraphs" | length == "Half a Page")), nrow(filter(survey_with_confs, understanding == "Perfectly", !is.na(length))))`%
 of "perfect understanding" reviews, whereas multi-page reviews only comprise
 `r pct(nrow(filter(survey_with_confs, understanding == "Perfectly", length == "Multiple Pages")), nrow(filter(survey_with_confs, understanding == "Perfectly", !is.na(length))))`%
 of these.
 
 Non-native English speakers also felt better understood then native speakers
-(`r report_chi(chisq.test(t(table(survey$native_english, survey$understanding))))`),
+(`r report_stat(chisq.test(t(table(survey$native_english, survey$understanding))))`),
 The difference is even more pronounced when accounting for the presence of any native English speaker among a paper's co-authors: of those reviews with poor understanding, only
 `r pct(nrow(filter(poor_understanding, any_english == F)), nrow(filter(survey_with_confs, !is.na(any_english))))`%
 were from teams with no native English speakers, compared to
@@ -804,15 +799,15 @@ so clearly most of them did not feel misunderstood.
 
 We can also try to look at the opposite question: how does the English level of the reviewers affect how well understood authors feel. We don't know who reviewed whose paper, or even the reviewer's native language or nationality. But we can try to estimate it by looking at their affilation country. We first guess the country of residence of reviewers by looking at their email affiliation, extract a country when possible, and look up whether this country includes English as one of its official languages. We then look at the conference PC overall demographics, and assign each conference a value roughly corresponding to the percent of PC members affiliated with an English-speaking country. Conferences range from 91% English speaking (SOCC) to 24% (EuroPar), and average `r pct(mean(english_pcs$pct_english), 1, 1)`%. The mean percentage among survey respondents is a little higher at
 `r pct(mean(survey_with_pct_english$pct_english), 1, 1)`%
-(`r report_t(t.test(survey_with_pct_english$pct_english, english_pcs$pct_english))`),
+(`r report_stat(t.test(survey_with_pct_english$pct_english, english_pcs$pct_english))`),
 which could suggest some selection bias in the response to this question. At any rate, the percentage of PC members from English-speaking countries has no influence on the reported understanding level of the reviews.
 
 The other conference characteristics we measured also showed no noticeable difference in review understanding, such as a formal rebuttal process
-(`r report_chi(chisq.test(data.frame(c(nrow(filter(poor_understanding, rebuttal == T)), nrow(filter(survey_with_confs, rebuttal == T))), c(nrow(filter(poor_understanding, rebuttal == F)), nrow(filter(survey_with_confs, rebuttal == F))))))`),
+(`r report_stat(chisq.test(data.frame(c(nrow(filter(poor_understanding, rebuttal == T)), nrow(filter(survey_with_confs, rebuttal == T))), c(nrow(filter(poor_understanding, rebuttal == F)), nrow(filter(survey_with_confs, rebuttal == F))))))`),
 the conference's mean historical citations 
-(`r report_t(t.test(poor_understanding$mean_historical_citations, good_understanding$mean_historical_citations))`),
+(`r report_stat(t.test(poor_understanding$mean_historical_citations, good_understanding$mean_historical_citations))`),
 or H5 index
-(`r report_t(t.test(poor_understanding$h5_index, good_understanding$h5_index))`).
+(`r report_stat(t.test(poor_understanding$h5_index, good_understanding$h5_index))`).
 
 
 ---------------------------------------------------------------------------------
@@ -835,15 +830,15 @@ of reviews were reported as not at all helpful. Of those,
 of the reviews were very short (1-2 paragraphs), triple the rate in the overall statistics reported above. In other words, authors tend to perceive short reviews as less helpful. On the other hand,
 `r pct(nrow(filter(pageplus, helpfulness == "Very Helpful")), nrow(pageplus), 0)`%
 of the longer reviews (a page or longer) were deemed "Very Helpful" by the authors. The two variables are interdependent with high likelihood
-(`r report_chi(chisq.test(table(survey$helpfulness, survey$length)))`).
+(`r report_stat(chisq.test(table(survey$helpfulness, survey$length)))`).
 This is not surpring when considering that the helpfulness of a review is closely linked to its reported level of understanding
-(`r report_chi(chisq.test(table(survey$helpfulness, survey$understanding)))`).
+(`r report_stat(chisq.test(table(survey$helpfulness, survey$understanding)))`).
 Like with review length, helpfulness shows similar strong associations with gender and English level, where women judge reviews more helpful than men
-(`r report_chi(chisq.test(table(survey$mapped_gender, survey$helpfulness)))`),
+(`r report_stat(chisq.test(table(survey$mapped_gender, survey$helpfulness)))`),
 especially in double-blind conferences
-(`r report_chi(chisq.test(table(filter(survey_with_confs, double_blind == T)$mapped_gender, filter(survey_with_confs, double_blind == T)$helpfulness)))`),
+(`r report_stat(chisq.test(table(filter(survey_with_confs, double_blind == T)$mapped_gender, filter(survey_with_confs, double_blind == T)$helpfulness)))`),
 and non-native speakers judge reviews more helpful, as well as better understood, compared to native speakers.
-(`r report_chi(chisq.test(t(table(survey$native_english, survey$helpfulness))))`).
+(`r report_stat(chisq.test(t(table(survey$native_english, survey$helpfulness))))`).
 
 ---------------------------------------------------------------------------------
 
@@ -858,15 +853,15 @@ ggplot(survey, aes(x = fairness, fill = factor(understanding, levels = undorder)
 ```
 
 Perceived fairness is yet another factor that appears closely associated with both review understanding
-(`r report_chi(chisq.test(table(survey$fairness, survey$understanding)))`)
+(`r report_stat(chisq.test(table(survey$fairness, survey$understanding)))`)
 and helpfulness
-(`r report_chi(chisq.test(table(survey$fairness, survey$helpfulness)))`),
+(`r report_stat(chisq.test(table(survey$fairness, survey$helpfulness)))`),
 which in turn implies a strong association with review length, 
-(`r report_chi(chisq.test(t(table(survey$length, survey$fairness))))`),
+(`r report_stat(chisq.test(t(table(survey$length, survey$fairness))))`),
 gender in double-blind reviews
-(`r report_chi(chisq.test(table(filter(survey_with_confs, double_blind == T)$mapped_gender, filter(survey_with_confs, double_blind == T)$fairness)))`),
+(`r report_stat(chisq.test(table(filter(survey_with_confs, double_blind == T)$mapped_gender, filter(survey_with_confs, double_blind == T)$fairness)))`),
 and English level.
-(`r report_chi(chisq.test(t(table(survey$native_english, survey$fairness))))`).
+(`r report_stat(chisq.test(t(table(survey$native_english, survey$fairness))))`).
 
 It's interesting that authors tie these three descriptions of reviews so closely together. It stands to reason a reviewer that doesn't understand a paper well is more likely to produce a review that's perceived as unhelpful or unfair. But it appears, at least from the authors' perspective, that the opposite is also true. In other words, authors may perceive that a review that isn't fair or helpful may be caused by poor understanding of their paper. It is striking therefore that non-native English speakers felt overall better treated and understood by reveiwers. This finding suggests that from an author's perspective, lack of English mastery is not a serious handicap in the peer review process. Also of note is that a higher reviewer load doesn't necessarily lead to worse reviews from an author's perspective, and other factors may play a much more significant role. Finally, while longer reviews are generally favored by authors, they are not a panacea that would justify arbitrary page limits, and plenty of half-page reviews were found adequate or better by authors. 
 In other words, the search for high-quality reviews and reviewers needs to focus on other areas.
@@ -898,9 +893,7 @@ Of all the questions in the survey, this section is likely the one most prone to
 survey %>%
   select(starts_with("gr_")) %>%
   rename(Overall = gr_overall, Technical = gr_technical, Presentation = gr_present, Impact = gr_impact, Originality = gr_originality, Relevance = gr_relevance, Confidence = gr_confidence) %>%
-  melt() %>%
-  rename(Category = variable, Grade = value) %>%
-  filter(!is.na(Grade)) %>%
+  pivot_longer(everything(), names_to = "Category", values_to = "Grade", values_drop_na = T, names_ptypes = list(Category = factor())) %>%
   group_by(Category) %>%
   add_count() %>%
   ungroup() %>%
@@ -915,7 +908,7 @@ survey %>%
 It's not surprising that all papers average above 50% for all grades--after all, they've been accepted. The inter-quartile range for the overall grade is 0.5-0.75, meaning that half the papers got accepted with an overall recommendation somewhere between "weak accept" and "accept". Perhaps more surprisingly, a good proportion of papers were accepted despite fairly low reviewer confidence. Another observation is that the "Relevance" grade appears mostly irrelevant, both because of its narrow distribution, and because of the low number of conferences that ask for it. It is plausible that an out-of-scope paper would simply get a "reject" overall recommendation, instead of specifying its relevance.
 
 Overall grades aren't significantly affected by the lead author's gender
-(`r lead_grades = left_join(filter(survey, !is.na(mapped_gender)), filter(roles, role == "lead_author"), by = c("paper_id" = "key")); report_t(t.test(filter(lead_grades, mapped_gender == "F")$gr_overall, filter(lead_grades, mapped_gender == "M")$gr_overall))`),
+(`r lead_grades = left_join(filter(survey, !is.na(mapped_gender)), filter(roles, role == "lead_author"), by = c("paper_id" = "key")); report_stat(t.test(filter(lead_grades, mapped_gender == "F")$gr_overall, filter(lead_grades, mapped_gender == "M")$gr_overall))`),
 and neither is any of the other grades (although confidence reviewer is 7 percent points higher on average for male lead authors than for females).
 Similarly, none of the grades is meaningfully different for native English speakers and non-natives, especially when including for any native English speaker among a paper's authors.
 

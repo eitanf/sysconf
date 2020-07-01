@@ -183,7 +183,7 @@ papers for which we know the first author's gender,
 `r nrow(filter(hpc_l, gender=="F"))` are women
 (`r pct(nrow(filter(hpc_l, gender=="F")), nrow(hpc_l), 2)`%),
 a statistically insignificant difference from the overall ratio
-(`r report_chi(chisq.test(data.frame(c(nrow(filter(hpc_a, gender == "F")), nrow(hpc_a)), c(nrow(filter(hpc_l, gender == "F")), nrow(hpc_l)))), 4)`).
+(`r report_stat(chisq.test(data.frame(all_authors = c(nrow(filter(hpc_a, gender == "F")), nrow(filter(hpc_a, gender == "M"))), leads = c(nrow(filter(hpc_l, gender == "F")), nrow(filter(hpc_l, gender == "M"))))), 4)`).
 
 These results suggest that gender representation among these HPC authors is in line with that of the conferences' representation overall. Subsequently, we will return to analyzing the complete set of papers throughout the rest of this study, for greater coverage.
 
@@ -221,12 +221,12 @@ papers authored by men. Women average more citations than men
 `r mc <- filter(cites, gender == "M", citations < 100)$citations;  mc %>% mean() %>% round(2)`).
 However, there is one outlier at the long tail of the distribution. This paper, lead by a female author, garnered more than 100 citations, but does not appear to be strongly related to HPC [@liang17:provchain]. When we exclude this paper, the mean citations for women's papers drops to
 `r thrs <- 3; fc <- filter(cites, gender == "F", citations < 100)$citations; fc %>% mean() %>% round(2)`,
-siginficantly lower than men's
-(`r report_t(t.test(fc, mc), 2)`).
+much lower than men's
+(`r report_stat(t.test(fc, mc), 2)`).
 There appears to be also a "ceiling" around `r thrs` citations or so, with only
 `r pct(sum(fc >= thrs), length(fc), 0)`% of female-led papers exceeding this threshold,
 compared to `r pct(sum(mc >= thrs), length(mc), 0)`% for men
-(`r report_chi(chisq.test(as.matrix(data.frame(f = c(sum(fc >= thrs), sum(fc < thrs)), m = c(sum(mc >= thrs), sum(mc < thrs))))), 2)`).
+(`r report_stat(chisq.test(data.frame(f = c(sum(fc >= thrs), sum(fc < thrs)), m = c(sum(mc >= thrs), sum(mc < thrs)))), 2)`).
 
 ##  Researcher Demographics
 

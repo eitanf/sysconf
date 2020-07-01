@@ -6,7 +6,7 @@ export
 
 all: stats.pdf
 
-stats.pdf: $(wildcard *.Rmd) Makefile ../sysconf.bib
+stats.pdf: $(wildcard *.Rmd) Makefile ../sysconf.bib ../load_data.R
 	$(R) -e 'library(bookdown); bookdown::render_book("stats.Rmd", "bookdown::pdf_book")'
 	mv _book/_main.pdf $@
 

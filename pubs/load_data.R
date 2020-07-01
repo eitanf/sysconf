@@ -100,35 +100,63 @@ pct <- function(nominator, denominator, precision = 1) {
   round(100 * nominator / denominator, precision)
 }
 
-# Return a string that properly formats a p-value (too small becomes <)
-p_value <- function(p, rounding = 3) {
-  threshold = 10^(-rounding - 1)
-  if (p < threshold) {
-    paste0("$p<", format(threshold, scientific = F), "$")
-  } else {
-    paste0("$p=", format(p, scientific = F, digits = rounding), "$")
-  }
-}
-
-# Return a string to properly report the result of a Chi-square test.
-report_chi <- function(test, rounding = 3) {
-  paste0("$\\chi{}^2=", round(test$statistic, min(rounding, 4)), "$, ", p_value(test$p.value, rounding))
-}
-
-# Return a string to properly report the result of a correlation test.
-report_cor <- function(test, rounding = 3) {
-  paste0("$r=", round(test$estimate, min(rounding, 4)), "$, ", p_value(test$p.value, rounding))
-}
-
-# Return a string to properly report the result of a t-test.
-report_t <- function(test, rounding = 3) {
-  paste0("$t=", round(test$statistic, min(rounding, 4)), "$, ", p_value(test$p.value, rounding))
-}
-
 # Create a dataframe with counts and proprotions of a variable
 freq_and_prop <- function(x, usena = "no") {
   tbl <- table(x, useNA = usena)
   df <- left_join(as.data.frame(tbl), data.frame(x = names(tbl), prop = paste0(round(prop.table(tbl) * 100, 1), "%")), by = "x")
   names(df) <- c("Response", "Count", "Ratio")
   df
+}
+
+
+######## Statistical test reporting
+
+# Return a string that properly formats a p-value (too small becomes <)
+rounded_p <- function(p, rounding) {
+  threshold = 10^(-rounding - 1)
+  if (p < threshold) {
+    paste0("$p<", format(threshold, scientific = F), "$")
+  } else {
+    paste0("$p=", format(p, scientific = F, digits = rounding), "$")
+  }
+  
+}
+
+# Compute a string based on p value and a p_option as follows:
+# NULL shows nothing (empty string)
+# "exact" shows the p value as is
+# "stars" returns either "", "*", "**", "***" based on the significance levels *<0.05, **<0.01, ***<0.001
+# The default option "rounded" rounds p value or shows it as less than the given precision threshold.
+format_p_value <- function(p, rounding = 3, p_option = "rounded") {
+  case_when(
+    is_null(p_option)   ~ "",
+    p_option == "exact" ~ paste0("$p=", p, "$"),
+    p_option == "stars" ~ ifelse(p < 0.001, "***", ifelse(p < 0.01, "**", ifelse(p < 0.05, "*", ""))),
+    TRUE                ~ rounded_p(p, rounding)
+  )
+}
+
+# Return a string to properly format a statistical test.
+# Currently supported tests: t.test, cor.test, chisq.test
+# If p_option is "only", then only p-value is shown, otherwise p_option is passed to format_p_value
+report_stat <- function(test, rounding = 3, p_option = "rounded") {
+  base_str <- ""
+  p_str <- format_p_value(test$p.value, rounding, p_option)
+
+  if(p_option != "only" & p_option != "stars") {
+    if (test$method == "Welch Two Sample t-test") {
+      base_str <- paste0("$t=", round(test$statistic, min(rounding, 4)), "$, ")
+    }
+    else if (grepl("Pearson's Chi-squared test", test$method)) {
+      base_str <- paste0("$\\chi{}^2=", round(test$statistic, min(rounding, 4)), "$, ")
+    }
+    else if (test$method == "Pearson's product-moment correlation") {
+      base_str <- paste0("$r=", round(test$estimate, min(rounding, 4)), "$, ")
+    }
+    else {
+      return("Unsupported test!")
+    }
+  }
+  
+  paste0(base_str, p_str)
 }

@@ -228,6 +228,8 @@ def append_interests(name, email, gs):
 
     for interest in gs['interests']:
         interest = interest.lower()
+        if interest not in interest_mapping:
+            print("#### Missing interest", interest, "in interest_mapping.csv! please add it") # Crash and burn
         canonical = interest_mapping[interest]['canonical']
         all_interests.append({'name': name,
             'gs_email': email,
@@ -355,8 +357,10 @@ def  save_all_authors(genderdata):
         # Try to extract country and sector of author from email address.
         # First, try email address from paper, if available, because that's
         # more representative at the time of writing. Otherwise, try GS.
+        # We also try GS first if the name is repeated, because GS addresses
+        # are disambiguated, whereas author names in the email list aren't.
         country, sector = "", ""
-        if row['name'] in paper_emails:
+        if row['name'] not in repeated_names and row['name'] in paper_emails:
             country, sector = parse_email(paper_emails[row['name']])
         if country == "" and sector == "":
             country, sector = parse_email(row['gs_email'])

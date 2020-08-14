@@ -421,6 +421,29 @@ def save_all_interests():
 
     tidy.save()
 
+
+##############################################################################
+# Some roles (keynote, session chair, panelist) don't necessarily have a GS
+# profile extracted for them, so we have to make sure that if they haven't
+# seen a GS email when they were first created, but one was found later, then
+# it's copied back to this role.
+def dedup_roles():
+
+    roles = load_csv_file(feature_fn("roles"))
+    for i in range(len(roles)):
+        r = roles[i]
+        if r['gs_email'] == "" and \
+            (r['role'] == "keynote" or r['role'] == "session" or r['role'] == "panel"):
+                for r2 in roles:
+                    if r2['name'] == r['name'] and r2['gs_email'] != "":
+                        roles[i]['gs_email'] = r2['gs_email']
+
+    with open(feature_fn("roles"), "w", encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames = ["name", "gs_email", "role", "key"])
+        writer.writeheader()
+        writer.writerows(roles)
+
+
 ##############################################################################
 ##############################################################################
 ######### main
@@ -499,3 +522,4 @@ for paper in confdata['papers']:
 save_all_authors(genderdata)
 save_all_roles()
 save_all_interests()
+dedup_roles()

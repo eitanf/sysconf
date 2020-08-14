@@ -89,6 +89,7 @@ We also tried to look in the opposite direction; how does the English level of t
 
 These negative findings could suggest that in the overall picture of systems research, English proficiency is merely one resource in the multidimensional skill set required to publish successfully [@bardi15:learning; @ferguson11:English; @rozycki:13noncanonical] and that the binary distinction of native/nonnative speaker may be inadequate to capture even this skill alone.
 
+
 ## Publication Experience
 
 As mentioned in the Methods section, we collected data from authors' GS profile whenever available and uniquely identifiable
@@ -191,3 +192,28 @@ It is encouraging to see that the two distributions are fairly similar
 which suggests that any selection bias based on geographical region is also limited.
 
 Unsurprisingly, most of these researchers hail from the West, much more so than in other fields [@publons18:peer]. One possible explanation is that systems research can require expensive hardware, and is therefore more likely to occur in the well-endowed research institutions and companies of the developed world. Regardless of explanation, this data shows a strong dissonance between country population and representation in published systems research, leading in turn to poor geographical diversity.
+
+A final point of interest is to combine all these metrics to look at NNES who migrate to or reside in an English-speaking country. Of the
+`r demo_with_country <- left_join(demographics, persons) %>% filter(!is.na(country)); nrow(demo_with_country)`
+respondents with a identifiable email affiliation,
+`r eng_based <- filter(demo_with_country, country %in% c("US", "UK", "CA", "AU")); nrow(eng_based)`
+reside in the US, and
+`r nrow(filter(demo_with_country, country %in% c("UK", "CA", "AU")))`
+more in the UK, Canada, and Australia.
+Of the US-based researchers,
+`r eng_immig <- filter(eng_based, !native_english); eng_native <- filter(eng_based, native_english); pct(nrow(eng_immig), nrow(filter(eng_based, !is.na(native_english))))`%
+identify as NNES. This group of migrants and visitors exhibits different demographic characteristics than the native US researchers. It has a higher rate of students
+(`r pct(nrow(filter(eng_immig, position == "Student")), nrow(eng_immig))`% vs.
+`r pct(nrow(filter(eng_native, position == "Student")), nrow(eng_native))`%,
+`r report_stat(chisq.test(table(eng_based$native_english, eng_based$position == "Student")))`),
+which coincides with a lower research experience (median H-index of
+`r median(eng_immig$hindex, na.rm = T)` vs. `r median(eng_native$hindex, na.rm = T)`,
+`r report_stat(t.test(eng_immig$hindex, eng_native$hindex))`),
+and somewhat higher rate of academic sector affiliation
+(`r pct(nrow(filter(eng_immig, sector == "EDU")), nrow(eng_immig))`% vs.
+`r pct(nrow(filter(eng_native, sector == "EDU")), nrow(eng_native))`%,
+`r report_stat(chisq.test(table(eng_based$native_english, eng_based$sector == "EDU")))`).
+These immigrants and visitors, however, exhibit the same gender imbalance as the locals, with a female respondent rate of
+`r pct(nrow(filter(eng_immig, gender == "F")), nrow(eng_immig))`% vs.
+`r pct(nrow(filter(eng_native, gender == "F")), nrow(eng_native))`%,
+(`r report_stat(chisq.test(table(eng_based$native_english, eng_based$gender == "F")))`).

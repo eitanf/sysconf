@@ -331,10 +331,10 @@ survey_with_confs %>%
          geom_text(aes(y = 1.07, label = paste0(pct_conf, "%")), vjust = +0.5) +
          geom_boxplot(notch = T) +
          stat_summary(fun.y = mean, geom = "point", shape = 23, size=4) +
+         theme_minimal() +
          theme(legend.position = "none") +
          scale_y_continuous(breaks = c(0, 0.25, 0.5, 0.75, 1), minor_breaks = NULL) +
-#         theme_minimal() +
-         ylab("Normalized grade") 
+         ylab("Normalized grade")
 ```
 
 Not surprisingly, all of the papers average above 50% for all of the scores---after all, the papers have all been accepted [@langford12:ICML; @vines11:cointoss]. The interquartile range for the overall grade is 0.5-0.75, meaning that half of the papers probably got accepted with an overall recommendation somewhere between "weak accept" and "accept." Perhaps more surprisingly, approximately `r pct(20, 201, 0)`% of the papers were accepted despite a low (< 0.5 average) acceptance recommendation, and approximately `r pct(43, 201, 0)`% of the accepted papers had low reviewer confidence (<0.5 average). However, the confidence ranking may be related to the seniority of the reviewer rather than the quality of the paper itself, leading to wider variance [@shah18:design].

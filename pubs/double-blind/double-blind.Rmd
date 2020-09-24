@@ -1,0 +1,316 @@
+---
+output: 
+  bookdown::pdf_book:
+    keep_tex: true
+    template: main.tex
+    fig_caption: true
+title: Effects of Double-Blind Reviewing on Accepted Computer Systems Papers
+bibliography: ../sysconf.bib
+csl: ieee.csl
+abstract: |
+ | yada
+ |  yada
+ |  yada
+---
+
+```{r code = readLines("../load_data.R"), echo=F, message=F}
+```
+
+
+```{r setup, echo=F, message=F, warning=F, cache=F}
+library("GGally")
+
+survey <- read_csv(paste0(toplevel, "/survey/survey-tidy.csv"), col_types = c("-cccffflfffillllfffffnnnnnnn"))
+survey$length = factor(survey$length, levels = c("1-2 Paragraphs", "Half a Page", "A Page", "Multiple Pages"))
+survey$understanding = factor(survey$understanding, levels = c("Perfectly", "Missed some minor points", "Misunderstood major points", "Probably didn't read it"))
+survey$helpfulness = factor(survey$helpfulness, levels = c("Very helpful", "Somewhat helpful", "Not at all"))
+survey$fairness = factor(survey$fairness, levels = c("Fair", "Somewhat fair", "Unfair", "Very unfair"))
+survey$position = factor(survey$position, levels = c("Government Researcher", "Industry Researcher", "Professor", "Associate Professor", "Assistant Professor", "Postdoctoral Researcher", "Student", "Other"))
+survey$months_research = factor(survey$months_research, levels = c("1-3", "4-6", "7-9", "10-12", ">12"))
+survey$reviews = factor(survey$reviews, levels = c("0", "1", "2", "3", "4", "5", "6+"))
+
+# Remove responses with irreconcilable conflicts between different authors:
+survey <- filter(survey, !response_id %in% c("R_3MbTlW5LmB1KdWV", "R_2pMEwlMUYFK1SYU", "R_2aD0UkJpKRx3E8B", "R_1GWkXIEN7qs4bm6", "R_1ezO6KnFkTiQ7HK", "R_24Nmp0HRk2NWRBT", "R_ABboqawDWihgkMx", "R_0Js4J4xtiVyE6at", "R_2xwRf0e0ekfjozd", "R_wQPB6YJOe7mwHjr"))
+
+raw_survey <- read_csv(paste0(toplevel, "/survey/final_responses.csv"))
+demographics <- survey %>%
+  group_by(response_id) %>%
+  summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
+
+demographics <- survey %>%
+  group_by(response_id) %>%
+  summarize(name = first(name), position = first(position), gender = first(gender), mapped_gender = first(mapped_gender), native_english = first(native_english))
+```
+
+
+# Introduction
+
+Borrow ideas from [@tomkins17:reviewer]
+
+Double-blind peer review is consideredthe most effective form of peer review [@ho13:views; @mulligan13:peer].
+
+General note: have to identify all DB confounders first (mainly, quality conference), and correct all analyses for those.
+
+<!--Send to JAMA? Lots of our references come from there --->
+
+# Materials and methods
+
+... Copy from survey paper ...
+
+
+# Research Questions {#sec:questions}
+
+Contains a mix of both replication questions and open questions. Replication questions look at published past results on peer review effects and attempts to replicate or refute these findings on our data set. Open questions look at some controversial questions on peer-review effects for which we found opinionated answers, but little or no prior studies.
+
+
+## Does blinding affect the quality of the reviews? {#sub:blind-quality}
+
+
+* Does-double blind really help quality in any way?
+* How about non-blind review where reviewers "sign" their review?
+
+### Related work
+
+
+ * [@mcnutt90:blinding] performed a randomized trial where each of 127 paper to J. of General Internal Medicine was sent to two external reviewers, one with identities anonymized. **Editors** ranked the quality of reviews higher (3.5/5 vs. 3.1/5) for the DB reviews. In contrast, our data is observational and not controlled for conference, and quality is assessed by authors; but we can compare the distributions of review quality metrics across DB/SB conferences. The paper also uses different quality categories, but the only one we share in common is fairness. There's also the possibility of positive bias in our data set because it's only of accepted papers: https://jamanetwork.com/journals/jama/article-abstract/380960.
+ 
+ 
+ * [@publons18:peer, p. 39, Fig. 36] shows that reviews from some countries are longer than others, and have lower impact factor. In our data, longer reviews do tend to be ranked higher by authors. We only have two indirect measures to compare review duration and location, and they're aggregated over entire conferences.
+
+  * [@van99:effect] ran a RCT on 527 consecutive BMJ manuscripts where some reviews were SB and some DB. There were no significant differences in the assessed quality of the reviews, but authors did like better reviews for recommending acceptance.
+
+ * This [note](http://www.cs.utexas.edu/users/mckinley/notes/blind-revised-2015.html) from Kathryn McKinley states that DB improves the quality and fairness of reviews by reducing bias.
+
+## Does double-blind bias less against junior faculty or other diversity groups? {#sub:blind-diversity}
+
+```{r experience.setup, echo=F, warning=F, message=F}
+experience <- roles %>%
+  left_join(persons) %>%
+  filter(role == "author") %>%
+  drop_na(hindex) %>%
+  drop_na(npubs) %>%
+  group_by(key) %>%
+  summarize(conf = as.character(first(conf)),
+            coauthors = n(),
+            max_h = max(hindex),
+            min_h = min(hindex),
+            mean_h = mean(hindex),
+            median_h = median(hindex),
+            total_h = sum(hindex),
+            max_npubs = max(npubs),
+            min_npubs = min(npubs),
+            mean_npubs = mean(npubs),
+            median_npubs = median(npubs),
+            total_npubs = sum(npubs)) %>%
+  left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+
+report_db <- function(metric) {
+  sb <- filter(experience, double_blind == F)
+  db <- filter(experience, double_blind == T)
+  paste("Mean SB:", round(mean(sb[[metric]]), 2),
+        "Mean DB:", round(mean(db[[metric]]), 2),
+        "(", report_stat(t.test(sb[[metric]], db[[metric]])), ")")
+}
+```
+
+Testing effect of double-blind vs. the following statistics (median 3 coauthors per paper, mean 3.2, max 17).
+
+
+ * Maximum prior publications (most prolific author): `r report_db("max_npubs")`
+ * Minimum prior publications (least prolific author): `r report_db("min_npubs")`
+ * Mean prior publications: `r report_db("mean_npubs")`
+ * Median prior publications: `r report_db("median_npubs")`
+ * Total prior publications: `r report_db("total_npubs")`
+ 
+ -----
+ 
+ * Maximum H-index (most senior author): `r report_db("max_h")`
+ * Minimum H-index (least senior author): `r report_db("min_h")`
+ * Mean H-index: `r report_db("mean_h")`
+ * Median H-index: `r report_db("median_h")`
+ * Total H-index: `r report_db("total_h")`
+
+Questions:
+
+ - Median H-index is significantly different, but mean isn't? (H-index probably not as long-tailed)
+ - H-index is higher for DB, but npubs is lower? (Correct for conf quality)
+ - What is the effect of outlier publishers?
+
+ ----
+
+Also consider country diversity? Sector diversity? country? gender? Non-english speakers Low-prestige institutions? Content based? Other types of diversity?
+
+Need to look at various metrics: H-index of first/last/mean/median/sum/min/max author; ranking of institute; correlation to number of previous submissions?
+
+
+We can't perform a controlled experiment with our data. We only have accepted papers. But we can check for distribution of review scores and other metrics in SB v. DB conferences.
+
+### Related work
+
+#### On prestige bias {-}
+
+ * [@tomkins17:reviewer] Performed an experiment on the WSDM'17 submissions: two PCs, one for SB and one for DB, with two from each PC reviewing each paper. They look at the following covariates: gender of first author (and others); sector of majority authors; paper predominantly from US authors (most common country); famous author (npubs >= 100, of which at least three from WSDM); country homophily with reviewer (we don't have that info); top-50 university, any author (based on http://www.topuniversities.com/); top company, any author (Google/Microsoft/Yahoo/Facebook). 
+ 
+ * [@blank91:effects] (quoted from [@tomkins17:reviewer, related work]): "Perhaps the best-known experimental study of single-blind vs.double-blind reviewing behavior, and to our knowledge the onlycontrolled  experiment  in  this  area  other  than  our  own,  is  thestudy by Rebecca Blank (15). Over several years, 1,498 paperswere randomly assigned to single-blind vs. double-blind review-ing condition. While Blank performs detailed analyses of manyfacets of the data, we may summarize part of the high-level find-ings  as  follows.  First,  authors  at  top  or  bottom  institutions  donot see significant differences in acceptance decisions based onreviewing model, but authors at midtier institutions perform bet-ter in a single-blind setting, as do foreign authors and those out-side academia. Second, there is a mild indication, not statisticallysignificant, that women do slightly better in double-blind review."
+ 
+ * [@okike16:single] (quoted from [@tomkins17:reviewer, related work]): "performed an ingenious study con-structing  an  artificial  submission  proposing  a  study  of  the  effi-cacy  of  training  to  improve  communication  in  the  operatingroom. The fabricated study was submitted to an orthopedics jour-nal  and  listed  as  authors  two  past  presidents  of  the  AmericanAcademy of Orthopedic Surgeons. With the involvement of thejournal, the study was sent to 256 reviewers, of whom 119 com-pleted  the  review,  split  between  single-blind  and  double-blindconditions. The results showed that single-blind reviewers weresignificantly more favorable toward the paper."
+ 
+ * [@tung06:impact] looked retrospectively at VLDB and SIGMOD papers (SIGMOD is in our data set), to compare the ratio of accepted papers from famous people over time, before and after starting double-blind reviewing. Unlike a previous study, it found that when looking at median papers/famous as opposed to mean, a significant drop is noticed when switching to DB (no p-value computed). Like our approach, it looks only at accepted papers; unlike our approach, it's longitudinal, not cross-sectional.
+ 
+ * [@fisher94:effects] performed a RCT on 57 consecutive submissions to J. of Dev. and Behavioral Pediatrics, where each paper got 2 SB and 2 DB reviews. Review grades and acceptance decisions were correlated against max npubs and lead-author npubs. It found that SB prefers authors with higher npubs.
+ 
+ * [@peters82:peer]: A famous (infamous?) study about bias in peer review favoring famous insititutes. In an ethically controvertial experiment, they've retitled 12 famous papers with fictitious authors and institutes. Three were detected as resubmissions, and eight of the remaining nine failed SB peer review.
+
+ * [@snodgrass06:single] offers a literature review of the question and concludes that the results on prestige bias are mixed.
+ 
+ * [nicholas17:early] Early career researchers appear to have a positive experience overall with peer review.
+ 
+ * SC'17 (in our dataset) offers a [rationale](https://sc17.supercomputing.org/conference-overview/technical-papers/sc17-double-blind-review-policy/) for double-blind reviewing that mentions "ample evidence" that DB reduces bias and improves citations.
+ 
+ * [World University Rankings 2017](https://www.timeshighereducation.com/world-university-rankings/2017/reputation-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats) can be a source of data to assess institution bias.
+
+#### Other diversity factors {-}
+
+ * An observational study [@murray19:gender] that showed that male last authors are accepted at higher than females, especially if there reviewer team is all male. Some country preference was also found.
+ 
+ * [@ho13:views] surveyed researchers and found that native English speakers and women found peer review more fair than others.
+
+ * Various papers who found bias against women (copy from gender-gap paper), such as [@lloyd90:gender; @budden08:double]. Similarly, papers who found bias against non-native English speakers.
+ 
+ * [@link98:US] Looked retrospectively at 2355 US-based reviewers and 1297 non-US reviewers for submissions to *Gastroenterology during 1995--1996. The only significant bias it found was US reviewers favoring US-based papers. It's unclear how a "US-paper" is defined. Similarly, [@bornmann09:reviewer] found a preference for authors based in Germany for a German international journal.
+ 
+ * [@mcgillivray18:uptake] looked at 106K papers submitted to 25 Nature-group journals, and analyzed who opted to use DB vs. SB, and what were their outcomes. Authors from non-Western countries or lesser-known institutes were more likely to choose DB (not women, however). Outcomes of DB papers tended to be worse (more rejections). No significant gender bias was found, even though their papers tended to be accepted less (but possibly for other reasons).
+
+ * [This literature survey](https://www.frontiersin.org/articles/10.3389/fnins.2015.00169/full) of the problems with peer review, including many of the papers cited above.
+ 
+* [@lee13:bias] is another literature survey and review of peer-review history. It includes a more philosophical/pragmatic discussion of what is bias in peer review and how can you measure it when peer review isn't objective. After discussing these general questions at length, it dives down in to review papers on the questions of bias by: prestige (The "Matthew Effect"); affiliation (homophily); nationality; language; gender; reviewer characteristics; content; confirmation bias; conservatism; interdisciplinary research and; publication bias. This review is generally mixed-to-negative on the question of bias, not finding very strong evidence for systematic bias.
+
+
+###  Survey data
+
+(copied from survey paper)
+
+Many author factors do not appear to significantly interact with double-blindness, such as: the gender, position, and research experience (based on H-index).
+In terms of review scores, there do not appear to be large differences in the mean and median grades, but the distribution of grades in double-blind reviews appears wider for some categories, especially technical merit.
+
+```{r echo=F}
+survey_with_confs <- survey %>%
+  mutate(conference = gsub("_\\d\\d\\d", "", paper_id)) %>%
+  left_join(all_confs)
+```
+
+Double-blind reviewed conferences in our dataset do appear to accept longer papers by page count
+(`r report_stat(t.test(table(survey_with_confs$double_blind, survey_with_confs$mean_pages)))`)
+with longer research history
+(`r report_stat(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$months_research)))`)
+and more coauthors per paper
+(`r report_stat(t.test(table(survey_with_confs$double_blind, survey_with_confs$mean_authors_per_paper)))`).
+These conferences are also more likely to allow rebuttals
+(`r report_stat(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$allow_rebuttal)))`),
+and produce more reviews
+(`r report_stat(t.test(table(survey_with_confs$double_blind, survey_with_confs$reviews)), 2)`)
+of longer length
+(`r report_stat(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$length)))`),
+which in turn are deemed more helpful, fair, and understanding by authors (Sec. \@ref(subsec:quality)).
+
+
+We doubt that double-blinding adequately explains all these phenomena [@godlee98:peer; @mcnutt90:blinding]. Instead, we suggest looking at a third factor: the reputation or prestige of a conference. Prestige may be too abstract to measure accurately, but we did collect two proxy conference metrics: the acceptance rate and H5-index (as measured by GS).
+Indeed, the `r nrow(filter(all_confs, double_blind == T))` double-blind conferences in our set average a lower acceptance rate
+(`r pct(mean(filter(all_confs, double_blind == T)$acceptance_rate, na.rm = T), 1, 1)`% vs.
+`r pct(mean(filter(all_confs, double_blind == F)$acceptance_rate, na.rm = T), 1, 1)`%) and higher H5-index
+(`r round(mean(filter(all_confs, double_blind == T)$h5_index, na.rm = T), 1)` vs.
+`r round(mean(filter(all_confs, double_blind == F)$h5_index, na.rm = T), 1)`).
+
+More competitive conferences also produce longer reviews, which are linked to better author evaluations of the reviews
+(`r report_stat(t.test(table(survey_with_confs$acceptance_rate, survey_with_confs$length)))`).
+When correcting for conference quality, as measured by either metric, most of the previous double-blind associations fade or disappear. For example, the relationship between review length and double-blind reviews loses statistical significance when limiting ourselves to conferences with an acceptance rate of less then 0.2
+(`r x <- filter(survey_with_confs, acceptance_rate >= 0.0, acceptance_rate < 0.2); report_stat(chisq.test(table(x$double_blind, x$length)))`),
+or between 0.2 and 0.3
+(`r x <- filter(survey_with_confs, acceptance_rate >= 0.2, acceptance_rate < 0.3); report_stat(chisq.test(table(x$double_blind, x$length)))`),
+or higher than 0.3
+(`r x <- filter(survey_with_confs, acceptance_rate >= 0.3, acceptance_rate < 0.9); report_stat(chisq.test(table(x$double_blind, x$length)))`).
+Fig. \@ref(fig:acceptance-vs-length) depicts the relationships between these three variables.
+
+
+Some studies found that a double-blind peer-review process can improve women's representation among authors [@budden08:double; @eaton19:gender; @lloyd90:gender; @wenneras01:nepotism], whereas other studies disagree [@ceci11:understanding; @lee13:bias; @tomkins17:reviewer; @ware08:peer]. Our own data does not show a significant difference in women's representation
+(`r report_stat(chisq.test(table(survey_with_confs$double_blind, survey_with_confs$mapped_gender)))`).
+
+```{r acceptance-vs-length, echo = F, message = F, warning = F, out.width = '100%', fig.cap = "Conference acceptance rate and reported review length. Observe that double-blind conferences tend to be more competitive, and more competitive conferences tend to have longer reviews."}
+cbp <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#000000")
+survey_with_confs %>%
+  filter(!is.na(length), !is.na(acceptance_rate)) %>%
+#  filter(acceptance_rate > 0.14) %>% # Remove two outlier conferences
+  group_by(conf, npapers, acceptance_rate, double_blind, length) %>%
+  summarize(n = n()) %>%
+  mutate(Review = factor(ifelse(double_blind, "Double blind", "Single blind"))) %>%
+  arrange(acceptance_rate) %>%
+  ggplot(aes(x = acceptance_rate, y = n, fill = forcats::fct_rev(length))) +
+    geom_bar(position = "fill", stat = "identity", width = 0.005) +
+    scale_x_continuous(labels = scales::percent_format()) +
+    scale_y_continuous(labels = scales::percent_format()) +
+    scale_fill_discrete(limits = c("1-2 Paragraphs", "Half a Page", "A Page", "Multiple Pages")) +
+    facet_wrap(~ Review) +
+    ylab("Reported review length (proportion)") +
+    xlab("Conference acceptance rate") +
+    labs(fill = "Length") +
+    theme_light() +
+    theme(legend.position = "top") +
+    coord_flip()
+
+#survey_with_confs %>%
+#  filter(!is.na(length)) %>%
+#  group_by(acceptance_rate, double_blind, length) %>%
+#  summarize(n = n()) %>%
+#  ggplot(aes(x = length, y = acceptance_rate, color = double_blind, size = n)) +
+##         geom_boxplot(notch = T) +
+#    geom_point(alpha = 0.5) +
+#    geom_jitter(height = 0, width = 0.2) +
+#    theme(legend.position = "top") +
+#    scale_color_discrete(name = "Review policy", labels = c("Single blind", "Double blind")) +
+#    xlab("Reported review length") +
+#    ylab("Conference acceptance rate") +
+#    coord_flip()
+```
+
+
+## Does double-blinding lead to more citations? {#sub:blind-citations}
+
+Fit citations to conference reputation, then look at the residuals.
+
+### Related work
+
+  * [@laband94:citation] did a post review of 1051 econ journal papers from 1984 and regressed their citation count to various author, article, and journal features, including DB. DB papers were cited significantly more than SB. This is a good comparable study because it uses only accepted papers, and looks at citations at 1--4 year mark (we have ~3 years so far).
+  
+
+## Other questions
+
+  * This [FAQ](https://2017.splashcon.org/track/splash-2017-OOPSLA#FAQ-on-Double-Blind-Reviewing) from OOPSLA'17, one of our conferences, explains why they opted to do peer review.
+
+ * This [statement in diversity](https://cra.org/statement-diversity-micro-50/) on MICRO'17, another one of our conferences, credits double-blind reviewing with lack of gender bias in paper selection.
+ 
+ * Explore all correlations between DB and other metrics.
+
+```{r blind-hindex-corr, echo=F, warning=F, message=F}
+survey_blind_hindex <- survey %>%
+  mutate(conference = str_sub(paper_id, end=-5)) %>% 
+  left_join(dplyr::select(authors, c("name", "hindex")), by = c("name" = "name")) %>%
+  left_join(all_confs, by=c("conference" = "conference")) %>%
+  dplyr::select(c("hindex", "double_blind", "age", "mean_historical_citations", "h5_index", "pc_author_ratio", "mean_authors_per_paper", "acceptance_rate", "pc_paper_ratio", "mean_review_load"))
+survey_blind_hindex <- na.omit(survey_blind_hindex)
+
+survey_blind_hindex <- survey_blind_hindex  %>%
+  rename(Age = age, Blind = double_blind, Citations = mean_historical_citations, h5 = h5_index, PC_Author = pc_author_ratio, Authors_Paper  = mean_authors_per_paper, Acceptance = acceptance_rate, PC_Paper = pc_paper_ratio, Review_Load = mean_review_load)
+
+GGally::ggpairs(lower = list(continuous = wrap("points", size = 0.4, position = position_jitter(height=0.1, width=0.1), alpha = 0.2)), progress = F, data=survey_blind_hindex)
+
+```
+
+Looking at the correlegram above, it can be seen that there appears to be no to little correlation between hindex and the rest of the variables. There is a small positive correlation between hindex and conference citations. A pairwise correlation for that relationship can be shown in a linear model: 
+<!--`r lm(hindex ~ Citations, data=survey_blind_hindex)` and it is indeed a significant correlation.--> 
+
+
+# Conclusion
+
+### Acknowledgements {-}
+
+# References {-}

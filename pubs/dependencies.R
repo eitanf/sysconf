@@ -15,6 +15,7 @@ dependencies <- c(
                   "purrr",
                   "readtext",
                   "reshape2",
+                  "readr",
                   "rticles",
                   "textclean",
                   "textstem",

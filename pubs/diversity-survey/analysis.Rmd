@@ -42,10 +42,10 @@ double-blind conferences, where reviewers presumably remain oblivious of the aut
  single-blind reviews
  (`r report_stat(t.test(filter(female_reviews, double_blind == F)$gr_overall, filter(male_reviews, double_blind == F)$gr_overall))`).
  This equitability extends to most other grade categories, except for originality
- (`r report_stat(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_originality, filter(survey_with_confs, mapped_gender == "M")$gr_originality))`),
+ (`r report_stat(t.test(filter(survey_with_confs, mapped_gender == "F")$gr_originality, filter(survey_with_confs, mapped_gender == "M")$gr_originality))`)
  and technical merit in single-blind conferences
  (`r report_stat(t.test(filter(survey_with_confs, mapped_gender == "F", double_blind == F)$gr_technical, filter(survey_with_confs, mapped_gender == "M")$gr_technical))`).
-In both categories, women scored significantly higher than men. It remains unclear whether there is any causal relationship here, and if so, in which direction; do women have to score higher than men in the technical categories to be accepted in single-blind conferences, or do women submit higher-quality papers to begin with? At any rate, this small difference is unlikely to explain the 2--3x difference in women's ratio compared to CS but does provide a case for wider adoption of double-blind reviewing.
+In both categories, women scored significantly higher than men. It remains unclear whether there is any causal relationship here, and if so, in which direction; do women have to score higher than men in the technical categories to be accepted in single-blind conferences, or do women submit higher-quality papers to begin with? At any rate, this small difference is unlikely to explain the 2--3x difference in women's ratio compared to CS, but it does provide a case for wider adoption of double-blind reviewing.
 
 These distinctions were not the only gender differences in our survey. Women also reported reviewers as somewhat more understanding, helpful, and fair than men did
 (`r report_stat(chisq.test(table(survey_with_confs$gender, survey_with_confs$understanding)), 2)`,

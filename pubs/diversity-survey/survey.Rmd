@@ -167,7 +167,7 @@ were affirmative. This high percentage may be a little surprising, considering h
 `r pct(profs_yes, nrow(yes_rebut_help), 0)`%
 of the respondents who found rebuttals helpful, compared to
 `r pct(profs_no, nrow(no_rebut_help), 0)`%
-among those who did not.
+among those who did not
 (`r report_stat(chisq.test(data.frame(c(profs_yes, profs_no), c(nrow(yes_rebut_help) - profs_yes, nrow(no_rebut_help) - profs_no))), 2)`).
 In contradistinction, students found rebuttals more helpful
 (`r pct(students_yes, nrow(yes_rebut_help), 0)`% vs.
@@ -303,7 +303,7 @@ We asked respondents to upload their reviews' text or to fill in the actual scor
 
 All scores were normalized so that the lowest grade in a category always received 0 and the highest always 1.  The distributions of these normalized scores are depicted in Fig. \@ref(fig:review-grades). Keep in mind, however, that the transcription of reviews, scaling, and calibration process were error-prone, possibly introducing some noise to these responses.
 
-```{r review-grades, echo = F, message = F, warning = F, out.width = '100%', fig.cap = "Normalized scores and response distribution. Diamonds represent mean scores. Bars represent median scores, with a notched 95-pct confidence. N is the number of scores received in each category. Shown in parentheses is the percentage of conferences that used each grade category." }
+```{r review-grades, echo = F, message = F, warning = F, out.width = '100%', fig.cap = "Normalized scores and response distribution. Diamonds represent mean scores. Bars represent median scores, with a notched 95-pct confidence. N is the number of scores received in each category. Shown below N is the percentage of conferences that used each grade category." }
 grade_req <- survey_with_confs %>%
   group_by(conf) %>%
   summarize(Overall = any(!is.na(gr_overall)),

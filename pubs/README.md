@@ -9,21 +9,30 @@ In addition, this directory contains some common files, shared by all the public
 List of completed and ongoing publications:
 
 <!---  * `gender`: "Gender Representation in Computer Systems" -->
-  * `diversity-survey`: "Author Experience and Diversity in Computer Systems Conferences"
+  * `diversity-survey`: "A survey of accepted authors in computer systems conferences"
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
   * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (conference paper).
 
-The following lists in bibtex format the published documents in reverse calenda order:
+The following lists in bibtex format the published peer-reviewed documents in reverse publication order:
 
 ```
-@InProceedings{frachtenberg20:whpc,
+@InProceedings{frachtenberg21:whpc,
   author =	 {Eitan Frachtenberg and Rhody Kaner},
-  title =	 {Representation of Women in High-Performance
-                  Computing Conferences},
-  year =	 2020,
-  month =	 April,
+  title =	 {Representation of Women in High-Performance Computing Conferences},
+  year =	 2021,
+  month =	 apr,
   address =	 {Vancouver, {BC}},
   organization = {WHPC}
 }
+
+@Article{frachtenberg20:survey,
+  author =	 {Eitan Frachtenberg and Noah Koster},
+  title =	 {A Survey of Accepted Authors in Computer Systems Conferences},
+  journal =	 {{PeerJ Computer Science}},
+  year =	 2020,
+  mon =		 sep,
+  doi =		 {10.7717/peerj-cs.299}
+}
+
 ```

@@ -1,0 +1,842 @@
+---
+output: 
+  bookdown::pdf_book:
+    keep_tex: true
+    template: main.tex
+    citation_package: natbib
+    fig_caption: true
+title: Underrepresentation of Women in Computer Systems Research
+bibliography: ../sysconf.bib
+abstract: |
+ | The gender gap in computer science (CS) research is a well-studied problem, with an estimated ratio of 20%--30% of women researchers.  However, far less is known about gender representation in specific fields within CS. Here we investigate the gender gap in one large field, computer systems. We combine data from 56 leading systems conferences with external demographic and bibliometric data to evaluate the ratio of women authors and the factors that might affect this ratio.
+ |  Our main findings are that women represent only about 10% of systems researchers, and that this ratio is not associated with various conference factors such as size, prestige, double-blind reviewing, and inclusivity policies. Author factors such as research experience or work sector also do not significantly affect this ratio, but it does vary significantly by author country.
+ | The 10% ratio of women authors is less than half that of CS as a whole. Our findings suggest that focusing on inclusivity policies alone cannot address this large gap. Increasing women's participation in systems research will require addressing the systemic causes of their exclusion, which are even more pronounced in systems than the rest of CS.
+---
+
+```{r code = readLines("../load_data.R"), echo=F, message=F}
+```
+
+
+```{r setup, echo=F, message=F, warning=F, cache=F}
+if (!"ggthemr" %in% rownames(installed.packages())) {
+  require("devtools")
+  devtools::install_github("cttobin/ggthemr")
+}
+
+library(cowplot)
+library(ggthemr)
+library(ggrepel)
+library(kableExtra)
+library(readr)
+
+ggthemr('solarized')
+
+#!!! Do I want to limit to sys_confs? sys_authors <- filter(sys_persons, as_author > 0, !is.na(gender))
+sys_authors <- filter(persons, as_author > 0, !is.na(gender))
+sys_pcs <- sys_persons %>% filter(as_pc + as_pc_chair > 0)
+sys_pcs$tot_pc <- sys_pcs$as_pc + sys_pcs$as_pc_chair
+pcs$tot_pc <- pcs$as_pc + pcs$as_pc_chair
+
+# people_tidy$gender[is.na(people_tidy$gender)] <- "F"  # Sensitivity testing
+
+repeated <- people_tidy %>%
+  filter(!is.na(gender)) %>%
+  mutate(role = factor(role, levels = c("author", "lead_author", "keynote", "panel", "chair", "pc", "session"))) %>%
+  group_by(role) %>%
+  summarize(N = n(), pct_w = round(100 * sum(gender == "F") / n(), 2))
+
+unique <- people_tidy %>%
+  filter(!is.na(gender)) %>%
+  mutate(role = factor(role, levels = c("author", "lead_author", "keynote", "panel", "chair", "pc", "session"))) %>%
+  select(name, gs_email, role, gender) %>%
+  unique() %>%
+  group_by(role) %>%
+  summarize(N = n(), pct_w = round(100 * sum(gender == "F") / n(), 2))
+
+role_genders <- data.frame(Role = c("Author", "Lead author", "Keynote speaker", "Panelist", "PC chair", "PC member", "Session chair"),
+                  "Total" = repeated$N,
+                  "Women" = paste0(repeated$pct_w, "%"),
+                  "Unique" = unique$N,
+                  "Unique women" = paste0(unique$pct_w, "%"),
+                  check.names = F)
+
+gender_table <- data.frame(female = c(nrow(filter(people_tidy, gender == "F", role == "author")), nrow(filter(people_tidy, gender == "F", role == "pc"))),
+                             male = c(nrow(filter(people_tidy, gender == "M", role == "author")), nrow(filter(people_tidy, gender == "M", role == "pc"))),
+                        row.names = c("authors", "PC members"))
+
+conf_gender <- people_tidy %>%
+  filter(!is.na(gender)) %>%
+  group_by(role, conf) %>%
+  summarize(ratio_w = sum(gender=="F") / n()) %>%
+  left_join(all_confs, by = c("conf" = "conference")) %>%
+  mutate(conf = as.factor(gsub("_\\d+", "", as.character(conf)))) %>%
+  mutate(Blind = ifelse(double_blind, "Double-blind", "Single-blind")) %>%
+  pivot_wider(names_from = role, values_from = ratio_w) %>%
+  rename("PC" = "pc")
+
+group_names <- c("Author (female)", "PC member (female)", "Author (male)", "PC member (male)")
+
+demographics <- roles %>%
+  filter(role %in% c("author", "pc")) %>%
+  select(name, gs_email, role) %>%
+  unique() %>%
+  left_join(persons) %>%
+  filter(!is.na(gender)) %>%
+  mutate(gid = group_indices(., gender, role)) %>%
+  group_by(gender, role) %>%
+  mutate(gname = group_names[gid]) %>%
+  add_count() %>%
+  ungroup()
+
+hindex <- demographics %>%
+  drop_na(gender) %>%
+  drop_na(hindex) %>%
+  mutate(Experience = as.factor(ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced"))))
+
+repeat_authors <- filter(roles, role == "author") %>%
+  left_join(persons)
+
+repeat_pc <- filter(roles, role == "pc") %>%
+  left_join(persons)
+
+gendiff <- function(role_, metric_) {
+  t.test(filter(demographics, role == role_, gender=="F")$hindex,
+         filter(demographics, role == role_, gender=="M")$hindex)
+}
+
+nauthors <- roles %>%
+  filter(role == "author") %>%
+  group_by(key) %>%
+  summarize(nauthors = n())
+
+papers <- left_join(papers, nauthors)
+
+# Shortcut data frames to compare sectors:
+ra <- filter(repeat_authors, !is.na(gender), !is.na(sector))
+da <- filter(demographics, !is.na(gender), !is.na(sector), role == "author")
+dp <- filter(demographics, !is.na(gender), !is.na(sector), role == "pc");
+
+# The palette with grey:
+cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# The palette with black:
+cbp2 <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+```
+
+\newpage{}
+
+# Introduction
+
+The gender gap in computer science (CS) is a well-known problem with significant societal effects, such as inequality in economic opportunities for women and an undersupply of researchers engineers in the rapidly growing discipline \cite{editorials18:science,mattis07:upstream}.
+The gender gap among researchers is particularly severe: the people who participate in research, publish about it, and have their research acknowledged for its value are predominantly men \cite{charman17:championing}.
+Numerous studies estimate that only about 20%--30% of the CS research community are women \cite{cohoon11:cspapers,holman18:gender,national20:science,wang19:trends,way16:gender,zweben18:taulbee}.
+Although some recent indications show these numbers could be growing, they remain alarmingly low, and the rate of growth remains discouragingly slow \cite{wang19:trends}.
+
+CS is a large and diverse discipline with different characteristics in each of its constituent fields.
+Treating CS as one homogeneous area risks missing some of the gender disparity phenomena that show more acutely in specific fields.
+In this paper, we focus on one such field, computer systems (or "systems" for short).
+Systems is a large research field with numerous applications, used by some of the largest technology companies in the world.^[For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.]
+This field stands out from other areas of CS in that it emphasizes scientific exploration through system implementation and combines engineering, experimentation, simulation, and mathematical rigor.
+We take a particularly closer look at the United States, which currently dominates the field, both in terms of affiliated researchers and of hosted conferences.
+ 
+There exists sporadic evidence of an acute gender gap in specific subareas of systems \cite{destefano18:micro, jerger17:gender, mattauch20:bibliometric}, but we were unable to find a systematic examination of women's underrepresentation in the entire field.
+To address this gap, we manually curated gender data from a large, representative cross section of the field.
+We estimate the rate of women's participation in systems research by using the proxy metric of the female author ratio (FAR) in a set of peer-reviewed systems conferences.
+This approach has been previously tested for different researcher populations \cite{elsevier17:gender,lariviere13:bibliometrics,mattauch20:bibliometric}.
+In addition to computing gender ratios, we also collected and analyzed conference statistics, demographic data, and bibliometric data in an attempt to expose and examine how these factors interact with female researcher ratios.
+Our cross-sectional study examined data from `r nrow(all_confs)` peer-reviewed systems conferences, including `r sum(all_confs$npapers)` papers and `r nrow(persons)` unique researchers across different conference roles, as detailed in the next section.
+
+# Materials and methods
+
+To compute the gender gap in computer systems research, we sought data to explore the following questions: 
+
+ - Who are the people doing systems research? 
+ - What are their genders? 
+ - What other demographic information can we associate with these researchers?
+
+
+```{r sys-confs, echo=F, message=F, warning=F, cache=T}
+tmp <- all_confs %>%
+  mutate(Conference = gsub("_\\d*", "", conference)) %>%
+  rename(Date = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
+  mutate(Acceptance = round(acceptance_rate, 2)) %>%
+  select(Conference, Date, Papers, Authors, Acceptance, Country) %>%
+  arrange(Conference)
+  
+cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
+  knitr::kable(booktabs = T,
+               align = c("l", "c", "r", "r", "r", "c"),
+               caption = "System conferences, including start date, number of published papers, total number of named authors, acceptance rate, and country code.") %>%
+  kable_styling(font_size = 8)
+```
+
+
+The primary dataset we analyze comes from a hand-curated collection of `r nrow(all_confs)` peer-reviewed systems conferences from a single publication year (2017).
+In CS, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences \cite{patterson99:evaluating,patterson04:health}, and then possibly in archival journals, sometimes years later \cite{vrettas15:conferences}.
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs)).[^It should be noted that venue prestige and gender-gap are not independent. For example, men tend to self-cite more than women \cite{king17:men} and novel research published by women is less likely to be impactful \cite{hofstra20:diversity}. We do not address this gap within the scope of this paper, but note that we found no direct correlations between a conference prestige metrics and its ratio of female authors.]
+We chose to focus on a large cross-sectional set of conferences from a single publication year (2017), to reduce variations in time.
+Our choice of which conferences belong to "systems" is necessarily subjective.
+Not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
+However, we believe that our cross-sectional set is both wide enough to represent the field well and focused enough to distinguish it from the rest of CS.
+In total, our sample includes `r sum(all_confs$npapers)` peer-reviewed papers.
+
+Because our metric for the gender gap counts the percentage of women among authors, we collected the names of all
+`r filter(roles, role == "author") %>% select(name, gs_email) %>% unique() %>% nrow()`
+unique coauthors.
+Papers in our dataset average
+`r round(mean(papers$nauthors), 2)`
+coauthors per paper, and of the
+`r p3 <- filter(papers, nauthors > 2); nrow(p3)`
+papers with three or more coauthors, only
+`r pct(nrow(filter(p3, alphabetized)), nrow(p3), 2)`%
+ordered the author list alphabetically.
+Papers in systems tend to list the primary contributor in the leading (first) position, so we examined the gender of first authors as well.
+
+In addition to paper authors, we collected information on researchers in the following conference roles:
+
+ * program committee (PC) chairs, who coordinate the review activities
+(`r filter(roles, role == "chair") %>% select(name, gs_email) %>% unique() %>% nrow()` total).
+ 
+ * PC members, who conduct most of the paper reviews and therefore have a direct influence on which papers get accepted
+(`r filter(roles, role == "pc") %>% select(name, gs_email) %>% unique() %>% nrow()` total).
+ 
+ * Keynote speakers
+(`r filter(roles, role == "keynote") %>% select(name, gs_email) %>% unique() %>% nrow()` total),
+panelists
+(`r filter(roles, role == "panel") %>% select(name, gs_email) %>% unique() %>% nrow()` total),
+and session chairs
+(`r filter(roles, role == "session") %>% select(name, gs_email) %>% unique() %>% nrow()` total),
+who have no direct influence on the population of authors, but represent the "face" of the conference to attendees. The visibility of women for such role models may have an indirect impact or appeal for women practitioners \cite{destefano18:micro, davenport14:studying}.
+
+For this study, the most critical piece of information on these researchers is their \emph{perceived gender}.
+Gender is a complex, multifaceted identity, but most bibliometric studies still rely on a binary gender for authors, either collected by the journal, or inferred from first name, because that is the only designator available to them \cite{bhagat18:data,cohoon11:cspapers,holman18:gender,national20:science, wang19:trends,way16:gender,zweben18:taulbee}.
+In the absence of self-identified gender information for our authors, we also necessarily compromised on using binary gender designations.
+We therefore use the gender terms "women" and "men" interchangeably with the sex terms "female" and "male".
+The conferences in our dataset did not collect or share gender information, so we had to collect this information ourselves.
+Similar studies have typically used automated gender-inference services based on forename and sometimes country of origin \cite{huang19:historical, karimi16:gender}.
+These statistical approaches can be reasonably accurate for names of Western origin, and especially for male names  \cite{cohoon11:cspapers, mattauch20:bibliometric, santamaria18:comparison}.
+
+We opted instead to rely primarily on a manual approach that can overcome the limitations of name-based inference.
+We manually assigned the gender of
+`r inferred <- nrow(semi_join(persons, inferred_gender)); nongend <- nrow(filter(persons, is.na(gender))); pct(nrow(persons) - inferred - nongend, nrow(persons), 2)`%
+of the researchers, for whom we could identify an unambiguous web page with a recognizable gendered pronoun or absent that, a photo.^[For example, many Linkedin profiles may lack a photo, but include a gendered pronoun in the recommendations section.]
+For `r pct(inferred, nrow(persons), 2)`%
+others, we used genderize.io's automated gender designations if it was at least 70% confident about them \cite{santamaria18:comparison}.
+The remaining `r nongend` persons were not assigned a gender and were excluded from most analyses.
+This method provided more gender data and higher accuracy than automated approaches based on first name and country, especially for women \cite{karimi16:gender, lariviere13:bibliometrics, mattauch20:bibliometric, squazzoni20:noevidence, wang19:trends}.
+This labor-intensive approach does introduce the prospect of human bias and error.
+For example, a gender assigned by an older biography paragraph with pronouns may no longer agree with the self-identification of the researcher.
+To verify the validity of our approach, we compared our manually assigned genders to self-assigned binary genders in a separate survey we conducted among 918 of the authors  \cite{frachtenberg20:survey}.
+We found no disagreements for these authors, which suggests that the likelygood of disagreements among the remaining authors is low.
+
+Conferences also do not generally offer information on authors' demographics, but we were able to unambiguously link approximately two thirds (`r pct(nrow(filter(persons, !is.na(hindex))), nrow(persons))`%) of
+researchers in our dataset to a Google Scholar (GS) profile.
+For each author and PC member, we collected all metrics in their GS profile, such as total previous publications (ca. 2017), H-index, etc.^[See README.md in the data/authors directory of the data repository for complete details.]
+We also looked up each author's affiliation institute on GS to find their current country of residence and research sector whenever they could be clearly inferred using hand-coded regular expressions.
+Many authors also included their email address in the full text of the paper, from which we inferred more timely affiliation and country information when available.
+
+From authors' affiliations, we broadly categorized their sector as either "COM" for industry
+(`r pct(nrow(filter(demographics, sector == "COM")), nrow(filter(demographics, !is.na(sector))), 1)`% of all unique authors and PC members),
+"EDU" for academia,
+(`r pct(nrow(filter(demographics, sector == "EDU")), nrow(filter(demographics, !is.na(sector))), 1)`%),
+and "GOV" for government and national labs
+(`r pct(nrow(filter(demographics, sector == "GOV")), nrow(filter(demographics, !is.na(sector))), 1)`%).
+
+
+In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
+For each conference, we collected data from the web and from program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers.
+We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers.
+Finally, from the conferences web site and proceedings we collected information on any explicit policies the conference made to increase attendance diversity (Table \@ref(tab:diversity-policy)), so that we could measure their effects, if any, on the gender gap.
+
+
+For statistical testing, group means were compared pairwise using $\chi^{2}$ test; differences between distributions of two categorical variables were tested with Welch's two-sample t-test; and comparisons between numeric properties of two groups were evaluated with Pearson's product-moment correlation. All statistical tests are reported with their p-values.
+
+## Limitations {-}
+
+Our study uses the FAR proxy metric to estimate women's participation in systems research, as do comparable studies estimating the gender gap in other fields \cite{elsevier17:gender, lariviere13:bibliometrics, mattauch20:bibliometric}.
+FAR has been found to correlate tightly with the gender ratios across disciplines \cite{holman18:gender}.
+Nevertheless, it is important to keep in mind that FAR may undercount women if men are more likely to submit papers or have the accepted.
+
+We believe and demonstrate the magnitude of this undercounting to be small and insufficient on its own to explain the large gap with the overall CS statistics from past publications (which also use the same metric, with the same limitations).
+
+In the literature, we found few controlled experiments that evaluate the peer-review process on both accepted and rejected papers, and they are typically limited in scope to one conference or journal \cite{parno17:SPsurvey, shah18:design, tomkins17:reviewer}.
+We chose an observational approach that allowed us to examine an entire field of study and produce metrics that are comparable with those in other fields.
+The main limitation of this approach is that it may miscount women if there is significant gender bias in the review process.
+There are systemic effects that cause this undercounting of women and this limitation.
+Homegeneity in journals, conference culture
+\cite{???}
+With that in mind, we are evaluating the system as it was intended, directly comparing our findings to other studies who employed the same counting approach.
+
+Our methodology is also constrained by the manual collection of data.
+The effort involved in compiling all the necessary data limits the scalability of our approach to additional conferences or years. 
+Furthermore, the manual assignment of genders is a laborious process, prone to human error.
+Nevertheless, such errors appear to be smaller in quantity and bias than those of automated approaches, as discussed previously.
+
+Even with manual gender assignment, `r pct(nongend, nrow(persons), 2)`% of researchers still have unknown gender.
+Although this ratio is small, and smaller than that of most other studies we reviewed, we nevertheless performed a sensitivity analysis to examine its effect.
+We first artificially set the gender of all `r nongend` researchers to female, and then to male, and recomputed all statistical analyses.
+None of our observations were subsequently changed in either direction or statistical significance, which justified our decision to omit these missing data points from the analysis.
+
+
+# Quantifying the gender gap
+
+With the data we collected on conference participants, we can compute the ratio of women in different conference roles: peer-reviewed authors, reviewers, and invited presentations (Table \@ref(tab:pct-by-role)).
+We found that approximately one in ten published authors were women, about $\sfrac{1}{3}$ to $\sfrac{1}{2}$ of the ratio in the rest of CS.
+Across the various other (invited) roles, women represent a weighted average of
+`r round(weighted.mean(repeated[3:7,3], repeated[3:7,2]), 2)`%
+of researchers.
+
+Since `r pct(nrow(filter(authors, as_author > 1)), nrow(authors), 2)`%
+of authors are named in more than one paper, we compared results of counting each person exactly once and counting repeated occurrences of each person.
+With both counts, the gender ratios remain within a percentage point or so of each other.
+We also examined authorship outliers, because these can be linked with gender \cite{huang19:historical}. 
+In our dataset, all
+`r nrow(filter(authors, as_author > 7))`
+authors with more than seven papers are men, and only
+`r nrow(filter(authors, as_author > 4, gender=="F"))`
+of the
+`r nrow(filter(authors, as_author > 4))`
+authors with more than four papers are women.
+But removing all authors with more than four papers from our dataset would change women's underrepresentation by less than a percentage point.
+The effect of outliers on PC female representation is similarly small.
+We therefore decided to use the complete dataset of persons for the rest of this study, counting with repeats.
+
+```{r pct-by-role, echo=F, cache=F, message=F}
+knitr::kable(role_genders[c(1,2,5,6,3,4,7),], align=c("lrrrr"), booktabs = T, row.names = F,
+             caption = "Researcher count and ratio of women by conference role for people with assigned genders. Researchers are either aggregated with repeats, counting multiple appearances in role, or identified uniquely per role. Roles include all authors, lead (first) authors only, program committee (PC) chairs and members, and conference presentation roles.")
+```
+
+
+The second-largest group of researchers, and the largest invited group, is that of PC members.
+This group also indirectly affects the representation of women among published authors, because PC members, through their reviews, decide which papers get published.
+The ratio of female PC members (FPR) is significantly higher than the ratio of female authors, 
+(`r filter(role_genders, Role=="PC member")$Women` vs. `r filter(role_genders, Role=="Author")$Women`, `r report_stat(p_option = "only", chisq.test(gender_table))`),
+which raises the question: which of the two ratios is more representative of women's true participation rate in Systems research?
+
+The typical bibliometric approach to estimate participation by gender in a field of research is to look at published authors \cite{cohoon11:cspapers,mattauch20:bibliometric}.
+This metric is not always accurate.
+It ignores researchers who cannot publish, and potentially undercounts women scientists because they tend to publish less than men in many fields \cite{elsevier20:journey,ghiasi15:compliance,lariviere13:bibliometrics,symonds06:gender}, possibly owing to a higher service load \cite{guarino17:faculty,misra12:gender,omeara17:asked}.
+Indeed, women authors published only
+`r round(mean(filter(authors, gender == "F")$as_author, na.rm = T), 2)` 
+papers in our dataset on average, compared to males'
+`r round(mean(filter(authors, gender == "M")$as_author, na.rm = T), 2)`
+(`r report_stat(p_option = "only", t.test(filter(authors, gender == "F")$as_author, filter(authors, gender == "M")$as_author), 2)`).
+However, this $\approx{6\%}$ difference is insufficient to explain the large discrepancy with gender representation in invited roles.^[Correcting for the publication gap could mean that the true FAR is closer to $\approx{13\%}$, but we prefer to maintain the same uncorrected statistic as other studies to preserve an equitable comparison.]
+
+Compared to PC members, authors typically undergo blind and competitive peer review (averaging an acceptance rate of
+`r round(100 * mean(all_confs$acceptance_rate, na.rm = T), 1)`%
+in our dataset).
+This selection process is presumably more objective and less biased than one based on invitation \cite{lee13:bias}.
+If the process allowed for a disproportionate number of women-authored papers to be published, it would mean that the gender gap in the author sample is not reflective of the researcher population as a whole, but that is not what we found.
+Mirroring studies from other fields that found no evidence of gender bias in the peer-review process \cite{cohoon11:cspapers,fox16:gender,squazzoni20:noevidence}, we found that women's papers are actually accepted at slightly higher rates when their identity is known to reviewers
+(`r sum(all_confs$double_blind)` single-blind conferences)
+or when it is prominent in the first author position
+(`r leads <- filter(roles, role == "lead_author") %>% left_join(persons) %>% filter(!is.na(gender)); pct(nrow(filter(leads, gender == "F")), nrow(leads))`% of papers).
+Our author survey also found that the reviews women received in the single-blind conferences in our set showed  similar or higher grades than men's \cite{frachtenberg20:survey}.
+
+Contrariwise, our data suggests that it is the selection-by-invitation process that exhibits gender bias.
+Unlike women's underrepresentation in the editorial boards of many journals \cite{amrein11:editorial,lerback17:journals,mauleon13:assessing,topaz16:gender}, in our dataset women PC roles outnumber women author roles by some 75%.
+We hypothesize that this difference stems from an affirmative effort by conference chairs to bring gender closer to parity.
+This hypothesis, and the reliance of FAR instead of FPR, is supported by three observations.
+
+```{r bibliometrics, message = F, echo = F, cache = F, warning = F, out.width='60%', fig.cap="Distribution of H-index \\cite{hirsch05:index} by role and gender (logarithmic scale, diamond represents mean). H-index values extracted from Google Scholar, ca. 2017. Each researcher counted exactly once, unless no gender or H-index could be identified."}
+demographics %>%
+  drop_na(hindex) %>%
+  ggplot(aes(x = gname, y = hindex)) +
+    geom_boxplot(aes(fill = gname), notch = F) +
+    stat_summary(fun.y = mean, geom = "point", shape = 23, size = 4, color = "white") +
+    scale_fill_manual(values = c("#7704FF", "#00C3AA", "#7704FF", "#00C3AA")) +
+#    theme_light() +
+    scale_y_log10(labels = function(x) format(x, scientific = FALSE)) +
+    labs(y = "H-index", x = "") +
+    geom_text(aes(y = 120, label = paste0("n=",n)), vjust = -0.5) +
+    theme(legend.position = "none")
+
+pc_diff_p <- gendiff("pc", "H-index")
+author_diff_p <- gendiff("author", "H-index")
+```
+
+
+<!--- Should fig:bibliometrics be a qq-plot instead? -->
+
+First, if chairs are indeed oversampling women for PC roles, we would expect to see differences in various statistics for male and female PC members.
+For example, chairs may have to search deeper in the researcher pool to recruit women to the PC, leading to lower research experience among female PC members, compared to their male counterparts.
+We find corroboration for this prediction in our data (Fig. \@ref(fig:bibliometrics)).
+For example, the mean H-index of the female PC member in our dataset,
+`r round(mean(filter(demographics, role == "pc", gender == "F")$hindex, na.rm = T), 2)`,
+is significantly lower than the males'
+`r round(mean(filter(demographics, role == "pc", gender == "M")$hindex, na.rm = T), 2)`
+(`r report_stat(p_option = "only", gendiff("pc", "H-index"), 3)`),
+whereas the author H-index means are closer together
+(`r round(mean(filter(demographics, role == "author", gender == "F")$hindex, na.rm = T), 2)`
+vs.
+`r round(mean(filter(demographics, role == "author", gender == "M")$hindex, na.rm = T), 2)`,
+`r report_stat(p_option = "only", gendiff("author", "H-index"), 3)`).
+
+
+Second, if women are asked to serve on more PCs than men in relative terms, we would expect to find fewer unique women as PC members because of their repeated service \cite{jerger17:gender}, as Table \@ref(tab:pct-by-role) indeed confirms.
+This prediction is also corroborated by computing reviewer load, with
+`r wpc <- filter(pcs, gender == "F") %>% summarize(mean(as_pc + as_pc_chair)); round(wpc, 2)`
+mean PC roles (member and chair) per woman, compared to
+`r mpc <- filter(pcs, gender == "M") %>% summarize(mean(as_pc + as_pc_chair)); round(mpc, 2)`
+per man
+(`r report_stat(p_option = "only", t.test(filter(pcs, gender == "F")$tot_pc, filter(pcs, gender == "M")$tot_pc), 2)`).
+It is conceivable that the additional time committed to PC service explains some of the reduced publication rate we observed earlier among women.
+However, authors who serve as PC members also tend to publish more papers
+(Pearson's `r report_stat(cor.test(authors$as_pc, authors$as_author))`).
+The weak but positive association between number of committees and number of papers suggests that a relative overrepresentation of women in PCs is not commensurate with underrepresentation among authors.
+
+
+Finally, the smaller population size of PC members (n=`r nrow(pcs)`) compared to that of authors (n=`r nrow(authors)`), magnifies statistical outliers.
+Therefore, conferences with atypical gender gaps introduce more variance to PC gender ratios than to those of authors.
+As shown in Fig. \@ref(fig:women-rep-author-vs-PC), the gender gap for PCs exhibits a much higher variance and longer tail across conferences than for authors.
+Only two conferences show FPRs near parity, OOPSLA and ISPASS.
+Excluding this pair reduces the mean FPR across the remaining conferences by
+`r without <- filter(people_tidy, !conf %in% c("ISPASS_17", "OOPSLA_17"), !is.na(gender), role == "pc"); round(repeated[6,3] - pct(nrow(filter(without, gender == "F")), nrow(without)), 2)` percentage points.
+Conversely, removing the two conferences with the lowest female author ratios (HotI and VEE) only bumps up the mean FAR by
+`r without <- filter(people_tidy, !conf %in% c("HotI_17", "VEE_17"), !is.na(gender), role == "author"); round(pct(nrow(filter(without, gender == "F")), nrow(without)) - repeated[1,3], 2)` percentage points.
+Skewness in distribution therefore pulls the mean female ratios higher among PCs than it pulls it lower among authors, reaffirming our assertion that the percentage of women authors in our dataset is a more reliable indicator of the overall gender gap in the field.
+
+
+# Explanatory variables
+
+The next step in understanding the gender gap is to look at the factors that may be associated with it.
+
+## Conference factors
+
+Female author representation can vary considerably from one conference to the next, from a minimum of
+`r round(100 * min(conf_gender$author), 2)`%
+to a maximum of
+`r round(100 * max(conf_gender$author), 2)`%
+(mean: `r round(100 * mean(conf_gender$author), 2)`%,
+SD: `r round(100 * sd(conf_gender$author), 2)`%).
+Examining the differences between conferences could offer clues as to which factors could affect the gender gap.
+
+
+
+```{r women-rep-author-vs-PC, message = F, echo = F, cache = F, warning = F, fig.cap="Underrepresentation of women among authors (FAR) by conference, compared to conference size (from Table 1), double-blind reviewing, and women PC representation. None of these factors is significantly associated with FAR. Density plots on the axes show the relative distribution of female PC members and authors for single- and double-blind reviews."}
+colors = c(cbp2[2], cbp2[1])
+colors = c("black", "red")
+
+pmain <- conf_gender %>%
+  ggplot(aes(x = PC, y = author, size = npapers, color = Blind)) +
+    geom_point(alpha = 0.5) +
+    xlab("Ratio of women among PC members (FPR)") +
+    ylab("Ratio of women among authors (FAR)") +
+    scale_x_continuous(limits = c(0, 0.53), breaks = seq(0, 0.55, 0.05), labels = paste0(100 * seq(0, 0.55, 0.05), "%")) +
+    scale_y_continuous(limits = c(0, 0.24), breaks = seq(0, 0.25, 0.05), labels = paste0(100 * seq(0, 0.25, 0.05), "%")) +
+    geom_text_repel(aes(label = conf), size=2.25) +
+    guides(size = guide_legend(title = "No. of papers"),
+           color = guide_legend(title = "Reviews", label = T)) +
+    scale_color_manual(values = colors) +
+#    theme_gray() +
+    theme(legend.position = "bottom")
+
+xdens <- axis_canvas(pmain, axis = "x") +
+  geom_density(data = conf_gender, aes(x = PC, fill = Blind), alpha = 0.5, size = 0.2) +
+  scale_fill_manual(values = colors)
+
+ydens <- axis_canvas(pmain, axis = "y", coord_flip = T) +
+  geom_density(data = conf_gender, aes(x = author, fill = Blind), alpha = 0.5, size = 0.2) +
+  scale_fill_manual(values = colors) +
+  coord_flip()
+
+p1 <- insert_xaxis_grob(pmain, xdens, grid::unit(.2, "null"), position = "top")
+p2 <- insert_yaxis_grob(p1, ydens, grid::unit(.2, "null"), position = "right")
+ggdraw(p2)
+```
+
+As Fig. \@ref(fig:women-rep-author-vs-PC) shows, the ratio of women among authors appears to be independent of the size of the conference (papers published), its double-blind review policy, and its ratio of female PC members.
+Let us look at these factors in more detail.
+
+Averaging the ratio of women by conferences, as opposed to by authors or papers (both computed in Table \@ref(tab:pct-by-role)), can produce different results, because smaller conferences receive the same weight as conferences with many more authors and papers.
+This choice does not appear to affect our dataset, as all three means are within 0.53% of each other, with the conference mean at the center of the other two.
+Further, there appears to be no correlation between the number of papers in a conference and its female author ratio
+(`r report_stat(cor.test(conf_gender$author, conf_gender$npapers))`).
+
+Earlier studies have found evidence of gender bias in the peer-review process, especially in single-blind reviews, although more recent surveys are inconclusive \cite{lee13:bias,mcgillivray18:uptake,squazzoni20:noevidence}.
+Fig. \@ref(fig:women-rep-author-vs-PC) also looks for a possible link between double-blind reviewing and increased FARs.
+In our dataset, conferences with double-blind reviewing actually exhibit a lower FAR
+(`r round(100 * mean(filter(conf_gender, double_blind)$author), 2)`% average vs. 
+`r round(mean(100 * filter(conf_gender, !double_blind)$author), 2)`% for single-blind conferences,
+`r report_stat(p_option = "only", t.test(filter(conf_gender, double_blind)$author, filter(conf_gender, !double_blind)$author))`).
+
+Another conference policy often employed to increase participant diversity is to invite a more diverse reviewer body.
+For example, some studies have demonstrated gender homophily between reviewers and authors, leading to higher FARs when more reviewers are women \cite{helmer17:gender,murray19:gender}.
+Women are again far from parity in the composition of most PCs in our dataset, but with higher variance than in the author body. 
+Nevertheless, we found no correlation between higher female PC ratios and higher FARs
+(`r report_stat(cor.test(conf_gender$PC, conf_gender$author))`).
+We also looked at the other visible conference roles: keynote speakers, session chairs, and panelists.
+These roles offer additional indication of the field's diversity, and may play a role in the diversity of conference attendees \cite{destefano18:micro,davenport14:studying,ford18:gender,le20:iscb}.
+However, the Pearson's correlations between FAR and these roles do not reveal such a relationship in our dataset
+(`r report_stat(cor.test(conf_gender$keynote, conf_gender$author))`; `r report_stat(cor.test(conf_gender$session, conf_gender$author))`; and `r report_stat(cor.test(conf_gender$panel, conf_gender$author))`, respectively).
+
+```{r diversity-policy, echo=F, message=F, warning=F, cache=T}
+div_confs = c("ATC", "CCS", "FAST", "HotCloud", "HotStorage", "IMC", "ISC", "ISCA", "ISPASS", "MobiCom", "NSDI", "SC", "SIGCOMM", "SP", "KDD", "SIGIR", "OOPSLA", "SLE", "PLDI")
+div <- filter(conf_gender, conf %in% div_confs)
+nondiv <- filter(conf_gender, !conf %in% div_confs)
+nondiv_authors <- filter(people_tidy, !as.factor(gsub("_\\d+", "", as.character(conf))) %in% div_confs, role == "author")
+nondiv_female_ratio <- nrow(filter(nondiv_authors, gender == "F")) / nrow(filter(nondiv_authors, !is.na(gender)))
+
+divdf <- data.frame(Conference = div_confs,
+#                           1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19
+                  Chair = c(F, F, F, F, F, F, T, F, F, F, F, T, F, F, F, F, F, F, F),
+                  Code =  c(T, F, F, T, T, T, T, F, F, T, F, T, T, F, F, F, T, T, F),
+                  Event = c(T, T, T, T, T, F, F, F, F, F, T, T, T, F, T, T, T, F, T),
+              Childcare = c(F, F, F, F, F, F, F, T, T, F, F, T, F, F, F, T, T, T, F),
+                 Grants = c(T, F, F, F, T, F, F, F, F, T, F, F, F, T, T, F, F, F, F),
+                   Data = c(F, F, F, F, F, F, T, F, F, F, F, T, F, F, F, F, F, F, F),
+                 Papers = div$npapers,
+                    FAR = round(div$author * 100, 2)
+  ) %>%
+  arrange(FAR) %>%
+  rbind(data.frame(Conference = "All others", Chair = F, Code = F, Event = F, Childcare = F, Grants = F, Data = F, Papers = sum(nondiv$npapers), FAR = round(nondiv_female_ratio * 100, 2)))
+
+Yes <- "Yes"
+No <- "---"
+divdf$FAR = sprintf("%.2f%%", divdf$FAR)
+divdf$Chair = ifelse(divdf$Chair, Yes, No)
+divdf$Code = ifelse(divdf$Code, Yes, No)
+divdf$Event = ifelse(divdf$Event, Yes, No)
+divdf$Childcare = ifelse(divdf$Childcare, Yes, No)
+divdf$Grants = ifelse(divdf$Grants, Yes, No)
+divdf$Data = ifelse(divdf$Data, Yes, No)
+
+divdf %>%
+  knitr::kable(booktabs = T,
+               align = "lccccccrr",
+               caption = "Conferences with inclusivity initiatives, including diversity chair, code of conduct, special diversity events or workshops, assistance with childcare, travel grants for underrepresented minorities, and diversity data collection and publication. Conferences are ordered by increasing female author ratio (FAR). Last row summarizes the remaining conferences.")
+```
+
+In addition to these factors, we collected and examined various other conference factors, including: conference history (age, number of past papers, and past citations); prestige (acceptance rate, citations per paper, H5-index); and size (number of submissions, authors, coauthors per paper, and PC members).
+All factors appear to be nonsignificant for FAR.
+
+<!---
+...Edit out...: Conference factors with no effect:
+
+  * age in years: `r report_stat(cor.test(conf_gender$author, conf_gender$age))`
+  * past papers: `r report_stat(cor.test(conf_gender$author, conf_gender$past_papers))`
+  * past citations: `r report_stat(cor.test(conf_gender$author, conf_gender$past_citations))`
+  * mean historical length: `r report_stat(cor.test(conf_gender$author, conf_gender$mean_historical_length))`
+  * mean historical citations: `r report_stat(cor.test(conf_gender$author, conf_gender$mean_historical_citations))`
+  * h5 index / median: `r report_stat(cor.test(conf_gender$author, conf_gender$h5_index))` ; `r report_stat(cor.test(conf_gender$author, conf_gender$h5_median))`
+  * pc size:  `r report_stat(cor.test(conf_gender$author, conf_gender$pc_size))`
+  * no. of submissions:  `r report_stat(cor.test(conf_gender$author, conf_gender$submissions, use = "pairwise.complete.obs"))`
+  * authors num:  `r report_stat(cor.test(conf_gender$author, conf_gender$authors_num))`
+  * mean authors per paper:  `r report_stat(cor.test(conf_gender$author, conf_gender$mean_authors_per_paper))`
+  * pc author ratio:  `r report_stat(cor.test(conf_gender$author, conf_gender$pc_author_ratio))`
+  * pc paper ratio:  `r report_stat(cor.test(conf_gender$author, conf_gender$pc_paper_ratio))`
+  * acceptance rate:  `r report_stat(cor.test(conf_gender$author, conf_gender$acceptance_rate, use = "pairwise.complete.obs"))`
+  * mean review load:  `r report_stat(cor.test(conf_gender$author, conf_gender$mean_review_load, use = "pairwise.complete.obs"))`
+  * chairs num: `r cn <- 1; report_stat(t.test(filter(conf_gender, chairs_num <= cn)$author, filter(conf_gender, chairs_num > cn)$author))`
+  * open access: `r report_stat(t.test(filter(conf_gender, open_access)$author, filter(conf_gender, !open_access)$author))`
+* Sponsoring organization: `r report_stat(t.test(filter(conf_gender, is_org_IEEE)$author, filter(conf_gender, !is_org_IEEE)$author))`; `r report_stat(t.test(filter(conf_gender, is_org_ACM)$author, filter(conf_gender, !is_org_ACM)$author))`; `r report_stat(t.test(filter(conf_gender, is_org_USENIX)$author, filter(conf_gender, !is_org_USENIX)$author))`.
+  * month_of_year: `r summary(aov(author ~ month_of_year, data=conf_gender))`
+
+-----------
+-->
+
+## Inclusivity initiatives
+
+Several policies have been proposed to increase diversity and women's participation in scientific conferences include: a designated inclusivity chair; a code of conduct or anti-harassment policy; special events and meetings to promote diversity; assistance with childcare during the conference; travel grants for underrepresented populations; and the collection and dissemination of diversity data \cite{collins16:diversity,gould18:conferences,martin14:ten}.
+In our dataset, `r sum(all_confs$diversity_effort)` of the `r nrow(all_confs)` implemented at least one of these suggestions (Table \@ref(tab:diversity-policy)), but that did not ostensibly lead to higher FARs
+(`r round(100 * mean(filter(conf_gender, diversity_effort)$author), 2)`% average FAR vs. 
+`r round(mean(100 * filter(conf_gender, !diversity_effort)$author), 2)`% for the other conferences,
+`r report_stat(p_option = "only", t.test(filter(conf_gender, diversity_effort)$author, filter(conf_gender, !diversity_effort)$author), 2)`).
+For example, the only two conferences with an inclusivity chair ranked among the lowest conferences for FAR.
+
+It is possible that these conference initiatives were in fact more reactive than proactive, in an attempt to improve previous statistics.
+It is also possible that their effects can only be measured over several years.
+Regrettably, none of the conferences has been consistently sharing author demographics to evaluate changes over time, although a few release some data.
+The SC conference, for example, has been sharing demographic data since 2016.
+Throughout this period, women's attendance rate remained near constant at around 13%-14% (author demographics are only shared for 2018, with 12% FAR).
+ISC is another large conference that, like SC, employs various inclusivity initiatives, including naming a dedicated diversity chair and reporting attendee demographics.
+It does not report FAR, but we have manually computed FAR in the range 5%--9% for the years 2017--2020, lower than the average conference in our dataset.
+
+<!--We have also looked at the MICRO conference because it introduced childcare assistance and code of conduct in 2018-->
+
+
+For the period examined, neither conference appears to show an improving FAR trend, although these cultural changes could take several years to take effect. Interestingly, starting from 2018, all ACM conferences are covered by a code of conduct.
+
+It is plausible that inclusivity initiatives are only one of the selection criteria when choosing a conference to publish in, and other criteria such as conference date, location, prestige, and subfield take precedence. 
+For example, among the four computer architecture conferences in our set (ASPLOS, HPCA, ISCA, MICRO), all with similar acceptance rates, only ISCA offers any diversity initiative, but all four show similar FAR.
+
+
+It is also possible that these initiatives help indeed with boosting inclusivity in the short term, improving the subjective experience of women, if not their numbers \cite{campbell18:defence}.
+For example, in 2019 ISC reported \cite{ISC19:report} that 89.6% of all surveyed attendees "agreed that ISC is a conference that makes all attendees feel welcome."^[Gender breakdown for this question was unavailable so men could be overrepresented in this survey.]
+Another conference, MICRO, has started its own inclusivity initiatives following complaints from its attendees \cite{martonosi17:statement}.
+Increasing gender diversity, on the other hand, could mean that more women are choosing and retaining a career in systems research, which is necessarily a longer-term process.
+
+To summarize, inviting more women to visible conference role and implementing diversity-focused policies likely contributes to more inclusive conferences, but is insufficient on its own to spontaneously add women authors to the field.
+Addressing the large gender gap in systems will require an examination of the fundamental gender barriers that are endemic to the field.
+
+
+## Author factors
+
+Aside from conference-related factors, we also examined the effects on FAR of three author-related factors: research experience, work sector, and country of affiliation.
+
+### Research experience
+
+As a proxy metric for research experience, we collected the H-index of each researcher with an identifiable Google Scholar (GS) profile and gender
+(`r nrow(filter(hindex, role == "author"))` unique authors and
+`r nrow(filter(hindex, role == "pc"))` unique PC members).
+As the previous section discusses, female PC members exhibit a significantly lower mean H-index than males, but there are no statistically significant differences in H-index among authors of each gender.
+In fact, the 1st-, 2nd-, and 3rd-quartile statistics are also very similar across genders.
+Other experience metrics, such as the total number of an author's prior publications, show comparable similarity across gender.
+The only gender difference shown in Fig. \@ref(fig:bibliometrics) is in the tail of the author distribution, with men composing the majority of the top percentile.
+No woman in our data set had an H-index above
+`r max_w <- max(filter(hindex, gender == "F")$hindex); max_w`, but
+`r sum_m <- sum(filter(hindex, gender == "M")$hindex > max_w); sum_m` men have, with a maximum H-index of
+`r max_m <- max(filter(hindex, gender == "M")$hindex); max_m`.
+This is only a minuscule percentage of the sample population
+(`r pct(sum_m, nrow(hindex))`%),
+so it is hard to draw any conclusions from this gender difference.
+But it is nevertheless consistent with past observations that women continue to senior academic ranks at a lower rate than men \cite{elsevier20:journey,fox06:engineering,frantzana19:women,gerhard07:undergraduate,mattis07:upstream}.
+
+
+\newpage{}
+### Work sector
+
+Contrary to the gender gap in research experience, the gender gap in work sector is more prominent for authors that it is for PC members.
+Most of the unique authors in our dataset are affiliated with academic institutes
+(`r pct(sum(da$sector == "EDU"), nrow(da), 1)`%),
+followed by industry
+(`r pct(sum(da$sector == "COM"), nrow(da), 1)`%)
+and government
+(`r pct(sum(da$sector == "GOV"), nrow(da), 1)`%).
+The respective FARs for each sector,
+`r pct(nrow(filter(da, sector == "EDU", gender == "F")), sum(da$sector == "EDU"))`%,
+`r pct(nrow(filter(da, sector == "COM", gender == "F")), sum(da$sector == "COM"))`%, and
+`r pct(nrow(filter(da, sector == "GOV", gender == "F")), sum(da$sector == "GOV"))`%,
+show women to be significantly underrepresented in industry, compared to academia
+(`r report_stat(p_option = "only", chisq.test(table(da$sector, da$gender)[-3,-3]))`).
+Other studies have also found relatively fewer women engineers in industry research positions \cite{fox06:engineering,ghiasi15:compliance,tao16:employment}.
+
+
+<!---
+The statistics for repeated authors are similar ($p>0.05$), but are very sensitive to the long-tailed distribution of papers per author.
+Of the top 20 most prolific authors in each sector, 19 are men, lower the FARs for academia and government to
+`r pct(nrow(filter(ra, sector == "EDU", gender == "F")), sum(ra$sector == "EDU"))`% and
+`r pct(nrow(filter(ra, sector == "GOV", gender == "F")), sum(ra$sector == "GOV"))`%.
+However, two of the most prolific women also shared industry affiliation during 2017, which increases industry's FAR to
+`r pct(nrow(filter(ra, sector == "COM", gender == "F")), sum(ra$sector == "COM"))`% and erases further the differences between the sectors
+(`r report_stat(chisq.test(table(ra$sector, ra$gender)[,-3]))`).
+
+
+But these statistics do not reveal the full picture.
+Although the distribution across sectors for unique authors is similar to that of repeated authors ($p>0.05$), that is not the case for representation of women.
+Women represent only
+`r  wa <- filter(da, gender == "F"); wacom <- filter(wa, sector == "COM"); pct(nrow(wacom), nrow(filter(da, sector == "COM")), 2)`%
+of the unique authors from industry, compared to
+`r wanocom <- filter(wa, sector != "COM"); pct(nrow(wanocom), nrow(filter(da, sector != "COM")), 2)`%
+in government and academia combined
+(`r report_stat(p_option = "only", chisq.test(data.frame(w = c(nrow(wacom), nrow(wanocom)), m = c(nrow(filter(da, gender == "M", sector == "COM")), nrow(filter(da, gender == "M", sector != "COM"))))))`).
+This result agrees with past studies that found relatively fewer women engineers in industry research positions \cite{fox06:engineering,ghiasi15:compliance,tao16:employment}, but contradicts the overall FAR statistics for repeated authors, which are often used in comparable bibliometric studies \cite{wang19:trends}.
+
+This contradiction could be explained by differences in author productivity across sectors and genders.
+Women in industry authored relatively more papers than men in our dataset (averaging
+`r round(mean(filter(ra, gender == "F", sector == "COM")$as_author), 2)
+round(mean(filter(ra, gender == "F", sector == "COM")$as_author), 2)
+`
+papers per author, vs. men's 
+`r round(mean(filter(ra, gender == "M", sector == "COM")$as_author), 2)`,
+`r report_stat(t.test(p_option = "only", filter(ra, gender == "F", sector == "COM")$as_author, filter(ra, gender == "M", sector == "COM")$as_author))`).
+A partial explanation to this sector difference arises from the long tails of productivity in our dataset.
+Only one of the top twenty most-prolific academic authors is a woman, accounting for
+`r top20edu <- filter(da, sector == "EDU") %>% arrange(desc(as_author)) %>% head(20); pct(sum(filter(top20edu, gender == "F")$as_author), sum(top20edu$as_author))`% 
+of their collective paper output.
+The same is true for government-affiliated authors.
+In industry, however,
+`r top20com <- filter(da, sector == "COM") %>% arrange(desc(as_author)) %>% head(20); sum(top20com$gender == "F")`
+of the top 20 authors are women, accounting for
+`r pct(sum(filter(top20com, gender == "F")$as_author), sum(top20com$as_author), 0)`%
+of the papers.
+
+These two gender effects cancel each other out when comparing statistics for repeated authors---as many past studies do---to reveal only nonsignificant gender differences in the gender gap across sectors.
+(`r report_stat(p_option = "only", chisq.test(data.frame(w = c(nrow(filter(ra, gender == "F", sector == "COM")), nrow(filter(ra, gender == "F", sector != "COM"))), m = c(nrow(filter(ra, gender == "M", sector == "COM")), nrow(filter(ra, gender == "M", sector != "COM"))))))`).
+-->
+
+The distribution of work sectors among the unique PC members appears similar, with
+`r pct(sum(dp$sector == "EDU"), nrow(dp), 1)`% hailing from academia,
+`r pct(sum(dp$sector == "COM"), nrow(dp), 1)`% from industry, and
+`r pct(sum(dp$sector == "GOV"), nrow(dp), 1)`% from government.
+This similarity suggests that no sector is particularly favored over the others in program committees.
+As discussed earlier, female representation is higher for PCs than for authors, but curiously, not by the same magnitude.
+For example, the FPR for academics
+(`r pct(nrow(filter(dp, sector == "EDU", gender == "F")), sum(dp$sector == "EDU"))`%)
+is higher than their FAR by some
+`r round(100 * pct(nrow(filter(dp, sector == "EDU", gender == "F")), sum(dp$sector == "EDU")) / pct(nrow(filter(da, sector == "EDU", gender == "F")), sum(da$sector == "EDU")) - 100, 0)`%,
+but for industry and government, FPRs are higher than FARs by
+`r round(100 * pct(nrow(filter(dp, sector == "COM", gender == "F")), sum(dp$sector == "COM")) / pct(nrow(filter(da, sector == "COM", gender == "F")), sum(da$sector == "COM")) - 100, 0)`% and
+`r round(100 * pct(nrow(filter(dp, sector == "GOV", gender == "F")), sum(dp$sector == "GOV")) / pct(nrow(filter(da, sector == "GOV", gender == "F")), sum(da$sector == "GOV")) - 100, 0)`%, respectively.
+It is possible that conference chairs may be more intentional about balancing gender diversity in the two sectors that already show low representation.
+But it is unclear whether this actually hurts women's retention, since the evaluation of job performance in industry may be less favorable for academic service tasks, so overburdening industry women without proper recognition could be hurting their future representation further.
+
+### Geographical factors
+
+```{r country-rep, echo=F, message=F, warning=F, cache=T}
+# Helper function: for a given country code and population, compute the female ration of all the persons affiliated with the country
+# or of all the persons presenting in the country (conference taking place in country)
+country_stats <- function(code_, who_, by_affil = TRUE)
+{
+  ppl <- who_ %>%
+    drop_na(gender) %>%
+    drop_na(country) %>%
+    left_join(all_confs, by = c("conf" = "key"))
+  
+  tbl <- NULL
+  if (by_affil) {
+    tbl <- table(as.character(ppl$country.x) == as.character(code_), ppl$gender == "F")
+  } else {
+    if (nrow(filter(ppl, gender == "F", as.character(country.y) == as.character(code_))) > 0) {
+      tbl <- table(as.character(ppl$country.y) == as.character(code_), ppl$gender == "F")
+    }
+  }
+  
+  if (is.null(tbl)) {
+    return(NA)
+  }
+  return(paste0(pct(tbl[2, 2], sum(tbl[2,], 2)), "%", report_stat(chisq.test(tbl), p_option = "stars")))
+}
+
+cntry <- demographics %>%
+  drop_na(country) %>%
+  group_by(country) %>%
+  summarize(authors = sum(as_author), pcs = sum(as_pc)) %>%
+  arrange(desc(authors)) %>%
+  rename(code = country) %>%
+  filter(row_number() <= 20)
+#  filter(author > 100)
+
+cntry$a_by_affil = unlist(lapply(cntry$code, function (c) country_stats(c, repeat_authors, T)))
+cntry$a_by_conf = unlist(lapply(cntry$code, function (c) country_stats(c, repeat_authors, F)))
+cntry$pc_by_affil = unlist(lapply(cntry$code, function (c) country_stats(c, repeat_pc, T)))
+cntry$pc_by_conf = unlist(lapply(cntry$code, function (c) country_stats(c, repeat_pc, F)))
+cntry$total_hosted = unlist(lapply(cntry$code, function (c) sum(as.character(all_confs$country) == c)))
+
+other_ppl <- demographics %>%
+  drop_na(country) %>%
+  group_by(country) %>%
+  filter(!country %in% cntry$code)
+
+country_count = persons %>% drop_na(country) %>% group_by(country) %>% summarize(n = n()) %>% nrow()
+
+all_others <- data.frame(code = "---",
+                         authors = sum(other_ppl$as_author),
+                         pcs = sum(other_ppl$as_pc),
+                         a_by_affil = paste0(pct(sum(filter(other_ppl, gender == "F")$as_author), sum(other_ppl$as_author)), "%"),
+                         a_by_conf = NA,
+                         pc_by_affil = paste0(pct(sum(filter(other_ppl, gender == "F")$as_pc), sum(other_ppl$as_pc)), "%"),
+                         pc_by_conf = NA,
+                         total_hosted = nrow(all_confs) - sum(cntry$total_hosted),
+                         country = paste0("All ", country_count - nrow(cntry), " others"))
+
+cntry %>%
+  left_join(select(countries, c("code", "country"))) %>%
+#  mutate(country = paste0(country, " (", code, ")")) %>%
+  rbind(all_others) %>%
+  mutate(a_by_conf = ifelse(is.na(a_by_conf), "---", a_by_conf),
+         pc_by_conf = ifelse(is.na(pc_by_conf), "---", pc_by_conf)) %>%
+  select(country, total_hosted, authors, a_by_affil, a_by_conf, pcs, pc_by_affil, pc_by_conf) %>%
+  knitr::kable("latex", booktabs = T,
+               align = c("lrrrrrrr"),
+               caption = "Representation of women in the top 20 countries by author count. Shown for each country are number of the number of conferences it hosted; total authors affiliated with the contry; ratio of these authors that are women (FAR affiliated); ratio of female authors in local conferences (FAR hosted); total number of affiliated PC members, ratio of these that are women (FPR affiliated), and FPR in all locally hosted conferences. All counts include only persons whose email is unambigously affiliated with that country (with repeats). Female ratios are compared to all other countries with a $\\chi^{2}$ test  (*$p<0.05$; **$p<0.01$; ***$p<0.001$).",
+               col.names = NULL) %>%  #c("Country", "Total authors", "Female author ratio by affiliation country", "Female author ratio by conference country", "PC members", "Female PC by affil", "Female PC by conf")) %>%
+#    column_spec(column = 2:4, width = "2cm") %>%
+  add_header_above(c("Country", "Conferences", "Authors", "FAR affiliated", "FAR hosted", "PCs", "FPR affiliated", "FPR hosted")) %>%
+  #   add_header_above(c("Country" = 2, "Total nauthors" = 2, "Female author ratio by affiliation country" = 2, "Female author ratio by conference country" = 2, "PC members" = 2, "Female PC by affil" = 2, "Female PC by conf" = 2)) %>%
+  kable_styling(font_size = 10)
+```
+
+When it comes to geography, gender differences are much larger than experience or sector differences.
+Researchers in our dataset hail from `r country_count` different countries that show distinct differences in researcher count and female representation (Table \@ref(tab:country-rep)).
+Most of the top countries by author count appear to be more economically developed than the rest, perhaps because systems research can be capital-intensive, requiring state-of-the-art computing equipment.
+Female author ratio, however, does not show the same association with a country's economic development, as exemplified by the low FAR of the UK, Singapore, South Korea, Netherlands, and Japan.
+This result is consistent with larger gender studies as well \cite{elsevier20:journey,holman18:gender,lariviere13:bibliometrics}.
+Similarly, FAR does not appear to be strongly associated with a country's gender gap index \cite{charles06:degrees,stoet18:gender,world17:global}.
+
+FAR is also not strongly correlated with a country's number of authors
+(`r report_stat(cor.test(cntry$authors, parse_number(cntry$a_by_affil)))`).
+This correlation is even weaker if we omit the outlier US, which comprises most of the affiliated authors
+(`r pct(nrow(filter(demographics, country == "US", role == "author")), nrow(filter(demographics, !is.na(country), role == "author")), 2)`%)
+and PC members
+(`r pct(nrow(filter(demographics, country == "US", role == "pc")), nrow(filter(demographics, !is.na(country), role == "pc")), 2)`%)
+with gender and country information.
+US-based authors also exhibit higher FAR compared to the rest of the world
+(`r us_a <- filter(repeat_authors, country == "US", !is.na(gender)); pct(sum(us_a$gender == "F"), nrow(us_a), 2)`% vs.
+`r not_us_a <- filter(repeat_authors, country != "US", !is.na(gender)); pct(sum(not_us_a$gender == "F"), nrow(not_us_a), 2)`%,
+`r report_stat(p_option = "only", chisq.test(data.frame(c(sum(us_a$gender == "F"), sum(us_a$gender == "M")), c(sum(not_us_a$gender == "F"), sum(not_us_a$gender == "M")))), 3)`).
+Half or so of the US-based computer scientists in CS (and in our dataset) are likely foreign-born \cite{frachtenberg20:survey,national20:science}, but this distinction does not appear to explain differences in the gender gap \cite{frachtenberg20:survey,goyette99:intersection,hango13:gender,tong10:place}.
+
+Another possible explanation is that as the host of most systems conferences in our dataset, the US might be more appealing to researchers who prefer domestic travel, such as parents of young children.
+In all countries except South Korea and Italy, we found significantly higher representation of local-affiliated authors.
+<!-- `r a_with_c<-repeat_authors %>% drop_na(country) %>% left_join(all_confs, by = c("conf" = "key")); code_ <- "JP"; pct(nrow(filter(a_with_c, country.x == code_)), nrow(a_with_c)); pct(nrow(filter(a_with_c, country.x == code_, country.y == code_)), nrow(filter(a_with_c, country.y == code_)))` -->
+However, we found no evidence for a gender difference in this preference---not in the US, where there are actually fewer women in US-hosted conferences---and not even more generally, since the correlation between a country's FAR by affiliation and by hosted conference is nonexistent
+(`r report_stat(cor.test(parse_number(cntry$a_by_conf), parse_number(cntry$a_by_affil)))`).
+
+<!---We can reexamine the pair of conferences SC and ISC as an example.
+Both cover the same topic (high-performance computing) and take place regularly in the US in the fall and Germany in the summer, respectively.-->
+
+The number of authors affiliated with a country is highly correlated with the number of PC members
+(`r report_stat(cor.test(cntry$authors, cntry$pcs))`),
+which in turn means most PC members hail from the West.
+It is encouraging to note, however, that Western reviewers are not significantly overrepresented compared to authors, as has been observed in journals in other fields \cite{publons18:peer}.
+
+For PC members, the gender-gap differences are even higher than for authors, with women representing
+`r us_p <- filter(repeat_pc, country == "US", !is.na(gender)); pct(sum(us_p$gender == "F"), nrow(us_p), 2)`%
+of US-based PC members, compared to
+`r not_us_p <- filter(repeat_pc, country != "US", !is.na(gender)); pct(sum(not_us_p$gender == "F"), nrow(not_us_p), 2)`%
+in the rest of the world
+(`r report_stat(p_option = "only", chisq.test(data.frame(c(sum(us_p$gender == "F"), sum(us_p$gender == "M")), c(sum(not_us_p$gender == "F"), sum(not_us_p$gender == "M")))), 3)`).
+Again, the fact that the US attracts many foreign scientists does not appear to explain the higher FPR in the US, since most of the foreign-born authors appear to be students \cite{frachtenberg20:survey}, who are less likely to serve on PCs.
+
+As discussed previously, overall FPR is almost double that of overall FAR. 
+With the exception of a few countries, primarily near southeast Asia, most individual countries also exhibit a higher FPR than FAR, which may be related to the subjective selection process of PC roles.
+Moreover, with the exception of the US and Spain, all countries exhibit an even higher FPR for hosted conferences, unlike FARs.
+
+It is worth noting that for researchers of unknown country affiliation, both FAR and FPR are very similar to the overall statistics, which suggests there was limited or no selection bias based on availability of country and gender information.
+
+
+<!---
+* topic: `r x<-filter(sys_roles, role == "author") %>% left_join(sys_persons) %>% left_join(topics) %>% filter(!is.na(gender), !is.na(topic))`
+* subfield:  `r summary(aov(author ~ subfield, data=conf_gender))` Needs to be redone by paper, not conference, using four main designations and pairwise t-tests.
+-->
+
+
+# Conclusion
+
+This study presents a methodology and dataset to estimate the current percentage of women in systems research.
+Because our methodology relies primarily on manually curated genders, our dataset has better relative coverage and accuracy than gender studies based on automated gender-inference approaches, leading to more precise estimates.
+
+The main finding of this study is that only 10.5% of systems authors are women, a ratio that is significantly lower than the rest of CS.
+The percentage of women who serve on PCs is almost twice as high, but there are reasons to believe it is relatively inflated, and not representative of systems as a whole.
+
+The large gender gap is not associated with almost any of the evaluated explanatory factors.
+Importantly, variations in female author ratio cannot be explained by multiple conference factors, including policies that are explicitly designed to improve diversity.
+These variations are also not fully explained by demographic differences such as research experience or work sector.
+The data shows clearer gender-gap variations by country of affiliation, but these cannot be fully explained by geographical region, economic development, or gender gap index.
+
+The gender gap therefore appears to be endemic to the field, which raises the question, what causes the particular low representation of women in systems, compared to the rest of CS?
+We plan to examine various other gender-imbalance factors that have been identified as systemic to CS, and evaluate whether they have a particularly pronounced effet on the systems field or any of its subfields.
+Such factors include the early-childhood gender gap in programming, departmental and workplace culture, and the shortage of female peers and mentors and the perception of low societal impact of CS careers.
+
+
+<!---
+Add report_mean / report_ratio with confidence interval
+
+To explore
+  * Experience distribution (h-index / npubs) -- all roles?
+  * Comparison of authors across subarea tags and conference (aggregate to top 3-5)
+  * Speculation on Systems / CS differences
+  * Geographical differences, lariviere13:bibliometrics
+  * Citations differences (can be just a summary paragraph)
+  * First author differences
+  * (No) differences in where accepted women first authors submit to on first paper.
+  
+  --->
+
+### Acknowledgements {-}
+We thank Betsy Bizot, Brooke Cowan, Natalie Enright Jerger, Kathryn McKinley, Heather Metcalf, Anna Ritz, Aspen Russel, Kelly Shaw and Jonathan Wells for their insightful comments on earlier drafts. We also thank Josh Reiss for his assistance with initial data gathering, and Reed College Social Justice Research Fund for their support.
+

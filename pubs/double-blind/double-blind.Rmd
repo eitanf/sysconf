@@ -47,9 +47,16 @@ demographics <- survey %>%
 
 Borrow ideas from [@tomkins17:reviewer]
 
+<!-- send to?
+ JOURNAL OF THE AMERICAN SOCIETY FOR INFORMATION SCIENCE AND TECHNOLOGY
+ -->
 Double-blind peer review is consideredthe most effective form of peer review [@ho13:views; @mulligan13:peer].
 
 General note: have to identify all DB confounders first (mainly, quality conference), and correct all analyses for those.
+
+Conference age, acceptance rate, citations are all correlated (and related to DB). We may need to correct for those or stratify.
+
+Another stratification may be "established conferences" vs. "young conferences". The latter show far fewer submissions and papers which may mean smaller communities, which may make DB less useful.
 
 <!--Send to JAMA? Lots of our references come from there --->
 
@@ -81,12 +88,24 @@ Contains a mix of both replication questions and open questions. Replication que
 
  * This [note](http://www.cs.utexas.edu/users/mckinley/notes/blind-revised-2015.html) from Kathryn McKinley states that DB improves the quality and fairness of reviews by reducing bias.
 
+ * [@mulligan13:peer] found that most researchers (2/3 in CS) in a large-scale study think highly of peer review, and most also support DB reviews.
+
+ * This [paper](https://journals.lww.com/plasreconsurg/Abstract/2015/12000/Is_Double_Blinded_Peer_Review_Necessary__The.37.aspx) found no effect of DB on editorial decisions.
+ 
 ## Does double-blind bias less against junior faculty or other diversity groups? {#sub:blind-diversity}
 
 ```{r experience.setup, echo=F, warning=F, message=F}
-experience <- roles %>%
+# There are some 31 authors with 1000+ npubs, which would mean nearly one publication per week for 20 years. Clearly, many of their pubs on GS are not theirs or not real pubs. So we remove those (should we winsorize them instead?).
+
+ppl <-  roles %>%
   left_join(persons) %>%
   filter(role == "author") %>%
+  filter(npubs < 1000)
+  group_by(name, gs_email) %>%
+  mutate(papers = n()) %>%
+  ungroup()
+
+experience <- ppl %>%
   drop_na(hindex) %>%
   drop_na(npubs) %>%
   group_by(key) %>%
@@ -107,9 +126,11 @@ experience <- roles %>%
 report_db <- function(metric) {
   sb <- filter(experience, double_blind == F)
   db <- filter(experience, double_blind == T)
-  paste("Mean SB:", round(mean(sb[[metric]]), 2),
-        "Mean DB:", round(mean(db[[metric]]), 2),
-        "(", report_stat(t.test(sb[[metric]], db[[metric]])), ")")
+  paste0("Mean SB: ", round(mean(sb[[metric]]), 2),
+         " Mean DB: ", round(mean(db[[metric]]), 2),
+         " Median SB: ", round(median(sb[[metric]]), 2),
+         " Median DB: ", round(median(db[[metric]]), 2),
+        " (", report_stat(t.test(sb[[metric]], db[[metric]])), ")")
 }
 ```
 
@@ -163,7 +184,7 @@ We can't perform a controlled experiment with our data. We only have accepted pa
 
  * [@snodgrass06:single] offers a literature review of the question and concludes that the results on prestige bias are mixed.
  
- * [nicholas17:early] Early career researchers appear to have a positive experience overall with peer review.
+ * [nicholas17:early] Early career researchers appear to have a positive experience overall with peer review. They actualy aim for high-impact journals and are influential in choosing where to publish.
  
  * SC'17 (in our dataset) offers a [rationale](https://sc17.supercomputing.org/conference-overview/technical-papers/sc17-double-blind-review-policy/) for double-blind reviewing that mentions "ample evidence" that DB reduces bias and improves citations.
  
@@ -173,7 +194,8 @@ We can't perform a controlled experiment with our data. We only have accepted pa
 
  * An observational study [@murray19:gender] that showed that male last authors are accepted at higher than females, especially if there reviewer team is all male. Some country preference was also found.
  
- * [@ho13:views] surveyed researchers and found that native English speakers and women found peer review more fair than others.
+ * [@ho13:views] surveyed researchers and found that native English speakers and women found peer review more fair than others. It found that NNES find reviews to be less fair (in contrast to our findings). Women found reviews to be unfair in correlation with personal attacks and imposition of unnecessary references. Most thought DB is preferrable.
+
 
  * Various papers who found bias against women (copy from gender-gap paper), such as [@lloyd90:gender; @budden08:double]. Similarly, papers who found bias against non-native English speakers.
  

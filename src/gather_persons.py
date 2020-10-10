@@ -385,9 +385,9 @@ def save_all_roles():
     global all_roles
 
     tidy = tidydata.TidyData(role_fn,
-        "Detailed list of all the roles each person assumes in a conference. Multiple roles result in multiple rows.")
+        "Detailed list of all the roles each person assumes in a conference. Multiple roles result in multiple rows. Authors are grouped by paper and ordered by authorship order.")
 
-    for row in sorted(all_roles, key=lambda x: x["name"]):
+    for row in all_roles:
         tidy.start_record()
         tidy.add("name", "string", row['name'],
                 "Full person name, normalized and quoted")
@@ -515,8 +515,6 @@ for paper in confdata['papers']:
     for person in paper['authors']:
         row = merge_person_by_role(person, "author", paper['key'])
 
-        if person == paper['authors'][0]:  # Handle first author separately:
-            merge_person_by_role(person, "lead_author", paper['key'])
 
 ### Done, save outputs
 save_all_authors(genderdata)

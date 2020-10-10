@@ -31,8 +31,24 @@ knowledge_confs <- filter(all_confs, field=="Knowledge")
 ################# People data
 #### roles.csv
 roles <- read.csv(paste0(toplevel, "features/roles.csv"), na.strings = "",
-                  colClasses = c("character", "character", "factor", "factor")) %>%
+                  colClasses = c("character", "character", "character", "factor")) %>%
   mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key)))
+
+# Add lead_author and last_author roles:
+roles <- filter(roles, role == "author") %>%
+  group_by(key) %>%
+  summarize_all(first) %>%
+  mutate(role = "lead_author") %>%
+  bind_rows(., roles)
+
+roles <- filter(roles, role == "author") %>%
+  group_by(key) %>%
+  summarize_all(last) %>%
+  mutate(role = "last_author") %>%
+  bind_rows(., roles)
+
+roles$role = factor(roles$role, levels = c("author", "lead_author", "last_author", "keynote", "panel", "chair", "pc", "session"))
+
 sys_roles <- filter(roles, conf %in% sys_confs$conf)
 
 #### persons.csv:

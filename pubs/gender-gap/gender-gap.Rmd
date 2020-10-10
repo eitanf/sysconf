@@ -41,21 +41,19 @@ pcs$tot_pc <- pcs$as_pc + pcs$as_pc_chair
 
 repeated <- people_tidy %>%
   filter(!is.na(gender)) %>%
-  mutate(role = factor(role, levels = c("author", "lead_author", "keynote", "panel", "chair", "pc", "session"))) %>%
   group_by(role) %>%
   summarize(N = n(), pct_w = round(100 * sum(gender == "F") / n(), 2))
 
 unique <- people_tidy %>%
   filter(!is.na(gender)) %>%
-  mutate(role = factor(role, levels = c("author", "lead_author", "keynote", "panel", "chair", "pc", "session"))) %>%
   select(name, gs_email, role, gender) %>%
   unique() %>%
   group_by(role) %>%
   summarize(N = n(), pct_w = round(100 * sum(gender == "F") / n(), 2))
 
-role_genders <- data.frame(Role = c("Author", "Lead author", "Keynote speaker", "Panelist", "PC chair", "PC member", "Session chair"),
+role_genders <- data.frame(Role = c("Author", "Lead author", "Last Author", "Keynote speaker", "Panelist", "PC chair", "PC member", "Session chair"),
                   "Total" = repeated$N,
-                  "Women" = paste0(repeated$pct_w, "%"),
+                  "Women" = paste0(format(repeated$pct_w, nsmall = 2), "%"),
                   "Unique" = unique$N,
                   "Unique women" = paste0(unique$pct_w, "%"),
                   check.names = F)
@@ -175,7 +173,7 @@ cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
 
 The primary dataset we analyze comes from a hand-curated collection of `r nrow(all_confs)` peer-reviewed systems conferences from a single publication year (2017).
 In CS, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences \cite{patterson99:evaluating,patterson04:health}, and then possibly in archival journals, sometimes years later \cite{vrettas15:conferences}.
-The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs)).[^It should be noted that venue prestige and gender-gap are not independent. For example, men tend to self-cite more than women \cite{king17:men} and novel research published by women is less likely to be impactful \cite{hofstra20:diversity}. We do not address this gap within the scope of this paper, but note that we found no direct correlations between a conference prestige metrics and its ratio of female authors.]
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs)).[^It should be noted that venue prestige and gender-gap are not independent. For example, men tend to self-cite more than women \cite{king17:men}, prestigious mathemtics journals underrepresent women~\cite{mihaljevic20:authorship}, and novel research published by women is less likely to be impactful \cite{hofstra20:diversity}. We do not address this gap within the scope of this paper, but note that we found no direct correlations between a conference prestige metrics and its ratio of female authors.]
 We chose to focus on a large cross-sectional set of conferences from a single publication year (2017), to reduce variations in time.
 Our choice of which conferences belong to "systems" is necessarily subjective.
 Not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
@@ -304,8 +302,8 @@ The effect of outliers on PC female representation is similarly small.
 We therefore decided to use the complete dataset of persons for the rest of this study, counting with repeats.
 
 ```{r pct-by-role, echo=F, cache=F, message=F}
-knitr::kable(role_genders[c(1,2,5,6,3,4,7),], align=c("lrrrr"), booktabs = T, row.names = F,
-             caption = "Researcher count and ratio of women by conference role for people with assigned genders. Researchers are either aggregated with repeats, counting multiple appearances in role, or identified uniquely per role. Roles include all authors, lead (first) authors only, program committee (PC) chairs and members, and conference presentation roles.")
+knitr::kable(role_genders[c(6,7,4,5,8,1,2,3),], align=c("lrrrr"), booktabs = T, row.names = F,
+             caption = "Researcher count and ratio of women by conference role for people with assigned genders. Researchers are either aggregated with repeats, counting multiple appearances in role, or identified uniquely per role. Only the author roles are peer reviewed, where typically lead authors in systems are the primary contributors and last authors are the senior member of the team.")
 ```
 
 
@@ -593,7 +591,8 @@ No woman in our data set had an H-index above
 This is only a minuscule percentage of the sample population
 (`r pct(sum_m, nrow(hindex))`%),
 so it is hard to draw any conclusions from this gender difference.
-But it is nevertheless consistent with past observations that women continue to senior academic ranks at a lower rate than men \cite{elsevier20:journey,fox06:engineering,frantzana19:women,gerhard07:undergraduate,mattis07:upstream}.
+It is neverthless consistent with data in Table \@ref(tab:pct-by-role), where women in last author position (typically representing the senior member of the team), appear at a lower rate than overall women authors, and especially lead authors (typically representing a junior member of the team).
+It also agrees with past observations that women continue to senior academic ranks at a lower rate than men \cite{elsevier20:journey,fox06:engineering,frantzana19:women,gerhard07:undergraduate,mattis07:upstream}.
 
 
 \newpage{}

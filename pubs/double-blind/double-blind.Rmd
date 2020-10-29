@@ -94,36 +94,82 @@ Contains a mix of both replication questions and open questions. Replication que
  
 ## Does double-blind bias less against junior faculty or other diversity groups? {#sub:blind-diversity}
 
-```{r experience.setup, echo=F, warning=F, message=F}
+```{r experience_setup, echo=F, warning=F, message=F}
 # There are some 31 authors with 1000+ npubs, which would mean nearly one publication per week for 20 years. Clearly, many of their pubs on GS are not theirs or not real pubs. So we remove those (should we winsorize them instead?).
 
 ppl <-  roles %>%
   left_join(persons) %>%
   filter(role == "author") %>%
-  filter(npubs < 1000)
   group_by(name, gs_email) %>%
   mutate(papers = n()) %>%
   ungroup()
 
-experience <- ppl %>%
-  drop_na(hindex) %>%
-  drop_na(npubs) %>%
-  group_by(key) %>%
-  summarize(conf = as.character(first(conf)),
-            coauthors = n(),
-            max_h = max(hindex),
-            min_h = min(hindex),
-            mean_h = mean(hindex),
-            median_h = median(hindex),
-            total_h = sum(hindex),
-            max_npubs = max(npubs),
-            min_npubs = min(npubs),
-            mean_npubs = mean(npubs),
-            median_npubs = median(npubs),
-            total_npubs = sum(npubs)) %>%
-  left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+cor.test(ppl$npubs, ppl$papers)
+cor.test(ppl$hindex, ppl$papers)
+cor.test(ppl$npubs, ppl$s2npubs)
+cor.test(ppl$hindex, ppl$s2npubs)
 
-report_db <- function(metric) {
+THRESH_RATIO <- 3
+ppl <- ppl %>% mutate(good_npub = !is.na(npubs) & npubs / s2npubs < THRESH_RATIO)
+good_npubs = !is.na(ppl$npubs) &
+              ppl$npubs / ppl$s2npubs < THRESH_RATIO
+#              ppl$s2npubs / ppl$npubs < THRESH_RATIO
+
+all_good <- ppl %>%
+  filter(!is.na(npubs), !is.na(s2npubs), npubs / s2npubs < THRESH_RATIO, s2npubs / npubs < THRESH_RATIO) %>%
+  group_by(name, gs_email) %>%
+  summarize(npubs = first(npubs), s2npubs = first(s2npubs), hindex = first(hindex))
+
+nrow(all_good)
+
+ggplot(all_good, aes(x = npubs, y = s2npubs)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  geom_smooth(color = "purple") +
+  geom_abline(intercept = 0, slope = 1)
+
+cor.test(all_good$npubs, all_good$s2npubs)
+cor.test(all_good$hindex, all_good$s2npubs)
+model.npubs_from_s2npubs <- lm(data = all_good, npubs ~ s2npubs)
+model.hindex_from_s2npubs <- lm(data = all_good, hindex ~ s2npubs)
+
+ppl.best_source <- ppl %>%
+  mutate(npubs = ifelse(good_npubs, npubs, predict(model.npubs_from_s2npubs, data.frame(s2npubs = c(s2npubs))))) %>%
+  mutate(hindex = ifelse(good_npubs, hindex, predict(model.hindex_from_s2npubs, data.frame(s2npubs = c(s2npubs)))))
+
+
+# No good, because the median s2npubs for is.na(npubs) is 15, not zero. It's much higher for !is.na(npubs) however.
+ppl.flat <- ppl %>%
+  mutate(npubs = ifelse(is.na(npubs), 1, npubs),
+         hindex = ifelse(is.na(hindex), 0, hindex))
+
+model.npubs <- lm(data = ppl, npubs ~ papers)
+model.hindex <- lm(data = ppl, hindex ~ papers)
+
+# No good, because the intercept at zero is about 50 publications
+ppl.linear <- ppl %>%
+  mutate(npubs = ifelse(is.na(npubs), predict(model.npubs, data.frame(papers=c(papers))), npubs),
+         hindex = ifelse(is.na(hindex), predict(model.hindex, data.frame(papers=c(papers))), hindex))
+
+# No good, beause these people are often real, experienced researchers, but GS inflates their publication count.
+ppl.filtered <- ppl %>%
+  filter(good_npubs)
+
+#ggplot(ppl, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("Untreated data")
+#ggplot(ppl.filtered, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("Filtered < 1000 npubs")
+#ggplot(ppl.flat, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("NA converted to 1 pub / 0 Hindex")
+#ggplot(ppl.linear, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("NA imputed by lm from papers in dataset")
+
+report_db <- function(who, metric) {
+  experience <- who %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)), 
+              coauthors = n(),
+              max_papers = max(papers), min_papers = min(papers), mean_papers = mean(papers), median_papers = median(papers), total_papers = sum(papers),
+              max_h = max(hindex), min_h = min(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
+              max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+    
   sb <- filter(experience, double_blind == F)
   db <- filter(experience, double_blind == T)
   paste0("Mean SB: ", round(mean(sb[[metric]]), 2),
@@ -132,30 +178,94 @@ report_db <- function(metric) {
          " Median DB: ", round(median(db[[metric]]), 2),
         " (", report_stat(t.test(sb[[metric]], db[[metric]])), ")")
 }
+
+# (uniqe people filtered by s2npubs/pubs ratio < 20) %>% ggplot(aes(x=npubs, y=s2npubs)) + geom_point() + geom_smooth(method="lm") + geom_smooth(color="purple")+geom_abline(intercept = 0, slope=1)
 ```
 
 Testing effect of double-blind vs. the following statistics (median 3 coauthors per paper, mean 3.2, max 17).
 
+With NA's dropped, npubs:
 
- * Maximum prior publications (most prolific author): `r report_db("max_npubs")`
- * Minimum prior publications (least prolific author): `r report_db("min_npubs")`
- * Mean prior publications: `r report_db("mean_npubs")`
- * Median prior publications: `r report_db("median_npubs")`
- * Total prior publications: `r report_db("total_npubs")`
+ * Maximum prior publications (most prolific author): `r report_db(ppl.filtered, "max_npubs")`
+ * Minimum prior publications (least prolific author): `r report_db(ppl.filtered, "min_npubs")`
+ * Mean prior publications: `r report_db(ppl.filtered, "mean_npubs")`
+ * Median prior publications: `r report_db(ppl.filtered, "median_npubs")`
+ * Total prior publications: `r report_db(ppl.filtered, "total_npubs")`
  
  -----
  
- * Maximum H-index (most senior author): `r report_db("max_h")`
- * Minimum H-index (least senior author): `r report_db("min_h")`
- * Mean H-index: `r report_db("mean_h")`
- * Median H-index: `r report_db("median_h")`
- * Total H-index: `r report_db("total_h")`
+With NA's dropped, Hindex
+
+ * Maximum H-index (most senior author): `r report_db(ppl.filtered, "max_h")`
+ * Minimum H-index (least senior author): `r report_db(ppl.filtered, "min_h")`
+ * Mean H-index: `r report_db(ppl.filtered, "mean_h")`
+ * Median H-index: `r report_db(ppl.filtered, "median_h")`
+ * Total H-index: `r report_db(ppl.filtered, "total_h")`
+
+ -----
+ 
+With NA's flattened down, Hindex:
+
+ * Maximum H-index (most senior author): `r report_db(ppl.flat, "max_h")`
+ * Minimum H-index (least senior author): `r report_db(ppl.flat, "min_h")`
+ * Mean H-index: `r report_db(ppl.flat, "mean_h")`
+ * Median H-index: `r report_db(ppl.flat, "median_h")`
+ * Total H-index: `r report_db(ppl.flat, "total_h")`
+
+ -----
+
+With NA's linearly imputed from papers, Hindex:
+
+ * Maximum H-index (most senior author): `r report_db(ppl.linear, "max_h")`
+ * Minimum H-index (least senior author): `r report_db(ppl.linear, "min_h")`
+ * Mean H-index: `r report_db(ppl.linear, "mean_h")`
+ * Median H-index: `r report_db(ppl.linear, "median_h")`
+ * Total H-index: `r report_db(ppl.linear, "total_h")`
+
+ -----
+
+With all "bad npubs" linearly imputed from S2 npubs, npubs:
+
+ * Maximum Npubs (most senior author): `r report_db(ppl.best_source, "max_npubs")`
+ * Minimum Npubs (least senior author): `r report_db(ppl.best_source, "min_npubs")`
+ * Mean Npubs: `r report_db(ppl.best_source, "mean_npubs")`
+ * Median Npubs: `r report_db(ppl.best_source, "median_npubs")`
+ * Total Npubs: `r report_db(ppl.best_source, "total_npubs")`
+
+ -----
+
+With all "bad npubs" linearly imputed from S2 npubs, Hindex:
+
+ * Maximum H-index (most senior author): `r report_db(ppl.best_source, "max_h")`
+ * Minimum H-index (least senior author): `r report_db(ppl.best_source, "min_h")`
+ * Mean H-index: `r report_db(ppl.best_source, "mean_h")`
+ * Median H-index: `r report_db(ppl.best_source, "median_h")`
+ * Total H-index: `r report_db(ppl.best_source, "total_h")`
+
+
+ -----
+
+
+Looking at papers in dataset metric only:
+
+ * Maximum papers in dataset: `r report_db(ppl, "max_papers")`
+ * Minimum papers in dataset: `r report_db(ppl, "min_papers")`
+ * Mean papers in dataset: `r report_db(ppl, "mean_papers")`
+ * Median papers in dataset: `r report_db(ppl, "median_papers")`
+ * Total papers in dataset: `r report_db(ppl, "total_papers")`
+
+ -----
+
 
 Questions:
 
+ - Who are the people with large discrepancy between pubs and npubs? People with common names that get merged with other researchers for too many pubs; or in GS case, counting many non-paper pubs.
+ - Should we winsorize high npubs instead of impute? or just use H-index?
  - Median H-index is significantly different, but mean isn't? (H-index probably not as long-tailed)
  - H-index is higher for DB, but npubs is lower? (Correct for conf quality)
  - What is the effect of outlier publishers?
+ - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for H-index--why?
+ - How do we control for conference prestige in this astensible bias?
 
  ----
 

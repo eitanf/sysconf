@@ -5,6 +5,7 @@ library('tidyverse')
 library('lubridate')
 
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
+toplevel = ("/Users/eitan/Dropbox/sysconf/")
 sep <- ';'
 
 ############# Conference data
@@ -165,6 +166,9 @@ report_stat <- function(test, rounding = 3, p_option = "rounded") {
     }
     else if (grepl("Pearson's Chi-squared test", test$method)) {
       base_str <- paste0("$\\chi{}^2=", round(test$statistic, min(rounding, 4)), "$, ")
+    }
+    else if (grepl("Wilcoxon rank sum test", test$method)) {
+      base_str <- paste0("$W=", round(test$statistic, min(rounding, 4)), "$, ")
     }
     else if (test$method == "Pearson's product-moment correlation") {
       base_str <- paste0("$r=", round(test$estimate, min(rounding, 4)), "$, ")

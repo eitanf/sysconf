@@ -8,11 +8,11 @@ this author appeared in, in the Semantic Scholar DB dump dated 2018-05-03.
   * `s2aid` (integer): Author ID on Semantic Scholar, based on our dataset.
   * `s2npubs` (integer): No. of times this author ID showed up in the DB dump.
 
-### Provenance and methodology {-}
+### Provenance and methodology
 
 The file was generated with the following sequence of python scripts:
 
-#### Generate counts of all author IDs {-}
+#### Generate counts of all author IDs
 
 ```python
 #!/usr/bin/env python3
@@ -44,7 +44,7 @@ for fn in sys.argv[1:]:
     save_json_file(counts_fn, counts)
 ```
 
-#### Find S2 author ID of our authors {-}
+#### Find S2 author ID of our authors
 
 The actual S2 author ID of each author can be discovered using this script:
 
@@ -154,7 +154,7 @@ for paper in confdata['papers']:
         save_data(s2authors)
 ```
 
-#### Add publication counts to author ID data {-}
+#### Add publication counts to author ID data
 
 The actual publication counts can then be added with the following code:
 
@@ -174,7 +174,7 @@ with open("data/s2authors.csv", "w", encoding='utf-8') as f:
         writer.writerows(s2authors)
 ```
 
-#### Complement counts by names {-}
+#### Complement counts by names
 
 Finally, there are still some missing counts, because of mistmatched names/IDs. To resolve these, the following script searches by exact name match only. It's very slow.
 

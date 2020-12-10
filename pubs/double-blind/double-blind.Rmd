@@ -112,15 +112,15 @@ cor.test(ppl$hindex, ppl$s2npubs)
 THRESH_RATIO <- 3
 ppl <- ppl %>% mutate(good_npub = !is.na(npubs) & npubs / s2npubs < THRESH_RATIO)
 good_npubs = !is.na(ppl$npubs) &
+             !is.na(ppl$hindex) &
               ppl$npubs / ppl$s2npubs < THRESH_RATIO
 #              ppl$s2npubs / ppl$npubs < THRESH_RATIO
 
 all_good <- ppl %>%
-  filter(!is.na(npubs), !is.na(s2npubs), npubs / s2npubs < THRESH_RATIO, s2npubs / npubs < THRESH_RATIO) %>%
+  filter(!is.na(npubs), !is.na(hindex), !is.na(s2npubs), npubs / s2npubs < THRESH_RATIO, s2npubs / npubs < THRESH_RATIO) %>%
   group_by(name, gs_email) %>%
   summarize(npubs = first(npubs), s2npubs = first(s2npubs), hindex = first(hindex))
 
-nrow(all_good)
 
 ggplot(all_good, aes(x = npubs, y = s2npubs)) +
   geom_point() +
@@ -136,6 +136,9 @@ model.hindex_from_s2npubs <- lm(data = all_good, hindex ~ s2npubs)
 ppl.best_source <- ppl %>%
   mutate(npubs = ifelse(good_npubs, npubs, predict(model.npubs_from_s2npubs, data.frame(s2npubs = c(s2npubs))))) %>%
   mutate(hindex = ifelse(good_npubs, hindex, predict(model.hindex_from_s2npubs, data.frame(s2npubs = c(s2npubs)))))
+
+ppl.only_imputed <- ppl.best_source %>%
+  filter(!good_npubs)
 
 # No good, beause these people are often real, experienced researchers, but GS inflates their publication count.
 ppl.filtered <- ppl %>%
@@ -176,7 +179,8 @@ report_db <- function(who, metric) {
          " Mean DB: ", round(mean(db[[metric]]), 2),
          " Median SB: ", round(median(sb[[metric]]), 2),
          " Median DB: ", round(median(db[[metric]]), 2),
-        " (", report_stat(t.test(sb[[metric]], db[[metric]])), ")")
+        " (", report_stat(t.test(sb[[metric]], db[[metric]])), " -- ",
+        report_stat(wilcox.test(sb[[metric]], db[[metric]])), ")")
 }
 
 # (uniqe people filtered by s2npubs/pubs ratio < 20) %>% ggplot(aes(x=npubs, y=s2npubs)) + geom_point() + geom_smooth(method="lm") + geom_smooth(color="purple")+geom_abline(intercept = 0, slope=1)
@@ -267,8 +271,9 @@ Questions:
  - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max H-index--why?
     - The distributions of max_npubs and max_h are different. It appears that people with lots of npubs (> 500) that publish in single-blind conferences have relatively lower h-index. Perhaps that's because they publish in less competitive conferences.
 
+- What is the relationship between PC h-index (mean/meadin) and authors' h-index? PC-author-ratio vs max_h?
  
-```{r distribs}
+```{r distribs, echo=F}
   experience <- ppl.filtered %>%
     group_by(as.factor(key)) %>%
     summarize(conf = as.character(first(conf)), 
@@ -290,7 +295,7 @@ ggplot(experience, aes(x=max_h, color=double_blind)) + geom_density()
 Modeling:
  - tier people into junior, medium, senior and count no. of people
  
-```{r seniority bands}
+```{r seniority bands, echo=F}
 experience$band = case_when(
   experience$mean_h < 13 ~ "junior",
   experience$mean_h > 18 ~ "senior",
@@ -313,7 +318,7 @@ Looking at seniority bands by H-index confirms what we saw with max-H: more seni
  
  - Build a model for max_h or max_npubs for all the other variables, then add double_blind and see if the coefficent for double blind is significant.
  
- ```{r prestige_model}
+ ```{r prestige_model, echo=F}
 with_conf <- left_join(experience, all_confs, by=c("conf"="conference", "double_blind"))
 base.model = lm(data=with_conf, max_h ~ h5_index + review_days + mean_pages + rebuttal + age + mean_historical_citations + pc_author_ratio + mean_authors_per_paper + acceptance_rate + mean_review_load)
 summary(base.model)
@@ -509,5 +514,28 @@ Looking at the correlegram above, it can be seen that there appears to be no to 
 # Conclusion
 
 ### Acknowledgements {-}
+
+# Mini-summary {-}
+
+Main research question: Is there a prestige bias in systems conference?
+In other words, are prestigious authors (or institutes) more likely to be accepted to a conference than lesser-known authors?
+
+We cannot answer this question directly without information on rejected papers, so instead we ask a weaker question:
+Is there a stastically signigicant difference in the rates of famous authors published in single-blind or double-blind conferences?
+
+## Challenges: {-}
+
+ - How do we measure researcher prestige? H-index? npubs? s2npubs? other?
+ - Selection bias: most authors with missing H-index data are also less famous.
+ - Survivorship bias: The submission rate of famous people in S.B and D.B conferences may not be the same as the acceptance rate.
+ - Confounding conference variables: Other conference factors, like conference prestige, may be associated with S.B/D.B but much more influential in the submission choice of famous authors.
+
+## Findings so far: {-}
+
+ - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.
+ - The only exception is the metric max H-index (H-index of most senior author per paper), which is lower in single-blind (p=0.0055).
+ - This reversal isn't changed whether we drop the NA H-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median).
+
+ 
 
 # References {-}

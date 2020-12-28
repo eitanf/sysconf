@@ -7,19 +7,44 @@
 # Note that each author is only counted once, even if they coauthor several papers.
 # The additional roles.csv output file maps from people to their different (plural)
 # roles in the conferences. It also outputs a mapping of people to interests (interests.csv).
+# Another feature it outputs to the persons file is the Semantic Scholar author
+# ID of each person, if found. For this, it reads in a JSON file with the S2
+# paper records and compares it to its own records to identify each person.
 
 import editdistance
 import sys
 import tidydata
 from shared_utils import *
 
+### initialize_static_data before dealing with specific conference:
 
 author_fn = "persons"
 role_fn = "roles"
 interest_fn = "interests"
+email_fn = "survey/authors-for-survey.csv"
+
+s2data = load_json_file("data/s2papers.json")
+s2authors = load_csv_file("data/s2authors.csv")
+s2counts = { a['name'] + a['gs_email'].lower() : a['s2npubs'] for a in s2authors }
 
 idata = load_csv_file("data/interest_mapping.csv")
 interest_mapping = { i['interest'] : { 'canonical': i['canonical'], 'topic': i['topic'] } for i in idata }
+
+verified = load_csv_file("data/verified_gender_mapping.csv")
+inferred = load_csv_file("data/inferred_gender_mapping.csv")
+genderdata = { row['name'] : row['gender'] for row in inferred }
+genderdata.update({ row['name'] : row['gender'] for row in verified })
+
+email_regex = load_csv_file("data/domain_mapping.csv")
+
+paper_emails = {}
+if os.path.isfile(email_fn):
+    paper_emails = { r["name"] : r["email"] for r in load_csv_file(email_fn) }
+elif not os.path.isfile(feature_fn(author_fn)):
+    print("*************************************************************")
+    print("Warning: can't find file with author emails, using only GS affiliations")
+    print("New persons.csv data may differ on country and sector fields")
+    print("*************************************************************")
 
 # List of authors that have been verified to be two different people at two
 # different affiliations:
@@ -148,7 +173,7 @@ def find_author(name, gs_email):
 ##############################################################################
 # merge_gs_stats takes an author record from the current author file and an
 # author row (dictionary) from previous records (files) and reconciles them
-# so that the google scholar statistics in the row are updated is necessary
+# so that the google scholar statistics in the row are updated if necessary
 # with the new data in record. By default, the update is "find minimum value"
 def merge_gs_stats(row, record):
     def combine_min(key):
@@ -247,9 +272,13 @@ def append_interests(name, email, gs):
 # - Author role, which includes paper key
 # Returns the current row in all_authors for this author
 
-def merge_person(name, record, role, conf):
+def merge_person(person, role, conf):
     global repeated_names
     global all_authors
+
+    name = author_name(person)[0]
+    normalized = normalized_author_name(name)
+    record = record_of(authordata, name)
 
     if record == "" or 'email' not in record or record['email'] == '':
         gs_email = ""
@@ -257,34 +286,38 @@ def merge_person(name, record, role, conf):
         gs_email = record['email'].lower()
 
     found = False  # Have we found this exact author before?
-    previous = find_author(name, gs_email)
+    previous = find_author(normalized, gs_email)
 
     if previous == None:
         pass
-    elif name == previous["name"]:
+    elif normalized == previous["name"]:
         if gs_email == previous['gs_email'] or matches_previous(gs_email, role, previous):
             found = True
 
-        elif name not in repeated_names:
+        elif normalized not in repeated_names:
             print("Found two authors with same name (" + name + ") but different emails: ", gs_email, "and", previous['gs_email'], "currently", role)
     else:
         pname = previous["name"]
-        if similar_names(name, pname) and gs_email == previous['gs_email']:
-            print("Suspected two duplicate authors with same email (" + gs_email + ") but different names: ", name, "and", pname)
+        if similar_names(normalized, pname) and gs_email == previous['gs_email']:
+            print("Suspected two duplicate authors with same email (" + gs_email + ") but different names: ", normalized, "and", pname)
 
     if found:
         row = previous
         if previous['gs_email'] ==  "":
             row['gs_email'] = gs_email
     else:
-        row = { 'name': name, 'gs_email': gs_email }
-
+        row = { 'name': normalized, 'gs_email': gs_email }
         all_authors.append(row)
 
     merge_gs_stats(row, record)
+    key = name + gs_email.lower()
+    if key in s2counts:
+        row['s2npubs'] = s2counts[key]
+    elif 's2npubs' not in row:
+        row['s2npubs'] = ""
 
     append_role(row, role, conf)
-    append_interests(name, gs_email, record)
+    append_interests(normalized, gs_email, record)
 
     return row
 
@@ -374,6 +407,7 @@ def  save_all_authors(genderdata):
         tidy.add("i10index", "int", row['i10index'], "Author's i10 index (minimum)")
         tidy.add("i10index5y", "int", row['i10index5y'], "Author's i10 index for past 5 years (minimum)")
         tidy.add("citedby", "int", row['citedby'], "Author's total citations (minimum)")
+        tidy.add("s2npubs", "int", row['s2npubs'], "Author's total publications in Semantic Scholar DB image")
 
 
     tidy.save()
@@ -454,29 +488,12 @@ if len(sys.argv) != 2:
 
 conf = sys.argv[1]
 conf_id = conf + "_17"
-emailfn = "survey/authors-for-survey.csv"
 
-### Read in data:
+### Read in conf and author data:
+print(conf)
 confdata = load_json_file(data_fn('conf', conf))
 authordata = load_json_file(data_fn('authors', conf))
 
-verified = load_csv_file("data/verified_gender_mapping.csv")
-inferred = load_csv_file("data/inferred_gender_mapping.csv")
-genderdata = { row['name'] : row['gender'] for row in inferred }
-genderdata.update({ row['name'] : row['gender'] for row in verified })
-
-email_regex = load_csv_file("data/domain_mapping.csv")
-
-paper_emails = {}
-if os.path.isfile(emailfn):
-    paper_emails = { r["name"] : r["email"] for r in load_csv_file(emailfn) }
-elif not os.path.isfile(feature_fn(author_fn)):
-    print("*************************************************************")
-    print("Warning: can't find file with author emails, using only GS affiliations")
-    print("New persons.csv data may differ on country and sector fields")
-    print("*************************************************************")
-
-print(conf)
 
 # Previously-computed outputs:
 all_authors = read_if_exists(author_fn) # All author records
@@ -488,32 +505,28 @@ interest_cache = { i['name'] + i['gs_email'] : True for i in all_interests }
 def record_of(authordata, name):
     return authordata[name] if name in authordata else ""
 
-def merge_person_by_role(person, role, key):
-    name = author_name(person)[0]
-    return merge_person(normalized_author_name(name), record_of(authordata, name), role, key)
-
 ########### Main loop: Iterate over all persons and create/merge their record
 for person in confdata['pc_chairs']:
-    merge_person_by_role(person, "chair", conf_id)
+    merge_person(person, "chair", conf_id)
 
 for person in confdata['pc_members']:
-    merge_person_by_role(person, "pc", conf_id)
+    merge_person(person, "pc", conf_id)
 
 if 'panelists' in confdata:
     for person in confdata['panelists']:
-        merge_person_by_role(person, "panel", conf_id)
+        merge_person(person, "panel", conf_id)
 
 if 'keynote_speakers' in confdata:
     for person in confdata['keynote_speakers']:
-        merge_person_by_role(person, "keynote", conf_id)
+        merge_person(person, "keynote", conf_id)
 
 if 'session_chairs' in confdata:
     for person in confdata['session_chairs']:
-        merge_person_by_role(person, "session", conf_id)
+        merge_person(person, "session", conf_id)
 
 for paper in confdata['papers']:
     for person in paper['authors']:
-        row = merge_person_by_role(person, "author", paper['key'])
+        row = merge_person(person, "author", paper['key'])
 
 
 ### Done, save outputs

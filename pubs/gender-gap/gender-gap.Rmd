@@ -310,8 +310,8 @@ knitr::kable(role_genders[c(6,7,4,5,8,1,2,3),], align=c("lrrrr"), booktabs = T, 
 The second-largest group of researchers, and the largest invited group, is that of PC members.
 This group also indirectly affects the representation of women among published authors, because PC members, through their reviews, decide which papers get published.
 The ratio of female PC members (FPR) is significantly higher than the ratio of female authors, 
-(`r filter(role_genders, Role=="PC member")$Women` vs. `r filter(role_genders, Role=="Author")$Women`, `r report_stat(p_option = "only", chisq.test(gender_table))`),
-which raises the question: which of the two ratios is more representative of women's true participation rate in Systems research?
+[`r filter(role_genders, Role=="PC member")$Women` vs. `r filter(role_genders, Role=="Author")$Women`, `r tst <- chisq.test(gender_table); paste0("$\\chi{}^2=", round(tst$statistic, 3), "$, degrees of freedom (df) $=1$, $p<0.000001$")`].
+The large difference in ratios raises the question: which of the two is more representative of women's true participation rate in systems research?
 
 The typical bibliometric approach to estimate participation by gender in a field of research is to look at published authors \cite{cohoon11:cspapers,mattauch20:bibliometric}.
 This metric is not always accurate.

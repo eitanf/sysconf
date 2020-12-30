@@ -5,7 +5,6 @@ library('tidyverse')
 library('lubridate')
 
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
-toplevel = ("/Users/eitan/Dropbox/sysconf/")
 sep <- ';'
 
 ############# Conference data
@@ -155,12 +154,14 @@ format_p_value <- function(p, rounding = 3, p_option = "rounded") {
 
 # Return a string to properly format a statistical test.
 # Currently supported tests: t.test, cor.test, chisq.test
-# If p_option is "only", then only p-value is shown, otherwise p_option is passed to format_p_value
-report_stat <- function(test, rounding = 3, p_option = "rounded") {
+# If p_option is "only", then only p-value is shown, otherwise p_option is passed to format_p_value.
+# If df==TRUE, also reports degrees of freedom.
+report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
   base_str <- ""
+  df_str <- ""
   p_str <- format_p_value(test$p.value, rounding, p_option)
 
-  if(p_option != "only" & p_option != "stars") {
+  if (p_option != "only" & p_option != "stars") {
     if (test$method == "Welch Two Sample t-test") {
       base_str <- paste0("$t=", round(test$statistic, min(rounding, 4)), "$, ")
     }
@@ -178,5 +179,9 @@ report_stat <- function(test, rounding = 3, p_option = "rounded") {
     }
   }
   
-  paste0(base_str, p_str)
+  if (df) {
+    df_str <- paste0("$df=", round(test$parameter, 0), "$, ")
+  }
+  
+  paste0(base_str, df_str, p_str)
 }

@@ -19,6 +19,7 @@ abstract: |
 
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library("GGally")
+library("kableExtra")
 
 survey <- read_csv(paste0(toplevel, "/survey/survey-tidy.csv"), col_types = c("-cccffflfffillllfffffnnnnnnn"))
 survey$length = factor(survey$length, levels = c("1-2 Paragraphs", "Half a Page", "A Page", "Multiple Pages"))
@@ -158,6 +159,22 @@ ppl.linear <- ppl %>%
   mutate(npubs = ifelse(is.na(npubs), predict(model.npubs, data.frame(papers=c(papers))), npubs),
          hindex = ifelse(is.na(hindex), predict(model.hindex, data.frame(papers=c(papers))), hindex))
 
+famous.thresh = 30 # H-index above which you're "famous"
+
+# Only the people/papers with H-index and no "famous" co-authors on the same paper
+ppl.notfamous <- ppl.filtered %>%
+  group_by(as.factor(key)) %>%
+  mutate(maxh = max(hindex)) %>%
+  filter(maxh <= famous.thresh) %>%
+  ungroup()
+
+# All the people/papers with at least one famous author per paper:
+ppl.famous <- ppl.filtered %>%
+  group_by(as.factor(key)) %>%
+  mutate(maxh = max(hindex)) %>%
+  filter(maxh > famous.thresh) %>%
+  ungroup()
+
 #ggplot(ppl, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("Untreated data")
 #ggplot(ppl.filtered, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("Filtered < 1000 npubs")
 #ggplot(ppl.flat, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("NA converted to 1 pub / 0 Hindex")
@@ -172,7 +189,7 @@ report_db <- function(who, metric) {
               max_h = max(hindex), min_h = min(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
               max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
     left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
-    
+
   sb <- filter(experience, double_blind == F)
   db <- filter(experience, double_blind == T)
   paste0("Mean SB: ", round(mean(sb[[metric]]), 2),
@@ -184,79 +201,80 @@ report_db <- function(who, metric) {
 }
 
 # (uniqe people filtered by s2npubs/pubs ratio < 20) %>% ggplot(aes(x=npubs, y=s2npubs)) + geom_point() + geom_smooth(method="lm") + geom_smooth(color="purple")+geom_abline(intercept = 0, slope=1)
+
+prestige_vs_db <- function(who,                # Population to work on
+                           metric = "hindex",  # Which primary prestige metric to use
+                           aggreg = "max",     # How to aggregate authors across paper
+                           logar = FALSE,      # Whether to take the log(metric+1) value or just the metric.
+                           control = ""        # What conference parameters to control for
+                           )
+{
+  fun <- get(aggreg)
+  experience <- who %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)),
+              prestige = ifelse(logar, fun(log(!!rlang::sym(metric) + 1)), fun(!!rlang::sym(metric))),
+              .groups = 'drop')  %>%
+    left_join(all_confs, by = c("conf" = "key"))
+  
+  sb <- filter(experience, double_blind == F)
+  db <- filter(experience, double_blind == T)
+  means = ifelse(control == "", report_stat(t.test(sb$prestige, db$prestige), p_option = "stars"), NA)
+  medians = ifelse(control == "", report_stat(wilcox.test(sb$prestige, db$prestige), p_option = "stars"), NA)
+  
+  form = "prestige ~ double_blind"
+  if (control != "") {
+    form = paste(form, "+", control)
+  }
+  model <- summary(lm(data = experience, formula = form))
+  k = round(model$coefficients[2,1], 2)
+  p = model$coefficients[2,4]
+  stars = ifelse(p < 0.001, "***", ifelse(p < 0.01, "**", ifelse(p < 0.05, "*", "")))
+  r2 = model$r.squared
+  
+  c("Metric" = metric,
+    "Seniority" = aggreg,
+    "Log" = logar,
+    "Controls" = control,
+    "Means" = means,
+    "Medians" = medians,
+    "Coefficient" = paste0(k, stars))
+}
 ```
 
 Testing effect of double-blind vs. the following statistics (median 3 coauthors per paper, mean 3.2, max 17).
 
-With NA's dropped, npubs:
 
- * Maximum prior publications (most prolific author): `r report_db(ppl.filtered, "max_npubs")`
- * Minimum prior publications (least prolific author): `r report_db(ppl.filtered, "min_npubs")`
- * Mean prior publications: `r report_db(ppl.filtered, "mean_npubs")`
- * Median prior publications: `r report_db(ppl.filtered, "median_npubs")`
- * Total prior publications: `r report_db(ppl.filtered, "total_npubs")`
- 
- -----
- 
-With NA's dropped, Hindex
+With NAs dropped:
 
- * Maximum H-index (most senior author): `r report_db(ppl.filtered, "max_h")`
- * Minimum H-index (least senior author): `r report_db(ppl.filtered, "min_h")`
- * Mean H-index: `r report_db(ppl.filtered, "mean_h")`
- * Median H-index: `r report_db(ppl.filtered, "median_h")`
- * Total H-index: `r report_db(ppl.filtered, "total_h")`
-
- -----
- 
-With NA's flattened down, Hindex:
-
- * Maximum H-index (most senior author): `r report_db(ppl.flat, "max_h")`
- * Minimum H-index (least senior author): `r report_db(ppl.flat, "min_h")`
- * Mean H-index: `r report_db(ppl.flat, "mean_h")`
- * Median H-index: `r report_db(ppl.flat, "median_h")`
- * Total H-index: `r report_db(ppl.flat, "total_h")`
-
- -----
-
-With NA's linearly imputed from papers, Hindex:
-
- * Maximum H-index (most senior author): `r report_db(ppl.linear, "max_h")`
- * Minimum H-index (least senior author): `r report_db(ppl.linear, "min_h")`
- * Mean H-index: `r report_db(ppl.linear, "mean_h")`
- * Median H-index: `r report_db(ppl.linear, "median_h")`
- * Total H-index: `r report_db(ppl.linear, "total_h")`
-
- -----
-
-With all "bad npubs" linearly imputed from S2 npubs, npubs:
-
- * Maximum Npubs (most senior author): `r report_db(ppl.best_source, "max_npubs")`
- * Minimum Npubs (least senior author): `r report_db(ppl.best_source, "min_npubs")`
- * Mean Npubs: `r report_db(ppl.best_source, "mean_npubs")`
- * Median Npubs: `r report_db(ppl.best_source, "median_npubs")`
- * Total Npubs: `r report_db(ppl.best_source, "total_npubs")`
-
- -----
-
-With all "bad npubs" linearly imputed from S2 npubs, Hindex:
-
- * Maximum H-index (most senior author): `r report_db(ppl.best_source, "max_h")`
- * Minimum H-index (least senior author): `r report_db(ppl.best_source, "min_h")`
- * Mean H-index: `r report_db(ppl.best_source, "mean_h")`
- * Median H-index: `r report_db(ppl.best_source, "median_h")`
- * Total H-index: `r report_db(ppl.best_source, "total_h")`
+```{r metric.compare, echo=F, warning=F}
+tbl <- data.frame(cbind("NAs" = "drop", t(prestige_vs_db(ppl.filtered, metric = "hindex", logar = T, control = ""))), stringsAsFactors = F, check.names = F)
 
 
- -----
+for (ctrl in c("", "h5_index", "pc_author_ratio", "pc_paper_ratio")) {
+  for (ag in c("max")) { #, "min", "mean", "median", "sum")) {
+    for (metric in c("hindex", "npubs", "s2npubs")) {
+      tbl <- rbind(tbl, cbind("NAs" = "drop", t(prestige_vs_db(ppl.filtered, metric = metric, aggreg = ag, control = ctrl))))
+      tbl <- rbind(tbl, cbind("NAs" = "flat", t(prestige_vs_db(ppl.flat, metric = metric, aggreg = ag, control = ctrl))))
+      tbl <- rbind(tbl, cbind("NAs" = "from papers", t(prestige_vs_db(ppl.linear, metric = metric, aggreg = ag, control = ctrl))))
+      tbl <- rbind(tbl, cbind("NAs" = "best source", t(prestige_vs_db(ppl.best_source, metric = metric, aggreg = ag, control = ctrl))))
+    }
+  }
+}
+
+knitr::kable(tbl, booktabs = T, longtable = T, align = c("l"), caption = "Coauthors' prestige as a function of double-blind") %>%
+  kable_styling(latex_options = "repeat_header", font_size = 7)
+```
 
 
-Looking at papers in dataset metric only:
+When we subdivide people into two groups, based on an arbitrary fame threshold of H-index=`r famous.thresh`, papers with no famous authors show no bias:
 
- * Maximum papers in dataset: `r report_db(ppl, "max_papers")`
- * Minimum papers in dataset: `r report_db(ppl, "min_papers")`
- * Mean papers in dataset: `r report_db(ppl, "mean_papers")`
- * Median papers in dataset: `r report_db(ppl, "median_papers")`
- * Total papers in dataset: `r report_db(ppl, "total_papers")`
+`r prestige_vs_db(ppl.notfamous)`,
+
+as well as papers with at least one famous author:
+
+`r prestige_vs_db(ppl.famous)`
+
 
  -----
 
@@ -269,6 +287,7 @@ Questions:
  - What is the effect of outlier publishers?
 
  - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max H-index--why?
+ There are `r ppl.filtered %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.
     - The distributions of max_npubs and max_h are different. It appears that people with lots of npubs (> 500) that publish in single-blind conferences have relatively lower h-index. Perhaps that's because they publish in less competitive conferences.
 
 - What is the relationship between PC h-index (mean/meadin) and authors' h-index? PC-author-ratio vs max_h?
@@ -288,6 +307,22 @@ ggplot(experience, aes(x=max_npubs, color=double_blind)) + geom_density()
 ggplot(experience, aes(x=max_h, color=double_blind)) + geom_density()
 ```
  - Compute the % of papers for which max_h and max_npubs are the same person: `r pct(nrow(filter(experience, max_h_idx != max_npubs_idx)), nrow(experience), 3)`%.
+
+
+Dimensions to examine
+- Measure of prestige: h_index, npubs, s2npubs
+- Treatment of prestige: max/mean/median/min/log
+- linear model or difference in medians
+- Population: filtered, flattened, imputed x 2 or three methods
+- What to control for in linear model: h5_index, mean_historical/age, pc_author_ratio, pc_paper_ratio
+
+output to a big tidy data frame
+
+Write a function that takes all these as parameters and spits out the statistic of the relationship and p-value.
+
+Debug max_h and every other metric.
+
+ 
 
 
 ----
@@ -529,13 +564,14 @@ Is there a stastically signigicant difference in the rates of famous authors pub
  - Selection bias: most authors with missing H-index data are also less famous.
  - Survivorship bias: The submission rate of famous people in S.B and D.B conferences may not be the same as the acceptance rate.
  - Confounding conference variables: Other conference factors, like conference prestige, may be associated with S.B/D.B but much more influential in the submission choice of famous authors.
+ - Computation of S2npubs is bad for people with shared names (predominatly Chinese), and therefore the imputation is as well.
 
 ## Findings so far: {-}
 
  - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.
  - The only exception is the metric max H-index (H-index of most senior author per paper), which is lower in single-blind (p=0.0055).
- - This reversal isn't changed whether we drop the NA H-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median).
+ - This reversal isn't changed whether we drop the NA H-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).
+ - The higher prestige bias survives when controlling for conference prestige (either with h5_hindex or with I(mean_historical_citations/age)). But not when controlling for pc_author_ratio and pc_paper_ratio.
 
- 
 
 # References {-}

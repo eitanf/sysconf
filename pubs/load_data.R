@@ -161,18 +161,18 @@ report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
   df_str <- ""
   p_str <- format_p_value(test$p.value, rounding, p_option)
 
-  if (p_option != "only" & p_option != "stars") {
+  if (p_option != "only" & p_option != "stars_only") {
     if (test$method == "Welch Two Sample t-test") {
-      base_str <- paste0("$t=", round(test$statistic, min(rounding, 4)), "$, ")
+      base_str <- paste0("$t=", round(test$statistic, min(rounding, 4)), "$")
     }
     else if (grepl("Pearson's Chi-squared test", test$method)) {
-      base_str <- paste0("$\\chi{}^2=", round(test$statistic, min(rounding, 4)), "$, ")
+      base_str <- paste0("$\\chi{}^2=", round(test$statistic, min(rounding, 4)), "$")
     }
     else if (grepl("Wilcoxon rank sum test", test$method)) {
-      base_str <- paste0("$W=", round(test$statistic, min(rounding, 4)), "$, ")
+      base_str <- paste0("$W=", round(test$statistic, min(rounding, 4)), "$")
     }
     else if (test$method == "Pearson's product-moment correlation") {
-      base_str <- paste0("$r=", round(test$estimate, min(rounding, 4)), "$, ")
+      base_str <- paste0("$r=", round(test$estimate, min(rounding, 4)), "$")
     }
     else {
       return("Unsupported test!")
@@ -180,8 +180,12 @@ report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
   }
   
   if (df) {
-    df_str <- paste0("$df=", round(test$parameter, 0), "$, ")
+    df_str <- paste0(", $df=", round(test$parameter, 0), "$")
   }
   
-  paste0(base_str, df_str, p_str)
+  ret = paste0(base_str, df_str)
+  if (p_option != "stars" & !is_null(p_option)) {
+    ret = paste0(ret, ", ")
+  }
+  paste0(ret, p_str)
 }

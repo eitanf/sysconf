@@ -220,7 +220,8 @@ prestige_vs_db <- function(who,                # Population to work on
   sb <- filter(experience, double_blind == F)
   db <- filter(experience, double_blind == T)
   means = ifelse(control == "", report_stat(t.test(sb$prestige, db$prestige), p_option = "stars"), NA)
-  medians = ifelse(control == "", report_stat(wilcox.test(sb$prestige, db$prestige), p_option = "stars"), NA)
+  medians = ifelse(control == "", paste0(round(median(sb$prestige)-median(db$prestige), 2),
+                                         report_stat(wilcox.test(sb$prestige, db$prestige), p_option = "stars_only")), NA)
   
   form = "prestige ~ double_blind"
   if (control != "") {
@@ -284,7 +285,7 @@ Questions:
  - Who are the people with large discrepancy between s2npubs and npubs? People with common names that get merged with other researchers for too many pubs; or in GS case, counting many non-paper pubs.
  - Should we winsorize high npubs instead of impute? or just use H-index?
  - Median H-index is significantly different, but mean isn't? (H-index probably not as long-tailed)
- - What is the effect of outlier publishers?
+ - What is the effect of outlier publishers? Try to remove the top_n h-index and retest.
 
  - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max H-index--why?
  There are `r ppl.filtered %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.

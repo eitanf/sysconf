@@ -159,7 +159,7 @@ format_p_value <- function(p, rounding = 3, p_option = "rounded") {
 report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
   base_str <- ""
   df_str <- ""
-  p_str <- format_p_value(test$p.value, rounding, p_option)
+  p_str <- ifelse(p_option == "stars_only", "", format_p_value(test$p.value, rounding, p_option))
 
   if (p_option != "only" & p_option != "stars_only") {
     if (test$method == "Welch Two Sample t-test") {
@@ -184,7 +184,7 @@ report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
   }
   
   ret = paste0(base_str, df_str)
-  if (p_option != "stars" & !is_null(p_option)) {
+  if (p_option != "stars" & p_option != "stars_only" & !is_null(p_option)) {
     ret = paste0(ret, ", ")
   }
   paste0(ret, p_str)

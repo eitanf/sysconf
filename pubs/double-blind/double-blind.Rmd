@@ -79,6 +79,8 @@ Contains a mix of both replication questions and open questions. Replication que
 
 ### Related work
 
+https://jamanetwork.com/journals/jama/article-abstract/380957
+https://www.usenix.org/sites/default/files/atc19_message.pdf
 
  * [@mcnutt90:blinding] performed a randomized trial where each of 127 paper to J. of General Internal Medicine was sent to two external reviewers, one with identities anonymized. **Editors** ranked the quality of reviews higher (3.5/5 vs. 3.1/5) for the DB reviews. In contrast, our data is observational and not controlled for conference, and quality is assessed by authors; but we can compare the distributions of review quality metrics across DB/SB conferences. The paper also uses different quality categories, but the only one we share in common is fairness. There's also the possibility of positive bias in our data set because it's only of accepted papers: https://jamanetwork.com/journals/jama/article-abstract/380960.
  
@@ -111,16 +113,21 @@ cor.test(ppl$npubs, ppl$s2npubs)
 cor.test(ppl$hindex, ppl$s2npubs)
 
 THRESH_RATIO <- 3
+S2_THRESH = 1000
+
+
 ppl <- ppl %>% mutate(good_npub = !is.na(npubs) & npubs / s2npubs < THRESH_RATIO)
+
 good_npubs = !is.na(ppl$npubs) &
              !is.na(ppl$hindex) &
-              ppl$npubs / ppl$s2npubs < THRESH_RATIO
+              ppl$npubs / ppl$s2npubs < THRESH_RATIO &
+              ppl$s2npubs < S2_THRESH
 #              ppl$s2npubs / ppl$npubs < THRESH_RATIO
 
 all_good <- ppl %>%
   filter(!is.na(npubs), !is.na(hindex), !is.na(s2npubs), npubs / s2npubs < THRESH_RATIO, s2npubs / npubs < THRESH_RATIO) %>%
   group_by(name, gs_email) %>%
-  summarize(npubs = first(npubs), s2npubs = first(s2npubs), hindex = first(hindex))
+  summarize(npubs = first(npubs), s2npubs = min(first(s2npubs), S2_THRESH), hindex = first(hindex))
 
 
 ggplot(all_good, aes(x = npubs, y = s2npubs)) +
@@ -135,11 +142,13 @@ model.npubs_from_s2npubs <- lm(data = all_good, npubs ~ s2npubs)
 model.hindex_from_s2npubs <- lm(data = all_good, hindex ~ s2npubs)
 
 ppl.best_source <- ppl %>%
-  mutate(npubs = ifelse(good_npubs, npubs, predict(model.npubs_from_s2npubs, data.frame(s2npubs = c(s2npubs))))) %>%
-  mutate(hindex = ifelse(good_npubs, hindex, predict(model.hindex_from_s2npubs, data.frame(s2npubs = c(s2npubs)))))
+  mutate(npubs = ifelse(good_npubs, npubs, predict(model.npubs_from_s2npubs, data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH)))))) %>%
+  mutate(hindex = ifelse(good_npubs, hindex, predict(model.hindex_from_s2npubs, data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH))))))
 
 ppl.only_imputed <- ppl.best_source %>%
   filter(!good_npubs)
+
+ppl.not_imputed <- setdiff(ppl.best_source, ppl.only_imputed)
 
 # No good, beause these people are often real, experienced researchers, but GS inflates their publication count.
 ppl.filtered <- ppl %>%
@@ -159,7 +168,7 @@ ppl.linear <- ppl %>%
   mutate(npubs = ifelse(is.na(npubs), predict(model.npubs, data.frame(papers=c(papers))), npubs),
          hindex = ifelse(is.na(hindex), predict(model.hindex, data.frame(papers=c(papers))), hindex))
 
-famous.thresh = 30 # H-index above which you're "famous"
+famous.thresh = 40
 
 # Only the people/papers with H-index and no "famous" co-authors on the same paper
 ppl.notfamous <- ppl.filtered %>%
@@ -179,6 +188,17 @@ ppl.famous <- ppl.filtered %>%
 #ggplot(ppl.filtered, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("Filtered < 1000 npubs")
 #ggplot(ppl.flat, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("NA converted to 1 pub / 0 Hindex")
 #ggplot(ppl.linear, aes(x=papers, y=npubs), alpha=0.2) +  geom_jitter(alpha=0.2) +  geom_smooth() + ggtitle("NA imputed by lm from papers in dataset")
+
+ppl.mismatched <- ppl.filtered %>%
+  group_by(as.factor(key)) %>%
+  mutate(maxh = max(hindex), maxp = max(npubs), maxhi = which.max(hindex), maxpi = which.max(npubs)) %>%
+  filter(maxhi != maxpi) %>%
+  ungroup()
+
+mismatched_pairs <- ppl.mismatched %>%
+  filter(npubs==maxp | hindex==maxh) %>%
+  select(c(key,name, conf, hindex, npubs)) %>%
+  left_join(select(all_confs, c(key, double_blind)), by=c("conf"="key"))
 
 report_db <- function(who, metric) {
   experience <- who %>%
@@ -241,6 +261,23 @@ prestige_vs_db <- function(who,                # Population to work on
     "Medians" = medians,
     "Coefficient" = paste0(k, stars))
 }
+
+is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
+  papers <- who %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)),
+              includes_famous = (max(!!rlang::sym(metric), na.rm = T) >= thresh),
+              .groups = 'drop')  %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+  
+  paste0("For ", metric, ">=", thresh, " ",
+         pct(nrow(filter(papers, double_blind, includes_famous)), nrow(filter(papers, double_blind))),
+         "% of single-blind papers include famous, vs. ",
+         pct(nrow(filter(papers, !double_blind, includes_famous)), nrow(filter(papers, !double_blind))),
+         "% of double-blind (",
+         report_stat(chisq.test(table(papers$double_blind, papers$includes_famous)), p_option = "stars"),
+         ")")
+}
 ```
 
 Testing effect of double-blind vs. the following statistics (median 3 coauthors per paper, mean 3.2, max 17).
@@ -264,7 +301,7 @@ for (ctrl in c("", "h5_index", "pc_author_ratio", "pc_paper_ratio")) {
 }
 
 knitr::kable(tbl, booktabs = T, longtable = T, align = c("l"), caption = "Coauthors' prestige as a function of double-blind") %>%
-  kable_styling(latex_options = "repeat_header", font_size = 7)
+  kable_styling(latex_options = "repeat_header", font_size = 8)
 ```
 
 
@@ -290,8 +327,7 @@ Questions:
  - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max H-index--why?
  There are `r ppl.filtered %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.
     - The distributions of max_npubs and max_h are different. It appears that people with lots of npubs (> 500) that publish in single-blind conferences have relatively lower h-index. Perhaps that's because they publish in less competitive conferences.
-
-- What is the relationship between PC h-index (mean/meadin) and authors' h-index? PC-author-ratio vs max_h?
+ - What is the relationship between PC h-index (mean/median) and authors' h-index? PC-author-ratio vs max_h?
  
 ```{r distribs, echo=F}
   experience <- ppl.filtered %>%
@@ -559,6 +595,8 @@ In other words, are prestigious authors (or institutes) more likely to be accept
 We cannot answer this question directly without information on rejected papers, so instead we ask a weaker question:
 Is there a stastically signigicant difference in the rates of famous authors published in single-blind or double-blind conferences?
 
+The information we collected measures publication rates, not acceptance rates, so our observations do not lead to conclusive claims on which papers/authors are accepted more. Higher publication rate of certain authors in certain conferences does not necessarily imply a higher acceptance rate, because, for example, these authors could be submitting more papers to these conferences. But the two metrics are nevertheless related: all else being equal, a higher acceptance rate will imply a higher publication rate.
+
 ## Challenges: {-}
 
  - How do we measure researcher prestige? H-index? npubs? s2npubs? other?
@@ -576,3 +614,21 @@ Is there a stastically signigicant difference in the rates of famous authors pub
 
 
 # References {-}
+
+
+
+------------------------
+
+Evaluating the relationships between author reputation and single-blind peer review
+
+* Double-blind reviewing has been suggested as a way to reduce bias in the review process, including "prestige bias".
+* Various studies found evidence for and against prestige bias in single-blind reviewing
+* We found that even for the same data, the way you evaluate and measure this relationship can produce different and even contradictory results to this question.
+* Emphasis: we're not trying to decide the question of prestige bias for our dataset, but rather look at the factors that can affect the outcome of such an evaluation, including:
+
+  - How to measure an author's reputation? (H-index, Npubs x 2, # papers in dataset)
+  - How to aggregate reputation across a group of all co-authors, since decision is on a per-paper basis? (max / mean / median / sum / min / any>thresh)
+  - How to address outliers and missing data (filter, flatten, impute, log)
+  - How to correct for conference reputation
+  
+* How do our results compare to past findings in related work?

@@ -1,0 +1,395 @@
+---
+output: 
+  bookdown::pdf_book:
+    keep_tex: true
+    template: main.tex
+    fig_caption: true
+title: Evaluating the relationships between author reputation and single-blind peer review
+bibliography: ../sysconf.bib
+csl: ieee.csl
+abstract: |
+ | yada
+ |  yada
+ |  yada
+---
+
+```{r code = readLines("../load_data.R"), echo=F, message=F}
+```
+
+
+```{r setup, echo=F, message=F, warning=F, cache=F}
+library("GGally")
+library("kableExtra")
+
+# There are some 31 authors with 1000+ npubs, which would mean nearly one publication per week for 20 years. Clearly, many of their pubs on GS are not theirs or not real pubs. So we remove those (should we winsorize them instead?).
+
+ppl <-  roles %>%
+  left_join(persons) %>%
+  filter(role == "author") %>%
+  group_by(name, gs_email) %>%
+  mutate(papers = n()) %>%
+  ungroup()
+
+THRESH_RATIO <- 3
+S2_THRESH = 1000
+
+
+ppl <- ppl %>% mutate(good_npub = !is.na(npubs) & npubs / s2npubs < THRESH_RATIO)
+
+good_npubs = !is.na(ppl$npubs) &
+             !is.na(ppl$hindex) &
+              ppl$npubs / ppl$s2npubs < THRESH_RATIO &
+              ppl$s2npubs < S2_THRESH
+#              ppl$s2npubs / ppl$npubs < THRESH_RATIO
+
+all_good <- ppl %>%
+  filter(!is.na(npubs), !is.na(hindex), !is.na(s2npubs), npubs / s2npubs < THRESH_RATIO, s2npubs / npubs < THRESH_RATIO) %>%
+  group_by(name, gs_email) %>%
+  summarize(npubs = first(npubs), s2npubs = min(first(s2npubs), S2_THRESH), hindex = first(hindex))
+
+
+model.npubs_from_s2npubs <- lm(data = all_good, npubs ~ s2npubs)
+model.hindex_from_s2npubs <- lm(data = all_good, hindex ~ s2npubs)
+
+ppl.best_source <- ppl %>%
+  mutate(npubs = ifelse(good_npubs, npubs, predict(model.npubs_from_s2npubs, data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH)))))) %>%
+  mutate(hindex = ifelse(good_npubs, hindex, predict(model.hindex_from_s2npubs, data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH))))))
+
+ppl.only_imputed <- ppl.best_source %>%
+  filter(!good_npubs)
+
+ppl.not_imputed <- setdiff(ppl.best_source, ppl.only_imputed)
+
+# No good, beause these people are often real, experienced researchers, but GS inflates their publication count.
+ppl.filtered <- ppl %>%
+  filter(good_npubs)
+
+
+# No good, because the median s2npubs for is.na(npubs) is 15, not zero. It's much higher for !is.na(npubs) however.
+ppl.flat <- ppl %>%
+  mutate(npubs = ifelse(is.na(npubs), 1, npubs),
+         hindex = ifelse(is.na(hindex), 0, hindex))
+
+model.npubs <- lm(data = ppl, npubs ~ papers)
+model.hindex <- lm(data = ppl, hindex ~ papers)
+
+# No good, because the intercept at zero is about 50 publications
+ppl.linear <- ppl %>%
+  mutate(npubs = ifelse(is.na(npubs), predict(model.npubs, data.frame(papers=c(papers))), npubs),
+         hindex = ifelse(is.na(hindex), predict(model.hindex, data.frame(papers=c(papers))), hindex))
+
+famous.thresh = 40
+
+# Only the people/papers with H-index and no "famous" co-authors on the same paper
+ppl.notfamous <- ppl.filtered %>%
+  group_by(as.factor(key)) %>%
+  mutate(maxh = max(hindex)) %>%
+  filter(maxh <= famous.thresh) %>%
+  ungroup()
+
+# All the people/papers with at least one famous author per paper:
+ppl.famous <- ppl.filtered %>%
+  group_by(as.factor(key)) %>%
+  mutate(maxh = max(hindex)) %>%
+  filter(maxh > famous.thresh) %>%
+  ungroup()
+
+
+ppl.mismatched <- ppl.filtered %>%
+  group_by(as.factor(key)) %>%
+  mutate(maxh = max(hindex), maxp = max(npubs), maxhi = which.max(hindex), maxpi = which.max(npubs)) %>%
+  filter(maxhi != maxpi) %>%
+  ungroup()
+
+mismatched_pairs <- ppl.mismatched %>%
+  filter(npubs==maxp | hindex==maxh) %>%
+  select(c(key,name, conf, hindex, npubs)) %>%
+  left_join(select(all_confs, c(key, double_blind)), by=c("conf"="key"))
+
+report_db <- function(who, metric) {
+  experience <- who %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)), 
+              coauthors = n(),
+              max_papers = max(papers), min_papers = min(papers), mean_papers = mean(papers), median_papers = median(papers), total_papers = sum(papers),
+              max_h = max(hindex), min_h = min(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
+              max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+
+  sb <- filter(experience, double_blind == F)
+  db <- filter(experience, double_blind == T)
+  paste0("Mean SB: ", round(mean(sb[[metric]]), 2),
+         " Mean DB: ", round(mean(db[[metric]]), 2),
+         " Median SB: ", round(median(sb[[metric]]), 2),
+         " Median DB: ", round(median(db[[metric]]), 2),
+        " (", report_stat(t.test(sb[[metric]], db[[metric]])), " -- ",
+        report_stat(wilcox.test(sb[[metric]], db[[metric]])), ")")
+}
+
+# (uniqe people filtered by s2npubs/pubs ratio < 20) %>% ggplot(aes(x=npubs, y=s2npubs)) + geom_point() + geom_smooth(method="lm") + geom_smooth(color="purple")+geom_abline(intercept = 0, slope=1)
+
+prestige_vs_db <- function(who,                # Population to work on
+                           metric = "hindex",  # Which primary prestige metric to use
+                           aggreg = "max",     # How to aggregate authors across paper
+                           logar = FALSE,      # Whether to take the log(metric+1) value or just the metric.
+                           control = ""        # What conference parameters to control for
+                           )
+{
+  fun <- get(aggreg)
+  experience <- who %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)),
+              prestige = ifelse(logar, fun(log(!!rlang::sym(metric) + 1)), fun(!!rlang::sym(metric))),
+              .groups = 'drop')  %>%
+    left_join(all_confs, by = c("conf" = "key"))
+  
+  sb <- filter(experience, double_blind == F)
+  db <- filter(experience, double_blind == T)
+  means = ifelse(control == "", report_stat(t.test(sb$prestige, db$prestige), p_option = "stars"), NA)
+  medians = ifelse(control == "", paste0(round(median(sb$prestige)-median(db$prestige), 2),
+                                         report_stat(wilcox.test(sb$prestige, db$prestige), p_option = "stars_only")), NA)
+  
+  form = "prestige ~ double_blind"
+  if (control != "") {
+    form = paste(form, "+", control)
+  }
+  model <- summary(lm(data = experience, formula = form))
+  k = round(model$coefficients[2,1], 2)
+  p = model$coefficients[2,4]
+  stars = ifelse(p < 0.001, "***", ifelse(p < 0.01, "**", ifelse(p < 0.05, "*", "")))
+  r2 = model$r.squared
+  
+  c("Metric" = metric,
+    "Seniority" = aggreg,
+    "Log" = logar,
+    "Controls" = control,
+    "Means" = means,
+    "Medians" = medians,
+    "Coefficient" = paste0(k, stars))
+}
+
+is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
+  papers <- who %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)),
+              includes_famous = (max(!!rlang::sym(metric), na.rm = T) >= thresh),
+              .groups = 'drop')  %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+  
+  paste0("For ", metric, ">=", thresh, " ",
+         pct(nrow(filter(papers, double_blind, includes_famous)), nrow(filter(papers, double_blind))),
+         "% of single-blind papers include famous, vs. ",
+         pct(nrow(filter(papers, !double_blind, includes_famous)), nrow(filter(papers, !double_blind))),
+         "% of double-blind (",
+         report_stat(chisq.test(table(papers$double_blind, papers$includes_famous)), p_option = "stars"),
+         ")")
+}
+
+experience <- ppl.filtered %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)), 
+              coauthors = n(),
+              max_npubs_idx = which.max(npubs), max_h_idx = which.max(hindex),
+              max_papers = max(papers), min_papers = min(papers), mean_papers = mean(papers), median_papers = median(papers), total_papers = sum(papers),
+              max_s2npubs = max(s2npubs),
+              max_h = max(hindex), min_h = min(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
+              max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+
+```
+
+
+# Introduction {#sec:intro}
+
+
+<!-- send to?
+  PLOS One
+  PeerJ/CS
+  IEEE Access
+  J. of the Assoc. for Inf. Science. and Tech. (https://asistdl.onlinelibrary.wiley.com/journal/23301643)
+  Journal of Information Science (https://journals.sagepub.com/home/jis)
+  Quant. Science Studies (https://www.mitpressjournals.org/loi/qss)
+  Scientometrics (https://www.springer.com/journal/11192)
+  Trans. Prof. Comm. (https://ieeexplore.ieee.org/xpl/RecentIssue.jsp?punumber=47) 
+  Journal of Scientometric Research
+  JOURNAL OF THE AMERICAN SOCIETY FOR INFORMATION SCIENCE AND TECHNOLOGY
+ -->
+
+* Double-blind reviewing has been suggested as a way to reduce bias in the review process, including "prestige bias".
+* Various studies found evidence for and against prestige bias in single-blind reviewing
+* We found that even for the same data, the way you evaluate and measure this relationship can produce different and even contradictory results to this question.
+* Emphasis: we're not trying to decide the question of prestige bias for our dataset, but rather look at the factors that can affect the outcome of such an evaluation, including:
+
+  - How to address outliers and missing data (filter, flatten, impute, log)
+  - How to measure an author's reputation? (H-index, Npubs x 2, # papers in dataset)
+  - How to aggregate reputation across a group of all co-authors, since decision is on a per-paper basis? (max / mean / median / sum / min / any>thresh / seniority bands)
+  - How to correct for conference reputation
+  
+* How do our results compare to past findings in related work?
+
+
+<!--
+Common research question: Is there a prestige bias in systems conference?
+In other words, are prestigious authors (or institutes) more likely to be accepted to a conference than lesser-known authors?
+
+We cannot answer this question directly without information on rejected papers, so instead we ask a weaker question:
+Is there a statistically signigicant difference in the rates of famous authors published in single-blind or double-blind conferences?
+
+The information we collected measures publication rates, not acceptance rates, so our observations do not lead to conclusive claims on which papers/authors are accepted more. Higher publication rate of certain authors in certain conferences does not necessarily imply a higher acceptance rate, because, for example, these authors could be submitting more papers to these conferences. But the two metrics are nevertheless related: all else being equal, a higher acceptance rate will imply a higher publication rate.
+
+
+## Challenges: {-}
+
+ - How do we measure researcher prestige? H-index? npubs? s2npubs? other?
+ - Selection bias: most authors with missing H-index data are also less famous.
+ - Survivorship bias: The submission rate of famous people in S.B and D.B conferences may not be the same as the acceptance rate.
+ - Confounding conference variables: Other conference factors, like conference prestige, may be associated with S.B/D.B but much more influential in the submission choice of famous authors.
+ - Computation of S2npubs is bad for people with shared names (predominatly Chinese), and therefore the imputation is as well.
+
+-->
+
+# Materials and methods {#sec:data}
+
+As in most subfields of CS, the primary channel for publishing research results in computer systems is peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences]. 
+
+Our dataset includes `r nrow(all_confs)` reputable systems and systems-related conferences, all peer reviewed and all from 2017 (Table \@ref(tab:sys-confs)). These conferences range in age, size, location, audience size, and impact factor, topics. But nearly all the papers surveyed were reviewed by at least three reviewers, and most by four or more. These conferences represent `r sum(all_confs$npapers)` papers and `r nrow(authors)` unique authors. 
+
+For each of these conferences, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
+The most crucial piece of our data is gender information. Given the full name and affiliation of most researchers, we searched online for each person's pronouns or pictures to infer their _perceived_ gender.
+
+For reproducibility, all of the data and source code files for this paper can be found at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
+
+```{r sys-confs, echo=F, message=F, warning=F, cache=T}
+tmp <- all_confs %>%
+  mutate(Conference = gsub("_\\d*", "", conference)) %>%
+  rename(Date = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
+  mutate(Acceptance = round(acceptance_rate, 2)) %>%
+  select(Conference, Date, Papers, Authors, Acceptance) %>%
+  arrange(Conference)
+  
+cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
+  knitr::kable(booktabs = T, linesep = "",
+               align = c("|l", "c", "r", "r", "r|"),
+               caption = "System conferences, including start date, number of published papers, total number of named authors, acceptance rate, and country code.") %>%
+  kable_styling(font_size = 8)
+```
+
+
+
+# Empirical results {#sec:results}
+
+We'll start with a common set of choices for comparisons (mean max-H across co-authors), but we'll examine every aspect of this choice in each subsection.
+
+## Cleaning the data {#subsec:cleaning}
+
+## Reputation metrics {#subsec:metrics}
+
+## Group aggregations {#subsec:aggregation}
+
+## Confounding variables {#subsec:confounding}
+
+
+# Discussion {#sec:discussion}
+
+<!--
+ - Who are the people with large discrepancy between s2npubs and npubs? People with common names that get merged with other researchers for too many pubs; or in GS case, counting many non-paper pubs.
+ - Compute the % of papers for which max_h and max_npubs are the same person: `r pct(nrow(filter(experience, max_h_idx != max_npubs_idx)), nrow(experience), 3)`%.
+ - Should we winsorize high npubs instead of impute? or just use H-index?
+ - Median H-index is significantly different, but mean isn't? (H-index probably not as long-tailed)
+ - What is the effect of outlier publishers? Try to remove the top_n h-index and retest.
+ - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max H-index--why?
+ There are `r ppl.filtered %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.
+- The distributions of max_npubs and max_h are different. It appears that people with lots of npubs (> 500) that publish in single-blind conferences have relatively lower h-index. Perhaps that's because they publish in less competitive conferences.
+ - What is the relationship between PC h-index (mean/median) and authors' h-index? PC-author-ratio vs max_h?
+ 
+```{r distribs, echo=F}
+  experience <- ppl.filtered %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)), 
+              coauthors = n(),
+              max_npubs_idx = which.max(npubs), max_h_idx = which.max(hindex),
+              max_papers = max(papers), min_papers = min(papers), mean_papers = mean(papers), median_papers = median(papers), total_papers = sum(papers),
+              max_s2npubs = max(s2npubs),
+              max_h = max(hindex), min_h = min(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
+              max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+#ggplot(experience, aes(x=max_npubs, color=double_blind)) + geom_density()
+#ggplot(experience, aes(x=max_h, color=double_blind)) + geom_density()
+```
+
+
+ - tier people into junior, medium, senior and count no. of people
+
+```{r seniority bands, echo=F}
+experience$band = case_when(
+  experience$mean_h < 13 ~ "junior",
+  experience$mean_h > 18 ~ "senior",
+  TRUE ~ "mid-career"
+)
+experience$band = as.factor(experience$band)
+
+#report_stat(chisq.test(table(experience$double_blind, experience$band)))
+
+filter(experience, double_blind) %>% select(band) %>% summary()
+filter(experience, !double_blind) %>% select(band) %>% summary()
+```
+
+Looking at seniority bands by H-index confirms what we saw with max-H: more senior authors in double-blind, not single-blind conferences.
+
+
+ - Correlate all conference factors to double_blind: 
+ 
+ `r all_confs %>% select(double_blind, h5_index,month_of_year,review_days,mean_pages,submissions,rebuttal,age,mean_historical_citations,mean_historical_length,h5_median,pc_size,pc_author_ratio,mean_authors_per_paper,acceptance_rate,pc_paper_ratio,mean_review_load) %>% cor(use="pair")`
+ 
+
+Refer to survey paper [@frachtenberg20:survey]:
+
+Many author factors do not appear to significantly interact with double-blindness, such as: the gender, position, and research experience (based on H-index).
+In terms of review scores, there do not appear to be large differences in the mean and median grades, but the distribution of grades in double-blind reviews appears wider for some categories, especially technical merit.
+
+We doubt that double-blinding adequately explains all these phenomena [@godlee98:peer; @mcnutt90:blinding]. Instead, we suggest looking at a third factor: the reputation or prestige of a conference. Prestige may be too abstract to measure accurately, but we did collect two proxy conference metrics: the acceptance rate and H5-index (as measured by GS).
+
+
+ 
+-->
+
+
+# Related work {#sec:related}
+
+ * [@tomkins17:reviewer] Performed an experiment on the WSDM'17 submissions: two PCs, one for SB and one for DB, with two from each PC reviewing each paper. They look at the following covariates: gender of first author (and others); sector of majority authors; paper predominantly from US authors (most common country); famous author (npubs >= 100, of which at least three from WSDM); country homophily with reviewer (we don't have that info); top-50 university, any author (based on http://www.topuniversities.com/); top company, any author (Google/Microsoft/Yahoo/Facebook). 
+ 
+ * [@blank91:effects] (quoted from [@tomkins17:reviewer, related work]): "Perhaps the best-known experimental study of single-blind vs.double-blind reviewing behavior, and to our knowledge the onlycontrolled  experiment  in  this  area  other  than  our  own,  is  thestudy by Rebecca Blank (15). Over several years, 1,498 paperswere randomly assigned to single-blind vs. double-blind review-ing condition. While Blank performs detailed analyses of manyfacets of the data, we may summarize part of the high-level find-ings  as  follows.  First,  authors  at  top  or  bottom  institutions  donot see significant differences in acceptance decisions based onreviewing model, but authors at midtier institutions perform bet-ter in a single-blind setting, as do foreign authors and those out-side academia. Second, there is a mild indication, not statisticallysignificant, that women do slightly better in double-blind review."
+ 
+ * [@okike16:single] (quoted from [@tomkins17:reviewer, related work]): "performed an ingenious study con-structing  an  artificial  submission  proposing  a  study  of  the  effi-cacy  of  training  to  improve  communication  in  the  operatingroom. The fabricated study was submitted to an orthopedics jour-nal  and  listed  as  authors  two  past  presidents  of  the  AmericanAcademy of Orthopedic Surgeons. With the involvement of thejournal, the study was sent to 256 reviewers, of whom 119 com-pleted  the  review,  split  between  single-blind  and  double-blindconditions. The results showed that single-blind reviewers weresignificantly more favorable toward the paper."
+ 
+ * [@tung06:impact] looked retrospectively at VLDB and SIGMOD papers (SIGMOD is in our data set), to compare the ratio of accepted papers from famous people over time, before and after starting double-blind reviewing. Unlike a previous study, it found that when looking at median papers/famous as opposed to mean, a significant drop is noticed when switching to DB (no p-value computed). Like our approach, it looks only at accepted papers; unlike our approach, it's longitudinal, not cross-sectional.
+ 
+ * [@fisher94:effects] performed a RCT on 57 consecutive submissions to J. of Dev. and Behavioral Pediatrics, where each paper got 2 SB and 2 DB reviews. Review grades and acceptance decisions were correlated against max npubs and lead-author npubs. It found that SB prefers authors with higher npubs.
+ 
+ * [@peters82:peer]: A famous (infamous?) study about bias in peer review favoring famous insititutes. In an ethically controvertial experiment, they've retitled 12 famous papers with fictitious authors and institutes. Three were detected as resubmissions, and eight of the remaining nine failed SB peer review.
+
+ * [@snodgrass06:single] offers a literature review of the question and concludes that the results on prestige bias are mixed.
+ 
+ * [nicholas17:early] Early career researchers appear to have a positive experience overall with peer review. They actualy aim for high-impact journals and are influential in choosing where to publish.
+ 
+ * SC'17 (in our dataset) offers a [rationale](https://sc17.supercomputing.org/conference-overview/technical-papers/sc17-double-blind-review-policy/) for double-blind reviewing that mentions "ample evidence" that DB reduces bias and improves citations.
+ 
+ * [World University Rankings 2017](https://www.timeshighereducation.com/world-university-rankings/2017/reputation-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats) can be a source of data to assess institution bias.
+
+
+
+# Conclusion {#sec:conclusion}
+
+ - Add recommendations? perhaps to discussion?
+ - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.
+ - The only exception is the metric max H-index (H-index of most senior author per paper), which is lower in single-blind (p=0.0055).
+ - This reversal isn't changed whether we drop the NA H-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).
+ - The higher prestige bias survives when controlling for conference prestige (either with h5_hindex or with I(mean_historical_citations/age)). But not when controlling for pc_author_ratio and pc_paper_ratio.
+
+
+### Acknowledgements {-}
+
+# References {-}
+
+
+

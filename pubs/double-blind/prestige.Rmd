@@ -250,14 +250,14 @@ The information we collected measures publication rates, not acceptance rates, s
 
 # Materials and methods {#sec:data}
 
-As in most subfields of CS, the primary channel for publishing research results in computer systems is peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences]. 
-
-Our dataset includes `r nrow(all_confs)` reputable systems and systems-related conferences, all peer reviewed and all from 2017 (Table \@ref(tab:sys-confs)). These conferences range in age, size, location, audience size, and impact factor, topics. But nearly all the papers surveyed were reviewed by at least three reviewers, and most by four or more. These conferences represent `r sum(all_confs$npapers)` papers and `r nrow(authors)` unique authors. 
-
-For each of these conferences, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
-The most crucial piece of our data is gender information. Given the full name and affiliation of most researchers, we searched online for each person's pronouns or pictures to infer their _perceived_ gender.
-
-For reproducibility, all of the data and source code files for this paper can be found at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
+The primary dataset we analyze comes from a hand-curated collection of `r nrow(all_confs)` peer-reviewed systems conferences from a single publication year (2017).
+In CS, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs)).
+We chose to focus on a large cross-sectional set of conferences from a single publication year (2017), to reduce variations in time.
+Our choice of which conferences belong to "systems" is necessarily subjective.^[For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.]
+Not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
+However, we believe that our cross-sectional set is both wide enough to represent the field well and focused enough to distinguish it from the rest of CS.
+In total, our sample includes `r sum(all_confs$npapers)` peer-reviewed papers.
 
 ```{r sys-confs, echo=F, message=F, warning=F, cache=T}
 tmp <- all_confs %>%
@@ -273,6 +273,25 @@ cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
                caption = "System conferences, including start date, number of published papers, total number of named authors, acceptance rate, and country code.") %>%
   kable_styling(font_size = 8)
 ```
+
+
+For each of these conferences, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
+Conferences also do not generally offer information on authors' demographics, but we were able to unambiguously link approximately two thirds (`r pct(nrow(filter(persons, !is.na(hindex))), nrow(persons))`%) of
+researchers in our dataset to a Google Scholar (GS) profile.
+For each author and PC member, we collected all metrics in their GS profile, such as total previous publications (ca. 2017), H-index, etc.
+Note that we found no GS profile for about a third of the researchers
+(`r pct(sum(is.na(authors$hindex)), nrow(authors), 2)`%),
+and these researchers appear to be less experienced than researchers with a GS profile.
+We therefore also another proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database.
+
+In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
+For each conference, we collected data from the web and from program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers.
+We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers.
+
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with $\chi^{2}$ test; and comparisons between two numeric properties of the same population were evaluated with Pearson's product-moment correlation. All statistical tests are reported with their p-values.
+
+
+For reproducibility, all of the data and source code files for this paper can be found at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
 
 
 
@@ -376,6 +395,7 @@ We doubt that double-blinding adequately explains all these phenomena [@godlee98
  
  * [World University Rankings 2017](https://www.timeshighereducation.com/world-university-rankings/2017/reputation-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats) can be a source of data to assess institution bias.
 
+* [@koltun21:hindex] Argues that The h-index is no longer an effective correlate of scientific reputation.
 
 
 # Conclusion {#sec:conclusion}

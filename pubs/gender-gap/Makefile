@@ -4,15 +4,11 @@ endif
 
 export
 
-all: gender-gap.pdf gender-gap-science.pdf
+all: gender-gap.pdf
 
-%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R main.tex main-science.tex
+%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R
 	$(R) -e 'library(bookdown); bookdown::render_book("$(basename $<).Rmd", "bookdown::pdf_book", config_file = "$(basename $<).yml")'
 	mv _book/_main.pdf $@
-
-# gender-gap.pdf: gender-gap.Rmd Makefile ../sysconf.bib ../load_data.R main.tex
-# 	$(R) -e 'library(bookdown); bookdown::render_book("gender-gap.Rmd", "bookdown::pdf_book", config_file = "gender-gap.yml")'
-# 	mv _book/_main.pdf $@
 
 
 clean:

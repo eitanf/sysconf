@@ -10,6 +10,7 @@ dependencies <- c(
                   "kableExtra",
                   "lubridate",
                   "multidplyr",
+                  "NLP",
                   "plotly",
                   "psych",
                   "purrr",
@@ -17,8 +18,11 @@ dependencies <- c(
                   "reshape2",
                   "readr",
                   "rticles",
+                  "slam",
                   "textclean",
                   "textstem",
                   "tidytext",
-                  "tidyverse"
+                  "tidyverse",
+                  "wordcloud"
                  )
+

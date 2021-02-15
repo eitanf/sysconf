@@ -32,12 +32,10 @@ csl: ieee.csl
 output:
   bookdown::pdf_book:
     base_format: rticles::ieee_article
-    pandoc_args: [
-      "--number-sections"
-    ]
+    pandoc_args: [ "--number-sections" ]
 ---
 
-```{r code = readLines("../load_data.R"), echo = F, message = F}
+```{r code=readLines("../load_data.R"), echo=F, message=F}
 ```
 
 ```{r subset-hpc, echo=F, warning=F, message=F}
@@ -66,7 +64,7 @@ demo <- hpc_people %>%
 hindex <- demo %>%
   drop_na(gender) %>%
   drop_na(hindex) %>%
-  mutate(Experience = ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced")))
+  mutate(Experience = as.factor(ifelse(hindex < 12, "Novice", ifelse(hindex <= 18, "Mid-career", "Experienced"))))
 ```
 
 
@@ -95,7 +93,7 @@ The most crucial piece of our data is gender information. Given the full name an
 
 This approach has several limitations. First, gender identity is complex and non-binary, and yet as in many similar studies, we are confined to representing gender as a simple binary choice because of the available data [@cohoon11:cspapers; @elsevier17:gender; @fox16:gender; @holman18:gender; @huang19:historical; @karimi16:gender]. Second, not all researchers presented unambiguous Web presence or genders. For those
 `r nrow(filter(hpc_people, is.na(gender)))` out of `r nrow(hpc_people)` persons
-for whom we couldn't confidently infer gender from the Web or their name,
+for whom we could not confidently infer gender from the Web or their name,
 we marked their gender as NA and omitted them from most analyses, which could introduce a small bias.
 Finally, this approach is labor-intensive, but our experiments suggest that it is more accurate and less biased than automated approaches based on name alone, especially for non-European names [@santamaria18:comparison].
 
@@ -110,7 +108,7 @@ We organized our statistical observations into three perspectives: the conferenc
 
 We analyze the conferences in our set through the lens of the ratio of women in different roles (Fig. \@ref(fig:female-ratios)). In this section, we look at women across all conferences and papers in our set, and later we examine HPC papers only.
 
-```{r female-ratios, fig.fullwidth = TRUE, echo = F, cache = T, fig.cap = "Representation of women across six conference roles"}
+```{r female-ratios, fig.fullwidth=T, echo=F, cache=T, message=F, fig.cap="Representation of women across six conference roles"}
 hpc_people %>%
   drop_na(gender) %>%
   mutate(role = recode(role, "PC chair" = "PC and area chair")) %>%
@@ -137,9 +135,9 @@ It is particularly dismal for the HPC flagship conferences, with only
 `r pct(nrow(filter(hpc_people, conf == "SC", role == "Author", gender == "F")), nrow(filter(hpc_people, conf == "SC", role == "Author", !is.na(gender))), 2)`%
 female authors in SC and 
 `r pct(nrow(filter(hpc_people, conf == "ISC", role == "Author", gender == "F")), nrow(filter(hpc_people, conf == "ISC", role == "Author", !is.na(gender))), 2)`%
-in ISC (excluding the few authors for which we have no gender information).
+in ISC (excluding the few authors for whom we have no gender information).
 
-It's possible these results are biased. For example, survivor bias [@shermer14:survivor] or peer-review bias [@lee13:bias] would lead to a higher percentage of women among submitted papers than the percentage we observe across accepted papers. However, variations in the visibility of the author's gender do not support this hypothesis. For example, SC and ISC are the only double-blind conferences in our dataset, where the identity of authors are hidden from reviewers, and yet these conferences show the least female representation. And the ratio of female lead authors, where their gender could potentially be more prominent, is similar to other author positions.
+It is possible these results are biased. For example, survivor bias [@shermer14:survivor] or peer-review bias [@lee13:bias] would lead to a higher percentage of women among submitted papers than the percentage we observe across accepted papers. However, variations in the visibility of the author's gender do not support this hypothesis. For example, SC and ISC are the only double-blind conferences in our dataset, where the identity of authors are hidden from reviewers, and yet these conferences show the least female representation. And the ratio of female lead authors, where their gender could potentially be more prominent, is similar to other author positions.
 
 ### Program Committee
 
@@ -150,7 +148,7 @@ Among the
 `r nrow(filter(hpc_people, role == "PC member"))`
 total PC members (with repeats),
 `r pct(nrow(filter(hpc_people, role == "PC member", gender == "F")), nrow(filter(hpc_people, role == "PC member", !is.na(gender))), 2)`%
-are women, about twice the rate among authors. Even without the larger SC conference, the ratio is still 
+are women, about twice the rate among authors. Even excluding the larger SC conference, the ratio is still
 `r pct(nrow(filter(hpc_people, role == "PC member", conf != "SC", gender == "F")), nrow(filter(hpc_people, role == "PC member", conf != "SC", !is.na(gender))), 2)`%.
 Conceivably, women are not as poorly represented in this population because conferences often aspire to intentionally increase diversity, which can directly lead to selecting more women for this role. SC's example supports this explanation, with its explicit push for diversity. Then again, the other conference with a diversity chair, ISC, had a more average ratio of women in the PC.
 But even if these ratios are more representative of the overall female HPC population than the authors statistics, they are still far from equitable, and are ostensibly insufficient to increase the ratios among authors.
@@ -183,13 +181,13 @@ papers for which we know the first author's gender,
 `r nrow(filter(hpc_l, gender=="F"))` are women
 (`r pct(nrow(filter(hpc_l, gender=="F")), nrow(hpc_l), 2)`%),
 a statistically insignificant difference from the overall ratio
-(`r report_stat(chisq.test(data.frame(all_authors = c(nrow(filter(hpc_a, gender == "F")), nrow(filter(hpc_a, gender == "M"))), leads = c(nrow(filter(hpc_l, gender == "F")), nrow(filter(hpc_l, gender == "M"))))), 4)`).
+(`r report_test(chisq.test(data.frame(all_authors = c(nrow(filter(hpc_a, gender == "F")), nrow(filter(hpc_a, gender == "M"))), leads = c(nrow(filter(hpc_l, gender == "F")), nrow(filter(hpc_l, gender == "M"))))), 4)`).
 
 These results suggest that gender representation among these HPC authors is in line with that of the conferences' representation overall. Subsequently, we will return to analyzing the complete set of papers throughout the rest of this study, for greater coverage.
 
 ### Reception
 
-```{r citations, echo=F, message=F, warning=F, fig.cap = "Distribution of paper citations two years after publication"}
+```{r citations, echo=F, message=F, warning=F, fig.cap="Distribution of paper citations two years after publication"}
 year2 <- 24
 cites <-
 hpc_people %>%
@@ -222,11 +220,11 @@ papers authored by men. Women average more citations than men
 However, there is one outlier at the long tail of the distribution. This paper, lead by a female author, garnered more than 100 citations, but does not appear to be strongly related to HPC [@liang17:provchain]. When we exclude this paper, the mean citations for women's papers drops to
 `r thrs <- 3; fc <- filter(cites, gender == "F", citations < 100)$citations; fc %>% mean() %>% round(2)`,
 much lower than men's
-(`r report_stat(t.test(fc, mc), 2)`).
+(`r report_test(t.test(fc, mc), 2)`).
 There appears to be also a "ceiling" around `r thrs` citations or so, with only
 `r pct(sum(fc >= thrs), length(fc), 0)`% of female-led papers exceeding this threshold,
 compared to `r pct(sum(mc >= thrs), length(mc), 0)`% for men
-(`r report_stat(chisq.test(data.frame(f = c(sum(fc >= thrs), sum(fc < thrs)), m = c(sum(mc >= thrs), sum(mc < thrs)))), 2)`).
+(`r report_test(chisq.test(data.frame(f = c(sum(fc >= thrs), sum(fc < thrs)), m = c(sum(mc >= thrs), sum(mc < thrs)))), 2)`).
 
 ##  Researcher Demographics
 
@@ -263,7 +261,7 @@ It is encouraging to note, however, that Western reviewers are not over-represen
 In terms of representation of women, none of the larger regions deviates much from the $\approx{10\%}$ overall percentage. The regions with fewer than 25 authors or so exhibit more variance, due to the small denominators (for example, a single female author from Eastern Europe would have bumped the percentage from zero to $\approx{8\%}$). These conclusions are limited, however, by the small sample sizes for most regions.
 
 
-```{r region, echo=F}
+```{r region, echo=F, message=F}
 demo %>%
   drop_na(gender) %>%
   drop_na(subregion) %>%
@@ -273,7 +271,7 @@ demo %>%
 #  add_row(subregion = "Africa", role = "PC member", pct_w = 0, count = 0) %>%
   pivot_wider(names_from = role, values_from = c(pct_w, count)) %>%
   select(c(1,2,4,3,5)) %>%
-  rename("Region" = subregion, "% Women" = pct_w_Author, "% Women" = "pct_w_PC member", Total = count_Author, Total = "count_PC member") %>%
+  rename("Region" = subregion, "% Women A" = pct_w_Author, "% Women P" = "pct_w_PC member", "Total A" = count_Author, "Total P" = "count_PC member") %>%
   knitr::kable(booktabs = T, align = c("l", "r", "r"), caption = "Representation of women by region and role") %>%
   add_header_above(c(" " = 1, "Authors" = 2, "PC members" = 2))
 ```
@@ -288,7 +286,7 @@ and "GOV" for government and national labs
 (`r pct(nrow(filter(demo, sector == "GOV")), nrow(filter(demo, !is.na(sector))), 1)`%).
 Fig. \@ref(fig:sector) depicts the percentage of women in each sector, by role. It shows that among PC members, there is better female representation in government and academia than in industry. This result agrees with past studies that found relatively fewer female engineers in industry research positions [@fox06:engineering; @ghiasi15:compliance; @tao16:employment].
 
-```{r sector, echo = F, message = F, fig.cap = "Representation of women by sector and role"}
+```{r sector, echo=F, message=F, fig.cap="Representation of women by sector and role"}
 demo %>%
   drop_na(gender) %>%
   drop_na(sector) %>%
@@ -315,7 +313,7 @@ Another statistic we can evaluate from this dataset is the previous research exp
 `r pct(nrow(filter(demo, !is.na(hindex))), nrow(demo), 2)`%
 had a uniquely identifiable GS profile). The profile contains various bibliometric measures that can approximate the experience and research influence of a person. For example, Fig. \@ref(fig:npubs) depicts the distribution of one such metric, the total number of previous publications (circa their conference's date).
 
-```{r npubs, echo = F, message = F, fig.cap = "Distribution of past publications by gender and role, as of 2017"}
+```{r npubs, echo=F, message=F, fig.cap="Distribution of past publications by gender and role, ca. 2017"}
 demo %>%
   drop_na(gender) %>%
   drop_na(npubs) %>%
@@ -342,14 +340,15 @@ men). This experience gap has also been observed in other engineering fields [@f
 
 ```{r seniority, echo = F, message = F, fig.cap = "Distribution of experience by gender and role"} 
 hindex %>%
-  group_by(gender, Experience) %>%
-  rename(Gender = gender, Role = role) %>%
+  mutate(Role = ifelse(role == "pc", "PC member", "Author")) %>%
+  rename(Gender = gender) %>%
+  group_by(Gender, Experience) %>%
   ggplot(aes(fill = Experience, x = Gender)) +
     geom_bar(position = "stack") +
     facet_grid(Role ~ .) +
     ylab("Researcher count") +
     theme(legend.position = "bottom") +
-    scale_fill_viridis_d() + 
+    scale_fill_viridis_d(breaks = c("Novice", "Mid-career", "Experienced")) +
     coord_flip()
 ```
 

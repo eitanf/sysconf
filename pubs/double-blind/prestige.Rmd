@@ -122,8 +122,8 @@ report_db <- function(who, metric) {
          " Mean DB: ", round(mean(db[[metric]]), 2),
          " Median SB: ", round(median(sb[[metric]]), 2),
          " Median DB: ", round(median(db[[metric]]), 2),
-        " (", report_stat(t.test(sb[[metric]], db[[metric]])), " -- ",
-        report_stat(wilcox.test(sb[[metric]], db[[metric]])), ")")
+        " (", report_test(t.test(sb[[metric]], db[[metric]])), " -- ",
+        report_test(wilcox.test(sb[[metric]], db[[metric]])), ")")
 }
 
 # (uniqe people filtered by s2npubs/pubs ratio < 20) %>% ggplot(aes(x=npubs, y=s2npubs)) + geom_point() + geom_smooth(method="lm") + geom_smooth(color="purple")+geom_abline(intercept = 0, slope=1)
@@ -145,9 +145,9 @@ prestige_vs_db <- function(who,                # Population to work on
   
   sb <- filter(experience, double_blind == F)
   db <- filter(experience, double_blind == T)
-  means = ifelse(control == "", report_stat(t.test(sb$prestige, db$prestige), p_option = "stars"), NA)
+  means = ifelse(control == "", report_test(t.test(sb$prestige, db$prestige), p_option = "stars"), NA)
   medians = ifelse(control == "", paste0(round(median(sb$prestige)-median(db$prestige), 2),
-                                         report_stat(wilcox.test(sb$prestige, db$prestige), p_option = "stars_only")), NA)
+                                         report_test(wilcox.test(sb$prestige, db$prestige), p_option = "stars", show_stat = F)), NA)
   
   form = "prestige ~ double_blind"
   if (control != "") {
@@ -181,7 +181,7 @@ is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
          "% of single-blind papers include famous, vs. ",
          pct(nrow(filter(papers, !double_blind, includes_famous)), nrow(filter(papers, !double_blind))),
          "% of double-blind (",
-         report_stat(chisq.test(table(papers$double_blind, papers$includes_famous)), p_option = "stars"),
+         report_test(chisq.test(table(papers$double_blind, papers$includes_famous)), p_option = "stars"),
          ")")
 }
 
@@ -303,6 +303,8 @@ We'll start with a common set of choices for comparisons (mean max-H across co-a
 
 ## Reputation metrics {#subsec:metrics}
 
+H index, npubs/s2npubs, i10, papers in dataset, h5_index
+
 ## Group aggregations {#subsec:aggregation}
 
 ## Confounding variables {#subsec:confounding}
@@ -347,7 +349,7 @@ experience$band = case_when(
 )
 experience$band = as.factor(experience$band)
 
-#report_stat(chisq.test(table(experience$double_blind, experience$band)))
+#report_test(chisq.test(table(experience$double_blind, experience$band)))
 
 filter(experience, double_blind) %>% select(band) %>% summary()
 filter(experience, !double_blind) %>% select(band) %>% summary()

@@ -145,23 +145,24 @@ rounded_p <- function(p, rounding) {
 # The default option "rounded" rounds p value or shows it as less than the given precision threshold.
 format_p_value <- function(p, rounding = 3, p_option = "rounded") {
   case_when(
-    is_null(p_option)   ~ "",
-    p_option == "exact" ~ paste0("$p=", p, "$"),
-    p_option == "stars" ~ ifelse(p < 0.001, "***", ifelse(p < 0.01, "**", ifelse(p < 0.05, "*", ""))),
-    TRUE                ~ rounded_p(p, rounding)
+    p_option == FALSE        ~ "",
+    p_option == "exact"      ~ paste0("$p=", p, "$"),
+    p_option == "stars"      ~ ifelse(p < 0.001, "***", ifelse(p < 0.01, "**", ifelse(p < 0.05, "*", ""))),
+    TRUE                     ~ rounded_p(p, rounding)
   )
 }
 
 # Return a string to properly format a statistical test.
-# Currently supported tests: t.test, cor.test, chisq.test
-# If p_option is "only", then only p-value is shown, otherwise p_option is passed to format_p_value.
-# If df==TRUE, also reports degrees of freedom.
-report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
+# Currently supported tests: t.test, cor.test, chisq.test, wilcox.test.
+# p_option can be FALSE (don't print p value), "rounded" based on rounding, "exact" for no rounding, or "stars".
+# stat_stat either reports the value of the test statistic or noot (boolean).
+# show_df eith reports degrees of freedom.
+report_test <- function(test, rounding = 3, p_option = "rounded", show_stat = TRUE, show_df = FALSE) {
   base_str <- ""
   df_str <- ""
-  p_str <- ifelse(p_option == "stars_only", "", format_p_value(test$p.value, rounding, p_option))
+  p_str <- format_p_value(test$p.value, rounding, p_option)
 
-  if (p_option != "only" & p_option != "stars_only") {
+  if (show_stat) {
     if (test$method == "Welch Two Sample t-test") {
       base_str <- paste0("$t=", round(test$statistic, min(rounding, 4)), "$")
     }
@@ -179,12 +180,12 @@ report_stat <- function(test, rounding = 3, p_option = "rounded", df = FALSE) {
     }
   }
   
-  if (df) {
-    df_str <- paste0(", $df=", round(test$parameter, 0), "$")
+  if (show_df) {
+      df_str <- paste0(ifelse(show_stat, ", ", ""), "$df=", round(test$parameter, 0), "$")
   }
   
   ret = paste0(base_str, df_str)
-  if (p_option != "stars" & p_option != "stars_only" & !is_null(p_option)) {
+  if (p_option != "stars" & p_option != FALSE & show_stat) {
     ret = paste0(ret, ", ")
   }
   paste0(ret, p_str)

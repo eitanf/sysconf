@@ -4,12 +4,12 @@ endif
 
 export
 
-all: stats.pdf
+all: women-hpc.pdf
 
-stats.pdf: $(wildcard *.Rmd) Makefile ../sysconf.bib ../load_data.R
-	$(R) -e 'library(bookdown); bookdown::render_book("stats.Rmd", "bookdown::pdf_book")'
+%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R
+	$(R) -e 'library(bookdown); bookdown::render_book("$(basename $<).Rmd", "bookdown::pdf_book", config_file = "$(basename $<).yml")'
 	mv _book/_main.pdf $@
 
 clean:
 	$(R) -e 'bookdown::clean_book(clean = T)'
-	rm -rf stats.pdf stats.tex _main.* libs _book _bookdown_files *.html *.log *.aux *.bbl *.blg *.dvi *.out *.xcp
+	rm -rf *.pdf stats.tex _main.* libs _book _bookdown_files *.html *.log *.aux *.bbl *.blg *.dvi *.out *.xcp

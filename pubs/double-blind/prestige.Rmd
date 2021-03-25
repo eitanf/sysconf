@@ -307,15 +307,16 @@ In addition to researcher information, we gathered various statistics on each co
 For each conference, we collected data from the web and from program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers.
 We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers.
 
+## Statistics
+
 For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with $\chi^{2}$ test; and comparisons between two numeric properties of the same population were evaluated with Pearson's product-moment correlation. All statistical tests are reported with their p-values.
 
+## Code and data availability
 
 For reproducibility, all of the data and source code files for this paper can be found at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
 
-## Cleaning and inputing the data {#subsec:cleaning}
+# Cleaning the raw data {#sec:cleaning}
 
-
-Figure: grid of density plots of all metrics: npubs; s2npubs; papers in dataset; h-index, h5, i10, total cites, cites/npubs with 'n'
 
 ```{r metric-distribs, echo=F,  warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
 metrics.summary <- ppl %>%
@@ -365,7 +366,7 @@ corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pa
 ```
 
  * All the distributions are right-skewed.
- * The two tails have the values we're most worried about: ambiguous names; epxnasive vs. mininmal inclusion of publications; inexperienced authors with no GS profile.
+ * The two tails have the values we're most worried about: ambiguous names; expansive vs. mininmal inclusion of publications; inexperienced authors with no GS profile.
  * Sensitivity analysis
  * The correlation between npubs and s2npubs is much higher for ppl.fitered, probably because we removed the points where they disagree by a lot.
 
@@ -403,7 +404,7 @@ PC in this conference
 
 ## Group aggregations {#subsec:aggregation}
 
-max, sum, min, mean, seniority tiers, any-famous (plot SD bias as function of threshold)
+max, sum, min, mean, seniority tiers, any-famous (plot SB bias as function of threshold)
 The last two avoid the problem of outliers on the right tail; using with s2npubs also avoids the problem of the missing data on the left end.
 
 ### Binary classification of fame
@@ -446,7 +447,7 @@ tbl %>%
 
 Add graphs with other metrics
 
-### Ternary classification of seniroty
+### Banded classification of seniority
 
 ## Confounding variables {#subsec:confounding}
 

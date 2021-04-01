@@ -6,8 +6,12 @@ subdirectory holds its own README.md file to describe the files in it.
 
 ## Quick start
 
-If you just want to try to recreate the processed data files and reports,
-use `cd pubs; make prereq; cd ..; make`. More details are below.
+If you just want to try to recreate all the processed data files and reports,
+use `cd pubs; make prereq; cd ..; make`.
+
+To reproduce a single analysis, find the subdirectory of `pubs/` that contains it (the `README.md` in `pubs/` lists them all). Ensure that you've met the software prerequisites, then type `make` in that directory.
+
+Prerequisite overview: The required R packages are all listed in `pubs/dependencies.R` and can be installed with the built-in R function `install.packages()`. In addition, you must set the `R` environment variable to an R interpreter (v. 3.6 and above), usually just `Rscript` or `/usr/bin/Rscript` on a recent installation. The `SYSCONF_HOME` environment variable must be set to the top-level directory you cloned from github (typically the directory where the README.md file you're currently reading resided).
 
 ## Directory description
 

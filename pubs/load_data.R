@@ -5,6 +5,8 @@ library('tidyverse')
 library('lubridate')
 
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
+#toplevel = "/Users/eitan/Dropbox/sysconf/"
+#toplevel = "/home/eitan/Dropbox/sysconf/"
 sep <- ';'
 
 ############# Conference data

@@ -25,11 +25,11 @@ There are two ways to recreate the documents (which embed the analysis):
 
 ## List of completed and ongoing publications:
 
-  * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker pull eitanf/sysconf/peerj20`).
+  * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker pull eitanf/sysconf:peerj20`).
   * `gender-gap`: Initial draft of paper on gender gap in systems.
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
-  * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (conference paper).
+  * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (`docker pull eitanf/sysconf:sc21`).
 
 The following lists in bibtex format the published peer-reviewed documents in reverse publication order:
 

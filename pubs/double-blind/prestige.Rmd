@@ -77,7 +77,7 @@ ppl.linear <- ppl %>%
 
 famous.thresh = 40
 
-# Only the people/papers with H-index and no "famous" co-authors on the same paper
+# Only the people/papers with h-index and no "famous" co-authors on the same paper
 ppl.notfamous <- ppl.filtered %>%
   group_by(as.factor(key)) %>%
   mutate(maxh = max(hindex)) %>%
@@ -114,10 +114,15 @@ experience <- ppl.filtered %>%
               max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
     left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
 
+any_pc <- ppl.filtered %>%
+    group_by(as.factor(key)) %>%
+    summarize(conf = as.character(first(conf)), any_pc = sum(as_pc) > 0) %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+
 db_confs = filter(all_confs, double_blind)
 sb_confs = filter(all_confs, !double_blind)
 
-# over_h: compuate how many papers in SB and DB conferences have at least one author with H-index at thresh or higher
+# over_h: compuate how many papers in SB and DB conferences have at least one author with h-index at thresh or higher
 over_h <- function(thresh)
 {
   experience$over_thresh <- experience$max_h >= thresh
@@ -185,17 +190,26 @@ report_db <- function(who, metric) {
               coauthors = n(),
               max_papers = max(as_author), min_papers = min(as_author), mean_papers = mean(as_author), median_papers = median(as_author), total_papers = sum(as_author),
               max_h = max(hindex), min_h = min(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
-              max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs)) %>%
+              max_i10 = max(i10index),
+              max_citedby = max(citedby),
+              max_cites_per_paper = max(citedby / npubs),
+              max_pcs = max(as_pc),
+              max_npubs = max(npubs), min_npubs = min(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs),
+              max_s2npubs = max(s2npubs), min_s2npubs = min(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs)) %>%
     left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
 
   sb <- filter(experience, double_blind == F)
   db <- filter(experience, double_blind == T)
-  paste0("Mean SB: ", round(mean(sb[[metric]]), 2),
-         " Mean DB: ", round(mean(db[[metric]]), 2),
-         " Median SB: ", round(median(sb[[metric]]), 2),
-         " Median DB: ", round(median(db[[metric]]), 2),
-        " (", report_test(t.test(sb[[metric]], db[[metric]])), " -- ",
-        report_test(wilcox.test(sb[[metric]], db[[metric]])), ")")
+  paste0("mean SB: ", round(mean(sb[[metric]]), 2),
+         ", mean DB: ", round(mean(db[[metric]]), 2)
+#         , " Median SB: ", round(median(sb[[metric]]), 2)
+#         , " Median DB: ", round(median(db[[metric]]), 2)
+#         , " ("
+         , "; ", report_test(t.test(sb[[metric]], db[[metric]]))
+#         , " -- "
+#         , report_test(wilcox.test(sb[[metric]], db[[metric]]))
+#         ")"
+        )
 }
 
 # is_famous_vs_db: For a given population, metric, and threshold, return ratios of papers that include a famous author
@@ -234,13 +248,13 @@ is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
   JOURNAL OF THE AMERICAN SOCIETY FOR INFORMATION SCIENCE AND TECHNOLOGY
  -->
 
-* Double-blind reviewing has been suggested as a way to reduce bias in the review process, including "prestige bias".
-* Various studies found evidence for and against prestige bias in single-blind reviewing
+* Double-blind (DB) reviewing has been suggested as a way to reduce bias in the review process, including "prestige bias".
+* Various studies found evidence for and against prestige bias in single-blind (SB) reviewing
 * We found that even for the same data, the way you evaluate and measure this relationship can produce different and even contradictory results to this question.
 * Emphasis: we're not trying to decide the question of prestige bias for our dataset, but rather look at the factors that can affect the outcome of such an evaluation, including:
 
   - How to address outliers and missing data (filter, flatten, impute, log)
-  - How to measure an author's reputation? (H-index, Npubs x 2, # papers in dataset)
+  - How to measure an author's reputation? (h-index, Npubs x 2, # papers in dataset)
   - How to aggregate reputation across a group of all co-authors, since decision is on a per-paper basis? (max / mean / median / sum / min / any>thresh / seniority bands)
   - How to correct for conference reputation
   
@@ -259,8 +273,8 @@ The information we collected measures publication rates, not acceptance rates, s
 
 ## Challenges: {-}
 
- - How do we measure researcher prestige? H-index? npubs? s2npubs? other?
- - Selection bias: most authors with missing H-index data are also less famous.
+ - How do we measure researcher prestige? h-index? npubs? s2npubs? other?
+ - Selection bias: most authors with missing h-index data are also less famous.
  - Survivorship bias: The submission rate of famous people in S.B and D.B conferences may not be the same as the acceptance rate.
  - Confounding conference variables: Other conference factors, like conference prestige, may be associated with S.B/D.B but much more influential in the submission choice of famous authors.
  - Computation of S2npubs is bad for people with shared names (predominatly Chinese), and therefore the imputation is as well.
@@ -297,7 +311,7 @@ cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
 For each of these conferences, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
 Conferences also do not generally offer information on authors' demographics, but we were able to unambiguously link approximately two thirds (`r pct(nrow(filter(persons, !is.na(hindex))), nrow(persons))`%) of
 researchers in our dataset to a Google Scholar (GS) profile.
-For each author and PC member, we collected all metrics in their GS profile, such as total previous publications (ca. 2017), H-index, etc.
+For each author and PC member, we collected all metrics in their GS profile, such as total previous publications (ca. 2017), h-index, etc.
 Note that we found no GS profile for about a third of the researchers
 (`r pct(sum(is.na(authors$hindex)), nrow(authors), 2)`%),
 and these researchers appear to be less experienced than researchers with a GS profile.
@@ -318,13 +332,13 @@ For reproducibility, all of the data and source code files for this paper can be
 # Cleaning the raw data {#sec:cleaning}
 
 
-```{r metric-distribs, echo=F,  warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
+```{r metric-distribs, echo=F, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
 metrics.summary <- ppl %>%
   pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
   mutate(Metric = recode_factor(Metric,
-                                npubs = "Total publications (GS)", hindex = "H-index", citedby = "Total citations",
+                                npubs = "Total publications (GS)", hindex = "h-index", citedby = "Total citations",
                                 s2npubs = "Total publications (S2)", as_author = "Papers in dataset", paper_cites = "Citations per paper",
-                                i10index = "I-10 index", hindex5y = "H-index (5 years)", i10index5y = "I-10 index (5 years)")) %>%
+                                i10index = "I-10 index", hindex5y = "h-index (5 years)", i10index5y = "I-10 index (5 years)")) %>%
   group_by(name, gs_email, Metric) %>%
   summarize(Metric = first(Metric), value = first(value), .groups = "keep") %>%
   group_by(Metric) %>%
@@ -361,8 +375,6 @@ library(corrplot)
 library(RColorBrewer)
 
 corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pal(n = 8, name = "RdYlBu"), tl.col="black", tl.srt=45)
-
-
 ```
 
  * All the distributions are right-skewed.
@@ -372,35 +384,89 @@ corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pa
 
 # Empirical results {#sec:results}
 
-In this section we explore the observed relationships between prestige and double-blind reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a commonly set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor and ignoring any confounding variables. This metric has been commonly used in other studies as well \cite{...}.
+In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a commonly set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor and ignoring any confounding variables. This metric has been commonly used in other studies as well \cite{from related work}.
 
 ## Reputation metrics {#subsec:metrics}
 
-Author reputation or prestige is an intangible, abstract concept. Nevertheless, quantitative studies like ours require a concrete approximation. As a proxy for the intangible reputation, most bibliometric studies employ either metrics based on publication counts [@cite; @cite; @cite] on citation counts [@cite; @cite; @cite], or both [@cite]. We next describe these metrics and their distributions in our dataset.
+Author reputation is an intangible, abstract concept. Nevertheless, the quantitative studies that we focus on require a concrete approximation. As a proxy for the intangible reputation, most bibliometric studies employ either metrics based on productivity (publication counts), on impact, (citation metrics), or both [@carpenter14:metrics; @dettori19:measuring]. We next describe these metrics and their distributions in our dataset. This list is certainly not exhaustive; the debate on their relative merits and effectiveness is an ongoing research topic, and new and improved metrics are proposed constantly. But this list represents some of the most commonly used metrics, and as our results show, is sufficient to surface problems in the context of reviewing policy. 
 
 
 ### Publication counts
 
 Counting the number of past publications is ostensibly the most straightforward way to quantify how well-known an author is. After all, the more papers that carry their name, the more likely it is that their name is recognized by reviewers. But the relationship is hardly linear in practice:
 
- * Not all papers are equally well-known, read, or cited (a problem that the H-index attempts to address).
- * Systems papers vary significantly  in numbers of coathurs, making partial credit attribution particularly tricky, even with H-index \cite{h-frac}.
+ * Not all papers are equally well-known, read, or cited (a problem that the impact-based metrics attempt to address).
+ * Successful young researchers may be receiving significant name recognition without having yet accumulated a long publication record.
  * Deciding what counts as a "publication" can be subjective and vary from source to source. For example, do patents count? Arxiv preprints? blog posts?
- * Accurate collection of even the raw data is complicated by factors such as author name disambiguation, publication disambiguation, and noisy or crowd-sourced data sources. 
- 
-npubs/s2npubs, papers in dataset; from now on use only s2npubs? (because more data than npubs but correlated and cleaner; papers in dataset measure of present and not past reputation?)
+ * Accurate collection of even the raw data is complicated by factors such as author name disambiguation, paper disambiguation, and noisy or crowd-sourced data sources.
+ * Systems papers in particular vary significantly in numbers of coauthors because some implementations take large team effort. Credit attribution therefore becomes particularly tricky in this field, even with h-index [@koltun21:hindex].
+
+We these limitations in mind, we start our analysis by looking at the count of previous publications for each author
+For each accepted paper, we looked at the publication count of the most prolific author.
+In our dataset, authors in SB conferences average a higher publication count based on GS than in DB conferences
+(`r report_db(ppl.filtered, "max_npubs")`).
+This relationship appears to support a hypothesis of prestige bias for these conferences (again, it is insufficient to conlude a causal relationship).
+When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker
+(`r report_db(ppl.best_source, "max_s2npubs")`).
+
+We can also use a third source of paper counts that ignores the past altogether, using only up-to-date statistics.
+If we look only at the number of papers published in our cross-section of conferences from 2017, we find that SB conference authors actually average significantly fewer publications than those in DB conferences
+(`r report_db(ppl.filtered, "max_papers")`).
+This result could provide evidence against a prestige bias, but it could also point to a completely different hypothesis, such as authors preferring to submit to DB conferences for these specific conferences and point in time.
+The evidence based on publication counts alone is inconclusive.
+
 
 ### Citation-based metrics
 
-H index,  i10, h5_index, total citations, citations/npubs
+We next turn our attention to another set of commonly used metrics, those incorporating citations, which is one measure of impact.
+Citation-based metrics try to capture the fact that not all publications have the same influence on other researchers, and indirectly, on the author's reputation.
+Note that the correlation between total past citations and total past papers is not particularly high, leading potentially to divergent results when evaluating prestige bias
+(Pearson correlation of
+$r=`r round(cor(ppl.filtered$npubs, ppl.filtered$citedby), 2)`$
+when using GS paper counts,
+$r=`r round(cor(ppl.filtered$s2npubs, ppl.filtered$citedby), 2)`$
+with S2 data).
 
-From now on, discard i10 and h5 because of correlations?
+From GS, we collected for each author with an identifiable profile they total number of past citations, h-index, i10-index (number of papers with 10 or more citations), the h-index over the past 5 years and the i10-index over the past 5 years.
+We omit the last two metrics from our discussion because of their high correlation with h-index and i10-index, respectively (Fig. \@ref(fig:metric-corrs)).
+We also computed another metric from these statistics, citations per paper, by dividing total citations with total GS publications.
+
+Once more, we look at the most senior coauthor in each paper group, and compare the averages across SB and DB conferences.
+Of these, the citations-per-paper metric shows the strongest association with DB reviewing
+(`r report_db(ppl.filtered, "max_cites_per_paper")`).
+The h-index metric also is strongly indicated with higher values in DB conferences
+(`r report_db(ppl.filtered, "max_h")`).
+
+The total citations metric shows a much weaker association in the same direction
+(`r report_db(ppl.filtered, "max_citedby")`),
+while the i10 metric shows a weak association in the opposite direction.
+(`r report_db(ppl.filtered, "max_i10")`).
 
 
 ### Program committee metrics
 
-As PC total
-PC in this conference
+Two other reputation metrics that are not regularly reported or measured are participation of the authors in review roles.
+Many comparable studies focus on journal authors, where most reviewers remain unidentified, and editorial boards are relatively small.
+But in CS, and systems in particular, where the main publication venue is conferences, most of the peer review is carried out by broad, publicized program committees (PCs).
+
+Participation in a PC is related to an author's reputation in two ways.
+First, to be invited to serve in a PC, an author needs to typically be regarded as an authority in the field.
+We can extend this intuition to reputation metrics, either as a quantitatve one---how many PC in our set an author belongs to---or a qualitative one, simply noting whether they particpate in any PC at all.
+For the former we observed that the most senior coauthors in each paper group average marginally more PC roles in DB conferences
+(`r report_db(ppl.filtered, "max_pcs")`).
+For the latter, we similarly observed that the ratio of papers authored by at least one member of a PC in our set is slightly higher for DB conferences than for SB
+(`r pct(nrow(filter(any_pc, double_blind, any_pc)), nrow(filter(any_pc, double_blind)))`% vs.
+`r pct(nrow(filter(any_pc, !double_blind, any_pc)), nrow(filter(any_pc, !double_blind)))`%;
+`r report_test(chisq.test(table(any_pc$any_pc, any_pc$double_blind)))`).
+
+Second, when a person submits a paper to a specific conference wherein they also serve on the PC, they are quite likely recognized by reviewers, who also compose the PC.
+We can compute the percentage of papers in each conference where at least one of the authors participates in the PC for that same conference.
+Comparing across review polices, we find no significant difference in the mean percentage for DB and SB conferences
+(`r 100 * round(mean(filter(all_confs, double_blind)$pc_paper_ratio), 2)`% vs.
+`r 100 * round(mean(filter(all_confs, !double_blind)$pc_paper_ratio), 2)`%;
+`r report_test(t.test(filter(all_confs, double_blind)$pc_paper_ratio, filter(all_confs, !double_blind)$pc_paper_ratio))`).
+
+In summary, none of the PC metrics for reputation shows a strong association with the review policy of the conference.
 
 ## Group aggregations {#subsec:aggregation}
 
@@ -413,7 +479,7 @@ So far, we have treated the reputation or fame of researchers as a continuous va
 
 The quantitative question then becomes, what is the proprtion of accepted papers in SB and DB conferences for which at least one of the authors carries enough reputation to be recognized. Since we do not know a-priori what "enough reputation" means, we observe how these proportions change based on different reputation metrics and thresholds.
 
-```{r rep-threshold-h, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with an H-index value above the threshold."}
+```{r rep-threshold-h, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with an h-index value above the threshold."}
 total_db = nrow(filter(experience, double_blind))
 total_sb = nrow(filter(experience, !double_blind))
 tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
@@ -428,7 +494,7 @@ tbl %>%
     geom_line()
 ```
 
-Fig. \@ref(fig:rep-threshold-h) shows the difference in proportions of papers written by famous authors in either single- or double-blind conferences. It shows famous authors consistently over-represented in double-blind conferences by a nearly constant amount of some 5%--10%. Comparing these proportions across single- and double-blind conferences with a $\chi{}^2$-test yields p-values below 0.05 for `r pct(sum(tbl$p.value < 0.05, na.rm = T), nrow(tbl) - 1, 1)`% of the threshold values.
+Fig. \@ref(fig:rep-threshold-h) shows the difference in proportions of papers written by famous authors in SB or DB conferences. It shows famous authors consistently over-represented in DB conferences by a nearly constant amount of some 5%--10%. Comparing these proportions across SB and DB conferences with a $\chi{}^2$-test yields p-values below 0.05 for `r pct(sum(tbl$p.value < 0.05, na.rm = T), nrow(tbl) - 1, 1)`% of the threshold values.
 
 ```{r rep-threshold-npubs, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with at least as many publications as the threshold."}
 total_db = nrow(filter(experience, double_blind))
@@ -451,8 +517,8 @@ Add graphs with other metrics
 
 ## Confounding variables {#subsec:confounding}
 
-A conference chair's choice to employ double-blind reviewing is often connected to other conference factors that may also be connected to the experience of researchers submitting to it.
-Double-blind conferences tend to have a longer history
+A conference chair's choice to employ DB reviewing is often connected to other conference factors that may also be connected to the experience of researchers submitting to it.
+DB conferences tend to have a longer history
 (`r report_test(t.test(db_confs$age, sb_confs$age))`), 
 a lower acceptance rate
 (`r report_test(t.test(db_confs$acceptance_rate, sb_confs$acceptance_rate))`),
@@ -471,17 +537,17 @@ and more citations to past papers
 especially when normalized to citations per paper
 (`r report_test(t.test(db_confs$mean_historical_citations, sb_confs$mean_historical_citations))`).
 
-In other words, double-blind conferences themselves show several other distinct characteristics, many of which associated with better reputation. The higher implied prestige of the conference could be associated with the prestige of authors as well, confounding the relationship.
-Although we do not have experimental data to infer a causal relationship between the two, the inclusion alone of confounding variables could weaken the observed association between double-blind conferences and author prestige.
-Every one of these variables could potentially serve as a better predictor of author reputation than double-blind reviewing, which could complicate drawing conclusions on review bias from other observational studies as well.
+In other words, DB conferences themselves show several other distinct characteristics, many of which associated with better reputation. The higher implied prestige of the conference could be associated with the prestige of authors as well, confounding the relationship.
+Although we do not have experimental data to infer a causal relationship between the two, the inclusion alone of confounding variables could weaken the observed association between DB conferences and author prestige.
+Every one of these variables could potentially serve as a better predictor of author reputation than DB reviewing, which could complicate drawing conclusions on review bias from other observational studies as well.
 
-To evaluate the effect of these confounding variabkes, we picked the author reputation metric with the strongest relationship to double-blind reviewing, --- , and recalculated the relationship while correcting for each variable.
+To evaluate the effect of these confounding variables, we picked the author reputation metric with the strongest relationship to DB reviewing, --- , and recalculated the relationship while correcting for each variable.
 
-Check with logistic regreshion (glm with method=binomial), contrast with linear model
+Check with logistic regression (glm with method=binomial), contrast with linear model
 
 # Discussion {#sec:discussion}
 
--- There are two "types" of senior researchers. Type A publish fewer but more cited papers, and type B just publishes a lot of papers, but have lower H-index than type A relative to npubs. The DB conferences show more type-A people, and the SB more type B. The DB conferences also average higher on various prestige metrics and are more competitive. This would be consistent with fewer, more cited papers. But it means you have to correct for conference prestige.
+-- There are two "types" of senior researchers. Type A publish fewer but more cited papers, and type B just publishes a lot of papers, but have lower h-index than type A relative to npubs. The DB conferences show more type-A people, and the SB more type B. The DB conferences also average higher on various prestige metrics and are more competitive. This would be consistent with fewer, more cited papers. But it means you have to correct for conference prestige.
 
    * To demonstrate this, compute for each paper mean citations/paper (for either max_h person or max_npubs) and correlate with acceptance rate of conference.
 
@@ -491,7 +557,7 @@ Check with logistic regreshion (glm with method=binomial), contrast with linear 
 
 -- Reccomendations? perhaps any-famous using npubs from a erliable/complete source? Correct for conference prestige by acceptance rate (or whatever the strongest correlator to DB was).
 
-Double-blind reviewing is also associated with fewer authors that are PC members
+DB reviewing is also associated with fewer authors that are PC members
 (`r report_test(t.test(db_confs$pc_author_ratio, sb_confs$pc_author_ratio))`),
 although it has no effect on the number of papers with at least one PC author
 (`r report_test(t.test(db_confs$pc_paper_ratio, sb_confs$pc_paper_ratio))`),
@@ -502,10 +568,10 @@ although it has no effect on the number of papers with at least one PC author
 <!--
  - Who are the people with large discrepancy between s2npubs and npubs? People with common names that get merged with other researchers for too many pubs; or in GS case, counting many non-paper pubs.
  - Compute the % of papers for which max_h and max_npubs are the same person: `r pct(nrow(filter(experience, max_h_idx != max_npubs_idx)), nrow(experience), 3)`%.
- - Should we winsorize high npubs instead of impute? or just use H-index?
- - Median H-index is significantly different, but mean isn't? (H-index probably not as long-tailed)
+ - Should we winsorize high npubs instead of impute? or just use h-index?
+ - Median h-index is significantly different, but mean isn't? (h-index probably not as long-tailed)
  - What is the effect of outlier publishers? Try to remove the top_n h-index and retest.
- - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max H-index--why?
+ - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max h-index--why?
  There are `r ppl.filtered %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.
 - The distributions of max_npubs and max_h are different. It appears that people with lots of npubs (> 500) that publish in single-blind conferences have relatively lower h-index. Perhaps that's because they publish in less competitive conferences.
  - What is the relationship between PC h-index (mean/median) and authors' h-index? PC-author-ratio vs max_h?
@@ -542,7 +608,7 @@ filter(experience, double_blind) %>% select(band) %>% summary()
 filter(experience, !double_blind) %>% select(band) %>% summary()
 ```
 
-Looking at seniority bands by H-index confirms what we saw with max-H: more senior authors in double-blind, not single-blind conferences.
+Looking at seniority bands by h-index confirms what we saw with max-H: more senior authors in double-blind, not single-blind conferences.
 
 
  - Correlate all conference factors to double_blind: 
@@ -552,7 +618,7 @@ Looking at seniority bands by H-index confirms what we saw with max-H: more seni
 
 Refer to survey paper [@frachtenberg20:survey]:
 
-Many author factors do not appear to significantly interact with double-blindness, such as: the gender, position, and research experience (based on H-index).
+Many author factors do not appear to significantly interact with double-blindness, such as: the gender, position, and research experience (based on h-index).
 In terms of review scores, there do not appear to be large differences in the mean and median grades, but the distribution of grades in double-blind reviews appears wider for some categories, especially technical merit.
 
 We doubt that double-blinding adequately explains all these phenomena [@godlee98:peer; @mcnutt90:blinding]. Instead, we suggest looking at a third factor: the reputation or prestige of a conference. Prestige may be too abstract to measure accurately, but we did collect two proxy conference metrics: the acceptance rate and H5-index (as measured by GS).
@@ -566,11 +632,11 @@ We doubt that double-blinding adequately explains all these phenomena [@godlee98
 
  * [@tomkins17:reviewer] Performed an experiment on the WSDM'17 submissions: two PCs, one for SB and one for DB, with two from each PC reviewing each paper. They look at the following covariates: gender of first author (and others); sector of majority authors; paper predominantly from US authors (most common country); famous author (npubs >= 100, of which at least three from WSDM); country homophily with reviewer (we don't have that info); top-50 university, any author (based on http://www.topuniversities.com/); top company, any author (Google/Microsoft/Yahoo/Facebook). 
  
- * [@blank91:effects] (quoted from [@tomkins17:reviewer, related work]): "Perhaps the best-known experimental study of single-blind vs.double-blind reviewing behavior, and to our knowledge the onlycontrolled  experiment  in  this  area  other  than  our  own,  is  thestudy by Rebecca Blank (15). Over several years, 1,498 paperswere randomly assigned to single-blind vs. double-blind review-ing condition. While Blank performs detailed analyses of manyfacets of the data, we may summarize part of the high-level find-ings  as  follows.  First,  authors  at  top  or  bottom  institutions  donot see significant differences in acceptance decisions based onreviewing model, but authors at midtier institutions perform bet-ter in a single-blind setting, as do foreign authors and those out-side academia. Second, there is a mild indication, not statisticallysignificant, that women do slightly better in double-blind review."
+ * [@blank91:effects] (quoted from [@tomkins17:reviewer, related work]): "Perhaps the best-known experimental study of SB vs. DB reviewing behavior, and to our knowledge the onlycontrolled  experiment  in  this  area  other  than  our  own,  is  thestudy by Rebecca Blank (15). Over several years, 1,498 paperswere randomly assigned to SB vs. DB review-ing condition. While Blank performs detailed analyses of manyfacets of the data, we may summarize part of the high-level find-ings  as  follows.  First,  authors  at  top  or  bottom  institutions  donot see significant differences in acceptance decisions based onreviewing model, but authors at midtier institutions perform bet-ter in a SB setting, as do foreign authors and those out-side academia. Second, there is a mild indication, not statisticallysignificant, that women do slightly better in DB review."
  
- * [@okike16:single] (quoted from [@tomkins17:reviewer, related work]): "performed an ingenious study con-structing  an  artificial  submission  proposing  a  study  of  the  effi-cacy  of  training  to  improve  communication  in  the  operatingroom. The fabricated study was submitted to an orthopedics jour-nal  and  listed  as  authors  two  past  presidents  of  the  AmericanAcademy of Orthopedic Surgeons. With the involvement of thejournal, the study was sent to 256 reviewers, of whom 119 com-pleted  the  review,  split  between  single-blind  and  double-blindconditions. The results showed that single-blind reviewers weresignificantly more favorable toward the paper."
+ * [@okike16:single] (quoted from [@tomkins17:reviewer, related work]): "performed an ingenious study con-structing  an  artificial  submission  proposing  a  study  of  the  effi-cacy  of  training  to  improve  communication  in  the  operatingroom. The fabricated study was submitted to an orthopedics jour-nal  and  listed  as  authors  two  past  presidents  of  the  AmericanAcademy of Orthopedic Surgeons. With the involvement of thejournal, the study was sent to 256 reviewers, of whom 119 com-pleted  the  review,  split  between  single-blind  and  double-blind conditions. The results showed that single-blind reviewers weresignificantly more favorable toward the paper."
  
- * [@tung06:impact] looked retrospectively at VLDB and SIGMOD papers (SIGMOD is in our data set), to compare the ratio of accepted papers from famous people over time, before and after starting double-blind reviewing. Unlike a previous study, it found that when looking at median papers/famous as opposed to mean, a significant drop is noticed when switching to DB (no p-value computed). Like our approach, it looks only at accepted papers; unlike our approach, it's longitudinal, not cross-sectional.
+ * [@tung06:impact] looked retrospectively at VLDB and SIGMOD papers (SIGMOD is in our data set), to compare the ratio of accepted papers from famous people over time, before and after starting DB reviewing. Unlike a previous study, it found that when looking at median papers/famous as opposed to mean, a significant drop is noticed when switching to DB (no p-value computed). Like our approach, it looks only at accepted papers; unlike our approach, it's longitudinal, not cross-sectional.
  
  * [@fisher94:effects] performed a RCT on 57 consecutive submissions to J. of Dev. and Behavioral Pediatrics, where each paper got 2 SB and 2 DB reviews. Review grades and acceptance decisions were correlated against max npubs and lead-author npubs. It found that SB prefers authors with higher npubs.
  
@@ -586,15 +652,20 @@ We doubt that double-blinding adequately explains all these phenomena [@godlee98
 
  * [@koltun21:hindex] Argues that The h-index is no longer an effective correlate of scientific reputation. See also here: [https://arxiv.org/pdf/1108.3901](https://arxiv.org/pdf/1108.3901).
 
- *  [@bhagat18:data] has addressed some similiar methodological issues in measuring women's representation.
+ * [@bhagat18:data] has addressed some similiar methodological issues in measuring women's representation.
 
+ * [@carpenter14:metrics] No single reputation metrics is enough, we need a complete picture, not just based on publications. 
 
+ * \url{https://link.springer.com/article/10.1007%252Fs11192-017-2351-9} builds a model of one metric based on the others. It shows the relationships are complex and nonlinear(???); can we reproduce their model on our data?
+ 
+ * \url{https://link.springer.com/article/10.1007/s11192-020-03364-1} Citation-based metrics are all correlated and more sensitive to changes in npubs than total citations. Every metric has limitations.
+ 
 # Conclusion {#sec:conclusion}
 
  - Add recommendations? perhaps to discussion?
  - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.
- - The only exception is the metric max H-index (H-index of most senior author per paper), which is lower in single-blind (p=0.0055).
- - This reversal isn't changed whether we drop the NA H-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).
+ - The only exception is the metric max h-index (h-index of most senior author per paper), which is lower in single-blind (p=0.0055).
+ - This reversal isn't changed whether we drop the NA h-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).
  - The higher prestige bias survives when controlling for conference prestige (either with h5_hindex or with I(mean_historical_citations/age)). But not when controlling for pc_author_ratio and pc_paper_ratio.
 
 

@@ -8,9 +8,7 @@ title: Evaluating the relationships between author reputation and single-blind p
 bibliography: ../sysconf.bib
 csl: ieee.csl
 abstract: |
- | yada
- |  yada
- |  yada
+ | ...
 ---
 
 ```{r code = readLines("../load_data.R"), echo=F, message=F}
@@ -248,28 +246,50 @@ is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
   JOURNAL OF THE AMERICAN SOCIETY FOR INFORMATION SCIENCE AND TECHNOLOGY
  -->
 
-* Double-blind (DB) reviewing has been suggested as a way to reduce bias in the review process, including "prestige bias".
-* Various studies found evidence for and against prestige bias in single-blind (SB) reviewing
-* We found that even for the same data, the way you evaluate and measure this relationship can produce different and even contradictory results to this question.
-* Emphasis: we're not trying to decide the question of prestige bias for our dataset, but rather look at the factors that can affect the outcome of such an evaluation, including:
+Numerous studies attempt to answer the question of wether prestige bias exists in a particular discipline of science [blank91:blind; @budden08:double; @cox19:cases; @kalavar21:single; @okike16:single; @peters82:peer; @seeber17:newcomers; @tomkins17:reviewer].
+This paper began as one of these studies, focusing on the field of computer systems.
+We soon realized that our particular dataset was insufficient to provide conclusive evidence for or against prestige bias.
+We also realized that the limitations we encountered may actually be shared by many of these studies and had not been well documented before.
+The main focus of our study this became the exploration of how subtle changes in the data and methods used to answer this question can radically change the resulting outcome.
 
-  - How to address outliers and missing data (filter, flatten, impute, log)
-  - How to measure an author's reputation? (h-index, Npubs x 2, # papers in dataset)
-  - How to aggregate reputation across a group of all co-authors, since decision is on a per-paper basis? (max / mean / median / sum / min / any>thresh / seniority bands)
-  - How to correct for conference reputation
-  
-* How do our results compare to past findings in related work?
+But first, what is prestige bias, and why should we care about it?
+Scientists normally publish their findings in peer-reviewed venues such as journals and conferences.
+Their work is judged by a small set of peers from their field, who typically remain anonymous so that their critique can remain free from author influence.
+This so-called single-blind (SB) reviewing has been widely accepted as the baseline standard of credibility in the scientific process [@hames08:peer].
+However, single-blind reviewing still lets reviewers know the identities of the work's authors.
+Several researchers have argued that this knowledge can affect the review outcomes in subjective ways.
+In particular, when reviewers encounter a famous author or affiliation they may subconciously experience authority bias, where higher accuracy is attributed to the opinion of authority figures [@ramos17:biases]. 
+This bias, also known as "the halo effect", "status bias", or prestige bias", the term we use in this paper.
+It has been implicated as an important but unscientific factor in the review process, which in turn can leads to bad science and lower credibility for the scientific process as a whole [@tomkins17:reviewer]
+
+A commonly suggested antidote to prestige bias is double-blind (DB) reviewing, where authors' identities and affiliations are hidden from reviewers.
+Not all venues employ DB reviewing, both for practical and principled considerations.
+However, the coexistence of SB and DB reviewing (sometimes in the same venue) opens the door to comparative studies of the effects of prestige bias.
+For example, the association between reviewing policy and various biases has been assesed in fields as disparate as economics [blank91:blind], behavioral ecology [@budden08:double; @cox19:cases], ophthalmology [@kalavar21:single], medicine [@okike16:single], psychology [@peters82:peer], and computer science [@seeber17:newcomers; @tomkins17:reviewer].
+Some of these studies have found conclusive evidence for or against the existence of bias, sometimes in the same field.
+Often, these studies were not directly comparable because of various differences in the data, methodologies, or metrics used.
+One limitation of these studies is that there are various ways to estimate a person's name recognition, and they all yield different results.
+Another limitation is that the reviewing policy of a venue is not always independent from other factors, so DB reviewing could be confounded with other factors that affect submission or acceptance decisions.
+When we tried to apply similar methodologies to another broad field of research, computer systems, we discoverd that the outcome can vary significantly based on the methodology and metrics used.
+
+The main contribution of this paper is therefore an analysis of the sensitivity of the association between reviewing policy and prestige bias.
+To emphasize, this study does not attempt to directly address the question of the existence of prestige bias in this field.
+Instead, we focus on exposing and analyzing the factors that could change the outcomes of studies that do attempt to address this question.
+These factors include questions such as: how to estimate the prestige or reputation of authors? where should data be sourced from, and how should it be cleaned? and how should we correct for confounding variables like conference prestige?
+A meaningful analysis of review bias requires a careful consideration of these factors, and a cognizant effort to address the sensitivity of the outcomes to these choices.
+Understanding these factors can help accomplish more reliable and stable results in future studies on bias in general, and prestige bias in particular.
+
+The rest of this paper is organized as follows.
+We start by describing the extensive dataset we collected on our field of focus in Sec. \@ref(sec:data).
+As is often the case with real-world data, it is noisy and contains significant outliers.
+We describe the treatment of these outliers and the cleaning of this dataset in general in Sec. \@ref(sec:cleaning).
+The next section then describes empirical evidence for and against prestige bias, varying based on the types of metrics and statistical analyses performed.
+This section demonstrates how contradictory but statistically significant results can be obtained by different approaches, despite working on the very same dataset.
+We elaborate and discuss these findings and practical recommendations in Sec. \@ref(sec:discussion).
+Finally, we review related work in Sec. \@ref(sec:related) and conclude in Sec. \@ref(sec:conclusion).
 
 
 <!--
-Common research question: Is there a prestige bias in systems conference?
-In other words, are prestigious authors (or institutes) more likely to be accepted to a conference than lesser-known authors?
-
-We cannot answer this question directly without information on rejected papers, so instead we ask a weaker question:
-Is there a statistically signigicant difference in the rates of famous authors published in single-blind or double-blind conferences?
-
-The information we collected measures publication rates, not acceptance rates, so our observations do not lead to conclusive claims on which papers/authors are accepted more. Higher publication rate of certain authors in certain conferences does not necessarily imply a higher acceptance rate, because, for example, these authors could be submitting more papers to these conferences. But the two metrics are nevertheless related: all else being equal, a higher acceptance rate will imply a higher publication rate.
-
 
 ## Challenges: {-}
 
@@ -290,7 +310,7 @@ We chose to focus on a large cross-sectional set of conferences from a single pu
 Our choice of which conferences belong to "systems" is necessarily subjective.^[For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.]
 Not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
 However, we believe that our cross-sectional set is both wide enough to represent the field well and focused enough to distinguish it from the rest of CS.
-In total, our sample includes `r sum(all_confs$npapers)` peer-reviewed papers.
+In total, our sample includes `r sum(all_confs$npapers)` accepted peer-reviewed papers.
 
 ```{r sys-confs, echo=F, message=F, warning=F, cache=T}
 tmp <- all_confs %>%
@@ -307,9 +327,16 @@ cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
   kable_styling(font_size = 8)
 ```
 
+To address decisively the question of prestige bias in computer systems, we would need to compare the prestige of accepted authors to that of rejected authors, for which we have no information.
+The information we collected measures publication rates for authors, not acceptance rates, so our observations do not lead to conclusive claims on which papers/authors are accepted more.
+Higher publication rate of certain authors does not necessarily imply a higher acceptance rate, because, for example, these authors could be submitting more papers to these conferences.
+But the two metrics are nevertheless related: all else being equal, a higher acceptance rate will imply a higher publication rate.
+So instead, we concentrate not on the existence of prestige bias, but on a related question:
+Is there a statistically signigicant difference in the rates of famous authors published in single-blind or double-blind conferences?
 
-For each of these conferences, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
-Conferences also do not generally offer information on authors' demographics, but we were able to unambiguously link approximately two thirds (`r pct(nrow(filter(persons, !is.na(hindex))), nrow(persons))`%) of
+To answer this question, we collected extensive information to help us estimate the prestige of authors and conferences.
+For each conference, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
+Conferences do not generally offer information on authors' demographics, but we were able to unambiguously link approximately two thirds (`r pct(nrow(filter(persons, !is.na(hindex))), nrow(persons))`%) of
 researchers in our dataset to a Google Scholar (GS) profile.
 For each author and PC member, we collected all metrics in their GS profile, such as total previous publications (ca. 2017), h-index, etc.
 Note that we found no GS profile for about a third of the researchers
@@ -409,7 +436,7 @@ This relationship appears to support a hypothesis of prestige bias for these con
 When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker
 (`r report_db(ppl.best_source, "max_s2npubs")`).
 
-We can also use a third source of paper counts that ignores the past altogether, using only up-to-date statistics.
+We can also use a third source of paper counts that to differentiate between active and mostly inactive researchers, using only up-to-date statistics.
 If we look only at the number of papers published in our cross-section of conferences from 2017, we find that SB conference authors actually average significantly fewer publications than those in DB conferences
 (`r report_db(ppl.filtered, "max_papers")`).
 This result could provide evidence against a prestige bias, but it could also point to a completely different hypothesis, such as authors preferring to submit to DB conferences for these specific conferences and point in time.
@@ -514,6 +541,8 @@ tbl %>%
 Add graphs with other metrics
 
 ### Banded classification of seniority
+
+### Famous school/company
 
 ## Confounding variables {#subsec:confounding}
 
@@ -668,6 +697,7 @@ We doubt that double-blinding adequately explains all these phenomena [@godlee98
  - This reversal isn't changed whether we drop the NA h-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).
  - The higher prestige bias survives when controlling for conference prestige (either with h5_hindex or with I(mean_historical_citations/age)). But not when controlling for pc_author_ratio and pc_paper_ratio.
 
+We hope that this paper provides a guideline and a roadmap to studies on bias on how to carefully address methodological issues that could limit the generalization or credibility of their results.
 
 ### Acknowledgements {-}
 

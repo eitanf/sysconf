@@ -110,33 +110,35 @@ db_confs = filter(all_confs, double_blind)
 sb_confs = filter(all_confs, !double_blind)
 
 
-experience.all <- ppl %>%
-    group_by(as.factor(key)) %>%
+########################
+# compute_experience: Compute the collection of experience (reputation) metrics by paper
+compute_experience <- function(who)
+{
+  who %>%
+    mutate(ke = as.factor(key)) %>%
+    group_by(key) %>%
     summarize(conf = as.character(first(conf)), 
               coauthors = n(),
-              max_papers = max(as_author), mean_papers = mean(as_author), median_papers = median(as_author), total_papers = sum(as_author),
-              max_pcs = max(as_pc), mean_pcs = mean(as_pc), median_pcs = median(as_pc), total_pcs = sum(as_pc),
-              max_s2npubs = max(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs)) %>%
+              max_papers = max(as_author), mean_papers = mean(as_author), median_papers = median(as_author), total_papers = sum(as_author), first_papers = first(as_author),
+              max_h = max(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex), first_h = first(hindex),
+              max_i10 = max(i10index), mean_i10 = mean(i10index), median_i10 = median(i10index), total_i10 = sum(i10index), first_i10 = first(i10index),
+              max_citedby = max(citedby), mean_citedby = mean(citedby), median_citedby = median(citedby), total_citedby = sum(citedby), first_citedby = first(citedby),
+              max_cites_per_paper = max(paper_cites), mean_cites_per_paper = mean(paper_cites), median_cites_per_paper = median(paper_cites), total_cites_per_paper = sum(paper_cites), first_cites_per_paper = first(paper_cites),
+              max_pcs = max(as_pc), mean_pcs = mean(as_pc), median_pcs = median(as_pc), total_pcs = sum(as_pc), first_pcs = first(as_pc),
+              max_npubs = max(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs), first_npubs = first(npubs),
+              max_s2npubs = max(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs), first_s2npubs = first(s2npubs)
+              ) %>%
     left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+}
 
+experience <- compute_experience(ppl.filtered)
+experience.all <- compute_experience(ppl)
+experience.lead <- compute_experience(left_join(roles, persons) %>% filter(role == "lead_author") %>% mutate(paper_cites = citedby / npubs))
+experience.last <- compute_experience(left_join(roles, persons) %>% filter(role == "last_author") %>% mutate(paper_cites = citedby / npubs))
 
-experience <- ppl.filtered %>%
-    group_by(as.factor(key)) %>%
-    summarize(conf = as.character(first(conf)), 
-              coauthors = n(),
-              max_papers = max(as_author), mean_papers = mean(as_author), median_papers = median(as_author), total_papers = sum(as_author),
-              max_h = max(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex),
-              max_i10 = max(i10index), mean_i10 = mean(i10index), median_i10 = median(i10index), total_i10 = sum(i10index),
-              max_citedby = max(citedby), mean_citedby = mean(citedby), median_citedby = median(citedby), total_citedby = sum(citedby),
-              max_cites_per_paper = max(citedby / npubs), mean_cites_per_paper = mean(citedby / npubs), median_cites_per_paper = median(citedby / npubs), total_cites_per_paper = sum(citedby / npubs),
-              max_pcs = max(as_pc), mean_pcs = mean(as_pc), median_pcs = median(as_pc), total_pcs = sum(as_pc),
-              max_npubs = max(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs),
-              max_s2npubs = max(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs)) %>%
-    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
 
 
 ########################
-# Functions
 # over_h: compute how many papers in SB and DB conferences have at least one author with h-index at thresh or higher
 over_h <- function(thresh)
 {
@@ -147,6 +149,7 @@ over_h <- function(thresh)
    )
 }
 
+########################
 over_npubs <- function(thresh)
 {
   experience$over_thresh <- experience$max_npubs >= thresh
@@ -156,6 +159,7 @@ over_npubs <- function(thresh)
    )
 }
 
+########################
 # prestige_vs_db: For a given metric and aggregation function, compute the difference in means and median between SB and DB
 prestige_vs_db <- function(who,                # Population to work on
                            metric = "hindex",  # Which primary prestige metric to use
@@ -198,6 +202,7 @@ prestige_vs_db <- function(who,                # Population to work on
     "Coefficient" = paste0(k, stars))
 }
 
+########################
 # compute_db: for a given population and metric, return a vector with different statistics on
 # the differenceof means and medians for the metric between SB and DB
 compute_db <- function(exper = experience, aggr = "max", metric = "npubs")
@@ -210,10 +215,10 @@ compute_db <- function(exper = experience, aggr = "max", metric = "npubs")
 
   c(aggregation = aggr,
     metric = metric,
-    mean_sb = round(mean(sb[[column]]), 2),
-    mean_db = round(mean(db[[column]]), 2),
-    median_sb = round(median(sb[[column]]), 2),
-    median_db = round(median(db[[column]]), 2),
+    mean_sb = round(mean(sb[[column]], na.rm = T), 2),
+    mean_db = round(mean(db[[column]], na.rm = T), 2),
+    median_sb = round(median(sb[[column]], na.rm = T), 2),
+    median_db = round(median(db[[column]], na.rm = T), 2),
     t_stat = round(ttest$statistic, 3),
     t_pval = ttest$p.value,
     w_stat = round(wtest$statistic, 3),
@@ -221,6 +226,7 @@ compute_db <- function(exper = experience, aggr = "max", metric = "npubs")
   )
 }
 
+########################
 report_db <- function(exper = experience, aggr = "max", metric = "npubs")
 {
   tmp <- compute_db(exper, aggr, metric)
@@ -230,6 +236,7 @@ report_db <- function(exper = experience, aggr = "max", metric = "npubs")
          "$, ", format_p_value(as.numeric(tmp["t_pval"])))
 }
 
+########################
 # is_famous_vs_db: For a given population, metric, and threshold, return ratios of papers that include a famous author
 is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
   papers <- who %>%
@@ -444,7 +451,7 @@ corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pa
 
 # Empirical results {#sec:results}
 
-In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a commonly set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor and ignoring any confounding variables. This metric has been commonly used in other studies as well \cite{from related work}.
+In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a commonly set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
 
 <!-------------------------------------------------------------------------------------------->
 ## Reputation metrics {#subsec:metrics}
@@ -530,7 +537,7 @@ Comparing across review polices, we find no significant difference in the mean p
 `r 100 * round(mean(filter(all_confs, !double_blind)$pc_paper_ratio), 2)`%;
 `r report_test(t.test(filter(all_confs, double_blind)$pc_paper_ratio, filter(all_confs, !double_blind)$pc_paper_ratio))`).
 
-In summary, none of the PC metrics for reputation shows a strong association with the review policy of the conference.
+In summary, neither of the PC metrics for reputation shows a strong association with the review policy of the conference.
 
 <!-------------------------------------------------------------------------------------------->
 
@@ -556,11 +563,93 @@ In our dataset, only
 `r papers <- left_join(papers, co); p3 <- filter(papers, nauthors > 2); pct(nrow(filter(p3, alphabetized)), nrow(p3), 2)`%
 of papers with 3 or more coauthors ordered the author list alphabetically.
 
+```{r mean-diffs, echo = F, warning = F, fig.cap="Difference in means for various reputation metrics and aggregations across papers using two-sided Student's t-test. Positive t-statistic values (purple) indicate higher reputation in DB conferences. Negative values (orange) indicate higher reputation in SB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
+             compute_db(experience.all, "total", "s2npubs"),
+             compute_db(experience.all, "mean", "s2npubs"),
+             compute_db(experience.all, "median", "s2npubs")
+            )
 
-using with s2npubs also avoids the problem of the missing data on the left end.
-Create table: x-axis is prestige metric (hindex, npubs, ...), y-axis is aggregation type; each cell shows a t-test statistic with stars, color coded for sign of t (white means no significant association, more red mean prestige bias, more blue means anti-prestige bias)
+for (metric in c("npubs", "papers", "citedby", "cites_per_paper", "h", "i10")) {
+  for (aggr in c("max", "total", "mean", "median")) {
+    tbl <- rbind(tbl, compute_db(experience, aggr, metric))
+  }
+}
 
-Then, switch to medians and wilcox.test, same table and show how differences disappear, like in [@tung06:impact].
+# Append lead-author stats
+for (metric in c("s2npubs", "npubs", "papers", "citedby", "cites_per_paper", "h", "i10")) {
+  tbl <- rbind(tbl, compute_db(experience.lead, "first", metric))
+}
+tbl <- ifelse(tbl == "first", "lead", tbl)
+
+# Append last-author stats
+for (metric in c("s2npubs", "npubs", "papers", "citedby", "cites_per_paper", "h", "i10")) {
+  tbl <- rbind(tbl, compute_db(experience.last, "first", metric))
+}
+tbl <- ifelse(tbl == "first", "last", tbl)
+
+rep.all <- as_tibble(tbl)
+rep.all$metric <- factor(rep.all$metric, ordered = T,
+                         levels = c("npubs", "s2npubs", "papers", "citedby", "cites_per_paper", "h", "i10"),
+                         labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
+rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
+                              levels = c("lead", "last", "median", "mean", "total", "max"),
+                              labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
+rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
+rep.all$t_pval <- as.numeric(rep.all$t_pval)
+rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
+rep.all$w_pval <- as.numeric(rep.all$w_pval)
+
+
+ggplot(rep.all, aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = t_stat.t)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "t statistic") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Looking at all six aggregation methods across seven reputation metrics reveals a mixed picture (Fig. \@ref(fig:mean-diffs)).
+The first row (using maximum reputation per paper aggregation) repeats the results we discussed in Sec. \@ref(subsec:metrics).
+All other rows represent new aggregations.
+Depending on one's choice of metrics and aggregations, one can measure statistically significant reputation bias, anti-bias, or nonsignificant bias.
+Any stastically sound evidence to suggest bias can find a counter-argument just as sound in this dataset.
+
+Nevertheless, we can discern a few consistent properties from these comparisons:
+
+ * The citations-per-paper and papers-in-set metrics indicate lower mean reputation in SB conferences across all paper aggregations. It is noteworthy because these two metrics are completely unrelated in time: one looks at the past, and one at the present.
+ 
+ * Conversely, measuring reputation by number of publications results in higher mean reputation for SB conferences, regardless of aggregation or database used.
+ 
+ * However, using the more complete S2 database, which includes many more authors of low experience and reputation, lowers the t-statistic values and significance. This result may not be surprising, at it incorporates more data, particularly on the lower side of the reputation distribution; but it serves as a cautionary tale for ascribing statistical significance from partial data.
+
+ * Similarly, aggregating papers by the reputation of the lead author results in the least conclusive findings. We believe that many lead authors are relatively inexperienced graduate students.
+ 
+ * Looking at each paper's median reputation metric instead of mean leads to higher t-statistic values, i.e., higher indicated reputation in SB conferences and higer likelihood of prestige bias. (((Why?)))
+ 
+ 
+Related to the last point, we can look not only at median aggregation per paper, but also across papers.
+That is, we can compare how the median reputation per paper (however it is aggregated) differs between SB and DB conferences, again with the purpose of attenuating the effect of large right-skewed outliers.
+
+
+```{r median-diffs, echo = F, warning = F, fig.cap="Difference in medians for various reputation metrics and aggregations across papers using two-sided Wilcoxon test. Positive W-statistic values (cyan) indicate higher reputation in DB conferences. Negative values (pink) indicate higher reputation in SB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+ggplot(rep.all, aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = w_stat.W)) +
+  scale_fill_gradient2(low = "pink", high = "cyan") +
+  geom_text(aes(label = paste0(round(w_stat.W, 2), format_p_value(w_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "W statistic") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+(((I think this is a bad comparison though. Our data aren't paired, as assumed by wilcox.test. Should we use Mood's median test instead?
+When looking at mean_sb and median_sb, switching to median sometimes changes the direction of the conclusions. Can we depict it?)))
 
 <!---------------------------------------------------->
 ### Qualitative classifications of fame
@@ -819,6 +908,11 @@ Standardizing and incorporating such \emph{altmetrics} as part of an author's re
 
 # Conclusion {#sec:conclusion}
 
+Randomized controlled trials are the gold standard for social experiments, such as those trying to evaluate the peer review system.
+These trials clearly require cognizant choices of control covariates and metrics.
+In practice, various practical and ethical challenges mean that such trials are often infeasible for evaluating bias, necessitating obervational studies.
+These studies also require the same careful consideration for metrics and control variables.
+Our analysis showed that ...
 
  - Add recommendations? perhaps to discussion?
  - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.

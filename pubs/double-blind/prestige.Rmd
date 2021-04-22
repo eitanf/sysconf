@@ -142,20 +142,30 @@ experience.last <- compute_experience(left_join(roles, persons) %>% filter(role 
 # over_h: compute how many papers in SB and DB conferences have at least one author with h-index at thresh or higher
 over_h <- function(thresh)
 {
-  experience$over_thresh <- experience$max_h >= thresh
-  c("db" = nrow(filter(experience, over_thresh, double_blind)),
-    "sb" = nrow(filter(experience, over_thresh, !double_blind)),
-    "p.value" = chisq.test(table(experience$over_thresh, experience$double_blind))$p.value
+  experience$over_h <- experience$max_h >= thresh
+  c("db" = nrow(filter(experience, over_h, double_blind)),
+    "sb" = nrow(filter(experience, over_h, !double_blind)),
+    "p.value" = chisq.test(table(experience$over_h, experience$double_blind))$p.value
    )
 }
 
 ########################
 over_npubs <- function(thresh)
 {
-  experience$over_thresh <- experience$max_npubs >= thresh
-  c("db" = nrow(filter(experience, over_thresh, double_blind)),
-    "sb" = nrow(filter(experience, over_thresh, !double_blind)),
-    "p.value" = chisq.test(table(experience$over_thresh, experience$double_blind))$p.value
+  experience$over_npubs <- experience$max_npubs >= thresh
+  c("db" = nrow(filter(experience, over_npubs, double_blind)),
+    "sb" = nrow(filter(experience, over_npubs, !double_blind)),
+    "p.value" = chisq.test(table(experience$over_npubs, experience$double_blind))$p.value
+   )
+}
+
+########################
+over_s2npubs <- function(thresh)
+{
+  experience.all$over_s2npubs <- experience.all$max_s2npubs >= thresh
+  c("db" = nrow(filter(experience.all, over_s2npubs, double_blind)),
+    "sb" = nrow(filter(experience.all, over_s2npubs, !double_blind)),
+    "p.value" = chisq.test(table(experience.all$over_s2npubs, experience.all$double_blind))$p.value
    )
 }
 
@@ -364,7 +374,7 @@ The information we collected measures publication rates for authors, not accepta
 Higher publication rate of certain authors does not necessarily imply a higher acceptance rate, because, for example, these authors could be submitting more papers to these conferences.
 But the two metrics are nevertheless related: all else being equal, a higher acceptance rate will imply a higher publication rate.
 So instead, we concentrate not on the existence of prestige bias, but on a related question:
-Is there a statistically significant difference in the rates of famous authors published in single-blind or double-blind conferences?
+Is there a statistically significant difference in the rates of famous authors published in SB or DB conferences?
 
 To answer this question, we collected extensive information to help us estimate the prestige of authors and conferences.
 For each conference, we downloaded all papers and gathered information about all authors, program committee (PC) members, and other roles.
@@ -563,7 +573,7 @@ In our dataset, only
 `r papers <- left_join(papers, co); p3 <- filter(papers, nauthors > 2); pct(nrow(filter(p3, alphabetized)), nrow(p3), 2)`%
 of papers with 3 or more coauthors ordered the author list alphabetically.
 
-```{r mean-diffs, echo = F, warning = F, fig.cap="Difference in means for various reputation metrics and aggregations across papers using two-sided Student's t-test. Positive t-statistic values (purple) indicate higher reputation in DB conferences. Negative values (orange) indicate higher reputation in SB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+```{r mean-diffs, echo = F, warning = F, fig.cap="Difference in means for various reputation metrics and aggregations across papers using two-sided Student's t-test. Positive t-statistic values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
              compute_db(experience.all, "total", "s2npubs"),
              compute_db(experience.all, "mean", "s2npubs"),
@@ -652,14 +662,41 @@ ggplot(rep.all, aes(x = metric, y = aggregation)) +
 When looking at mean_sb and median_sb, switching to median sometimes changes the direction of the conclusions. Can we depict it?)))
 
 <!---------------------------------------------------->
-### Qualitative classifications of fame
+### Binary classifications of fame
+
+So far, we have treated the reputation or fame of researchers as a continuous variable.
+This treatment allowed us to answer the question of whether the likelihood of an author to publish in SB proceedings increases commensurate with their reputation metrics.
+But the question of reputation bias may instead be more binary, based on the accept/reject outcome of a paper: either a paper is accepted based on an author's reputation being recognized or it is not. 
+This qualitative classification bypasses the problem of the long tails of the reputation metrics that could skew the mean reputation of a sample.
+
+The quantitative question then becomes, what is the proportion of accepted papers in SB and DB conferences for which at least one of the authors carries enough reputation to be recognized?
+Since we do not know a-priori what "enough reputation" means, we can observe how these proportions change based on different reputation metrics and thresholds.
 
 
-seniority tiers, any-famous (plot SB bias as function of threshold); The last two avoid the problem of outliers on the right tail;
+```{r rep-threshold-npubs, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with at least as many publications as the threshold (Google Scholar data)."}
+total_db = nrow(filter(experience, double_blind))
+total_sb = nrow(filter(experience, !double_blind))
+tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
+for (t in seq(1, 1000, by = 1)) {
+  tbl <- rbind(tbl, cbind("thresh" = t, t(over_npubs(t))))
+}
 
-So far, we have treated the reputation or fame of researchers as a continuous variable. This treatment allowed us to answer the question of whether the likelihood of an author publish in SB proceedings increases proportionately with their fame. But the question of reputation bias may instead be more binary, based on the accept/reject outcome of a paper: either a paper is accepted based on name recognition of the author or it is not. 
+tbl %>%
+  mutate(sb = sb / total_sb, db = db / total_db) %>%
+  pivot_longer(cols = c("sb", "db"), names_to = c("db_status"), values_to = "ratio") %>%
+  ggplot(aes(x = thresh, y = ratio, color = db_status)) +
+    geom_line() +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    xlab("Publication count threshold") +
+    ylab("Proportion of papers") +
+    scale_color_discrete(name = "Blindess", labels = c("Double", "Single"))
+```
 
-The quantitative question then becomes, what is the proportion of accepted papers in SB and DB conferences for which at least one of the authors carries enough reputation to be recognized. Since we do not know a-priori what "enough reputation" means, we observe how these proportions change based on different reputation metrics and thresholds.
+For example, Fig. \@ref(fig:rep-threshold-npubs) shows the difference in proportions of papers written by famous authors in SB or DB conferences, based on number of publications.
+It shows that beyond a certain level of reputation (around 100 papers), famous authors are always overrepresented in SB conferences, consistent with a possible prestige bias.
+Comparing these proportions across SB and DB conferences, with $\chi{}^2$-test-derived p-values below 0.05 in `r pct(sum(tbl$p.value < 0.05, na.rm = T), nrow(tbl) - 1, 1)`% of the threshold values.
+
 
 ```{r rep-threshold-h, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with an h-index value above the threshold."}
 total_db = nrow(filter(experience, double_blind))
@@ -673,38 +710,61 @@ tbl %>%
   mutate(sb = sb / total_sb, db = db / total_db) %>%
   pivot_longer(cols = c("sb", "db"), names_to = c("db_status"), values_to = "ratio") %>%
   ggplot(aes(x = thresh, y = ratio, color = db_status)) +
-    geom_line()
+    geom_line() +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    xlab("h-index threshold") +
+    ylab("Proportion of papers") +
+    scale_color_discrete(name = "Review policy", labels = c("Double", "Single"))
 ```
 
-Fig. \@ref(fig:rep-threshold-h) shows the difference in proportions of papers written by famous authors in SB or DB conferences. It shows famous authors consistently over-represented in DB conferences by a nearly constant amount of some 5%--10%. Comparing these proportions across SB and DB conferences with a $\chi{}^2$-test yields p-values below 0.05 for `r pct(sum(tbl$p.value < 0.05, na.rm = T), nrow(tbl) - 1, 1)`% of the threshold values.
+The evidence is even stronger when using h-index for reputation, but in reverse.
+Fig. \@ref(fig:rep-threshold-h) shows that papers by "famous" authors in DB conferences consistently outnumber those in SB conferences by an almost-fixed amount of some 5%--10%. 
+This time, p-values below 0.05 show up for `r pct(sum(tbl$p.value < 0.05, na.rm = T), nrow(tbl) - 1, 1)`% of the threshold values.
 
-```{r rep-threshold-npubs, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with at least as many publications as the threshold."}
-total_db = nrow(filter(experience, double_blind))
-total_sb = nrow(filter(experience, !double_blind))
-tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
-for (t in seq(1, 1000, by = 1)) {
-  tbl <- rbind(tbl, cbind("thresh" = t, t(over_npubs(t))))
-}
+These two examples show strong statistical evidence with remarkable insensitivity to the threshold chosen, but in opposite directions.
+They demonstrate how critically the conclusion for or against prestige bias can depend on the chosen reputation metric.
 
-tbl %>%
-  mutate(sb = sb / total_sb, db = db / total_db) %>%
-  pivot_longer(cols = c("sb", "db"), names_to = c("db_status"), values_to = "ratio") %>%
-  ggplot(aes(x = thresh, y = ratio, color = db_status)) +
-    geom_line()
-```
-
-Add graphs with other metrics
 
 <!---------------------------------------------------->
-### Famous school/company
+### Banded classification of seniority
+
+Another related qualitative approach to look at seniority and experience was described in the original h-index study [@hirsch05:index]. It proposed that researchers may fall into experience bands, roughly corresponding to novice/assistant professor, mid-career/associate professor, and experienced/full professor. Based on his observations of the field of physics, Hirsch suggested h-index limits of up to 11, between 12 and 17, and 18 and over to distinguish among these bands.
+
+
+```{r seniority, echo = F, message = F, out.width='0.75\\textwidth', fig.height=3, fig.cap = "Experience bands of papers' authors by review policy. Each paper is counted exactly once, based on the highest h-index among its coauthors."} 
+e_with_seniority <-
+experience %>%
+    mutate(Experience = as.factor(ifelse(max_h < 12, "Novice", ifelse(max_h <= 18, "Mid-career", "Experienced"))))
+
+e_with_seniority %>%
+  group_by(double_blind, Experience) %>%
+  ggplot(aes(fill = Experience, x = double_blind)) +
+    geom_bar(position = "stack") +
+    ylab("Paper count") +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    scale_fill_viridis_d(guide = "Kermit", breaks = c("Novice", "Mid-career", "Experienced")) +
+    guides(fill = guide_legend(title = "Most senior author's experience")) +
+    scale_x_discrete(name = "Review policy", labels = c("Single", "Double")) +
+    coord_flip()
+```
+
+When we apply these (admittedly arbitrary) limits to our dataset (Fig. \@ref(fig:seniority)), we find a slight advantage to senior researchers in DB reviewed papers
+(`r report_test(chisq.test(table(e_with_seniority$Experience, e_with_seniority$double_blind)))`).
+This anti-prestige bias is consistent with the evidence we uncovered in previous sections using maximum h-index, both for quantitative and qualitative aggregations.
+
+
+<!---------------------------------------------------->
+### Prestige by affiliation
+
+To complete our exploration of paper summaries, we look at one more useful aggregation method to approximate name recognition of authors, based on their affiliation.
+For example, Tomkins et al. 
 
 [@tomkins17:reviewer] any author (based on http://www.topuniversities.com/); top company, any author (Google/Microsoft/Yahoo/Facebook).
  * [World University Rankings 2017](https://www.timeshighereducation.com/world-university-rankings/2017/reputation-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats) can be a source of data to assess institution bias.
 
 
-
-<!---------------------------------------------------->
-### Banded classification of seniority
 
 <!-------------------------------------------------------------------------------------------->
 ## Confounding variables {#subsec:confounding}

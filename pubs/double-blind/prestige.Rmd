@@ -645,21 +645,27 @@ Related to the last point, we can look not only at median aggregation per paper,
 That is, we can compare how the median reputation per paper (however it is aggregated) differs between SB and DB conferences, again with the purpose of attenuating the effect of large right-skewed outliers.
 
 
-```{r median-diffs, echo = F, warning = F, fig.cap="Difference in medians for various reputation metrics and aggregations across papers using two-sided Wilcoxon test. Positive W-statistic values (cyan) indicate higher reputation in DB conferences. Negative values (pink) indicate higher reputation in SB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+```{r median-diffs, echo = F, warning = F, fig.cap="Difference in medians for various reputation metrics and aggregations across papers using two-sided Wilcoxon test. Positive values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values (from a Wilcoxon two-sided unpaired test) below 0.05, 0.01, and 0.001, respectively."}
+rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
+
 ggplot(rep.all, aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = w_stat.W)) +
-  scale_fill_gradient2(low = "pink", high = "cyan") +
-  geom_text(aes(label = paste0(round(w_stat.W, 2), format_p_value(w_pval, p_option = "stars")))) +
+  geom_tile(aes(fill = diff)) +
+  scale_fill_gradient2(low = "orange", high = "blue", limits = c(-26, 26)) +
+  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
   ylab("Paper aggregation method") +
   xlab("Reputation metric") +
-  labs(fill = "W statistic") +
+  labs(fill = "Difference") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
 
-(((I think this is a bad comparison though. Our data aren't paired, as assumed by wilcox.test. Should we use Mood's median test instead?
-When looking at mean_sb and median_sb, switching to median sometimes changes the direction of the conclusions. Can we depict it?)))
+As Fig. \@ref(fig:median-diffs) shows, many of the metrics and paper aggregations agree in direction (sign) whether looking at the mean values across SB/DB or medians, although confidence levels vary significantly between the two.
+Observe for example how the total citation metric went from nonsignificant means to highly significant medians, perhaps because this metric's values are the most widely distributed and right-skewed, therefore creating large differences between means and medians.
+
+The implication from this comparison is, again, that there exist combinations of metrics and aggregations, all presumably reasonable choices to make, that can change from statistical significance to nonsignificance.
+For example, a 2006 study found no significant difference in the mean publications of authors in two conferences [@madden06:impact], but a followup study on the same dataset found evidence for prestige bias when comparing across medians [@tung06:impact].
+The choices for metrics and aggregations must therefore be carefully justified, compared, and balanced to increase the credibility of such analyses.
 
 <!---------------------------------------------------->
 ### Binary classifications of fame
@@ -731,7 +737,6 @@ They demonstrate how critically the conclusion for or against prestige bias can 
 
 Another related qualitative approach to look at seniority and experience was described in the original h-index study [@hirsch05:index]. It proposed that researchers may fall into experience bands, roughly corresponding to novice/assistant professor, mid-career/associate professor, and experienced/full professor. Based on his observations of the field of physics, Hirsch suggested h-index limits of up to 11, between 12 and 17, and 18 and over to distinguish among these bands.
 
-
 ```{r seniority, echo = F, message = F, out.width='0.75\\textwidth', fig.height=3, fig.cap = "Experience bands of papers' authors by review policy. Each paper is counted exactly once, based on the highest h-index among its coauthors."} 
 e_with_seniority <-
 experience %>%
@@ -740,8 +745,8 @@ experience %>%
 e_with_seniority %>%
   group_by(double_blind, Experience) %>%
   ggplot(aes(fill = Experience, x = double_blind)) +
-    geom_bar(position = "stack") +
-    ylab("Paper count") +
+    geom_bar(position = "fill") +
+    ylab("Proportion of papers") +
     theme_minimal() +
     theme(legend.position = "bottom") +
     scale_fill_viridis_d(guide = "Kermit", breaks = c("Novice", "Mid-career", "Experienced")) +

@@ -36,6 +36,8 @@ genderdata = { row['name'] : row['gender'] for row in inferred }
 genderdata.update({ row['name'] : row['gender'] for row in verified })
 
 email_regex = load_csv_file("data/domain_mapping.csv")
+unis = [ u["domain"] for u in load_csv_file("data/top_universities.csv") ]
+coms = [ c["domain"] for c in load_csv_file("data/top_companies.csv") ]
 
 paper_emails = {}
 if os.path.isfile(email_fn):
@@ -325,23 +327,34 @@ def merge_person(person, role, conf):
 # Find regex patterns in an email address (based on a prioritized list) to
 # figure out the country and sector corresponding to the email address.
 domain_cache = {
-        "": ( "", "" ),
-        "@acm.org": ( "", "" ),
-        "@gnu.org": ( "", "" ),
-        "@apache.org": ( "", "" ),
-        "@ieee.org": ( "", "" ),
-        "@theiet.org": ( "", "" ),
-        "@computer.org": ( "", "" )
+        "": ( "", "", False, False ),
+        "@acm.org": ( "", "", False, False ),
+        "@gnu.org": ( "", "", False, False ),
+        "@apache.org": ( "", "", False, False ),
+        "@ieee.org": ( "", "", False, False ),
+        "@theiet.org": ( "", "", False, False ),
+        "@computer.org": ( "", "", False, False )
         }
 
 ##############################################################################
 # For a given email address, try to extract the country code and type of
 # sector that corresponds to the address, based on patterns in email_regex
+# Also returns a boolean for whether the affiliation is one of the top
+# universities, and another for top companies.
 def parse_email(email):
     global email_regex
 
     if email in domain_cache:
         return domain_cache[email]
+
+    topuni = False
+    for u in unis:
+        if email.find(u) >= 0:
+            topuni = True
+    topcom = False
+    for c in coms:
+        if email.find(c) >= 0:
+            topcom = True
 
     for pat in email_regex:
         m = re.search(pat['regex'], email.lower())
@@ -350,23 +363,20 @@ def parse_email(email):
 
         country = pat['country']
         sector = pat['sector']
-        for i in range(1, 1+len(m.groups())):
+        for i in range(1, 1 + len(m.groups())):
             placeholder = "\$" + str(i)
             country = re.sub(placeholder, m.group(i), country)
             sector = re.sub(placeholder, m.group(i), sector)
 
-#    if country == "NA" and sector != "com":
-#        print("Couldn't identify country for", email)
-#    if sector == "NA":
-#        print("Couldn't identify sector for", email)
-
     if country == "NA":
+#        print("Couldn't identify country for", email)
         country = ""
     if sector == "NA":
+#        print("Couldn't identify sector for", email)
         sector = ""
 
-    domain_cache[email] = country.upper(), sector.upper()
-    return country.upper(), sector.upper()
+    domain_cache[email] = country.upper(), sector.upper(), topuni, topcom
+    return country.upper(), sector.upper(), topuni, topcom
 
 
 ##############################################################################
@@ -394,11 +404,13 @@ def  save_all_authors(genderdata):
         # are disambiguated, whereas author names in the email list aren't.
         country, sector = "", ""
         if row['name'] not in repeated_names and row['name'] in paper_emails:
-            country, sector = parse_email(paper_emails[row['name']])
+            country, sector, uni, com = parse_email(paper_emails[row['name']])
         if country == "" and sector == "":
-            country, sector = parse_email(row['gs_email'])
+            country, sector, uni, com = parse_email(row['gs_email'])
         tidy.add("country", "categorical string", country, "Two-letter country code from email affiliation (either paper or GS)")
         tidy.add("sector", "categorical string", sector, "Employer sector from email affiliation (either paper or GS)")
+        tidy.add("top_university", "Boolean", uni, "Author is affiliated with a top university")
+        tidy.add("top_company", "Boolean", com, "Author is affiliated with a top company")
 
 
         tidy.add("npubs", "int", row['npubs'], "Author's total publications (minimum across all conferences)")

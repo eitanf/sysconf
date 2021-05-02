@@ -126,7 +126,8 @@ compute_experience <- function(who)
               max_cites_per_paper = max(paper_cites), mean_cites_per_paper = mean(paper_cites), median_cites_per_paper = median(paper_cites), total_cites_per_paper = sum(paper_cites), first_cites_per_paper = first(paper_cites),
               max_pcs = max(as_pc), mean_pcs = mean(as_pc), median_pcs = median(as_pc), total_pcs = sum(as_pc), first_pcs = first(as_pc),
               max_npubs = max(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs), first_npubs = first(npubs),
-              max_s2npubs = max(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs), first_s2npubs = first(s2npubs)
+              max_s2npubs = max(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs), first_s2npubs = first(s2npubs),
+              top_university = max(top_university), top_company = max(top_company)
               ) %>%
     left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
 }
@@ -764,12 +765,31 @@ This anti-prestige bias is consistent with the evidence we uncovered in previous
 ### Prestige by affiliation
 
 To complete our exploration of paper summaries, we look at one more useful aggregation method to approximate name recognition of authors, based on their affiliation.
-For example, Tomkins et al. 
+For this analysis, we follow the methodology of Tomkins, Zhang, and Heavlin who examined prestige bias in the 2017 Web Search and Data Mining (WSDM) conference [@tomkins17:reviewer].
+Their study tagged a paper as coming from a "top university" if any of its coauthors is affiliated with one of the top 50 univsersities per [www.topuniversities.com](www.topuniversities.com) (27% of papers).
+The similarly tagged a paper as coming from a top company if any author was affiliated with either Google, Microsoft, Yahoo!, or Facebook (18% of papers).
+(It is reasonable to include more companies in the definition of "top company" for systems conferences, such as Amazon, Oracle, and Apple, but we kept the same definition for direct comparisons.)
 
-[@tomkins17:reviewer] any author (based on http://www.topuniversities.com/); top company, any author (Google/Microsoft/Yahoo/Facebook).
- * [World University Rankings 2017](https://www.timeshighereducation.com/world-university-rankings/2017/reputation-ranking#!/page/0/length/25/sort_by/rank/sort_order/asc/cols/stats) can be a source of data to assess institution bias.
+Since our data comes from the same publication year as theirs, it makes sense that we use exactly the same criteria for tagging for an apples-to-apples comparison.
+Unfortunately, the original study and supporting information does not contain the list of univiersities or how it was obtained.
+We therefore downloaded the list of the top 50 "Engineering and Technology" universities and saved it as a list of internet domain names (see supplementary materials, under `data/top50uni.csv`).
 
+In our dataset,
+`r pct(sum(experience.all$top_university), nrow(experience.all))`%
+of papers had at least one coauthor from a top university, and
+`r pct(sum(experience.all$top_company), nrow(experience.all))`%
+of papers had at least one coauthor from a top company.
+The percentage of papers for authors from a top university in DB conferences is significantly higher than in SB conferences
+(`r pct(nrow(filter(experience, top_university > 0, double_blind)), nrow(filter(experience, double_blind)))`% vs.
+`r pct(nrow(filter(experience, top_university > 0, !double_blind)), nrow(filter(experience, !double_blind)))`%,
+`r report_test(chisq.test(table(experience$top_university, experience$double_blind)))`)
+The same can be said for top-company affiliation
+(`r pct(nrow(filter(experience, top_company > 0, double_blind)), nrow(filter(experience, double_blind)))`% vs.
+`r pct(nrow(filter(experience, top_company > 0, !double_blind)), nrow(filter(experience, !double_blind)))`%,
+`r report_test(chisq.test(table(experience$top_company, experience$double_blind)))`).
 
+It appears that this aggregation, like total citations or maximum h-index but contrary to Tomkins' results, is consistent with anti-prestige bias (higher prestige in SB conferences).
+Unlike Tomkins' results, however, our data does not come from a controlled experiment on a single conference, so cannot provide counterfactual evidence.
 
 <!-------------------------------------------------------------------------------------------->
 ## Confounding variables {#subsec:confounding}
@@ -826,6 +846,10 @@ although it has no effect on the number of papers with at least one PC author
 
  * [nicholas17:early] Early career researchers appear to have a positive experience overall with peer review. They actually aim for high-impact journals and are influential in choosing where to publish.
  
+Figure: scatter plot citations vs. npubs, color by DB or acceptance rate (or + size) of last authors or all authors. Circle the two groups of "quality" and "quantity".
+It is not surprising that researchers who exhibit few, highly cited papers publish in competitive conferences. It is almost tautological that authors of highly-cited papers publish in highly-cited conferences.
+Similarly, it is not surprising that authors with many publications publish in conferences with a lower acceptance rate, regardless of causality. 
+Therefore, the prevalence of "famous authors" in a conference may have more to do with the characteristics of the researcher and conference than with prestige bias, and at any rate is very hard to tease out in an observational study.
 
 
 <!--

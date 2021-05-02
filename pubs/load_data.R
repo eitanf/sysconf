@@ -5,8 +5,6 @@ library('tidyverse')
 library('lubridate')
 
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
-#toplevel = "/Users/eitan/Dropbox/sysconf/"
-#toplevel = "/home/eitan/Dropbox/sysconf/"
 sep <- ';'
 
 ############# Conference data
@@ -56,7 +54,7 @@ sys_roles <- filter(roles, conf %in% sys_confs$conf)
 #### persons.csv:
 persons <- read.csv(paste0(toplevel, "features/persons.csv"),
                     na.strings = "",
-                    colClasses = c(rep("character", 2), rep("factor", 3), rep("numeric", 7))) %>%
+                    colClasses = c(rep("character", 2), rep("factor", 3), rep("logical", 2), rep("numeric", 7))) %>%
   left_join(group_by(roles, name, gs_email) %>%
               summarize(as_author = sum(role == "author"), as_lead = sum(role == "lead_author"), as_keynote = sum(role == "keynote"),
                         as_pc_chair = sum(role == "chair"), as_pc = sum(role == "pc"),

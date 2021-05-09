@@ -286,11 +286,11 @@ is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
   JOURNAL OF THE AMERICAN SOCIETY FOR INFORMATION SCIENCE AND TECHNOLOGY
  -->
 
-Numerous studies attempt to answer the question of whether prestige bias exists in a particular discipline of science [blank91:blind; @budden08:double; @cox19:cases; @fisher94:effects; @kalavar21:single; @okike16:single; @peters82:peer; @seeber17:newcomers; @tomkins17:reviewer].
+Numerous studies attempt to answer the question of whether prestige bias exists in the peer review process for a particular discipline of science [blank91:blind; @budden08:double; @cox19:cases; @fisher94:effects; @kalavar21:single; @okike16:single; @peters82:peer; @seeber17:newcomers; @tomkins17:reviewer].
 This paper began as one of these studies, focusing on the field of computer systems.
 We soon realized that our particular dataset was insufficient to provide conclusive evidence for or against prestige bias.
 We also realized that the limitations we encountered may actually be shared by many of these studies and had not been well documented before.
-The main focus of our study this became the exploration of how subtle changes in the data and methods used to answer this question can radically change the resulting outcome.
+The main focus of our study thus became the exploration of how subtle changes in the data and methods used to detect prestige bias can radically change the resulting outcome.
 
 But first, what is prestige bias, and why should we care about it?
 Scientists normally publish their findings in peer-reviewed venues such as journals and conferences.
@@ -299,16 +299,16 @@ This so-called single-blind (SB) reviewing has been widely accepted as the basel
 However, single-blind reviewing still lets reviewers know the identities of the work's authors.
 Several researchers have argued that this knowledge can affect the review outcomes in subjective ways.
 In particular, when reviewers encounter a famous author or affiliation they may subconsciously experience authority bias, where higher accuracy is attributed to the opinion of authority figures [@ramos17:biases]. 
-This bias, also known as "the halo effect", "status bias", or prestige bias", the term we use in this paper.
-It has been implicated as an important but unscientific factor in the review process, which in turn can leads to bad science and lower credibility for the scientific process as a whole [@tomkins17:reviewer]
+This bias, also known as "the halo effect", "status bias", or "prestige bias", the term we use in this paper.
+It has been implicated as an important but unscientific factor in the review process, which in turn can lead to bad science, lower credibility for the scientific process as a whole, and an exacerbation of the underrepresentation of minorities in research [@tomkins17:reviewer].
 
 A commonly suggested antidote to prestige bias is double-blind (DB) reviewing, where authors' identities and affiliations are hidden from reviewers.
 Not all venues employ DB reviewing, both for practical and principled considerations.
 However, the coexistence of SB and DB reviewing (sometimes in the same venue) opens the door to comparative studies of the effects of prestige bias.
 For example, the association between reviewing policy and various biases has been assessed in fields as disparate as economics [blank91:blind], behavioral ecology [@budden08:double; @cox19:cases], ophthalmology [@kalavar21:single], medicine [@fisher94:effects; @okike16:single], psychology [@peters82:peer], and computer science [@seeber17:newcomers; @tomkins17:reviewer].
-Some of these studies have found conclusive evidence for or against the existence of bias, sometimes in the same field.
+Some of these studies have found conclusive evidence for bias while others have found no evidence of bias, sometimes in the same field.
 Often, these studies were not directly comparable because of various differences in the data, methodologies, or metrics used.
-One limitation of these studies is that there are various ways to estimate a person's name recognition, and they all yield different results.
+One limitation of these studies is that there are various ways to estimate a person's name recognition, and they all likely yield different results.
 Another limitation is that the reviewing policy of a venue is not always independent from other factors, so DB reviewing could be confounded with other factors that affect submission or acceptance decisions.
 When we tried to apply similar methodologies to another broad field of research, computer systems, we discovered that the outcome can vary significantly based on the methodology and metrics used.
 

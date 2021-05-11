@@ -8,7 +8,11 @@ title: Evaluating the relationships between author reputation and single-blind p
 bibliography: ../sysconf.bib
 csl: ieee.csl
 abstract: |
- | ...
+ The integrity of peer review is essential for modern science. Numerous studies have therefore focused on identifying, quantifying, and mitigating biases in peer review. One of these better-known biases is prestige bias, where the recognition of a famous author or affiliation leads to reviewers to subconsciously treat their submissions preferentially.
+
+ A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. some such studies, both experimental and observational, have found famous authors to either be strongly associated with single-blind, while others found no such association or even an opposite link. Few of these studies are directly comparable to each other, leading to difficulty in generalization of their results.
+
+ In this paper, we explore the large design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, and control variables. We show that depending on these choices, the data can lead to contradictory conclusions with high  stastical significance. The implication for future study designs in this area is that a narrow evaluation may lead to unreliable results.
 ---
 
 ```{r code = readLines("../load_data.R"), echo=F, message=F}
@@ -215,7 +219,7 @@ prestige_vs_db <- function(who,                # Population to work on
 
 ########################
 # compute_db: for a given population and metric, return a vector with different statistics on
-# the differenceof means and medians for the metric between SB and DB
+# the difference of means and medians for the metric between SB and DB
 compute_db <- function(exper = experience, aggr = "max", metric = "npubs")
 {
   column <- paste0(aggr, "_", metric)
@@ -836,6 +840,10 @@ Check with logistic regression (glm with method=binomial), contrast with linear 
 
 -- Even the same metric, npubs, from different data sources (GS/S2) can yield very different distributions, because each database comes up with its own choices to inherently hard questions like "what constitutes a publication" and "how to disambiguate names".
 
+-- Our analysis compared dozens of variable combinations, which poses the risks of data mining and "p-hacking".
+We therefore suggest not to ascribe too much meaning to individual p-values, but rather look at the big picture: how different perspectives on the same data con support diametrically opposed conclusions.
+Our suggestion for similar analyses on prestige bias is to try to analyze and present more than one or two such perspectivies and note any disagreements.
+
 -- Recommendations? perhaps any-famous using npubs from a reliable/complete source? Correct for conference prestige by acceptance rate (or whatever the strongest correlate to DB was).
 
 DB reviewing is also associated with fewer authors that are PC members
@@ -1004,6 +1012,8 @@ These studies also require the same careful consideration for metrics and contro
 Our analysis showed that ...
 
  - Add recommendations? perhaps to discussion?
+    * For observational studies: the many limitations pointed out in this study suggest that observational approaches conduct thorough sensitivity testing to different metrics, aggregations, and confounding variables before concluding for or against bias.
+    * Experimental studies allow for more control and elimination of some confounding variables, like the conference. But still require careful evaluation of the question of "who is famous?" with several approaches and metrics. Perhaps a new approach can be tried where reviewers are actually asked to rank the "fame" of the authors they reviewed, but only after all papers have been reviewed, to avoid priming effects.
  - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.
  - The only exception is the metric max h-index (h-index of most senior author per paper), which is lower in single-blind (p=0.0055).
  - This reversal isn't changed whether we drop the NA h-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).

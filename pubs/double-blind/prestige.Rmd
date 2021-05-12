@@ -410,7 +410,7 @@ For reproducibility, all of the data and source code files for this paper can be
 
 # Cleaning the raw data {#sec:cleaning}
 
-To get a dataset ready for analysis, one must first wrangle or clean the data.  To clean the data requires the researcher to spend time interrogating their data to determine the quality of each variable and observation.This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, which can impact the final results.  Additionally, the cleaning step and analysis step are typically not disjoint.  A researcher will often go back and perform additional cleaning as new issues crop up during analysis.  
+To get a dataset ready for analysis, one must first wrangle or clean the data.  To clean the data requires the researcher to spend time exploring and interrogating their data to determine the quality of each variable and observation. This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, which can impact the final results.  Additionally, the cleaning step and analysis step are typically not disjoint.  A researcher will often go back and perform additional cleaning as new issues crop up during analysis.  
 
 
 Notes for self of things to include:
@@ -420,8 +420,11 @@ Notes for self of things to include:
     + Exploring the variation within each variable and the relationships between the variables
     + Detecting suspicious values and outliers
     + Identifying, and potentially imputing, missing or unusual values
+        + Determining if the missing values are missing at random.
     + Removing erroneous observations or observations with missing, non-imputed values for key variables
-    
+    + Transforming variables to better suit the analysis needs (i.e., converting a numerical variable to categorical)
+* Use graphs, summary statistics, and direct inspection of the raw data during the interrogation 
+
 
 
 ```{r metric-distribs, echo=F, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}

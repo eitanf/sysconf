@@ -8,11 +8,11 @@ title: Evaluating the relationships between author reputation and single-blind p
 bibliography: ../sysconf.bib
 csl: ieee.csl
 abstract: |
- The integrity of peer review is essential for modern science. Numerous studies have therefore focused on identifying, quantifying, and mitigating biases in peer review. One of these better-known biases is prestige bias, where the recognition of a famous author or affiliation leads to reviewers to subconsciously treat their submissions preferentially.
+ The integrity of peer review is essential for modern science. Numerous studies have therefore focused on identifying, quantifying, and mitigating biases in peer review. One of these better-known biases is prestige bias, where the recognition of a famous author or affiliation leads reviewers to subconsciously treat their submissions preferentially.
 
- A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. some such studies, both experimental and observational, have found famous authors to either be strongly associated with single-blind, while others found no such association or even an opposite link. Few of these studies are directly comparable to each other, leading to difficulty in generalization of their results.
+ A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. Some such studies, both experimental and observational, have found famous authors to either be strongly associated with single-blind, while others found no such association or even an opposite link. Few of these studies are directly comparable to each other, leading to difficulty in generalization of their results.
 
- In this paper, we explore the large design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, and control variables. We show that depending on these choices, the data can lead to contradictory conclusions with high  stastical significance. The implication for future study designs in this area is that a narrow evaluation may lead to unreliable results.
+ In this paper, we explore the large design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, and control variables. We show that depending on these choices, the data can lead to contradictory conclusions with high stastical significance. The implication for future study designs in this area is that a narrow evaluation may lead to unreliable results.
 ---
 
 ```{r code = readLines("../load_data.R"), echo=F, message=F}
@@ -389,16 +389,16 @@ For each author and PC member, we collected all metrics in their GS profile, suc
 Note that we found no GS profile for about a third of the researchers
 (`r pct(sum(is.na(authors$hindex)), nrow(authors), 2)`%),
 and these researchers appear to be less experienced than researchers with a GS profile.
-We therefore also another proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database.
+We therefore also considered another proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database (XXX:cite?).
 
 In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
-For each conference, we collected data from the web and from program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers.
+These data included review policies, important dates, the composition of its technical PC, and the number of submitted papers.
 We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers.
 
 <!-------------------------------------------------------------------------------------------->
 ## Statistics
 
-For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with $\chi^{2}$ test; and comparisons between two numeric properties of the same population were evaluated with Pearson's product-moment correlation. All statistical tests are reported with their p-values.
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient. All statistical tests are reported with their p-values.
 
 <!-------------------------------------------------------------------------------------------->
 ## Code and data availability
@@ -409,6 +409,19 @@ For reproducibility, all of the data and source code files for this paper can be
 <!-------------------------------------------------------------------------------------------->
 
 # Cleaning the raw data {#sec:cleaning}
+
+To get a dataset ready for analysis, one must first wrangle or clean the data.  To clean the data requires the researcher to spend time interrogating their data to determine the quality of each variable and observation.This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, which can impact the final results.  Additionally, the cleaning step and analysis step are typically not disjoint.  A researcher will often go back and perform additional cleaning as new issues crop up during analysis.  
+
+
+Notes for self of things to include:
+
+* Data cleaning is a large umbrella term for all the wrangling choices we make to go from raw data to analysis-ready data.
+* A few key data cleaning actions:
+    + Exploring the variation within each variable and the relationships between the variables
+    + Detecting suspicious values and outliers
+    + Identifying, and potentially imputing, missing or unusual values
+    + Removing erroneous observations or observations with missing, non-imputed values for key variables
+    
 
 
 ```{r metric-distribs, echo=F, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}

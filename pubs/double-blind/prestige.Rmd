@@ -20,6 +20,7 @@ abstract: |
 
 
 ```{r setup, echo=F, message=F, warning=F, cache=F}
+
 library("GGally")
 library("kableExtra")
 
@@ -140,7 +141,7 @@ experience <- compute_experience(ppl.filtered)
 experience.all <- compute_experience(ppl)
 experience.lead <- compute_experience(left_join(roles, persons) %>% filter(role == "lead_author") %>% mutate(paper_cites = citedby / npubs))
 experience.last <- compute_experience(left_join(roles, persons) %>% filter(role == "last_author") %>% mutate(paper_cites = citedby / npubs))
-
+experience.best <- compute_experience(ppl.best_source)
 
 
 ########################
@@ -425,6 +426,21 @@ Notes for self of things to include:
     + Transforming variables to better suit the analysis needs (i.e., converting a numerical variable to categorical)
 * Use graphs, summary statistics, and direct inspection of the raw data during the interrogation 
 
+Need to discuss decisions we made:
+
+* Use GS instead of S2 to find the total prior publications for each author.
+    + Imputed values that were missing or very different from S2 
+        + Arbitrary choice: Threshold for discrepancy between GS and S2
+        + Choice: To use a linear model to predict GS for the imputed values where the predictor was S2
+        + Choice: Truncated imputed values at 1000 (check)
+* (For one version of the dataset): Removed rows that were missing GS.
+* Used h-index as another prestige metric
+    + Choice: To use a linear model to predict h-index for the imputed values where the predictor was S2
+        + Did we truncate?
+  
+Need to discuss final wrangled datasets and differences between them.
+
+* For each, discuss the assumptions that need to be made (or are likely violated) if we want to consider that set of observations as a representative sample.
 
 
 ```{r metric-distribs, echo=F, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
@@ -482,7 +498,9 @@ corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pa
 
 # Empirical results {#sec:results}
 
-In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a commonly set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
+In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a common set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
+
+
 
 <!-------------------------------------------------------------------------------------------->
 ## Reputation metrics {#subsec:metrics}
@@ -499,12 +517,13 @@ Counting the number of past publications is ostensibly the most straightforward 
  * Successful young researchers may be receiving significant name recognition without having yet accumulated a long publication record.
  * Deciding what counts as a "publication" can be subjective and vary from source to source. For example, do patents count? Arxiv preprints? blog posts?
  * Accurate collection of even the raw data is complicated by factors such as author name disambiguation, paper disambiguation, and noisy or crowd-sourced data sources.
- * Systems papers in particular vary significantly in numbers of coauthors because some implementations take large team effort. Credit attribution therefore becomes particularly tricky in this field, even with h-index [@koltun21:hindex].
+ * Systems papers in particular vary significantly in numbers of coauthors because some implementations take a large team effort. Credit attribution therefore becomes particularly tricky in this field, even with h-index [@koltun21:hindex].
 
-We these limitations in mind, we start our analysis by looking at the count of previous publications for each author
+We these limitations in mind, we start our analysis by looking at the count of previous publications for each author.
 For each accepted paper, we looked at the publication count of the most prolific author.
 In our dataset, authors in SB conferences average a higher publication count based on GS than in DB conferences
 (`r report_db(experience, "max", "npubs")`).
+<!-- Also holds when we impute GS (`r report_db(experience.best, "max", "npubs")`) -->
 This relationship appears to support a hypothesis of prestige bias for these conferences (again, it is insufficient to conclude a causal relationship).
 When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker:
 (`r report_db(experience.all, "max", "s2npubs")`).
@@ -528,7 +547,7 @@ when using GS paper counts,
 $r=`r round(cor(ppl.filtered$s2npubs, ppl.filtered$citedby), 2)`$
 with S2 data).
 
-From GS, we collected for each author with an identifiable profile they total number of past citations, h-index, i10-index (number of papers with 10 or more citations), the h-index over the past 5 years and the i10-index over the past 5 years.
+From GS, we collected for each author with an identifiable profile their total number of past citations, h-index, i10-index (number of papers with 10 or more citations), the h-index over the past 5 years and the i10-index over the past 5 years.
 We omit the last two metrics from our discussion because of their high correlation with h-index and i10-index, respectively (Fig. \@ref(fig:metric-corrs)).
 We also computed another metric from these statistics, citations per paper, by dividing total citations with total GS publications.
 
@@ -538,9 +557,9 @@ Of these, the citations-per-paper metric shows the strongest association with DB
 The h-index metric also is strongly indicated with higher values in DB conferences
 (`r report_db(experience, "max", "h")`).
 
-The total citations metric shows a much weaker association in the same direction
+The total citations metric shows a much weaker, non-statistically significant association in the same direction
 (`r report_db(experience, "max", "citedby")`),
-while the i10 metric shows a weak association in the opposite direction
+while the i10 metric shows a non-statistically significant association in the opposite direction
 (`r report_db(experience, "max", "i10")`).
 
 

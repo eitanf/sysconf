@@ -8,18 +8,20 @@ title: Evaluating the relationships between author reputation and single-blind p
 bibliography: ../sysconf.bib
 csl: ieee.csl
 abstract: |
- The integrity of peer review is essential for modern science. Numerous studies have therefore focused on identifying, quantifying, and mitigating biases in peer review. One of these better-known biases is prestige bias, where the recognition of a famous author or affiliation leads to reviewers to subconsciously treat their submissions preferentially.
+ The integrity of peer review is essential for modern science. Numerous studies have therefore focused on identifying, quantifying, and mitigating biases in peer review. One of these better-known biases is prestige bias, where the recognition of a famous author or affiliation leads reviewers to subconsciously treat their submissions preferentially.
 
- A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. some such studies, both experimental and observational, have found famous authors to either be strongly associated with single-blind, while others found no such association or even an opposite link. Few of these studies are directly comparable to each other, leading to difficulty in generalization of their results.
+ A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. Some such studies, both experimental and observational, have found famous authors to either be strongly associated with single-blind, while others found no such association or even an opposite link. Few of these studies are directly comparable to each other, leading to difficulty in generalization of their results.
 
- In this paper, we explore the large design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, and control variables. We show that depending on these choices, the data can lead to contradictory conclusions with high  stastical significance. The implication for future study designs in this area is that a narrow evaluation may lead to unreliable results.
+ In this paper, we explore the large design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, and control variables. We show that depending on these choices, the data can lead to contradictory conclusions with high stastical significance. The implication for future study designs in this area is that a narrow evaluation may lead to unreliable results.
 ---
 
 ```{r code = readLines("../load_data.R"), echo=F, message=F}
 ```
 
 
+<<<<<<< HEAD
 ```{r setup, echo=F, message=F, warning=F, cache=T}
+
 library("GGally")
 library("kableExtra")
 
@@ -145,7 +147,7 @@ compute_experience <- function(who, fame_percentile = 0.9)
 experience.all <- compute_experience(ppl)
 experience.lead <- compute_experience(left_join(roles, persons) %>% filter(role == "lead_author") %>% mutate(paper_cites = citedby / npubs))
 experience.last <- compute_experience(left_join(roles, persons) %>% filter(role == "last_author") %>% mutate(paper_cites = citedby / npubs))
-
+experience.best <- compute_experience(ppl.best_source)
 
 
 ########################
@@ -357,16 +359,16 @@ For each author and PC member, we collected all metrics in their GS profile, suc
 Note that we found no GS profile for about a third of the researchers
 (`r pct(sum(is.na(authors$hindex)), nrow(authors), 2)`%),
 and these researchers appear to be less experienced than researchers with a GS profile.
-We therefore also another proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database.
+We therefore also considered another proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database [@XXX:cite].
 
 In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
-For each conference, we collected data from the web and from program committee (PC) chairs, including review policies, important dates, the composition of its technical PC, and the number of submitted papers.
+These data included review policies, important dates, the composition of its technical PC, and the number of submitted papers.
 We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers.
 
 <!-------------------------------------------------------------------------------------------->
 ## Statistics
 
-For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with $\chi^{2}$ test; and comparisons between two numeric properties of the same population were evaluated with Pearson's product-moment correlation. All statistical tests are reported with their p-values.
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient. All statistical tests are reported with their p-values.
 
 <!-------------------------------------------------------------------------------------------->
 ## Code and data availability
@@ -377,6 +379,37 @@ For reproducibility, all of the data and source code files for this paper can be
 <!-------------------------------------------------------------------------------------------->
 
 # Cleaning the raw data {#sec:cleaning}
+
+To get a dataset ready for analysis, one must first wrangle or clean the data.  To clean the data requires the researcher to spend time exploring and interrogating their data to determine the quality of each variable and observation. This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, which can impact the final results.  Additionally, the cleaning step and analysis step are typically not disjoint.  A researcher will often go back and perform additional cleaning as new issues crop up during analysis.  
+
+
+Notes for self of things to include:
+
+* Data cleaning is a large umbrella term for all the wrangling choices we make to go from raw data to analysis-ready data.
+* A few key data cleaning actions:
+    + Exploring the variation within each variable and the relationships between the variables
+    + Detecting suspicious values and outliers
+    + Identifying, and potentially imputing, missing or unusual values
+        + Determining if the missing values are missing at random.
+    + Removing erroneous observations or observations with missing, non-imputed values for key variables
+    + Transforming variables to better suit the analysis needs (i.e., converting a numerical variable to categorical)
+* Use graphs, summary statistics, and direct inspection of the raw data during the interrogation 
+
+Need to discuss decisions we made:
+
+* Use GS instead of S2 to find the total prior publications for each author.
+    + Imputed values that were missing or very different from S2 
+        + Arbitrary choice: Threshold for discrepancy between GS and S2
+        + Choice: To use a linear model to predict GS for the imputed values where the predictor was S2
+        + Choice: Truncated imputed values at 1000 (check)
+* (For one version of the dataset): Removed rows that were missing GS.
+* Used h-index as another prestige metric
+    + Choice: To use a linear model to predict h-index for the imputed values where the predictor was S2
+        + Did we truncate?
+  
+Need to discuss final wrangled datasets and differences between them.
+
+* For each, discuss the assumptions that need to be made (or are likely violated) if we want to consider that set of observations as a representative sample.
 
 
 ```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
@@ -439,7 +472,9 @@ corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pa
 
 # Empirical results {#sec:results}
 
-In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a commonly set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
+In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a common set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
+
+
 
 <!-------------------------------------------------------------------------------------------->
 ## Reputation metrics {#subsec:metrics}
@@ -456,12 +491,13 @@ Counting the number of past publications is ostensibly the most straightforward 
  * Successful young researchers may be receiving significant name recognition without having yet accumulated a long publication record.
  * Deciding what counts as a "publication" can be subjective and vary from source to source. For example, do patents count? Arxiv preprints? blog posts?
  * Accurate collection of even the raw data is complicated by factors such as author name disambiguation, paper disambiguation, and noisy or crowd-sourced data sources.
- * Systems papers in particular vary significantly in numbers of coauthors because some implementations take large team effort. Credit attribution therefore becomes particularly tricky in this field, even with h-index [@koltun21:hindex].
+ * Systems papers in particular vary significantly in numbers of coauthors because some implementations take a large team effort. Credit attribution therefore becomes particularly tricky in this field, even with h-index [@koltun21:hindex].
 
-With these limitations in mind, we start our analysis by looking at the count of previous publications for each author
+With these limitations in mind, we start our analysis by looking at the count of previous publications for each author.
 For each accepted paper, we looked at the publication count of the most prolific author.
 In our dataset, authors in SB conferences average a higher publication count based on GS than in DB conferences
 (`r report_db(experience.all, "max", "npubs")`).
+<!-- Also holds when we impute GS (`r report_db(experience.best, "max", "npubs")`) -->
 This relationship appears to support a hypothesis of prestige bias for these conferences (again, it is insufficient to conclude a causal relationship).
 When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker:
 (`r report_db(experience.all, "max", "s2npubs")`).
@@ -485,7 +521,7 @@ when using GS paper counts,
 $r=`r round(cor(ppl.filtered$s2npubs, ppl.filtered$citedby), 2)`$
 with S2 data).
 
-From GS, we collected for each author with an identifiable profile they total number of past citations, h-index, i10-index (number of papers with 10 or more citations), the h-index over the past 5 years and the i10-index over the past 5 years.
+From GS, we collected for each author with an identifiable profile their total number of past citations, h-index, i10-index (number of papers with 10 or more citations), the h-index over the past 5 years and the i10-index over the past 5 years.
 We omit the last two metrics from our discussion because of their high correlation with h-index and i10-index, respectively (Fig. \@ref(fig:metric-corrs)).
 We also computed another metric from these statistics, citations per paper, by dividing total citations with total GS publications.
 
@@ -495,9 +531,9 @@ Of these, the citations-per-paper metric shows the strongest association with DB
 The h-index metric also is strongly indicated with higher values in DB conferences
 (`r report_db(experience.all, "max", "hindex")`).
 
-The total citations metric shows a much weaker association in the same direction
+The total citations metric shows a much weaker, nonsignificant association in the same direction
 (`r report_db(experience.all, "max", "citedby")`),
-while the i10 metric shows a weak association in the opposite direction
+while the i10 metric shows a nonsignificant association in the opposite direction
 (`r report_db(experience.all, "max", "i10index")`).
 
 

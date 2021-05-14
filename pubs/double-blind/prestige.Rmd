@@ -19,7 +19,7 @@ abstract: |
 ```
 
 
-```{r setup, echo=F, message=F, warning=F, cache=F}
+```{r setup, echo=F, message=F, warning=F, cache=T}
 library("GGally")
 library("kableExtra")
 
@@ -34,6 +34,7 @@ THRESH_RATIO <- 3
 S2_THRESH = 1000
 
 ppl <- ppl %>% mutate(good_npub = !is.na(npubs) & npubs / s2npubs < THRESH_RATIO)
+
 
 good_npubs = !is.na(ppl$npubs) &
              !is.na(ppl$hindex) &
@@ -114,29 +115,33 @@ db_confs = filter(all_confs, double_blind)
 sb_confs = filter(all_confs, !double_blind)
 
 
+
 ########################
 # compute_experience: Compute the collection of experience (reputation) metrics by paper
-compute_experience <- function(who)
+compute_experience <- function(who, fame_percentile = 0.9)
 {
   who %>%
     mutate(ke = as.factor(key)) %>%
     group_by(key) %>%
     summarize(conf = as.character(first(conf)), 
               coauthors = n(),
-              max_papers = max(as_author), mean_papers = mean(as_author), median_papers = median(as_author), total_papers = sum(as_author), first_papers = first(as_author),
-              max_h = max(hindex), mean_h = mean(hindex), median_h = median(hindex), total_h = sum(hindex), first_h = first(hindex),
-              max_i10 = max(i10index), mean_i10 = mean(i10index), median_i10 = median(i10index), total_i10 = sum(i10index), first_i10 = first(i10index),
-              max_citedby = max(citedby), mean_citedby = mean(citedby), median_citedby = median(citedby), total_citedby = sum(citedby), first_citedby = first(citedby),
-              max_cites_per_paper = max(paper_cites), mean_cites_per_paper = mean(paper_cites), median_cites_per_paper = median(paper_cites), total_cites_per_paper = sum(paper_cites), first_cites_per_paper = first(paper_cites),
-              max_pcs = max(as_pc), mean_pcs = mean(as_pc), median_pcs = median(as_pc), total_pcs = sum(as_pc), first_pcs = first(as_pc),
-              max_npubs = max(npubs), mean_npubs = mean(npubs), median_npubs = median(npubs), total_npubs = sum(npubs), first_npubs = first(npubs),
-              max_s2npubs = max(s2npubs), mean_s2npubs = mean(s2npubs), median_s2npubs = median(s2npubs), total_s2npubs = sum(s2npubs), first_s2npubs = first(s2npubs),
-              top_university = max(top_university), top_company = max(top_company)
-              ) %>%
-    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+              top_university = any(top_university),
+              top_company = any(top_company),
+              across(c(as_author, as_pc, hindex, i10index, citedby, paper_cites, npubs, s2npubs),
+                     list(max = ~max(.x, na.rm = T),
+                          mean = ~mean(.x, na.rm = T),
+                          median = ~median(.x, na.rm = T),
+                          total = ~sum(.x, na.rm = F),
+                          first = ~first(.x),
+                          last = ~last(.x)
+                          ),
+                     .names = "{fn}_{col}"
+                     )
+    ) %>%
+    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key")) %>%
+    mutate_all(.funs = function(x) ifelse(is.infinite(x) | is.nan(x), NA, x))
 }
 
-experience <- compute_experience(ppl.filtered)
 experience.all <- compute_experience(ppl)
 experience.lead <- compute_experience(left_join(roles, persons) %>% filter(role == "lead_author") %>% mutate(paper_cites = citedby / npubs))
 experience.last <- compute_experience(left_join(roles, persons) %>% filter(role == "last_author") %>% mutate(paper_cites = citedby / npubs))
@@ -144,35 +149,16 @@ experience.last <- compute_experience(left_join(roles, persons) %>% filter(role 
 
 
 ########################
-# over_h: compute how many papers in SB and DB conferences have at least one author with h-index at thresh or higher
-over_h <- function(thresh)
+# over_thresh: compute how many papers in SB and DB conferences have at least one author with [[metric]] at thresh or higher
+over_thresh <- function(metric, thresh)
 {
-  experience$over_h <- experience$max_h >= thresh
-  c("db" = nrow(filter(experience, over_h, double_blind)),
-    "sb" = nrow(filter(experience, over_h, !double_blind)),
-    "p.value" = chisq.test(table(experience$over_h, experience$double_blind))$p.value
+  experience.all$over <- experience.all[[metric]] >= thresh
+  c("db" = nrow(filter(experience.all, over, double_blind)),
+    "sb" = nrow(filter(experience.all, over, !double_blind)),
+    "p.value" = chisq.test(table(experience.all$over, experience.all$double_blind))$p.value
    )
 }
 
-########################
-over_npubs <- function(thresh)
-{
-  experience$over_npubs <- experience$max_npubs >= thresh
-  c("db" = nrow(filter(experience, over_npubs, double_blind)),
-    "sb" = nrow(filter(experience, over_npubs, !double_blind)),
-    "p.value" = chisq.test(table(experience$over_npubs, experience$double_blind))$p.value
-   )
-}
-
-########################
-over_s2npubs <- function(thresh)
-{
-  experience.all$over_s2npubs <- experience.all$max_s2npubs >= thresh
-  c("db" = nrow(filter(experience.all, over_s2npubs, double_blind)),
-    "sb" = nrow(filter(experience.all, over_s2npubs, !double_blind)),
-    "p.value" = chisq.test(table(experience.all$over_s2npubs, experience.all$double_blind))$p.value
-   )
-}
 
 ########################
 # prestige_vs_db: For a given metric and aggregation function, compute the difference in means and median between SB and DB
@@ -251,24 +237,6 @@ report_db <- function(exper = experience, aggr = "max", metric = "npubs")
          "$, ", format_p_value(as.numeric(tmp["t_pval"])))
 }
 
-########################
-# is_famous_vs_db: For a given population, metric, and threshold, return ratios of papers that include a famous author
-is_famous_vs_db <- function(who, metric = "hindex", thresh=40) {
-  papers <- who %>%
-    group_by(as.factor(key)) %>%
-    summarize(conf = as.character(first(conf)),
-              includes_famous = (max(!!rlang::sym(metric), na.rm = T) >= thresh),
-              .groups = 'drop')  %>%
-    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
-  
-  paste0("For ", metric, ">=", thresh, " ",
-         pct(nrow(filter(papers, double_blind, includes_famous)), nrow(filter(papers, double_blind))),
-         "% of single-blind papers include famous, vs. ",
-         pct(nrow(filter(papers, !double_blind, includes_famous)), nrow(filter(papers, !double_blind))),
-         "% of double-blind (",
-         report_test(chisq.test(table(papers$double_blind, papers$includes_famous)), p_option = "stars"),
-         ")")
-}
 ```
 
 <!-------------------------------------------------------------------------------------------->
@@ -411,7 +379,7 @@ For reproducibility, all of the data and source code files for this paper can be
 # Cleaning the raw data {#sec:cleaning}
 
 
-```{r metric-distribs, echo=F, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
+```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
 metrics.summary <- ppl %>%
   pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
   mutate(Metric = recode_factor(Metric,
@@ -461,6 +429,11 @@ corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pa
  * Sensitivity analysis
  * The correlation between npubs and s2npubs is much higher for ppl.filtered, probably because we removed the points where they disagree by a lot.
 
+ Problems with GS data: missing authors; profiles that appear to aggregate more than one person; and multiple profiles for the same name. We dropped the first two categories.
+
+ Most of the missing GS data is for inexperienced authors (prove with S2 data). Imputing this data won't make a big difference on prestige bias analysis, because presumably inexperienced authors haven't accrued much prestige yet.
+ Nevertheless, we verified this by imputing h-index and citation data with linear models, using S2 data and papers-in-set as predictors. The inclusion of the imputed data did not meteriallly affect any of our conclusions in this paper (verify!).
+
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->
 
@@ -485,17 +458,17 @@ Counting the number of past publications is ostensibly the most straightforward 
  * Accurate collection of even the raw data is complicated by factors such as author name disambiguation, paper disambiguation, and noisy or crowd-sourced data sources.
  * Systems papers in particular vary significantly in numbers of coauthors because some implementations take large team effort. Credit attribution therefore becomes particularly tricky in this field, even with h-index [@koltun21:hindex].
 
-We these limitations in mind, we start our analysis by looking at the count of previous publications for each author
+With these limitations in mind, we start our analysis by looking at the count of previous publications for each author
 For each accepted paper, we looked at the publication count of the most prolific author.
 In our dataset, authors in SB conferences average a higher publication count based on GS than in DB conferences
-(`r report_db(experience, "max", "npubs")`).
+(`r report_db(experience.all, "max", "npubs")`).
 This relationship appears to support a hypothesis of prestige bias for these conferences (again, it is insufficient to conclude a causal relationship).
 When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker:
 (`r report_db(experience.all, "max", "s2npubs")`).
 
 We can also use a third source of paper counts to differentiate between active and mostly inactive researchers, using only up-to-date statistics.
 If we look only at the number of papers published in our cross-section of conferences from 2017, we find that SB conference authors actually average significantly fewer publications than those in DB conferences
-(`r report_db(experience, "max", "papers")`).
+(`r report_db(experience.all, "max", "as_author")`).
 This result could provide evidence against a prestige bias, but it could also point to a completely different hypothesis, such as authors preferring to submit to DB conferences for these specific conferences and point in time.
 The evidence based on publication counts alone is inconclusive.
 
@@ -518,14 +491,14 @@ We also computed another metric from these statistics, citations per paper, by d
 
 Once more, we look at the most senior coauthor in each paper group, and compare the averages across SB and DB conferences.
 Of these, the citations-per-paper metric shows the strongest association with DB reviewing
-(`r report_db(experience, "max", "cites_per_paper")`).
+(`r report_db(experience.all, "max", "paper_cites")`).
 The h-index metric also is strongly indicated with higher values in DB conferences
-(`r report_db(experience, "max", "h")`).
+(`r report_db(experience.all, "max", "hindex")`).
 
 The total citations metric shows a much weaker association in the same direction
-(`r report_db(experience, "max", "citedby")`),
+(`r report_db(experience.all, "max", "citedby")`),
 while the i10 metric shows a weak association in the opposite direction
-(`r report_db(experience, "max", "i10")`).
+(`r report_db(experience.all, "max", "i10index")`).
 
 
 <!---------------------------------------------------->
@@ -539,7 +512,7 @@ Participation in a PC is related to an author's reputation in two ways.
 First, to be invited to serve in a PC, an author needs to typically be regarded as an authority in the field.
 We can extend this intuition to reputation metrics, either as a quantitative one---how many PC in our set an author belongs to---or a qualitative one, simply noting whether they participate in any PC at all.
 For the former, we observed that the most senior coauthors in each paper group average marginally more PC roles in DB conferences
-(`r report_db(experience, "max", "pcs")`).
+(`r report_db(experience.all, "max", "as_pc")`).
 For the latter, we observed an opposite indication: the ratio of papers authored by at least one member of a PC in our set is actually lower for DB conferences than for SB
 (`r pct(nrow(filter(any_pc, double_blind, any_pc)), nrow(filter(any_pc, double_blind)))`% vs.
 `r pct(nrow(filter(any_pc, !double_blind, any_pc)), nrow(filter(any_pc, !double_blind)))`%;
@@ -572,11 +545,14 @@ In our dataset, papers average
 We have assumed so far that a paper is most likely to be recognized based solely on the author with the highest reputation metric.
 But other authors may play an important role in name recognition, as well as the whole group.
 
-For example, the total or average reputation of the coauthor group could also play a potential role in the reviewer's bias.
-As another example, the typical systems paper lists the primary contributor in the first author position, while the head of the lab is often listed last.
-In our dataset, only
+For example, the total reputation of the coauthor group could also play a potential role in the reviewer's bias (ignoring all papers that had one or more missing reputation values, where a partial sum is meaningless).
+We can also look at the mean or median reputation (ignoring only missing authors, not entire papers).
+Additionally, we can aggregate papers by looking only at the reputation of the first or last author.
+Typically, systems papers list the primary contributor in the first author position, while the head of the lab is often listed last.
+(In our dataset, only
 `r papers <- left_join(papers, co); p3 <- filter(papers, nauthors > 2); pct(nrow(filter(p3, alphabetized)), nrow(p3), 2)`%
-of papers with 3 or more coauthors ordered the author list alphabetically.
+of papers with 3 or more coauthors ordered the author list alphabetically.)
+
 
 ```{r mean-diffs, echo = F, warning = F, fig.cap="Difference in means for various reputation metrics and aggregations across papers using two-sided Student's t-test. Positive t-statistic values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
@@ -585,27 +561,27 @@ tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
              compute_db(experience.all, "median", "s2npubs")
             )
 
-for (metric in c("npubs", "papers", "citedby", "cites_per_paper", "h", "i10")) {
+for (metric in c("npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index")) {
   for (aggr in c("max", "total", "mean", "median")) {
-    tbl <- rbind(tbl, compute_db(experience, aggr, metric))
+    tbl <- rbind(tbl, compute_db(experience.all, aggr, metric))
   }
 }
 
 # Append lead-author stats
-for (metric in c("s2npubs", "npubs", "papers", "citedby", "cites_per_paper", "h", "i10")) {
+for (metric in c("s2npubs", "npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index")) {
   tbl <- rbind(tbl, compute_db(experience.lead, "first", metric))
 }
 tbl <- ifelse(tbl == "first", "lead", tbl)
 
 # Append last-author stats
-for (metric in c("s2npubs", "npubs", "papers", "citedby", "cites_per_paper", "h", "i10")) {
+for (metric in c("s2npubs", "npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index")) {
   tbl <- rbind(tbl, compute_db(experience.last, "first", metric))
 }
 tbl <- ifelse(tbl == "first", "last", tbl)
 
 rep.all <- as_tibble(tbl)
 rep.all$metric <- factor(rep.all$metric, ordered = T,
-                         levels = c("npubs", "s2npubs", "papers", "citedby", "cites_per_paper", "h", "i10"),
+                         levels = c("npubs", "s2npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index"),
                          labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
 rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
                               levels = c("lead", "last", "median", "mean", "total", "max"),
@@ -673,7 +649,7 @@ For example, a 2006 study found no significant difference in the mean publicatio
 The choices for metrics and aggregations must therefore be carefully justified, compared, and balanced to increase the credibility of such analyses.
 
 <!---------------------------------------------------->
-### Binary classifications of fame
+### Binary classifications of fame {#subsec:binary}
 
 So far, we have treated the reputation or fame of researchers as a continuous variable.
 This treatment allowed us to answer the question of whether the likelihood of an author to publish in SB proceedings increases commensurate with their reputation metrics.
@@ -685,11 +661,11 @@ Since we do not know a-priori what "enough reputation" means, we can observe how
 
 
 ```{r rep-threshold-npubs, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with at least as many publications as the threshold (Google Scholar data)."}
-total_db = nrow(filter(experience, double_blind))
-total_sb = nrow(filter(experience, !double_blind))
+total_db = nrow(filter(experience.all, double_blind))
+total_sb = nrow(filter(experience.all, !double_blind))
 tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
 for (t in seq(1, 1000, by = 1)) {
-  tbl <- rbind(tbl, cbind("thresh" = t, t(over_npubs(t))))
+  tbl <- rbind(tbl, cbind("thresh" = t, t(over_thresh("max_npubs", t))))
 }
 
 tbl %>%
@@ -710,11 +686,11 @@ Comparing these proportions across SB and DB conferences, with $\chi{}^2$-test-d
 
 
 ```{r rep-threshold-h, echo = F, warning = F, fig.cap = "Proportion of papers that have at least one author with an h-index value above the threshold."}
-total_db = nrow(filter(experience, double_blind))
-total_sb = nrow(filter(experience, !double_blind))
+total_db = nrow(filter(experience.all, double_blind))
+total_sb = nrow(filter(experience.all, !double_blind))
 tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
 for (t in seq(1, 50)) {
-  tbl <- rbind(tbl, cbind("thresh" = t, t(over_h(t))))
+  tbl <- rbind(tbl, cbind("thresh" = t, t(over_thresh("max_hindex", t))))
 }
 
 tbl %>%
@@ -744,8 +720,8 @@ Another related qualitative approach to look at seniority and experience was des
 
 ```{r seniority, echo = F, message = F, out.width='0.75\\textwidth', fig.height=3, fig.cap = "Experience bands of papers' authors by review policy. Each paper is counted exactly once, based on the highest h-index among its coauthors."} 
 e_with_seniority <-
-experience %>%
-    mutate(Experience = as.factor(ifelse(max_h < 12, "Novice", ifelse(max_h <= 18, "Mid-career", "Experienced"))))
+experience.all %>%
+    mutate(Experience = as.factor(ifelse(max_hindex < 12, "Novice", ifelse(max_hindex <= 18, "Mid-career", "Experienced"))))
 
 e_with_seniority %>%
   group_by(double_blind, Experience) %>%
@@ -784,13 +760,13 @@ of papers had at least one coauthor from a top university, and
 `r pct(sum(experience.all$top_company), nrow(experience.all))`%
 of papers had at least one coauthor from a top company.
 The percentage of papers for authors from a top university in DB conferences is significantly higher than in SB conferences
-(`r pct(nrow(filter(experience, top_university > 0, double_blind)), nrow(filter(experience, double_blind)))`% vs.
-`r pct(nrow(filter(experience, top_university > 0, !double_blind)), nrow(filter(experience, !double_blind)))`%,
-`r report_test(chisq.test(table(experience$top_university, experience$double_blind)))`)
+(`r pct(nrow(filter(experience.all, top_university > 0, double_blind)), nrow(filter(experience.all, double_blind)))`% vs.
+`r pct(nrow(filter(experience.all, top_university > 0, !double_blind)), nrow(filter(experience.all, !double_blind)))`%,
+`r report_test(chisq.test(table(experience.all$top_university, experience.all$double_blind)))`)
 The same can be said for top-company affiliation
-(`r pct(nrow(filter(experience, top_company > 0, double_blind)), nrow(filter(experience, double_blind)))`% vs.
-`r pct(nrow(filter(experience, top_company > 0, !double_blind)), nrow(filter(experience, !double_blind)))`%,
-`r report_test(chisq.test(table(experience$top_company, experience$double_blind)))`).
+(`r pct(nrow(filter(experience.all, top_company > 0, double_blind)), nrow(filter(experience.all, double_blind)))`% vs.
+`r pct(nrow(filter(experience.all, top_company > 0, !double_blind)), nrow(filter(experience.all, !double_blind)))`%,
+`r report_test(chisq.test(table(experience.all$top_company, experience.all$double_blind)))`).
 
 It appears that this aggregation, like total citations or maximum h-index but contrary to Tomkins' results, is consistent with anti-prestige bias (higher prestige in SB conferences).
 Unlike Tomkins' results, however, our data does not come from a controlled experiment on a single conference, so cannot provide counterfactual evidence.
@@ -824,7 +800,18 @@ Every one of these variables could potentially serve as a better predictor of au
 
 To evaluate the effect of these confounding variables, we picked the author reputation metric with the strongest relationship to DB reviewing, --- , and recalculated the relationship while correcting for each variable.
 
+---
+Figure: heatmap, columns for metrics, rows for control variable, starting with None.
+Number is coefficient of DB in glm for reputation; color is sign/magnitude of coefficient. Starts for p value.
+
+Show heatmap of weight of double blind + p value for linear regression.
+
+If we treat fame as a boolean factor instead, i.e., an author's name is either recognized or not, then we can repeat our analysis with logistic regression.
+As disscussed in Sec. \@ref(subsec:binary), senior authors show the same preference for DB or SB conferences regardless of the threshold selected to define seniority, at least for h-index and number of publications.
+We will therefore use an arbitrary binary threshold of "top-10%" for each reputation metric to classify those authors who are most likely to be recognized.
+
 Check with logistic regression (glm with method=binomial), contrast with linear model
+
 
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->

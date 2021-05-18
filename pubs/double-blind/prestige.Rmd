@@ -19,7 +19,6 @@ abstract: |
 ```
 
 
-<<<<<<< HEAD
 ```{r setup, echo=F, message=F, warning=F, cache=T}
 
 library("GGally")
@@ -117,7 +116,6 @@ db_confs = filter(all_confs, double_blind)
 sb_confs = filter(all_confs, !double_blind)
 
 
-
 ########################
 # compute_experience: Compute the collection of experience (reputation) metrics by paper
 compute_experience <- function(who, fame_percentile = 0.9)
@@ -135,13 +133,20 @@ compute_experience <- function(who, fame_percentile = 0.9)
                           median = ~median(.x, na.rm = T),
                           total = ~sum(.x, na.rm = F),
                           first = ~first(.x),
-                          last = ~last(.x)
+                          last = ~last(.x),
+                          top = ~max(.x, na.rm = T) >=  quantile(who[[cur_column()]], fame_percentile, na.rm = T)
                           ),
                      .names = "{fn}_{col}"
                      )
     ) %>%
     left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key")) %>%
-    mutate_all(.funs = function(x) ifelse(is.infinite(x) | is.nan(x), NA, x))
+    mutate_all(.funs = function(x) ifelse(is.infinite(x) | is.nan(x), NA, x)) %>%
+    mutate(top_npubs = ifelse(is.na(max_npubs), NA, top_npubs),
+           top_hindex = ifelse(is.na(max_hindex), NA, top_hindex),
+           top_i10index = ifelse(is.na(max_i10index), NA, top_i10index),
+           top_citedby = ifelse(is.na(max_citedby), NA, top_citedby),
+           top_paper_cites = ifelse(is.na(max_paper_cites), NA, top_paper_cites),
+           top_s2npubs = ifelse(is.na(max_s2npubs), NA, top_s2npubs))
 }
 
 experience.all <- compute_experience(ppl)
@@ -239,6 +244,28 @@ report_db <- function(exper = experience, aggr = "max", metric = "npubs")
          "$, ", format_p_value(as.numeric(tmp["t_pval"])))
 }
 
+########################
+# compute_glm: for a given population and metric, return a vector with different statistics on
+# the regression of the metric by double-blindess (linear and logistic)
+compute_glm <- function(exper = experience.all, metric = "npubs")
+{
+  col <- paste0("max_", metric)
+  model <- glm(data = exper, as.formula(paste(col, "~ !double_blind")))
+  linear_coef <- model$coefficients[2]
+  linear_pval <- coef(summary(model))[2,4]
+
+  col <- paste0("top_", metric)
+  model <- glm(data = exper, as.formula(paste(col, "~ !double_blind")), family = "binomial")
+  logit_coef <- model$coefficients[2]
+  logit_pval <- coef(summary(model))[2,4]
+
+  c(metric = metric,
+    linear_coef = linear_coef,
+    linear_pval = linear_pval,
+    logit_coef = logit_coef,
+    logit_pval = logit_pval
+  )
+}
 ```
 
 <!-------------------------------------------------------------------------------------------->

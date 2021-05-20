@@ -139,7 +139,7 @@ compute_experience <- function(who, fame_percentile = 0.9)
                      .names = "{fn}_{col}"
                      )
     ) %>%
-    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key")) %>%
+    left_join(all_confs, by = c("conf" = "key")) %>%
     mutate_all(.funs = function(x) ifelse(is.infinite(x) | is.nan(x), NA, x)) %>%
     mutate(top_npubs = ifelse(is.na(max_npubs), NA, top_npubs),
            top_hindex = ifelse(is.na(max_hindex), NA, top_hindex),
@@ -246,25 +246,35 @@ report_db <- function(exper = experience, aggr = "max", metric = "npubs")
 
 ########################
 # compute_glm: for a given population and metric, return a vector with different statistics on
-# the regression of the metric by double-blindess (linear and logistic)
-compute_glm <- function(exper = experience.all, metric = "npubs")
+# the regression of the metric by double-blindess (linear and logistic).
+# The function can take an optional additional predictor variable to include in the model.
+compute_glm <- function(exper = experience.all, predictor = "", metric = "npubs")
 {
   col <- paste0("max_", metric)
-  model <- glm(data = exper, as.formula(paste(col, "~ !double_blind")))
-  linear_coef <- model$coefficients[2]
-  linear_pval <- coef(summary(model))[2,4]
+  form = as.formula(paste(col, "~", predictor, ifelse(predictor == "", "", "+"), "!double_blind"))
+  model <- glm(data = exper, form)
+  idx = ifelse(predictor == "", 2, 3)
+  linear_coef <- model$coefficients[idx]
+  linear_pval <- coef(summary(model))[idx, 4]
 
   col <- paste0("top_", metric)
-  model <- glm(data = exper, as.formula(paste(col, "~ !double_blind")), family = "binomial")
-  logit_coef <- model$coefficients[2]
-  logit_pval <- coef(summary(model))[2,4]
+  form = as.formula(paste(col, "~", predictor, ifelse(predictor == "", "", "+"), "!double_blind"))
+  model <- glm(data = exper, form, family = "binomial")
+  logit_coef <- model$coefficients[idx]
+  logit_pval <- coef(summary(model))[idx, 4]
 
   c(metric = metric,
+    predictor = predictor,
     linear_coef = linear_coef,
     linear_pval = linear_pval,
     logit_coef = logit_coef,
     logit_pval = logit_pval
   )
+}
+
+# For a given metric met in a data frame df, compute the maximum absolute value of given column
+metric_denominator <- function(df, met, col) {
+  filter(df, metric == met) %>% select(all_of(col)) %>% abs() %>% max()
 }
 ```
 
@@ -445,7 +455,7 @@ metrics.summary <- ppl %>%
   mutate(Metric = recode_factor(Metric,
                                 npubs = "Total publications (GS)", hindex = "h-index", citedby = "Total citations",
                                 s2npubs = "Total publications (S2)", as_author = "Papers in dataset", paper_cites = "Citations per paper",
-                                i10index = "I-10 index", hindex5y = "h-index (5 years)", i10index5y = "I-10 index (5 years)")) %>%
+                                i10index = "i10-index", hindex5y = "h-index (5 years)", i10index5y = "i10-index (5 years)")) %>%
   group_by(name, gs_email, Metric) %>%
   summarize(Metric = first(Metric), value = first(value), .groups = "keep") %>%
   group_by(Metric) %>%
@@ -562,7 +572,7 @@ The total citations metric shows a much weaker, nonsignificant association in th
 (`r report_db(experience.all, "max", "citedby")`),
 while the i10 metric shows a nonsignificant association in the opposite direction
 (`r report_db(experience.all, "max", "i10index")`).
-
+Again, the evidence is inconclusive.
 
 <!---------------------------------------------------->
 ### Program committee metrics
@@ -570,8 +580,8 @@ while the i10 metric shows a nonsignificant association in the opposite directio
 Two other reputation metrics that are not regularly reported or measured are participation of the authors in review roles.
 Many comparable studies focus on journal authors, where most reviewers remain unidentified, and editorial boards are relatively small.
 But in CS, and systems in particular, where the main publication venue is conferences, most of the peer review is carried out by broad, publicized program committees (PCs).
+A researcher's participation in these PCs is related to their reputation in two ways.
 
-Participation in a PC is related to an author's reputation in two ways.
 First, to be invited to serve in a PC, an author needs to typically be regarded as an authority in the field.
 We can extend this intuition to reputation metrics, either as a quantitative one---how many PC in our set an author belongs to---or a qualitative one, simply noting whether they participate in any PC at all.
 For the former, we observed that the most senior coauthors in each paper group average marginally more PC roles in DB conferences
@@ -597,7 +607,7 @@ In summary, neither of the PC metrics for reputation shows a strong association 
 The analysis so far made two implicit assumptions on the likelihood that a paper would be recognized as "reputable": that the author with the highest reputation metic determines the reputation of the paper, and that the likelihood increases linearly with the value of the reputation metric.
 In this section, we expand our analysis beyond these assumptions.
 We first look at the effect of summarizing a paper's author reputation based on other coauthors or author groups.
-Then, we look at qualitative (noncontinuous) classifications of a paper's potential for recognition.
+Then, we look at qualitative (discrete) classifications of a paper's potential for recognition.
 
 ### Aggregations by paper
 
@@ -611,13 +621,12 @@ But other authors may play an important role in name recognition, as well as the
 For example, the total reputation of the coauthor group could also play a potential role in the reviewer's bias (ignoring all papers that had one or more missing reputation values, where a partial sum is meaningless).
 We can also look at the mean or median reputation (ignoring only missing authors, not entire papers).
 Additionally, we can aggregate papers by looking only at the reputation of the first or last author.
-Typically, systems papers list the primary contributor in the first author position, while the head of the lab is often listed last.
-(In our dataset, only
+Typically, systems papers list the primary contributor in the first author position, while the head of the lab is often listed last; in our dataset, only
 `r papers <- left_join(papers, co); p3 <- filter(papers, nauthors > 2); pct(nrow(filter(p3, alphabetized)), nrow(p3), 2)`%
-of papers with 3 or more coauthors ordered the author list alphabetically.)
+of papers with 3 or more coauthors ordered the author list alphabetically.
 
 
-```{r mean-diffs, echo = F, warning = F, fig.cap="Difference in means for various reputation metrics and aggregations across papers using two-sided Student's t-test. Positive t-statistic values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+```{r mean-diffs, echo = F, warning = F, fig.cap="Test statistics for difference in means with various reputation metrics and aggregations across papers using two-sided Student's t-test. Positive t-statistic values (purple) indicate higher reputation in SB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
              compute_db(experience.all, "total", "s2npubs"),
              compute_db(experience.all, "mean", "s2npubs"),
@@ -663,6 +672,7 @@ ggplot(rep.all, aes(x = metric, y = aggregation)) +
   xlab("Reputation metric") +
   labs(fill = "t statistic") +
   theme_minimal() +
+  guides(fill = "none") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
@@ -678,28 +688,32 @@ Nevertheless, we can discern a few consistent properties from these comparisons:
  
  * Conversely, measuring reputation by number of publications results in higher mean reputation for SB conferences, regardless of aggregation or database used.
  
- * However, using the more complete S2 database, which includes many more authors of low experience and reputation, lowers the t-statistic values and significance. This result may not be surprising, at it incorporates more data, particularly on the lower side of the reputation distribution; but it serves as a cautionary tale for ascribing statistical significance from partial data.
+ * However, using the more complete S2 database, which includes many more authors of low experience and reputation, lowers the t-statistic values and significance. This result may be unsurprising, at it incorporates more data, particularly in the lower side of the reputation distribution; but it serves as a cautionary tale for ascribing statistical significance from partial data.
 
- * Similarly, aggregating papers by the reputation of the lead author results in the least conclusive findings. We believe that many lead authors are relatively inexperienced graduate students.
+ * Similarly, aggregating papers by the reputation of the lead author results in the least conclusive findings. We believe that many lead authors are relatively inexperienced students.
  
- * Looking at each paper's median reputation metric instead of mean leads to higher t-statistic values, i.e., higher indicated reputation in SB conferences and higer likelihood of prestige bias. (((Why?)))
+ * Looking at each paper's median reputation metric instead of mean leads to higher t-statistic values, i.e., higher indicated reputation in SB conferences and higer likelihood of prestige bias. (((WHY?))) The p-values are also lower, likely because the standard error of the median is smaller than that of the mean.
  
  
 Related to the last point, we can look not only at median aggregation per paper, but also across papers.
 That is, we can compare how the median reputation per paper (however it is aggregated) differs between SB and DB conferences, again with the purpose of attenuating the effect of large right-skewed outliers.
 
 
-```{r median-diffs, echo = F, warning = F, fig.cap="Difference in medians for various reputation metrics and aggregations across papers using two-sided Wilcoxon test. Positive values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values (from a Wilcoxon two-sided unpaired test) below 0.05, 0.01, and 0.001, respectively."}
+```{r median-diffs, echo = F, warning = F, fig.cap="Difference in medians for various reputation metrics and aggregations across papers using two-sided Wilcoxon test. Positive values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values (from a Wilcoxon two-sided unpaired test) below 0.05, 0.01, and 0.001, respectively."}
 rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
 
-ggplot(rep.all, aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = diff)) +
-  scale_fill_gradient2(low = "orange", high = "blue", limits = c(-26, 26)) +
+rep.all %>%
+  group_by(metric) %>%
+  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
+  ggplot(aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = normalized)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
   geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
   ylab("Paper aggregation method") +
   xlab("Reputation metric") +
   labs(fill = "Difference") +
   theme_minimal() +
+  guides(fill = "none") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
@@ -808,12 +822,12 @@ This anti-prestige bias is consistent with the evidence we uncovered in previous
 ### Prestige by affiliation
 
 To complete our exploration of paper summaries, we look at one more useful aggregation method to approximate name recognition of authors, based on their affiliation.
-For this analysis, we follow the methodology of Tomkins, Zhang, and Heavlin who examined prestige bias in the 2017 Web Search and Data Mining (WSDM) conference [@tomkins17:reviewer].
+For this analysis, we follow the methodology of Tomkins, Zhang, and Heavlin from their study examining prestige bias in the 2017 Web Search and Data Mining (WSDM) conference [@tomkins17:reviewer].
 Their study tagged a paper as coming from a "top university" if any of its coauthors is affiliated with one of the top 50 univsersities per [www.topuniversities.com](www.topuniversities.com) (27% of papers).
-The similarly tagged a paper as coming from a top company if any author was affiliated with either Google, Microsoft, Yahoo!, or Facebook (18% of papers).
-(It is reasonable to include more companies in the definition of "top company" for systems conferences, such as Amazon, Oracle, and Apple, but we kept the same definition for direct comparisons.)
+They similarly tagged a paper as coming from a top company if any author was affiliated with either Google, Microsoft, Yahoo!, or Facebook (18% of papers).
+(It may be reasonable to include more companies in the definition of "top company" for contemporaneous systems conferences, such as Amazon, Oracle, and Apple, but we kept the same definition for direct comparisons.)
 
-Since our data comes from the same publication year as theirs, it makes sense that we use exactly the same criteria for tagging for an apples-to-apples comparison.
+Since our data comes from the same publication year as theirs, we used exactly the same criteria for tagging for an apples-to-apples comparison.
 Unfortunately, the original study and supporting information does not contain the list of univiersities or how it was obtained.
 We therefore downloaded the list of the top 50 "Engineering and Technology" universities and saved it as a list of internet domain names (see supplementary materials, under `data/top50uni.csv`).
 
@@ -831,50 +845,147 @@ The same can be said for top-company affiliation
 `r pct(nrow(filter(experience.all, top_company > 0, !double_blind)), nrow(filter(experience.all, !double_blind)))`%,
 `r report_test(chisq.test(table(experience.all$top_company, experience.all$double_blind)))`).
 
-It appears that this aggregation, like total citations or maximum h-index but contrary to Tomkins' results, is consistent with anti-prestige bias (higher prestige in SB conferences).
-Unlike Tomkins' results, however, our data does not come from a controlled experiment on a single conference, so cannot provide counterfactual evidence.
+It appears that this aggregation, like total citations or maximum h-index, but contrary to Tomkins' results, is consistent with anti-prestige bias (higher prestige in SB conferences).
+Unlike Tomkins' results, however, our data does not come from a controlled experiment on a single conference, so it cannot provide counterfactual evidence.
 
 <!-------------------------------------------------------------------------------------------->
 ## Confounding variables {#subsec:confounding}
 
-A conference chair's choice to employ DB reviewing is often connected to other conference factors that may also be connected to the experience of researchers submitting to it.
-DB conferences tend to have a longer history
+Our analysis so far assumes that the reviewing policy of a conference as an independent, random variable.
+In this section, we ask the question, how would our findings on prestige bias change if we examined them in a larger context of conference factors?
+
+A conference choice of review policy is often connected to other factors that may also be associated with the experience of researchers submitting to it.
+Specifically, DB conferences tend to have a longer history in years
 (`r report_test(t.test(db_confs$age, sb_confs$age))`), 
 a lower acceptance rate
 (`r report_test(t.test(db_confs$acceptance_rate, sb_confs$acceptance_rate))`),
 higher H5-index in GS
 (`r report_test(t.test(db_confs$h5_index, sb_confs$h5_index))`),
-longer papers
+more pages per paper
 (`r report_test(t.test(db_confs$mean_pages, sb_confs$mean_pages))`),
 more paper submissions
 (`r report_test(t.test(db_confs$submissions, sb_confs$submissions))`),
 with more coauthors per paper
-(`r report_test(t.test(db_confs$submissions, sb_confs$submissions))`),
-lower ratio of authors coming from the PC itself
+(`r report_test(t.test(db_confs$mean_authors_per_paper, sb_confs$mean_authors_per_paper))`),
+a lower ratio of authors coming from the PC itself
 (`r report_test(t.test(db_confs$pc_author_ratio, sb_confs$pc_author_ratio))`),
 and more citations to past papers
 (`r report_test(t.test(db_confs$past_citations, sb_confs$past_citations))`),
 especially when normalized to citations per paper
 (`r report_test(t.test(db_confs$mean_historical_citations, sb_confs$mean_historical_citations))`).
 
-In other words, DB conferences themselves show several other distinct characteristics, many of which associated with better reputation. The higher implied prestige of the conference could be associated with the prestige of authors as well, confounding the relationship.
-Although we do not have experimental data to infer a causal relationship between the two, the inclusion alone of confounding variables could weaken the observed association between DB conferences and author prestige.
-Every one of these variables could potentially serve as a better predictor of author reputation than DB reviewing, which could complicate drawing conclusions on review bias from other observational studies as well.
+In other words, DB conferences themselves show several distinct characteristics, some of which suggest better reputation.
+The higher implied prestige of the conference could be associated with the prestige of authors as well, confounding the relationship.
 
-To evaluate the effect of these confounding variables, we picked the author reputation metric with the strongest relationship to DB reviewing, --- , and recalculated the relationship while correcting for each variable.
+```{r linear-regression, echo = F, warning = F, fig.cap="Linear regression of various author prestige metrics as predicted by review policy and other conference variables. Values shown are the coefficient of DB reviewing in the linear model and their associated p-values. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+tbl <- compute_glm()  # Placeholder / filler just to have the columns
 
----
-Figure: heatmap, columns for metrics, rows for control variable, starting with None.
-Number is coefficient of DB in glm for reputation; color is sign/magnitude of coefficient. Starts for p value.
+predictors <- c("", "age", "acceptance_rate", "h5_index", "submissions", "past_citations", "mean_historical_citations")
 
-Show heatmap of weight of double blind + p value for linear regression.
+for (metric in c("s2npubs", "npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index")) {
+  for (predictor in predictors) {
+    tbl <- rbind(tbl, compute_glm(experience.all, predictor, metric))
+  }
+}
 
+reg.all <- as_tibble(tbl[-1,])
+reg.all$metric <- factor(reg.all$metric, ordered = T,
+                         levels = c("npubs", "s2npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index"),
+                         labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
+reg.all$predictor <- factor(reg.all$predictor, ordered = T,
+                            levels = predictors,
+                            labels = c("None", "Age in years", "Acceptance rate", "h5 index", "Paper submissions", "Total past citations", "Mean citations per paper"))
+colnames(reg.all) <- c("metric", "predictor", "linear_c", "linear_p", "logistic_c", "logistic_p")
+reg.all$linear_c <- as.numeric(reg.all$linear_c)
+reg.all$linear_p <- as.numeric(reg.all$linear_p)
+reg.all$logistic_c <- as.numeric(reg.all$logistic_c)
+reg.all$logistic_p <- as.numeric(reg.all$logistic_p)
+
+reg.all %>%
+  group_by(metric) %>%
+  mutate(normalized = linear_c / metric_denominator(reg.all, metric, "linear_c")) %>%
+  ggplot(aes(x = metric, y = predictor)) +
+    geom_tile(aes(fill = normalized)) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_gradient2(low = "orange", high = "blue") +
+    geom_text(aes(label = paste0(round(linear_c, 2), format_p_value(linear_p, p_option = "stars")))) +
+    ylab("Additional conference predictor variable") +
+    xlab("Reputation metric (max per paper)") +
+    labs(fill = "DB coefficient") +
+    theme_minimal() +
+    guides(fill = "none") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
+```
+
+
+### Linear regression
+
+To evaluate the effect of these confounding variables, we built simple linear regression models with author prestige as the outcome variable (maximum in paper) and DB reviewing status as the predictor variable (Fig. \@ref(fig:linear-regression)).
+The first row corresponds with the first row in Fig. \@ref(fig:mean-diffs) and shows the coefficient of the DB factor alone on author prestige, which often exhibits a statistically strong association.
+Each row afterwards includes one of the variables listed above that could stand in for conference prestige as a predictor variable.
+
+Looking first at citation-based author metrics (total citations, citations per paper, and h-index), we can indeed confirm that adding a conference prestige confounder generally lowers the values of the review-policy coefficient and its associated p-value, sometimes even changing signs.
+Some of these citation author-conference relationships are almost tautological in nature.
+For example, it is not surprising to see people with many total past citations publishing more in confeferences with a higher total past citations, because it is likely that the same highly-cited papers that contributed to a person's count also contributed to the conference's count, assuming some consistency in publishing venues over time.
+Such strong associations obviate other explanatory variables such as review status, which is why the coefficient and p-value of DB reviewing drops to near-zero when we correct for conference prestige.
+
+But once more, the picture becomes less clear when we look at the first three columns, representing publication-based author prestige metrics.
+They suggest that adding an explanatory variable does little to change the direction of prestige bias evidence:
+total past papers are still indicating higher prestige in SB conferences and total current papers are still indicating higher prestige in DB conferences.
+If anything, the association between past author publications and SB reviewing appears a little stronger when correcting for conference prestige.
+
+We believe that the explanation for this apparent contradiction lies in the competitive nature of citation-based metrics.
+For publication-based metrics, it is harder to draw the same conclusions.
+There is no reason to assume that a person with many past or present publications also has a history of publishing in more competitive conferences.
+If anything, we would expect prolific authors to publish less in conferences with a low acceptance rate, simply by making a probabilistic argument.
+In that case, we would expect to see even higher coefficients for DB reviewing when correcting for low-prestige conferences, as some of the rows indeed appear to show.
+
+As for the last column (i10-index), it appears to behave more like a publication-based metric than a citation-based metric.
+Although this metric incorporates both dimensions, we believe it is influenced more by publication count than by their "impact", because the "impact" threshold to inclusion in this index, namely 10 citations, is not particularly restrictive.
+
+In summary, even the effect of correction for confounding variables appears to be senstive to the metrics chosen.
+the inclusion alone of confounding variables could weaken any observed association between DB reviewing and author prestige for "impact-based" metrics and strengthen it for "productivity-based" metrics.
+Every one of the conference variables we tested could potentially serve as a better predictor of author reputation than DB reviewing, because of their strong correlations. 
+This extra dimension could complicate drawing conclusions on review bias from other observational studies as well, especially if they treat author prestige as a continuous variable.
+
+### Logistic regression
+
+(((Does it make sense to use Bayesian regression models instead?)))
+To complete our experimental evaluation, it may make sense to treat an author's prestige as a categorical, rather than a continuous variable.
 If we treat fame as a boolean factor instead, i.e., an author's name is either recognized or not, then we can repeat our analysis with logistic regression.
+We can do so by picking a "fame threshold", above which we consider an author's name to be recognized.
 As disscussed in Sec. \@ref(subsec:binary), senior authors show the same preference for DB or SB conferences regardless of the threshold selected to define seniority, at least for h-index and number of publications.
-We will therefore use an arbitrary binary threshold of "top-10%" for each reputation metric to classify those authors who are most likely to be recognized.
+We will therefore use an arbitrary binary threshold of "top 10%" for each reputation metric to classify those authors who are most likely to be recognized.
 
-Check with logistic regression (glm with method=binomial), contrast with linear model
 
+```{r logistic-regression, echo = F, warning = F, fig.cap="Logistic regression of the top decile of various author prestige metrics as predicted by review policy and other conference variables. Values shown are the coefficient of DB reviewing in the logistic model and their associated p-values. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
+reg.all %>%
+  group_by(metric) %>%
+  mutate(normalized = logistic_c / metric_denominator(reg.all, metric, "logistic_c")) %>%
+  ggplot(aes(x = metric, y = predictor)) +
+    geom_tile(aes(fill = logistic_c)) +
+    scale_y_discrete(limits = rev) +
+    scale_fill_gradient2(low = "orange", high = "blue") +
+    geom_text(aes(label = paste0(round(logistic_c, 2), format_p_value(logistic_p, p_option = "stars")))) +
+    ylab("Additional conference predictor variable") +
+    xlab("Reputation metric in top 10% of authors") +
+    labs(fill = "DB coefficient") +
+    theme_minimal() +
+    guides(fill = "none") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
+```
+
+Figure \@ref(fig:logistic-regression) depicts the effects of this treatment of author prestige on the association with DB reviewing, corrected for conference prestige.
+Directionally, the results are similar to those of the linear regression.
+But restricting name recognition to a specific quantile offers two desirable properties for the coefficient comparison: it normalizes all the coefficients to the same range from 0 to 1, and eliminates the outsizes effect of high-prestige author outliers on the linear regression.
+Consequently, observing general trends becomes easier and less noisy.
+
+The most noticeable general trend with this classfication of prestige is that most coefficients are now statistically nonsignificant, meaning that it is now harder to claim prestige bias one way or the other, regardless of confounding variables.
+The two columns that show significant results are papers in set and mean past citations per paper.
+Interestingly, they both show the same direction (higher reputation in DB conferences) and the significance of this preference does not abate with confounding conference factors.
+(((WHY these two? why do they agree? why does confounding not change things?)))
+
+(((Summarize this section)))
 
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->
@@ -885,6 +996,8 @@ Check with logistic regression (glm with method=binomial), contrast with linear 
 -- There are two "types" of senior researchers. Type A publish fewer but more cited papers, and type B just publishes a lot of papers, but have lower h-index than type A relative to npubs. The DB conferences show more type-A people, and the SB more type B. The DB conferences also average higher on various prestige metrics and are more competitive. This would be consistent with fewer, more cited papers. But it means you have to correct for conference prestige.
 
    * To demonstrate this, compute for each paper mean citations/paper (for either max_h person or max_npubs) and correlate with acceptance rate of conference.
+   
+   * Repeat the statistical argument that prolific authors are less likely to publish in more competitive conferences. Check that by correlating "papers in set" with "acceptance rate" for all authors.
 
 -- Effects of other ways of cleaning the data, outliers.
 
@@ -895,6 +1008,8 @@ We therefore suggest not to ascribe too much meaning to individual p-values, but
 Our suggestion for similar analyses on prestige bias is to try to analyze and present more than one or two such perspectivies and note any disagreements.
 
 -- Recommendations? perhaps any-famous using npubs from a reliable/complete source? Correct for conference prestige by acceptance rate (or whatever the strongest correlate to DB was).
+
+-- Recommendation: take "quantity vs. quality" property into account when evaluating author prestige. Do it either by startifying authors into classes, or including mean_citations_per_paper as a confounding variable in any regression, both for max h-index and max npubs. Is that even kosher to do, given that they're collinear?
 
 DB reviewing is also associated with fewer authors that are PC members
 (`r report_test(t.test(db_confs$pc_author_ratio, sb_confs$pc_author_ratio))`),

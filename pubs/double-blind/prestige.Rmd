@@ -505,17 +505,20 @@ ggplot(metrics.summary %>%
   facet_wrap( ~ Metric, scales = "free")
 ```
 
-```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="Correlogram of reputation metrics."}
+```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="Correlogram of reputation metrics.", fig.height = 8}
 cors <- ppl %>%
-  select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author)
+  select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author) %>%
+  distinct()
 
 #ggpairs(cors)
 
 library(corrplot)
 library(RColorBrewer)
+corrplot(cor(cors, use = "pairw"), type = "lower", order = "hclust", 
+         tl.col = "black", tl.srt = 45,
+         tl.cex = 1, diag = FALSE,
+         col = colorRampPalette(c("orange", "white", "blue"))(100))
 
-corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", 
-         col=brewer.pal(n = 8, name = "RdYlBu"), tl.col="black", tl.srt=45)
 ```
 
  * All the distributions are right-skewed.
@@ -778,7 +781,7 @@ tbl %>%
     theme(legend.position = "bottom") +
     xlab("Publication count threshold") +
     ylab("Proportion of papers") +
-    scale_color_discrete(name = "Blindess", labels = c("Double", "Single"))
+    scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("#BD1550", "#8A9B0F"))
 ```
 
 For example, Fig. \@ref(fig:rep-threshold-npubs) shows the difference in proportions of papers written by famous authors in SB or DB conferences, based on number of publications.
@@ -802,8 +805,8 @@ tbl %>%
     theme_minimal() +
     theme(legend.position = "bottom") +
     xlab("h-index threshold") +
-    ylab("Proportion of papers") +
-    scale_color_discrete(name = "Review policy", labels = c("Double", "Single"))
+    ylab("Proportion of papers")  +
+    scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("#BD1550", "#8A9B0F"))
 ```
 
 The evidence is even stronger when using h-index for reputation, but in reverse.
@@ -1213,6 +1216,4 @@ We hope that this paper provides a guideline and a roadmap to studies on bias on
 ### Acknowledgements {-}
 
 # References {-}
-
-
 

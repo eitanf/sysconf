@@ -24,96 +24,101 @@ abstract: |
 library("GGally")
 library("kableExtra")
 
+
+###############
+# Create author-level datasets of interest
+###############
+
+# ppl: row = author on one of the pubs
 ppl <-  roles %>%
   left_join(persons) %>%
   filter(role == "author") %>%
   mutate(paper_cites = citedby / npubs)
 
-# There are some 31 authors with 1000+ npubs, which would mean nearly one publication per week for 20 years. Clearly, many of their pubs on GS are not theirs or not real pubs. So we remove or impute those. We also remove those where the ratio of npubs to s2npubs isn't too large.
+# ppl.lead: row = lead author on a pub (so 1 row per pub)
+ppl.lead <- left_join(roles, persons) %>%
+  filter(role == "lead_author") %>%
+  mutate(paper_cites = citedby / npubs)
 
+# ppl.last: row = last author on a pub (so 1 row per pub)
+ppl.last <- left_join(roles, persons) %>%
+  filter(role == "last_author") %>%
+  mutate(paper_cites = citedby / npubs)
+
+######################
+# Imputation
+######################
+
+# There are some 31 authors with 1000+ npubs, which would mean nearly one publication per week for 20 years. Clearly, many of their pubs on GS are not theirs or not real pubs. So we remove or impute those. We also remove those where the ratio of npubs to s2npubs is too large.
+
+# Abitrary thresholds
+# Comparing two sources for npubs
 THRESH_RATIO <- 3
-S2_THRESH = 1000
+# Bound on S2 since have lots of name disambiguation issues
+S2_THRESH <- 1000
 
-ppl <- ppl %>% mutate(good_npub = !is.na(npubs) & npubs / s2npubs < THRESH_RATIO)
+# Add an indicator for not missing npubs and npubs isn't too much larger than 
+# other source
+cleaning_imputation <- function(dat, THRESH_RATIO, S2_THRESH){
+  
+  dat <- dat %>% 
+    mutate(imp = is.na(npubs) | npubs/s2npubs >= THRESH_RATIO & s2npubs <= S2_THRESH) %>%
+    mutate(npubs_all_good = na_if(npubs / s2npubs < THRESH_RATIO |
+                                    s2npubs / npubs < THRESH_RATIO, npubs))
 
+    
+  # Create training dataset for imputation
+  dat_train <- dat %>%
+  filter(!imp, !is.na(s2npubs), s2npubs/npubs < 3) %>%
+  group_by(name, gs_email) %>% #Since many authors are in the dataset several times
+  summarize(npubs = first(npubs), s2npubs = min(first(s2npubs), S2_THRESH),
+            hindex = first(hindex)) %>%
+    ungroup()
 
-good_npubs = !is.na(ppl$npubs) &
-             !is.na(ppl$hindex) &
-              ppl$npubs / ppl$s2npubs < THRESH_RATIO &
-              ppl$s2npubs < S2_THRESH
-#              ppl$s2npubs / ppl$npubs < THRESH_RATIO
+  # Build imputation models
+  # Linear imputation
+  model.npubs_from_s2npubs <- lm(data = dat_train, npubs ~ s2npubs)
+  model.hindex_from_s2npubs <- lm(data = dat_train, hindex ~ s2npubs)
+  
+  # Impute (but truncate predictor s2npubs at S2_THRESH)
+  dat <- dat %>%
+  mutate(npubs_imp = ifelse(!imp, npubs, predict(model.npubs_from_s2npubs,
+                                                 data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH)))))) %>%
+  mutate(hindex_imp = ifelse(!imp, hindex, predict(model.hindex_from_s2npubs, 
+                                                   data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH)))))) 
+  
+  
+  # Flat imputation
+  dat <- dat %>%
+    mutate(npubs_flat = ifelse(!imp, npubs, 1),
+           hindex_flat = ifelse(!imp, hindex, 0))
+  
+  dat
+}
 
-all_good <- ppl %>%
-  filter(!is.na(npubs), !is.na(hindex), !is.na(s2npubs), npubs / s2npubs < THRESH_RATIO, s2npubs / npubs < THRESH_RATIO) %>%
-  group_by(name, gs_email) %>%
-  summarize(npubs = first(npubs), s2npubs = min(first(s2npubs), S2_THRESH), hindex = first(hindex))
+# Impute for our author datasets
+ppl <- ppl %>%
+  cleaning_imputation(THRESH_RATIO, S2_THRESH)
 
+ppl.last <- ppl.last %>%
+  cleaning_imputation(THRESH_RATIO, S2_THRESH)
 
-model.npubs_from_s2npubs <- lm(data = all_good, npubs ~ s2npubs)
-model.hindex_from_s2npubs <- lm(data = all_good, hindex ~ s2npubs)
+ppl.lead <- ppl.lead %>%
+  cleaning_imputation(THRESH_RATIO, S2_THRESH)
 
-ppl.best_source <- ppl %>%
-  mutate(npubs = ifelse(good_npubs, npubs, predict(model.npubs_from_s2npubs, data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH)))))) %>%
-  mutate(hindex = ifelse(good_npubs, hindex, predict(model.hindex_from_s2npubs, data.frame(s2npubs = c(pmin(s2npubs, S2_THRESH))))))
+########################
+### Find any_pc
+########################
 
-ppl.only_imputed <- ppl.best_source %>%
-  filter(!good_npubs)
-
-ppl.not_imputed <- setdiff(ppl.best_source, ppl.only_imputed)
-
-# No good, because these people are often real, experienced researchers, but GS inflates their publication count.
-ppl.filtered <- ppl %>%
-  filter(good_npubs)
-
-
-# No good, because the median s2npubs for is.na(npubs) is 15, not zero. It's much higher for !is.na(npubs) however.
-ppl.flat <- ppl %>%
-  mutate(npubs = ifelse(is.na(npubs), 1, npubs),
-         hindex = ifelse(is.na(hindex), 0, hindex))
-
-model.npubs <- lm(data = ppl, npubs ~ as_author)
-model.hindex <- lm(data = ppl, hindex ~ as_author)
-
-# No good, because the intercept at zero is about 50 publications
-ppl.linear <- ppl %>%
-  mutate(npubs = ifelse(is.na(npubs), predict(model.npubs, data.frame(as_author=c(as_author))), npubs),
-         hindex = ifelse(is.na(hindex), predict(model.hindex, data.frame(as_author=c(as_author))), hindex))
-
-famous.thresh = 40
-
-# Only the people/papers with h-index and no "famous" co-authors on the same paper
-ppl.notfamous <- ppl.filtered %>%
+any_pc <- ppl %>%
+  filter(!imp) %>%
   group_by(as.factor(key)) %>%
-  mutate(maxh = max(hindex)) %>%
-  filter(maxh <= famous.thresh) %>%
-  ungroup()
-
-# All the people/papers with at least one famous author per paper:
-ppl.famous <- ppl.filtered %>%
-  group_by(as.factor(key)) %>%
-  mutate(maxh = max(hindex)) %>%
-  filter(maxh > famous.thresh) %>%
-  ungroup()
-
-
-ppl.mismatched <- ppl.filtered %>%
-  group_by(as.factor(key)) %>%
-  mutate(maxh = max(hindex), maxp = max(npubs), maxhi = which.max(hindex), maxpi = which.max(npubs)) %>%
-  filter(maxhi != maxpi) %>%
-  ungroup()
-
-mismatched_pairs <- ppl.mismatched %>%
-  filter(npubs==maxp | hindex==maxh) %>%
-  select(c(key,name, conf, hindex, npubs)) %>%
-  left_join(select(all_confs, c(key, double_blind)), by=c("conf"="key"))
-
-any_pc <- ppl.filtered %>%
-    group_by(as.factor(key)) %>%
-    summarize(conf = as.character(first(conf)), any_pc = sum(as_pc) > 0) %>%
-    left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
+  summarize(conf = as.character(first(conf)), any_pc = sum(as_pc) > 0) %>%
+  left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
 
 db_confs = filter(all_confs, double_blind)
 sb_confs = filter(all_confs, !double_blind)
+
 
 
 ########################
@@ -127,7 +132,8 @@ compute_experience <- function(who, fame_percentile = 0.9)
               coauthors = n(),
               top_university = any(top_university),
               top_company = any(top_company),
-              across(c(as_author, as_pc, hindex, i10index, citedby, paper_cites, npubs, s2npubs),
+              across(c(as_author, as_pc, hindex, i10index, citedby, paper_cites, npubs, s2npubs,
+                       npubs_imp, hindex_imp, imp),
                      list(max = ~max(.x, na.rm = T),
                           mean = ~mean(.x, na.rm = T),
                           median = ~median(.x, na.rm = T),
@@ -150,9 +156,18 @@ compute_experience <- function(who, fame_percentile = 0.9)
 }
 
 experience.all <- compute_experience(ppl)
-experience.lead <- compute_experience(left_join(roles, persons) %>% filter(role == "lead_author") %>% mutate(paper_cites = citedby / npubs))
-experience.last <- compute_experience(left_join(roles, persons) %>% filter(role == "last_author") %>% mutate(paper_cites = citedby / npubs))
-experience.best <- compute_experience(ppl.best_source)
+experience.lead <- compute_experience(ppl.lead)
+experience.last <- compute_experience(ppl.last)
+experience.best <- compute_experience(ppl %>% filter(npubs_all_good))
+
+# EDA
+# ggplot(data = experience.all, aes(x = max_npubs, y = max_npubs_imp)) + 
+#   geom_point(alpha = 0.1)
+# sum(experience.all$max_npubs == experience.all$max_npubs_imp, na.rm =  TRUE)
+# mean(experience.all$max_npubs == experience.all$max_npubs_imp, na.rm =  TRUE)
+# mean(experience.lead$max_npubs == experience.lead$max_npubs_imp, na.rm =  TRUE)
+# mean(experience.last$max_npubs == experience.last$max_npubs_imp, na.rm =  TRUE)
+
 
 
 ########################
@@ -453,17 +468,21 @@ Need to discuss final wrangled datasets and differences between them.
 metrics.summary <- ppl %>%
   pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
   mutate(Metric = recode_factor(Metric,
-                                npubs = "Total publications (GS)", hindex = "h-index", citedby = "Total citations",
-                                s2npubs = "Total publications (S2)", as_author = "Papers in dataset", paper_cites = "Citations per paper",
-                                i10index = "i10-index", hindex5y = "h-index (5 years)", i10index5y = "i10-index (5 years)")) %>%
+                                npubs = "Total publications (GS)", hindex = "h-index", 
+                                citedby = "Total citations",
+                                s2npubs = "Total publications (S2)", 
+                                as_author = "Papers in dataset", 
+                                paper_cites = "Citations per paper",
+                                i10index = "i10-index", hindex5y = "h-index (5 years)",
+                                i10index5y = "i10-index (5 years)")) %>%
   group_by(name, gs_email, Metric) %>%
   summarize(Metric = first(Metric), value = first(value), .groups = "keep") %>%
   group_by(Metric) %>%
-  mutate(count = paste0("n=", sum(!is.na(value)))) %>%
+  mutate(count = paste0("n = ", sum(!is.na(value)))) %>%
   ungroup()
 
-total_npubs = paste0("n=", nrow(filter(authors, !is.na(hindex))))
-total_s2npubs = paste0("n=", nrow(filter(authors, !is.na(s2npubs))))
+total_npubs = paste0("n = ", nrow(filter(authors, !is.na(hindex))), sep = "")
+total_s2npubs = paste0("n = ", nrow(filter(authors, !is.na(s2npubs))))
 
 counts <- data.frame(value = c(2500, 150, 150000, 12000, 400, 10, 750, 90, 50),
                      count = c(3000, 1500, 3800, 6500, 2000, 5500, 2800, 1400, 2600),
@@ -471,27 +490,32 @@ counts <- data.frame(value = c(2500, 150, 150000, 12000, 400, 10, 750, 90, 50),
                      label = c(rep(total_npubs, 3), rep(total_s2npubs, 2), rep(total_npubs, 4))
 )
                      
-ggplot(metrics.summary, aes(x = value)) +
-  geom_histogram() +
-  geom_text(aes(x = Inf, y = Inf, label = count)) +
-  facet_wrap(~Metric, scales = "free")
+ggplot(metrics.summary %>% 
+         sample_n(2000),
+       aes(x = value)) +
+  geom_histogram(bins = 50) +
+  geom_text(aes(x = Inf, y = Inf, hjust = 1.1, vjust = 1.5, label = count)) +
+  facet_wrap( ~ Metric, scales = "free")
 
-ggplot(metrics.summary, aes(x = value)) +
+ggplot(metrics.summary %>% 
+         sample_n(2000),
+       aes(x = value)) +
   geom_density() +
   scale_x_log10() +
-  facet_wrap(~Metric, scales = "free")
+  facet_wrap( ~ Metric, scales = "free")
 ```
 
 ```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="Correlogram of reputation metrics."}
 cors <- ppl %>%
   select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author)
 
-ggpairs(cors)
+#ggpairs(cors)
 
 library(corrplot)
 library(RColorBrewer)
 
-corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", col=brewer.pal(n = 8, name = "RdYlBu"), tl.col="black", tl.srt=45)
+corrplot(cor(cors, use="pairw"), type = "upper", order = "hclust", 
+         col=brewer.pal(n = 8, name = "RdYlBu"), tl.col="black", tl.srt=45)
 ```
 
  * All the distributions are right-skewed.
@@ -553,9 +577,9 @@ We next turn our attention to another set of commonly used metrics, those incorp
 Citation-based metrics try to capture the fact that not all publications have the same influence on other researchers, and indirectly, on the author's reputation.
 Note that the correlation between total past citations and total past papers is not particularly high, leading potentially to divergent results when evaluating prestige bias
 (Pearson correlation of
-$r=`r round(cor(ppl.filtered$npubs, ppl.filtered$citedby), 2)`$
+$r=`r round(cor(ppl$npubs, ppl$citedby, use = "complete.obs"), 2)`$
 when using GS paper counts,
-$r=`r round(cor(ppl.filtered$s2npubs, ppl.filtered$citedby), 2)`$
+$r=`r round(cor(ppl$s2npubs, ppl$citedby, use = "complete.obs"), 2)`$
 with S2 data).
 
 From GS, we collected for each author with an identifiable profile their total number of past citations, h-index, i10-index (number of papers with 10 or more citations), the h-index over the past 5 years and the i10-index over the past 5 years.
@@ -1033,12 +1057,12 @@ Therefore, the prevalence of "famous authors" in a conference may have more to d
  - Median h-index is significantly different, but mean isn't? (h-index probably not as long-tailed)
  - What is the effect of outlier publishers? Try to remove the top_n h-index and retest.
  - There appears to be a prestige bias so that more senior authors (max npubs) are more prevalent in SB conference, and this doesn't seem to change based on how we treat the "bad npubs". But this isn't true for max h-index--why?
- There are `r ppl.filtered %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.
+ There are `r ppl %>% group_by(as.factor(key)) %>% summarize(maxhi = which.max(hindex), maxpi = which.max(npubs)) %>% filter(maxhi != maxpi) %>% nrow()` papers where the max npubs author is not the same as the max h-index.
 - The distributions of max_npubs and max_h are different. It appears that people with lots of npubs (> 500) that publish in single-blind conferences have relatively lower h-index. Perhaps that's because they publish in less competitive conferences.
  - What is the relationship between PC h-index (mean/median) and authors' h-index? PC-author-ratio vs max_h?
  
 ```{r distribs, echo=F}
-  experience <- ppl.filtered %>%
+  experience <- ppl %>%
     group_by(as.factor(key)) %>%
     summarize(conf = as.character(first(conf)), 
               coauthors = n(),

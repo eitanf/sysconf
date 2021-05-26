@@ -563,7 +563,7 @@ We also computed another metric from these statistics, citations per paper, by d
 Once more, we look at the most senior coauthor in each paper group, and compare the averages across SB and DB conferences.
 Of these, the citations-per-paper metric shows the strongest association with DB reviewing
 (`r report_db(experience.all, "max", "paper_cites")`).
-The h-index metric also is strongly indicated with higher values in DB conferences
+The h-index metric also strongly indicated higher values in DB conferences
 (`r report_db(experience.all, "max", "hindex")`).
 
 The total citations metric shows a much weaker, nonsignificant association in the same direction
@@ -679,7 +679,7 @@ Looking at all six aggregation methods across seven reputation metrics reveals a
 The first row (using maximum reputation per paper aggregation) repeats the results we discussed in Sec. \@ref(subsec:metrics).
 All other rows represent new aggregations.
 Depending on one's choice of metrics and aggregations, one can measure statistically significant reputation bias, anti-bias, or nonsignificant bias.
-Any stastically sound evidence to suggest bias can find a counter-argument just as sound in this dataset.
+Any statistically sound evidence to suggest bias can find a counter-argument just as sound in this dataset.
 
 Nevertheless, we can discern a few consistent properties from these comparisons:
 
@@ -687,7 +687,7 @@ Nevertheless, we can discern a few consistent properties from these comparisons:
  
  * Conversely, measuring reputation by number of publications results in higher mean reputation for SB conferences, regardless of aggregation or database used.
  
- * However, using the more complete S2 database, which includes many more authors of low experience and reputation, lowers the t-statistic values and significance. This result may be unsurprising, at it incorporates more data, particularly in the lower side of the reputation distribution; but it serves as a cautionary tale for ascribing statistical significance from partial data.
+ * However, using the more complete S2 database, which includes many more authors of low experience and reputation, lowers the t-statistic values and significance. This result may be unsurprising, as it incorporates more data, particularly in the lower side of the reputation distribution; but it serves as a cautionary tale for ascribing statistical significance from partial data.
 
  * Similarly, aggregating papers by the reputation of the lead author results in the least conclusive findings. We believe that many lead authors are relatively inexperienced students.
  

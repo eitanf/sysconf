@@ -69,9 +69,9 @@ cleaning_imputation <- function(dat, THRESH_RATIO, S2_THRESH){
     
   # Create training dataset for imputation
   dat_train <- dat %>%
-  filter(!imp, !is.na(s2npubs), s2npubs/npubs < 3) %>%
+  filter(!imp, !is.na(s2npubs), s2npubs/npubs < 3, s2npubs < S2_THRESH) %>%
   group_by(name, gs_email) %>% #Since many authors are in the dataset several times
-  summarize(npubs = first(npubs), s2npubs = min(first(s2npubs), S2_THRESH),
+  summarize(npubs = first(npubs), s2npubs = first(s2npubs),
             hindex = first(hindex)) %>%
     ungroup()
 
@@ -133,7 +133,8 @@ compute_experience <- function(who, fame_percentile = 0.9)
               top_university = any(top_university),
               top_company = any(top_company),
               across(c(as_author, as_pc, hindex, i10index, citedby, paper_cites, npubs, s2npubs,
-                       npubs_imp, hindex_imp, imp),
+                       npubs_imp, hindex_imp, imp, npubs_flat,
+                       hindex_flat),
                      list(max = ~max(.x, na.rm = T),
                           mean = ~mean(.x, na.rm = T),
                           median = ~median(.x, na.rm = T),
@@ -432,39 +433,12 @@ For reproducibility, all of the data and source code files for this paper can be
 
 # Cleaning the raw data {#sec:cleaning}
 
-To get a dataset ready for analysis, one must first wrangle or clean the data.  To clean the data requires the researcher to spend time exploring and interrogating their data to determine the quality of each variable and observation. This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, which can impact the final results.  Additionally, the cleaning step and analysis step are typically not disjoint.  A researcher will often go back and perform additional cleaning as new issues crop up during analysis.  
+To prepare our data for analysis, we must explore the quality of each variable and observation and then to *clean up* or transform the data. This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, each of which potentially impacts the final results.  Since the primary goal of this paper is to explore the sensitivity of the relationship between review policy and prestige bias to analysis choices, we explore key data cleaning operations and their impact in this section.
+
+To do so, we interrogate the author-level dataset where each row represents one of the `r distinct(select(ppl, name, gs_email)) %>% nrow()` distinct authors.  Figure \@ref(fig:metric-distribs) displays the distributions of the various author-level metrics that serve as our potential proxies for author prestige.  While Section \@ref(sec:results) thoroughly explores the merits and weaknesses of each of these metrics, here we examine the quality of the data representing these variables.  All metrics are fairly right skewed and there are reasons to suspect the quality of the values in both the upper and lower tails of these distributions. Because of name disambiguation issues, the upper tails are likely inflations of their true values for many authors.  We decided not to winsorize these large values or to remove them from the dataset since we could not find a systematic issue.  Insted, we expanded our analyses in Section \@ref(sec:results) to include a Wilcoxon Rnak Sum Test, which is resistant to outliers.
 
 
-Notes for self of things to include:
-
-* Data cleaning is a large umbrella term for all the wrangling choices we make to go from raw data to analysis-ready data.
-* A few key data cleaning actions:
-    + Exploring the variation within each variable and the relationships between the variables
-    + Detecting suspicious values and outliers
-    + Identifying, and potentially imputing, missing or unusual values
-        + Determining if the missing values are missing at random.
-    + Removing erroneous observations or observations with missing, non-imputed values for key variables
-    + Transforming variables to better suit the analysis needs (i.e., converting a numerical variable to categorical)
-* Use graphs, summary statistics, and direct inspection of the raw data during the interrogation 
-
-Need to discuss decisions we made:
-
-* Use GS instead of S2 to find the total prior publications for each author.
-    + Imputed values that were missing or very different from S2 
-        + Arbitrary choice: Threshold for discrepancy between GS and S2
-        + Choice: To use a linear model to predict GS for the imputed values where the predictor was S2
-        + Choice: Truncated imputed values at 1000 (check)
-* (For one version of the dataset): Removed rows that were missing GS.
-* Used h-index as another prestige metric
-    + Choice: To use a linear model to predict h-index for the imputed values where the predictor was S2
-        + Did we truncate?
-  
-Need to discuss final wrangled datasets and differences between them.
-
-* For each, discuss the assumptions that need to be made (or are likely violated) if we want to consider that set of observations as a representative sample.
-
-
-```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Density plots of all reputation proxy metrics (log-scale)."}
+```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Histograms of the author-level prestige proxies.  The number of non-missing values (n) is provided for each variable."}
 metrics.summary <- ppl %>%
   pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
   mutate(Metric = recode_factor(Metric,
@@ -481,36 +455,27 @@ metrics.summary <- ppl %>%
   mutate(count = paste0("n = ", sum(!is.na(value)))) %>%
   ungroup()
 
-total_npubs = paste0("n = ", nrow(filter(authors, !is.na(hindex))), sep = "")
-total_s2npubs = paste0("n = ", nrow(filter(authors, !is.na(s2npubs))))
-
-counts <- data.frame(value = c(2500, 150, 150000, 12000, 400, 10, 750, 90, 50),
-                     count = c(3000, 1500, 3800, 6500, 2000, 5500, 2800, 1400, 2600),
-                     Metric = levels(metrics.summary$Metric),
-                     label = c(rep(total_npubs, 3), rep(total_s2npubs, 2), rep(total_npubs, 4))
-)
-                     
-ggplot(metrics.summary %>% 
-         sample_n(2000),
+ggplot(metrics.summary,
        aes(x = value)) +
   geom_histogram(bins = 50) +
   geom_text(aes(x = Inf, y = Inf, hjust = 1.1, vjust = 1.5, label = count)) +
   facet_wrap( ~ Metric, scales = "free")
 
-ggplot(metrics.summary %>% 
-         sample_n(2000),
-       aes(x = value)) +
-  geom_density() +
-  scale_x_log10() +
-  facet_wrap( ~ Metric, scales = "free")
+
 ```
 
-```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="Correlogram of reputation metrics.", fig.height = 8}
+
+In terms of the lower tail, it should be noted that about one third of the values for the GS measures are missing since those authors did not have a GS profile or the profile appeared to aggregate more than one person.  These authors with no GS profile are likely less experienced and therefore would contribute to the lower tail since the median number of publications from SS is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without a GS profile but equals `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with a GS profile.  This discrepancy provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is handled.  
+
+For handling these missing values, we consider three strategies.  The simplest, and likely most common approach involves removes the missing values when computing aggregate measures. This strategy likely inflates paper aggregation metrics such as the mean but has less influence on the maximum metric.  On the other end of the spectrum, we also consider imputing the missing metrics with the minimum value for that metric.  This assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics but again have less influence on the maximum metric.  Lastly, we consider imputing the missing values based on a linear regression model built on the total publications from SS, which is moderately correlated with the GS metrics (Fig. \@ref(fig:metric-corrs)). For the linear imputation, we also imputed the GS metrics if the ratio of the total publications from GS compared to SS was greater than 3, which indicated a potential inflation of the values of GS metrics for those authors (Fig. \@ref(fig:imputation)).  Similarly, to minimize imputing inflated GS metrics, we winsorized at 1000 the very heavy tail of the total publications from SS before computing the imputed values.  XXX: Insert some summary statements about the impact of these three strategies.  For nearly all of the results, the sign of the relationship between review policy and the prestige metric does not change but in some cases the degree of significant does change.  Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  Therefore, for the rest of the paper, we will use the unimputed data and remove missing values when computing aggregate measures.
+
+
+
+
+```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="A graphical display of the lower triangle of a correlation matrix for the author-level prestige metrics.", fig.height = 8}
 cors <- ppl %>%
   select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author) %>%
   distinct()
-
-#ggpairs(cors)
 
 library(corrplot)
 library(RColorBrewer)
@@ -521,22 +486,26 @@ corrplot(cor(cors, use = "pairw"), type = "lower", order = "hclust",
 
 ```
 
- * All the distributions are right-skewed.
- * The two tails have the values we're most worried about: ambiguous names; expansive vs. minimal inclusion of publications; inexperienced authors with no GS profile.
- * Sensitivity analysis
- * The correlation between npubs and s2npubs is much higher for ppl.filtered, probably because we removed the points where they disagree by a lot.
+```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and points where the GS metric is 3 times the SS metric are highlighted."}
+ppl %>%
+  select(npubs, s2npubs, imp) %>%
+  filter(s2npubs < S2_THRESH) %>%
+ggplot(aes(y = npubs, x = s2npubs)) +
+  geom_point(alpha = 0.1, mapping = aes(color = imp)) +
+  geom_smooth(method = lm, se = FALSE, color = "black") +
+  guides(colour = guide_legend(override.aes = list(alpha = 1)))
 
- Problems with GS data: missing authors; profiles that appear to aggregate more than one person; and multiple profiles for the same name. We dropped the first two categories.
+```
 
- Most of the missing GS data is for inexperienced authors (prove with S2 data). Imputing this data won't make a big difference on prestige bias analysis, because presumably inexperienced authors haven't accrued much prestige yet.
- Nevertheless, we verified this by imputing h-index and citation data with linear models, using S2 data and papers-in-set as predictors. The inclusion of the imputed data did not meteriallly affect any of our conclusions in this paper (verify!).
 
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->
+
+\clearpage
 
 # Empirical results {#sec:results}
 
-In this section we explore the observed relationships between reputation and DB reviewing across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a common set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
+In this section we explore the observed relationships between reputation and reviewing policy across three design dimensions, or factors: metrics of reputation, aggregation of prestige across coauthors, and additional conference variables that could affect this relationship. Because of the complexity introduced by multiple independent factors, we start with a common set of choices for comparisons and investigate the effect of each factor and level in relation to this baseline. The baseline we chose is to approximate the reputation of a paper's coauthors by the maximum total number of prior publications of any coauthor, and ignoring any confounding variables. This metric has been commonly used in other studies as well [@fisher94:effects; @madden06:impact; @tomkins17:reviewer; @tung06:impact].
 
 
 
@@ -561,7 +530,9 @@ With these limitations in mind, we start our analysis by looking at the count of
 For each accepted paper, we looked at the publication count of the most prolific author.
 In our dataset, authors in SB conferences average a higher publication count based on GS than in DB conferences
 (`r report_db(experience.all, "max", "npubs")`).
-<!-- Also holds when we impute GS (`r report_db(experience.best, "max", "npubs")`) -->
+<!-- Also holds when we impute GS (`r report_db(experience.all, "max", "npubs_imp")`) -->
+<!-- Also holds when we impute GS (`r report_db(experience.all, "max", "npubs_flat")`) -->
+
 This relationship appears to support a hypothesis of prestige bias for these conferences (again, it is insufficient to conclude a causal relationship).
 When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker:
 (`r report_db(experience.all, "max", "s2npubs")`).
@@ -703,6 +674,7 @@ ggplot(rep.all, aes(x = metric, y = aggregation)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+
 Looking at all six aggregation methods across seven reputation metrics reveals a mixed picture (Fig. \@ref(fig:mean-diffs)).
 The first row (using maximum reputation per paper aggregation) repeats the results we discussed in Sec. \@ref(subsec:metrics).
 All other rows represent new aggregations.
@@ -745,6 +717,144 @@ rep.all %>%
 
 ```
 
+
+```{r, eval = FALSE, include = FALSE}
+tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
+             compute_db(experience.all, "total", "s2npubs"),
+             compute_db(experience.all, "mean", "s2npubs"),
+             compute_db(experience.all, "median", "s2npubs")
+            )
+
+for (metric in c("npubs_imp", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index")) {
+  for (aggr in c("max", "total", "mean", "median")) {
+    tbl <- rbind(tbl, compute_db(experience.all, aggr, metric))
+  }
+}
+
+# Append lead-author stats
+for (metric in c("s2npubs", "npubs_imp", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index")) {
+  tbl <- rbind(tbl, compute_db(experience.lead, "first", metric))
+}
+tbl <- ifelse(tbl == "first", "lead", tbl)
+
+# Append last-author stats
+for (metric in c("s2npubs", "npubs_imp", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index")) {
+  tbl <- rbind(tbl, compute_db(experience.last, "first", metric))
+}
+tbl <- ifelse(tbl == "first", "last", tbl)
+
+rep.all <- as_tibble(tbl)
+rep.all$metric <- factor(rep.all$metric, ordered = T,
+                         levels = c("npubs_imp", "s2npubs", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index"),
+                         labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
+rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
+                              levels = c("lead", "last", "median", "mean", "total", "max"),
+                              labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
+rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
+rep.all$t_pval <- as.numeric(rep.all$t_pval)
+rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
+rep.all$w_pval <- as.numeric(rep.all$w_pval)
+
+
+ggplot(rep.all, aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = t_stat.t)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "t statistic") +
+  theme_minimal() +
+  guides(fill = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
+
+rep.all %>%
+  group_by(metric) %>%
+  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
+  ggplot(aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = normalized)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "Difference") +
+  theme_minimal() +
+  guides(fill = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r, eval = FALSE, include = FALSE}
+tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
+             compute_db(experience.all, "total", "s2npubs"),
+             compute_db(experience.all, "mean", "s2npubs"),
+             compute_db(experience.all, "median", "s2npubs")
+            )
+
+for (metric in c("npubs_flat", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index")) {
+  for (aggr in c("max", "total", "mean", "median")) {
+    tbl <- rbind(tbl, compute_db(experience.all, aggr, metric))
+  }
+}
+
+# Append lead-author stats
+for (metric in c("s2npubs", "npubs_flat", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index")) {
+  tbl <- rbind(tbl, compute_db(experience.lead, "first", metric))
+}
+tbl <- ifelse(tbl == "first", "lead", tbl)
+
+# Append last-author stats
+for (metric in c("s2npubs", "npubs_flat", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index")) {
+  tbl <- rbind(tbl, compute_db(experience.last, "first", metric))
+}
+tbl <- ifelse(tbl == "first", "last", tbl)
+
+rep.all <- as_tibble(tbl)
+rep.all$metric <- factor(rep.all$metric, ordered = T,
+                         levels = c("npubs_flat", "s2npubs", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index"),
+                         labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
+rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
+                              levels = c("lead", "last", "median", "mean", "total", "max"),
+                              labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
+rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
+rep.all$t_pval <- as.numeric(rep.all$t_pval)
+rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
+rep.all$w_pval <- as.numeric(rep.all$w_pval)
+
+
+ggplot(rep.all, aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = t_stat.t)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "t statistic") +
+  theme_minimal() +
+  guides(fill = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
+
+rep.all %>%
+  group_by(metric) %>%
+  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
+  ggplot(aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = normalized)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "Difference") +
+  theme_minimal() +
+  guides(fill = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+
 As Fig. \@ref(fig:median-diffs) shows, many of the metrics and paper aggregations agree in direction (sign) whether looking at the mean values across SB/DB or medians, although confidence levels vary significantly between the two.
 Observe for example how the total citation metric went from nonsignificant means to highly significant medians, perhaps because this metric's values are the most widely distributed and right-skewed, therefore creating large differences between means and medians.
 
@@ -784,6 +894,27 @@ tbl %>%
     scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("#BD1550", "#8A9B0F"))
 ```
 
+```{r, eval = FALSE, include = FALSE}
+total_db = nrow(filter(experience.all, double_blind))
+total_sb = nrow(filter(experience.all, !double_blind))
+tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
+for (t in seq(1, 1000, by = 1)) {
+  tbl <- rbind(tbl, cbind("thresh" = t, t(over_thresh("max_npubs_imp", t))))
+}
+
+tbl %>%
+  mutate(sb = sb / total_sb, db = db / total_db) %>%
+  pivot_longer(cols = c("sb", "db"), names_to = c("db_status"), values_to = "ratio") %>%
+  ggplot(aes(x = thresh, y = ratio, color = db_status)) +
+    geom_line() +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    xlab("Publication count threshold") +
+    ylab("Proportion of papers") +
+    scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("#BD1550", "#8A9B0F"))
+```
+
+
 For example, Fig. \@ref(fig:rep-threshold-npubs) shows the difference in proportions of papers written by famous authors in SB or DB conferences, based on number of publications.
 It shows that beyond a certain level of reputation (around 100 papers), famous authors are always overrepresented in SB conferences, consistent with a possible prestige bias.
 Comparing these proportions across SB and DB conferences, with $\chi{}^2$-test-derived p-values below 0.05 in `r pct(sum(tbl$p.value < 0.05, na.rm = T), nrow(tbl) - 1, 1)`% of the threshold values.
@@ -795,6 +926,26 @@ total_sb = nrow(filter(experience.all, !double_blind))
 tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
 for (t in seq(1, 50)) {
   tbl <- rbind(tbl, cbind("thresh" = t, t(over_thresh("max_hindex", t))))
+}
+
+tbl %>%
+  mutate(sb = sb / total_sb, db = db / total_db) %>%
+  pivot_longer(cols = c("sb", "db"), names_to = c("db_status"), values_to = "ratio") %>%
+  ggplot(aes(x = thresh, y = ratio, color = db_status)) +
+    geom_line() +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    xlab("h-index threshold") +
+    ylab("Proportion of papers")  +
+    scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("#BD1550", "#8A9B0F"))
+```
+
+```{r, eval = FALSE, include = FALSE}
+total_db = nrow(filter(experience.all, double_blind))
+total_sb = nrow(filter(experience.all, !double_blind))
+tbl <- data.frame(cbind("thresh" = 0, "db" = total_db, "sb" = total_sb, "p.value" = NA), stringsAsFactors = F, check.names = F)
+for (t in seq(1, 50)) {
+  tbl <- rbind(tbl, cbind("thresh" = t, t(over_thresh("max_hindex_imp", t))))
 }
 
 tbl %>%

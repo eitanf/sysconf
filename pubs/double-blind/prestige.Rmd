@@ -431,79 +431,6 @@ For reproducibility, all of the data and source code files for this paper can be
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->
 
-# Cleaning the raw data {#sec:cleaning}
-
-To prepare our data for analysis, we must explore the quality of each variable and observation and then to *clean up* or transform the data. This key, and time-consuming, step does not follow a formal set of rules but instead usually requires the researcher to make several subjective choices, each of which potentially impacts the final results.  Since the primary goal of this paper is to explore the sensitivity of the relationship between review policy and prestige bias to analysis choices, we explore key data cleaning operations and their impact in this section.
-
-To do so, we interrogate the author-level dataset where each row represents one of the `r distinct(select(ppl, name, gs_email)) %>% nrow()` distinct authors.  Figure \@ref(fig:metric-distribs) displays the distributions of the various author-level metrics that serve as our potential proxies for author prestige.  While Section \@ref(sec:results) thoroughly explores the merits and weaknesses of each of these metrics, here we examine the quality of the data representing these variables.  All metrics are fairly right skewed and there are reasons to suspect the quality of the values in both the upper and lower tails of these distributions. Because of name disambiguation issues, the upper tails are likely inflations of their true values for many authors.  We decided not to winsorize these large values or to remove them from the dataset since we could not find a systematic issue.  Insted, we expanded our analyses in Section \@ref(sec:results) to include a Wilcoxon Rank Sum Test, which is resistant to outliers.
-
-
-```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Histograms of the author-level prestige proxies.  The number of non-missing values (n) is provided for each variable."}
-metrics.summary <- ppl %>%
-  pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
-  mutate(Metric = recode_factor(Metric,
-                                npubs = "Total publications (GS)", hindex = "h-index", 
-                                citedby = "Total citations",
-                                s2npubs = "Total publications (S2)", 
-                                as_author = "Papers in dataset", 
-                                paper_cites = "Citations per paper",
-                                i10index = "i10-index", hindex5y = "h-index (5 years)",
-                                i10index5y = "i10-index (5 years)")) %>%
-  group_by(name, gs_email, Metric) %>%
-  summarize(Metric = first(Metric), value = first(value), .groups = "keep") %>%
-  group_by(Metric) %>%
-  mutate(count = paste0("n = ", sum(!is.na(value)))) %>%
-  ungroup()
-
-ggplot(metrics.summary,
-       aes(x = value)) +
-  geom_histogram(bins = 50) +
-  geom_text(aes(x = Inf, y = Inf, hjust = 1.1, vjust = 1.5, label = count)) +
-  facet_wrap( ~ Metric, scales = "free")
-
-
-```
-
-
-In terms of the lower tail, it should be noted that about one third of the values for the GS measures are missing since those authors did not have a GS profile or the profile appeared to aggregate more than one person.  Since the median number of publications from SS is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without a GS measures but equals `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with a GS measures, these authors with missing values are likely less experiences and therefore would contribute to the lower tail of these distributions.  The variation in SS publications between those with and without GS profiles provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is treated.  
-
-For handling these missing values, we consider three strategies.  The simplest approach involves removing the missing values when computing aggregate measures. This strategy likely inflates paper aggregation metrics such as the mean but has less influence on the maximum metric.  On the other end of the spectrum, we also consider imputing the missing metrics with the minimum value for that metric.  This assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics but again have less influence on the maximum metric.  Lastly, we consider imputing the missing values based on a linear regression model built on the total publications from SS, which is moderately correlated with the GS metrics (Fig. \@ref(fig:metric-corrs)). For the linear imputation, we also imputed the GS metrics if the ratio of the total publications from GS compared to SS was greater than 3, which indicated a potential inflation of the values of GS metrics for those authors (Fig. \@ref(fig:imputation)).  Similarly, to minimize imputing inflated GS metrics, we winsorized at 1000 the very heavy tail of the total publications from SS before computing the imputed values.  XXX: Insert some summary statements about the impact of these three strategies.  For nearly all of the results, the sign of the relationship between review policy and the prestige metric does not change but in some cases the degree of significant does change.  Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  Therefore, for the rest of the paper, we will use the unimputed data and remove missing values when computing aggregate measures.
-
-
-
-
-```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="A graphical display of the lower triangle of a correlation matrix for the author-level prestige metrics.", fig.height = 8}
-cors <- ppl %>%
-  select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author) %>%
-  distinct()
-
-library(corrplot)
-library(RColorBrewer)
-corrplot(cor(cors, use = "pairw"), type = "lower", order = "hclust", 
-         tl.col = "black", tl.srt = 45,
-         tl.cex = 1, diag = FALSE,
-         col = colorRampPalette(c("orange", "white", "blue"))(100))
-
-```
-
-```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and pointed where the GS metric is 3 times the SS metric are highlighted."}
-
-ppl %>%
-  select(npubs, s2npubs, imp) %>%
-  filter(s2npubs < S2_THRESH) %>%
-ggplot(aes(y = npubs, x = s2npubs)) +
-  geom_point(alpha = 0.1, mapping = aes(color = imp)) +
-  geom_smooth(method = lm, se = FALSE, color = "black") +
-  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-  labs(x = "Publications (SS)", y = "Publications (GS)", color = "Imputed?")
-
-```
-
-
-<!-------------------------------------------------------------------------------------------->
-<!-------------------------------------------------------------------------------------------->
-
-\clearpage
 
 # Empirical results {#sec:results}
 
@@ -1164,6 +1091,90 @@ The most noticeable general trend with this classfication of prestige is that mo
 The two columns that show significant results are papers in set and mean past citations per paper.
 Interestingly, they both show the same direction (higher reputation in DB conferences) and the significance of this preference does not abate with confounding conference factors.
 (((WHY these two? why do they agree? why does confounding not change things?)))
+
+<!-------------------------------------------------------------------------------------------->
+## Handling Missing and Suspect Observations {#sec:cleaning}
+
+
+To prepare the data for analysis required a thorough exploration of each variable and observations for missing or suspect values.  This *data cleaning* does not follow a formal set of rules but instead usually requires the researchers to make several subjective choices, each of which potentially impacts the final results. In this sub-section, we explore how the handling of missing and suspect observations potentially impacts conclusions of prestige bias.  
+
+Figure \@ref(fig:metric-distribs) displays the distributions of the various author-level of prestige. All metrics are fairly right skewed and there are reasons to suspect the quality of the values in both the upper and lower tails of these distributions. Because of name disambiguation issues, the upper tails are likely inflations of their true values for many authors.  In previous sub-sections we explored a few analysis techniques that dampen the impact of outliers, the Wilcoxon Signed Rank Test and a binary classification of fame, to see if the story changed. For a given metric and XXX, the conclusions regarding prestige bias were similar between these outlier resistant measures and the other techniques.  Therefore, we chose not to winsorize these data, a common data cleaning technique for highly right skewed data.
+
+
+```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Histograms of the author-level prestige proxies.  The number of non-missing values (n) is provided for each variable."}
+metrics.summary <- ppl %>%
+  pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
+  mutate(Metric = recode_factor(Metric,
+                                npubs = "Total publications (GS)", hindex = "h-index", 
+                                citedby = "Total citations",
+                                s2npubs = "Total publications (S2)", 
+                                as_author = "Papers in dataset", 
+                                paper_cites = "Citations per paper",
+                                i10index = "i10-index", hindex5y = "h-index (5 years)",
+                                i10index5y = "i10-index (5 years)")) %>%
+  group_by(name, gs_email, Metric) %>%
+  summarize(Metric = first(Metric), value = first(value), .groups = "keep") %>%
+  group_by(Metric) %>%
+  mutate(count = paste0("n = ", sum(!is.na(value)))) %>%
+  ungroup()
+
+ggplot(metrics.summary,
+       aes(x = value)) +
+  geom_histogram(bins = 50) +
+  geom_text(aes(x = Inf, y = Inf, hjust = 1.1, vjust = 1.5, label = count)) +
+  facet_wrap( ~ Metric, scales = "free")
+
+
+```
+
+
+In terms of the lower tail, it should be noted that about one third of the values for the GS measures are missing since those authors did not have a GS profile or the profile appeared to aggregate more than one person.  Since the median number of publications from SS is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without GS measures but equals `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with GS measures, these authors with missing values are likely less experienced and therefore would contribute to the lower tail of these distributions.  The variation in SS publications between those with and without GS profiles provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is treated.  
+
+For handling these missing values, we consider three strategies.  The simplest approach involves removing the missing values when computing aggregate measures. 
+XXX: Start here
+
+
+This strategy likely inflates paper aggregation metrics such as the mean but has less influence on the maximum metric.  On the other end of the spectrum, we also consider imputing the missing metrics with the minimum value for that metric.  This assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics but again have less influence on the maximum metric.  Lastly, we consider imputing the missing values based on a linear regression model built on the total publications from SS, which is moderately correlated with the GS metrics (Fig. \@ref(fig:metric-corrs)). For the linear imputation, we also imputed the GS metrics if the ratio of the total publications from GS compared to SS was greater than 3, which indicated a potential inflation of the values of GS metrics for those authors (Fig. \@ref(fig:imputation)).  Similarly, to minimize imputing inflated GS metrics, we winsorized at 1000 the very heavy tail of the total publications from SS before computing the imputed values.  XXX: Insert some summary statements about the impact of these three strategies.  For nearly all of the results, the sign of the relationship between review policy and the prestige metric does not change but in some cases the degree of significant does change.  Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  Therefore, for the rest of the paper, we will use the unimputed data and remove missing values when computing aggregate measures.
+
+
+
+
+```{r metric-corrs, echo=F, warning=F, cache=T, fig.cap="A graphical display of the lower triangle of a correlation matrix for the author-level prestige metrics.", fig.height = 8}
+cors <- ppl %>%
+  select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author, name, gs_email) %>%
+  distinct() %>%
+    select(-name, -gs_email)
+
+
+library(corrplot)
+library(RColorBrewer)
+corrplot(cor(cors, use = "pairw"), type = "lower", order = "hclust", 
+         tl.col = "black", tl.srt = 45,
+         tl.cex = 1, diag = FALSE,
+         col = colorRampPalette(c("orange", "white", "blue"))(100))
+
+```
+
+```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and pointed where the GS metric is 3 times the SS metric are highlighted."}
+
+ppl %>%
+  select(npubs, s2npubs, imp) %>%
+  filter(s2npubs < S2_THRESH) %>%
+ggplot(aes(y = npubs, x = s2npubs)) +
+  geom_point(alpha = 0.1, mapping = aes(color = imp)) +
+  geom_smooth(method = lm, se = FALSE, color = "black") +
+  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
+  labs(x = "Publications (SS)", y = "Publications (GS)", color = "Imputed?")
+
+```
+
+
+<!-------------------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------------------->
+
+\clearpage
+
+
 
 (((Summarize this section)))
 

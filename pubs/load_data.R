@@ -3,8 +3,10 @@
 
 library('tidyverse')
 library('lubridate')
+library(lme4)
+library(lmerTest)
 
-toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
+toplevel = "/Users/mcconville/Documents/Research/csPublications/sysconf/"
 sep <- ';'
 
 ############# Conference data
@@ -190,3 +192,4 @@ report_test <- function(test, rounding = 3, p_option = "rounded", show_stat = TR
   }
   paste0(ret, p_str)
 }
+

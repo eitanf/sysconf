@@ -11,7 +11,7 @@ export
 
 SRC=${SYSCONF_HOME}/src
 DATA=confs.csv interests.csv persons.csv roles.csv interests.csv \
-		 coauthors.csv papers.csv
+		 coauthors.csv papers.csv artifacts.csv
 DATA_MD=$(patsubst %.csv,%.md,${DATA})
 TEXT=tokens.csv
 

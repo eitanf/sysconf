@@ -20,7 +20,39 @@ tidy_topics = tidydata.TidyData("topics",
         "A mapping from papers to systems subfields (topics).")
 tidy_tags = tidydata.TidyData("content_tags",
         "A mapping from papers to content tags.")
+tidy_artifacts = tidydata.TidyData("artifacts",
+        "A mapping from papers to artifact data.")
 
+
+#########################################################################
+# Select a category for the type of a location (URL) based on regex
+def location_type(url):
+    if url == "":
+        return ""
+
+    if url.find(".edu") > 0 or url.find(".ac.") > 0 or \
+            url.find("camelab") > 0 or url.find("uni-") > 0 or \
+            url.find(".ch") > 0 or url.find("kau.se") > 0 or \
+            url.find("uwaterloo.ca") > 0 or url.find("tu-") > 0 or \
+            url.find("tuel.nl") > 0 or url.find("muni.cz") > 0 or \
+            url.find("kuleuven") > 0 or url.find("ens.fr") > 0 or \
+            url.find("tum.de") > 0 or url.find("dcc.") > 0 or \
+            url.find("uam.es") > 0 or url.find("iisc-seal") > 0:
+                return "Academic"
+
+    if url.find("github.") > 0 or url.find("bitbucket.") > 0 or \
+            url.find("gitlab.") > 0 or url.find("sourceforge") > 0 or \
+            url.find("zenodo") > 0 or url.find("doi.org") > 0:
+                return "Repository"
+
+    if url.find(".acm.org") > 0:
+        return "ACM"
+
+    if url.find(".dropbox.com") > 0 or url.find("drive.google") > 0 or \
+            url.find("onedrive") > 0:
+                return "Filesharing"
+
+    return "Other"
 
 #########################################################################
 # Add features that arise from parsing the paper's title
@@ -36,6 +68,19 @@ def add_title_features(title):
     title_len = len(re.findall("\w+", title))
     tidy_papers.add("title_length", "int", title_len,
             "Number of words in title")
+
+
+#########################################################################
+# Add features that arise from parsing the paper's title
+def add_artifact_features(key, artifact):
+    tidy_artifacts.start_record()
+    tidy_artifacts.add("key", "string", key, "Paper ID")
+    tidy_artifacts.add("linked", "bool", artifact["linked"], "Artifact was linked to directly in paper")
+    tidy_artifacts.add("unreleased", "bool", artifact["url"] == "", "Artifact was never linked or released")
+    tidy_artifacts.add("expired", "bool", artifact["last_accessed"] == "", "Artifact is no longer available at linked location")
+    tidy_artifacts.add("badge", "bool", artifact["badge"], "Paper received 'Artifact Available' badge")
+    tidy_artifacts.add("evaluated", "bool", artifact["evaluated"], "Paper received 'Artifact Available' badge")
+    tidy_artifacts.add("location", "string", location_type(artifact["url"]), "Location category for artifact link")
 
 
 #########################################################################
@@ -65,7 +110,7 @@ def add_gs_features(key, record, post):
     tidy_papers.add("months_to_eprint", "int", month_diff(ef, post) if ef != "" else "",
             "Months from publication till GS found an e-print")
 
-    for date,cites in record['citedby'].items():
+    for date, cites in record['citedby'].items():
         tidy_cites.start_record()
         tidy_cites.add("key", "string", key, "Paper ID")
         tidy_cites.add("months", "int", month_diff(date, post), "Months since publiucation")
@@ -99,6 +144,8 @@ def add_paper_record(key, record):
             tidy_tags.add("tag", "categorical string", tag,
                     "A content descriptor for the paper's research")
 
+    if 'artifact' in record:
+        add_artifact_features(record['key'], record['artifact'])
 
 #########################################################################
 # Extract all variables available from conference file.
@@ -146,3 +193,4 @@ tidy_papers.save()
 tidy_cites.save()
 tidy_topics.save()
 tidy_tags.save()
+tidy_artifacts.save()

@@ -672,140 +672,6 @@ rep.all %>%
 ```
 
 
-```{r, eval = FALSE, include = FALSE}
-tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
-             compute_db(experience.all, "total", "s2npubs"),
-             compute_db(experience.all, "mean", "s2npubs"),
-             compute_db(experience.all, "median", "s2npubs")
-            )
-
-for (metric in c("npubs_imp", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index")) {
-  for (aggr in c("max", "total", "mean", "median")) {
-    tbl <- rbind(tbl, compute_db(experience.all, aggr, metric))
-  }
-}
-
-# Append lead-author stats
-for (metric in c("s2npubs", "npubs_imp", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index")) {
-  tbl <- rbind(tbl, compute_db(experience.lead, "first", metric))
-}
-tbl <- ifelse(tbl == "first", "lead", tbl)
-
-# Append last-author stats
-for (metric in c("s2npubs", "npubs_imp", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index")) {
-  tbl <- rbind(tbl, compute_db(experience.last, "first", metric))
-}
-tbl <- ifelse(tbl == "first", "last", tbl)
-
-rep.all <- as_tibble(tbl)
-rep.all$metric <- factor(rep.all$metric, ordered = T,
-                         levels = c("npubs_imp", "s2npubs", "as_author", "citedby", "paper_cites", "hindex_imp", "i10index"),
-                         labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
-rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
-                              levels = c("lead", "last", "median", "mean", "total", "max"),
-                              labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
-rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
-rep.all$t_pval <- as.numeric(rep.all$t_pval)
-rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
-rep.all$w_pval <- as.numeric(rep.all$w_pval)
-
-
-ggplot(rep.all, aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = t_stat.t)) +
-  scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
-  ylab("Paper aggregation method") +
-  xlab("Reputation metric") +
-  labs(fill = "t statistic") +
-  theme_minimal() +
-  guides(fill = "none") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
-
-rep.all %>%
-  group_by(metric) %>%
-  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
-  ggplot(aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = normalized)) +
-  scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
-  ylab("Paper aggregation method") +
-  xlab("Reputation metric") +
-  labs(fill = "Difference") +
-  theme_minimal() +
-  guides(fill = "none") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-
-
-```{r, eval = FALSE, include = FALSE}
-tbl <- rbind(compute_db(experience.all, "max", "s2npubs"),
-             compute_db(experience.all, "total", "s2npubs"),
-             compute_db(experience.all, "mean", "s2npubs"),
-             compute_db(experience.all, "median", "s2npubs")
-            )
-
-for (metric in c("npubs_flat", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index")) {
-  for (aggr in c("max", "total", "mean", "median")) {
-    tbl <- rbind(tbl, compute_db(experience.all, aggr, metric))
-  }
-}
-
-# Append lead-author stats
-for (metric in c("s2npubs", "npubs_flat", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index")) {
-  tbl <- rbind(tbl, compute_db(experience.lead, "first", metric))
-}
-tbl <- ifelse(tbl == "first", "lead", tbl)
-
-# Append last-author stats
-for (metric in c("s2npubs", "npubs_flat", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index")) {
-  tbl <- rbind(tbl, compute_db(experience.last, "first", metric))
-}
-tbl <- ifelse(tbl == "first", "last", tbl)
-
-rep.all <- as_tibble(tbl)
-rep.all$metric <- factor(rep.all$metric, ordered = T,
-                         levels = c("npubs_flat", "s2npubs", "as_author", "citedby", "paper_cites", "hindex_flat", "i10index"),
-                         labels = c("Publications (GS)", "Publications (S2)", "Papers in set", "Total citations", "Citations per paper", "h-index", "i10-index"))
-rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
-                              levels = c("lead", "last", "median", "mean", "total", "max"),
-                              labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
-rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
-rep.all$t_pval <- as.numeric(rep.all$t_pval)
-rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
-rep.all$w_pval <- as.numeric(rep.all$w_pval)
-
-
-ggplot(rep.all, aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = t_stat.t)) +
-  scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
-  ylab("Paper aggregation method") +
-  xlab("Reputation metric") +
-  labs(fill = "t statistic") +
-  theme_minimal() +
-  guides(fill = "none") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
-
-rep.all %>%
-  group_by(metric) %>%
-  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
-  ggplot(aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = normalized)) +
-  scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
-  ylab("Paper aggregation method") +
-  xlab("Reputation metric") +
-  labs(fill = "Difference") +
-  theme_minimal() +
-  guides(fill = "none") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
 
 
 
@@ -1165,7 +1031,7 @@ Interestingly, they both show the same direction (higher reputation in DB confer
 
 To prepare the data for analysis required a thorough exploration of each variable and observations for missing or suspect values.  This *data cleaning* does not follow a formal set of rules but instead usually requires the researchers to make several subjective choices, each of which potentially impacts the final results. In this sub-section, we explore how the handling of missing and suspect observations potentially impacts conclusions of prestige bias.  
 
-Figure \@ref(fig:metric-distribs) displays the distributions of the various author-level of prestige. All metrics are fairly right skewed and there are reasons to suspect the quality of the values in both the upper and lower tails of these distributions. Because of name disambiguation issues, the upper tails are likely inflations of their true values for many authors.  In previous sub-sections we explored a few analysis techniques that dampen the impact of outliers, the Wilcoxon Signed Rank Test and a binary classification of fame, to see if the story changed. For a given metric and XXX, the conclusions regarding prestige bias were similar between these outlier resistant measures and the other techniques.  Therefore, we chose not to winsorize these data, a common data cleaning technique for highly right skewed data.
+Figure \@ref(fig:metric-distribs) displays the distributions of the various author-level prestige metrics. All metrics are right skewed and there are reasons to suspect the quality of the values in both the upper and lower tails of these distributions. Because of name disambiguation issues, the upper tails are likely inflated.  In previous sub-sections we explored a few analysis techniques that dampen the impact of outliers, the Wilcoxon Signed Rank Test and a binary classification of fame, to see if the story changed. For a given metric and aggregation technique, the conclusions regarding prestige bias were similar between these outlier resistant measures and the other techniques.  Therefore, we chose not to winsorize these data, a common data cleaning technique for highly right skewed data.
 
 
 ```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Histograms of the author-level prestige proxies.  The number of non-missing values (n) is provided for each variable."}
@@ -1194,14 +1060,134 @@ ggplot(metrics.summary,
 
 ```
 
+```{r, echo = FALSE}
+# Find prop missing by double_blind (by distinct authors??  What if they publish in both venues?)
+ppl_blind <- ppl %>%
+  left_join(all_confs, by = c("conf" = "key")) %>%
+  distinct(name, gs_email, double_blind, .keep_all = TRUE)
 
-In terms of the lower tail, it should be noted that about one third of the values for the GS measures are missing since those authors did not have a GS profile or the profile appeared to aggregate more than one person.  Since the median number of publications from SS is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without GS measures but equals `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with GS measures, these authors with missing values are likely less experienced and therefore would contribute to the lower tail of these distributions.  The variation in SS publications between those with and without GS profiles provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is treated.  
+ppl_distinct <- ppl %>%
+  distinct(name, gs_email, .keep_all = TRUE)
 
-For handling these missing values, we consider three strategies.  The simplest approach involves removing the missing values when computing aggregate measures. 
-XXX: Start here
+missing_props <- count(ppl_blind, double_blind, is.na(npubs)) %>%
+  group_by(double_blind) %>%
+  mutate(prop = n/sum(n)) %>%
+  filter(`is.na(npubs)` == TRUE) 
+```
 
 
-This strategy likely inflates paper aggregation metrics such as the mean but has less influence on the maximum metric.  On the other end of the spectrum, we also consider imputing the missing metrics with the minimum value for that metric.  This assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics but again have less influence on the maximum metric.  Lastly, we consider imputing the missing values based on a linear regression model built on the total publications from SS, which is moderately correlated with the GS metrics (Fig. \@ref(fig:metric-corrs)). For the linear imputation, we also imputed the GS metrics if the ratio of the total publications from GS compared to SS was greater than 3, which indicated a potential inflation of the values of GS metrics for those authors (Fig. \@ref(fig:imputation)).  Similarly, to minimize imputing inflated GS metrics, we winsorized at 1000 the very heavy tail of the total publications from SS before computing the imputed values.  XXX: Insert some summary statements about the impact of these three strategies.  For nearly all of the results, the sign of the relationship between review policy and the prestige metric does not change but in some cases the degree of significant does change.  Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  Therefore, for the rest of the paper, we will use the unimputed data and remove missing values when computing aggregate measures.
+In terms of the lower tail, it should be noted that `r round(mean(is.na(ppl_distinct$npubs))*100, digits = 1)`% of the values for the GS measures are missing (`r round(mean(missing_props %>% filter(double_blind == TRUE) %>% pull(var = prop))*100, digit = 1)`% for DB authors and `r round(mean(missing_props %>% filter(double_blind == FALSE) %>% pull(var = prop))*100, digit = 1)`% for SB authors) since those authors did not have a GS profile or the profile appeared to aggregate more than one person.  Since the median number of publications from SS is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without GS measures but equals `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with GS measures, these authors with missing values are likely less experienced and therefore would contribute to the lower tail of the author-level prestige metric distributions.  The variation in SS publications between those with and without GS profiles provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is treated.  
+
+
+
+
+For handling these missing values, we consider three strategies.  The simplest approach involves removing the missing values when computing aggregate measures. This strategy likely inflates paper aggregation metrics such as the mean but has less influence on the maximum metric.  On the other end of the spectrum, we also consider imputing the missing metrics with the minimum value for that metric.  This assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics but again have less influence on the maximum metric.  Lastly, we consider imputing the missing values based on a linear regression model built on the total publications from SS, which is moderately correlated with the GS metrics (Fig. \@ref(fig:metric-corrs)). For the linear imputation, we also imputed the GS metrics if the ratio of the total publications from GS compared to SS was greater than 3, which indicated a potential inflation of the values of GS metrics for those authors (Fig. \@ref(fig:imputation)).  Similarly, to minimize imputing inflated GS metrics, we winsorized at 1000 the very heavy tail of the total publications from SS before computing the imputed values.
+
+
+
+
+
+```{r, eval = FALSE, include = FALSE}
+tbl <- rbind(compute_db(experience.all, "max", "npubs"),
+             compute_db(experience.all, "total", "npubs"),
+             compute_db(experience.all, "mean", "npubs"),
+             compute_db(experience.all, "median", "npubs") ) %>%
+  as_tibble() %>%
+  mutate(metric_type = "npubs")
+
+
+
+
+for (metric in c("npubs_flat", "npubs_imp", "hindex", "hindex_flat",
+                 "hindex_imp")) {
+  for (aggr in c("max", "total", "mean", "median")) {
+    tbl <- compute_db(experience.all, aggr, metric) %>%
+      as_tibble_row() %>%
+      mutate(metric_type = str_sub(metric, end = 5)) %>%
+      bind_rows(tbl)
+  }
+}
+
+# Append lead-author stats
+for (metric in c("npubs", "npubs_flat", "npubs_imp", "hindex", "hindex_flat",
+                 "hindex_imp")) {
+      tbl <- compute_db(experience.lead, "first", metric) %>%
+      as_tibble_row() %>%
+      mutate(metric_type = str_sub(metric, end = 5)) %>%
+      bind_rows(tbl)
+}
+
+tbl <- tbl %>%
+  mutate(aggregation = if_else(aggregation == "first", "lead", aggregation))
+
+# Append last-author stats
+for (metric in c("npubs", "npubs_flat", "npubs_imp", "hindex", "hindex_flat",
+                 "hindex_imp")) {
+        tbl <- compute_db(experience.last, "first", metric) %>%
+      as_tibble_row() %>%
+      mutate(metric_type = str_sub(metric, end = 5)) %>%
+      bind_rows(tbl)
+}
+
+tbl <- tbl %>%
+  mutate(aggregation = if_else(aggregation == "first", "last", aggregation))
+
+
+rep.all <- as_tibble(tbl)
+rep.all$metric <- factor(rep.all$metric, ordered = T,
+                         levels = c("npubs", "npubs_flat", "npubs_imp",
+                                    "hindex", "hindex_flat", "hindex_imp"),
+                         labels = c("No Imputation", "Flat Imputation", "Linear Imputation", "No Imputation", "Flat Imputation", "Linear Imputation"))
+rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
+                              levels = c("lead", "last", "median", "mean", "total", "max"),
+                              labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
+rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
+rep.all$t_pval <- as.numeric(rep.all$t_pval)
+rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
+rep.all$w_pval <- as.numeric(rep.all$w_pval)
+
+
+ggplot(rep.all, aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = t_stat.t)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Imputation Method") +
+  labs(fill = "t statistic") +
+  theme_minimal() +
+  guides(fill = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  facet_grid(~metric_type)
+
+
+
+# Diff in Medians for npubs imputations
+rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
+
+rep.all %>%
+  group_by(metric) %>%
+  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
+  ggplot(aes(x = metric, y = aggregation)) +
+  geom_tile(aes(fill = normalized)) +
+  scale_fill_gradient2(low = "orange", high = "blue") +
+  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
+  ylab("Paper aggregation method") +
+  xlab("Reputation metric") +
+  labs(fill = "Difference") +
+  theme_minimal() +
+  guides(fill = "none") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+
+
+
+
+
+
+XXX: Insert some summary statements about the impact of these three strategies.  For nearly all of the results, the sign of the relationship between review policy and the prestige metric does not change but in some cases the degree of significant does change.  Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  Therefore, for the rest of the paper, we will use the unimputed data and remove missing values when computing aggregate measures.
 
 
 

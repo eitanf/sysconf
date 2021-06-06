@@ -1035,6 +1035,7 @@ Figure \@ref(fig:metric-distribs) displays the distributions of the various auth
 
 
 ```{r metric-distribs, echo=F, cache=T, warning=F, message=F, fig.cap="Histograms of the author-level prestige proxies.  The number of non-missing values (n) is provided for each variable."}
+
 metrics.summary <- ppl %>%
   pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
   mutate(Metric = recode_factor(Metric,
@@ -1061,7 +1062,7 @@ ggplot(metrics.summary,
 ```
 
 ```{r, echo = FALSE}
-# Find prop missing by double_blind (by distinct authors??  What if they publish in both venues?)
+# Find prop missing by double_blind (author counted twice if published in both double and single)
 ppl_blind <- ppl %>%
   left_join(all_confs, by = c("conf" = "key")) %>%
   distinct(name, gs_email, double_blind, .keep_all = TRUE)
@@ -1087,7 +1088,7 @@ For handling these missing values, we consider three strategies.  The simplest a
 
 
 
-```{r, eval = FALSE, include = FALSE}
+```{r imp-results, echo = F, warning = F, fig.cap="Test statistics of the Student's t-test and the difference in medians for the Wilcoxon test for publications (GS) and h-index and aggregations across papers for three strategies of handling missing values. Positive values (purple) indicate higher reputation in SB conferences. Darker colors reflect larger-magnitude values, normalized by columns and test method. Negative values (orange) indicate higher reputation in DB conferences. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 tbl <- rbind(compute_db(experience.all, "max", "npubs"),
              compute_db(experience.all, "total", "npubs"),
              compute_db(experience.all, "mean", "npubs"),
@@ -1137,7 +1138,14 @@ rep.all <- as_tibble(tbl)
 rep.all$metric <- factor(rep.all$metric, ordered = T,
                          levels = c("npubs", "npubs_flat", "npubs_imp",
                                     "hindex", "hindex_flat", "hindex_imp"),
-                         labels = c("No Imputation", "Flat Imputation", "Linear Imputation", "No Imputation", "Flat Imputation", "Linear Imputation"))
+                         labels = c("npubs", "npubs_flat", "npubs_imp",
+                                    "hindex", "hindex_flat", "hindex_imp"))
+rep.all$imp_type <- factor(rep.all$metric, ordered = T,
+                         levels = c("npubs",  "npubs_imp", "npubs_flat",
+                                    "hindex", "hindex_imp", "hindex_flat"),
+                         labels = c("No Imputation", "Linear Imputation", 
+                                      "Flat Imputation", "No Imputation", 
+                                      "Linear Imputation","Flat Imputation"))
 rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
                               levels = c("lead", "last", "median", "mean", "total", "max"),
                               labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
@@ -1147,47 +1155,46 @@ rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
 rep.all$w_pval <- as.numeric(rep.all$w_pval)
 
 
-ggplot(rep.all, aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = t_stat.t)) +
+# Diff in Medians for npubs imputations
+rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
+rep.all <- rep.all %>%
+  group_by(metric_type) %>%
+  mutate(normalized = diff/max(abs(diff)), max_diff = max(abs(diff)))
+
+# Create a long format dataset 
+dat <- rep.all %>%
+  select(imp_type, aggregation, normalized, diff, w_pval, metric_type) %>%
+  rename(stat_norm = normalized, stat = diff, pval = w_pval) %>%
+  mutate(test = "Wilcoxon Signed Rank Test") %>%
+  bind_rows(select(rep.all, 
+                   imp_type, aggregation, t_stat.t, t_pval, metric_type) %>%
+              rename(stat = t_stat.t, pval = t_pval) %>%
+              mutate(test = "Two-Sample t-Test")) %>%
+  mutate(stat_norm = if_else(is.na(stat_norm), stat, stat_norm)) %>%
+  group_by(test, metric_type, imp_type) %>%
+  mutate(stat_norm2 = stat_norm/sd(stat_norm)) %>% # Standardizing
+  mutate(metric_type = case_when(metric_type == "hinde" ~ "h-index",
+                                 metric_type == "npubs" ~ "Publications (GS)"))
+
+
+
+dat %>%
+  ggplot(aes(x = imp_type, y = aggregation)) +
+  geom_tile(aes(fill = stat_norm2)) +
   scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
+  geom_text(aes(label = paste0(round(stat, 2), 
+                               format_p_value(pval, p_option = "stars")))) +
   ylab("Paper aggregation method") +
   xlab("Imputation Method") +
-  labs(fill = "t statistic") +
   theme_minimal() +
   guides(fill = "none") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  facet_grid(~metric_type)
-
-
-
-# Diff in Medians for npubs imputations
-rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
-
-rep.all %>%
-  group_by(metric) %>%
-  mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
-  ggplot(aes(x = metric, y = aggregation)) +
-  geom_tile(aes(fill = normalized)) +
-  scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
-  ylab("Paper aggregation method") +
-  xlab("Reputation metric") +
-  labs(fill = "Difference") +
-  theme_minimal() +
-  guides(fill = "none") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  facet_grid(test~metric_type, scales = "free") 
 
 ```
 
 
-
-
-
-
-
-
-XXX: Insert some summary statements about the impact of these three strategies.  For nearly all of the results, the sign of the relationship between review policy and the prestige metric does not change but in some cases the degree of significant does change.  Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  Therefore, for the rest of the paper, we will use the unimputed data and remove missing values when computing aggregate measures.
+Across these three strategies, the sign of the relationship between review policy and the prestige metric stays the same for most aggregations, though the signficance of the results does vary (Fig. \@ref(fig:imp-results)).  The linear imputation methods acts like a compromise by typically providing a test statistic and p-value that is between those provided by the other two methods. Generally, it appears that imputing the missing data doesn't have a big impact on prestige bias analysis because most of the missing data are for the less experienced authors, who don't impact many of our aggregation metrics.  However, authors should be transparent about how they handle missing values.
 
 
 
@@ -1196,28 +1203,41 @@ XXX: Insert some summary statements about the impact of these three strategies. 
 cors <- ppl %>%
   select(npubs, hindex, citedby, paper_cites, hindex5y, i10index, i10index5y, s2npubs, as_author, name, gs_email) %>%
   distinct() %>%
-    select(-name, -gs_email)
+    select(-name, -gs_email) %>%
+  rename(`Publications\n(GS)` = npubs,
+         `Publications\n(S2)` = s2npubs,
+         `h-index` = hindex,
+         `Total\ncitations` = citedby,
+         `Papers\nin\nset` = as_author,
+         `Citations\nper\npaper` = paper_cites,
+         `i10-index` = i10index,
+         `h-index\n(5 years)` = hindex5y,
+         `i10-index\n(5 years)` = i10index5y)
+
 
 
 library(corrplot)
 library(RColorBrewer)
-corrplot(cor(cors, use = "pairw"), type = "lower", order = "hclust", 
-         tl.col = "black", tl.srt = 45,
-         tl.cex = 1, diag = FALSE,
-         col = colorRampPalette(c("orange", "white", "blue"))(100))
+corrplot.mixed(cor(cors, use = "pairw"), tl.col = "black",
+               tl.cex = .6,
+               order = "hclust",
+         lower.col = colorRampPalette(c("red", "white", "black"))(100),
+         upper.col = colorRampPalette(c("red", "white", "black"))(100))
 
 ```
 
-```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and pointed where the GS metric is 3 times the SS metric are highlighted."}
+```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and pointed where the GS metric is 3 times the SS metric are highlighted in yellow."}
 
 ppl %>%
   select(npubs, s2npubs, imp) %>%
   filter(s2npubs < S2_THRESH) %>%
 ggplot(aes(y = npubs, x = s2npubs)) +
-  geom_point(alpha = 0.1, mapping = aes(color = imp)) +
+  geom_point(alpha = 0.2, mapping = aes(color = imp)) +
   geom_smooth(method = lm, se = FALSE, color = "black") +
-  guides(colour = guide_legend(override.aes = list(alpha = 1))) +
-  labs(x = "Publications (SS)", y = "Publications (GS)", color = "Imputed?")
+  guides(colour = FALSE) +
+  labs(x = "Publications (SS)", y = "Publications (GS)") +
+  scale_color_manual(values = c("black", "goldenrod"))
+  
 
 ```
 

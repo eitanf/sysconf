@@ -1,0 +1,176 @@
+---
+title: The role of software availability in computer systems papers
+preprint: false
+author:
+  - name: Eitan Frachtenberg
+    corresponding: true
+    email: eitan@reed.edu
+affiliation:
+    address: Department of Computer Science, Reed College
+bibliography: ../sysconf.bib
+abstract: > 
+  Research in computer systems typically involves the engineering, implementation, and measurement of complex systems software. The availability of these software artifacts is crucial for reproducibility and replicability of the research's results, because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Regrettably, it is still not a common practice for systems researchers to make their software artifacts fully available, which may be a factor in the low rate of studies that replicate or reproduce other systems studies.
+
+
+  In this paper we  explore the effects of including the original software artifacts with computer systems papers. We analyze a cross-sectional data set of papers from 56 systems conferences from 2017. We collected extensive data on the conferences, papers, and authors.
+output:
+  bookdown::pdf_book:
+    base_format: rticles::peerj_article
+    keep_tex: true
+    citation_package: natbib
+  rticles::peerj_article: default
+---
+
+```{r code = readLines("../load_data.R"), echo = F, message = F}
+```
+
+
+```{r setup, echo=F, message=F, warning=F, cache=F}
+library('tidyverse')
+library('kableExtra')
+```
+
+
+# Introduction {#sec:intro}
+
+
+# Data and Methods {#sec:data}
+
+The main challenge in this study was not actually the analysis itself but rather the data collection and cleaning.
+It is therefore worthwhile to describe the data in detail to support replication and reproductions of this study.
+
+```{r sys-confs, echo=F, message=F, warning=F, cache=T}
+tmp <- all_confs %>%
+  mutate(Conference = gsub("_\\d*", "", conference)) %>%
+  rename(Date = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
+  mutate(Acceptance = round(acceptance_rate, 2)) %>%
+  select(Conference, Date, Papers, Authors, Acceptance) %>%
+  arrange(Conference)
+  
+cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
+  knitr::kable(booktabs = T,
+               align = c("l", "c", "r", "r", "r"),
+               caption = "System conferences, including start date, number of published papers, total number of named authors, acceptance rate, and country code.") %>%
+  kable_styling(font_size = 8, latex_options = "hold_position")
+```
+
+The primary dataset we analyze comes from a hand-curated collection of `r nrow(all_confs)` peer-reviewed systems conferences from a single publication year (2017).
+In CS, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences \cite{patterson99:evaluating,patterson04:health}, and then possibly in archival journals, sometimes years later \cite{vrettas15:conferences}.
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs)).
+To reduce time-related variance, we chose to focus on a large cross-sectional set of conferences from a single publication year.
+Our choice of which conferences belong to "systems" is necessarily subjective.
+Not all systems papers from 2017 are included in our set, and some papers that are in our set may not be universally considered part of systems (for example, if they lean more towards algorithms or theory).
+Nevertheless, we believe that our cross-sectional set is both wide enough to represent the field well and focused enough to distinguish it from the rest of CS.
+In total, our sample includes `r sum(all_confs$npapers)` peer-reviewed papers.
+
+In addition to artifact information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
+We collected data about review policies, important dates, the composition of its technical PC, and the number of submitted papers, among others.
+We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all papers in PDF format.
+
+
+We are mainly interested in the effect of software artifacts on citations of their associated papers, and citations typically take a few months or years, allowing for the original papers to be discovered, read, cited, and then the citations themselves published and recorded.
+The time duration since these papers had been published, approximately four years, permits the analysis of their short-to-medium term impact in terms of citations.
+Only
+`r top_cites <- group_by(citations, key) %>% summarize(max = max(citations)); sum(top_cites$max == 0)` papers
+(`r pct(sum(top_cites$max == 0), nrow(top_cites), 2)`%)
+had not been cited at all at the time of this writing.
+
+For this study, the most critical piece of information on these papers is their artifacts.
+Unfortunately, they included no standardized metadata to include artifact information, so it had to be collected manually from various sources, as detailed next.
+
+The only form of standardized artifact metadata we found was for a subset of conferences organized by the ACM.
+In the proceedings page in the ACM's digital library of these conferences, special badges denote which papers made artifacts available, and which ones had artifacts evaluated (for conferences that supported either badge).
+In addition, the ACM digital library also serves as a repository for the artifacts (as supplementary information), and all of these ACM papers included a DOI link back to the appropriate web page with the artifact.
+
+Unfortunately, most papers in this dataset were not published by the ACM or had no artifact badges.
+These papers required a manual scanning of the PDF text of each paper in order to identify such links.
+Several search terms were used to assist in this search, such as "github",  "gitlab", "bitbucket", "sourceforge", and "zenodo" for repositories; variants of "available", "open source", and "download" for links; and  variants of "artifact", "reproducibility", and "will release" for indirect references.
+Moreover, the artifacts for numerous papers could actually be discovered online despite no mention in the original paper, by searching github.com for author names, paper titles, or system monikers.
+
+In all, `r nrow(artifacts)` papers in our dataset
+(`r pct(nrow(artifacts), nrow(papers), 2)`%)
+had an identifiable artifact, primarily source code but occasionally data, configuration, or benchmarking files.
+Artifacts that had been included in previous papers or written by someone other than the paper's authors were excluded from this count.
+Anecdotally, most of the source-code repositories in these artifacts showed no commits, forks, or issues after the publication of their paper.
+
+For each one of these papers/artifacts, the following fields were added to the paper's record in our dataset:
+
+ * Whether the paper had an "artifact available" badge.
+ * Whether it had an "artifact evaluated" badge.
+ * Whether a link to the artifact was clearly available in the paper.
+ * The URL for the artifact, whether linked to in the paper, or found elsewhere.
+ * The last date that this artifact was still found intact online.
+ 
+All of the searches for these artifacts are recent, so from the last field above we can denote the current status of an artifact as either "extant" or "expired".
+From the availability of a URL we can classify an artifact as "released" or "unreleased" (the latter denoting papers that promised an artifact but no link or repository was found).
+And from the host of the URL we can classify the location of the artifact as either an "Academic" web page, the "ACM" digital library", A "Filesharing" service such as Dropbox or Google, a specialized "Repository", such as Github.com, "Other" (including .com and .org web sites), and "NA".
+The data for all these artifacts is summarized in the file `features/artifacts.csv` in the supplementary information.
+
+The final relevant piece of the dataset is the conferences' attitude toward artifacts.
+A few conferences specifically encouraged artifacts in the call-for-papers or web-sites, such as MobiCom and SLE.
+In addition to general encouragement, seven conferences specifically offered to evaluated artifacts by a program committee: OOPSLA, PPoPP, PACT, PLDI, PPoPP, SC, and SLE.
+Four conferences---SC, OOPSLA, PLDI, SLE---archived their artifacts in the ACM's digital library.
+
+
+## Statistics {-}
+
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with $\chi^{2}$ test; and comparisons between two numeric properties of the same population were evaluated with Pearson's product-moment correlation. All statistical tests are reported with their p-values and degrees of freedom where applicable.
+
+## Limitations {-}
+
+Our methodology is primarily constrained by the manual curation of data, especially artifact data.
+The effort involved in compiling all the necessary data limits the scalability of our approach to additional conferences or years. 
+Furthermore, the manual search for artifacts in the text and in repositories is a laborious process and prone to human error.
+Although a large enough number of artifacts was identified for statistical analysis,
+there likely remain untagged papers in the dataset that did actually release an artifact (false negatives).
+Nevertheless, there is no evidence to suggest that their number is large or that their distribution is skewed in some way as to bias statistical analyses.
+That said, since this dataset is (naturally) also released as an artifact of this paper, it can be enhanced and corrected over time. 
+
+
+# Results {#sec:results}
+
+Research questions:
+
+  * was an artifact available and evaluated?
+  * how well was the paper cited in 40 months since publication?
+  * How do different properties of the artifact affect citations, including factors such as: continuing artifact availability; continuing development past publication date; Total number of new and ongoing contributors; and type of software repository,
+  * How do these factors also affect indexing and discoverability of the artifacts?
+  * Was the software artifact cited independently of the article at any point?
+  * Estimate % of papers with a "system" in them, based on the tags we have (compute confidence intervals for a boolean property / proportion)
+  * Compare citation rates for artifact vs. no artifact; available artifact vs. expired; linked vs. not linked; badge vs. not badge; evaluated badge or not; award vs. no award.
+
+Contributions:
+
+  * Provide a varied dataset of papers, tagged with rich metadata, including their artifact status. Since comprehensive data on papers with software artifacts is not always readily available, because of the significant manual labor involved, this data set can serve as the basis of additional studies.
+
+Additional questions:
+
+  * did artifact availability affect the paper's scores during peer review?
+  * Did badge availability increase the amount of artifact sharing?
+  * how many of these artifact survived to date, and what mechanisms were used to preserve or to cite them?
+  * What type of URL is most likely to survive? DL? github? .edu/.ac? .com?
+  * how quickly was the paper discovered by a database such as Google Scholar?
+  * Look at the difference between posting on github and ACM/dl (for persistence/DOI).
+  * How many artifact (URLs) were reused?
+  * what other paper or conference characteristics correlate with discoverable and citeable software artifact?
+  * How many papers cite a github reference? How many?
+  * Look at topic tags or paper entities.
+  * Look at months to gs, months to e-print
+  * Graph of percentage of avail-artifact by org and by conference and by topic. SC in particular has an artifact evaluation appendix.
+  * Assess the [FAIR](https://www.go-fair.org/fair-principles/) aspects of the data as features (based on the [updated critera](https://www.cell.com/patterns/fulltext/S2666-3899(21)00036-2):
+    - Findability:  linked in paper or have to google?; persistent identifier/DOI?
+    - Accessibility: artifact still accessible; the protcol is open, free, and universal; metadata outlives the data.
+    - Interoperable: (Meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation.
+    - Reusable: accessible data license; detailed provenance; meets domain-relevant community standards.
+
+
+When comparing artifact to citations or word, control for specific conference or at least conference characteristic.
+
+```{r, eval=F}
+x <- papers %>% left_join(filter(citations, near(months, 42, 3))) %>% select(c(words, award, artifact, labeled_title, references, citations))
+t.test(filter(x, artifact)$citations, filter(x, !artifact)$citations)
+x %>% filter(citations < 1000) %>% ggpairs()
+```
+# Related Work {#sec:related}
+
+# Conclusion {#sec:conclusion}

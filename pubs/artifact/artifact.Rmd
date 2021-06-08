@@ -28,10 +28,37 @@ output:
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library('tidyverse')
 library('kableExtra')
+
+knitr::opts_chunk$set(echo = FALSE, fig.align = "center")
+
+cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+# The palette with black:
+cbp2 <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+
+how_long <- 36  # Citations 3.5 years since publiaation
+
+by_paper <- papers %>%
+  left_join(artifacts) %>%
+  left_join(filter(citations, near(months, how_long, 3))) %>%  # Pick anything within 3 months of how_long
+  group_by(key) %>%     # And narrow down to the closest date
+  filter(abs(months - how_long) == min(abs(months - how_long))) %>%
+  mutate(conf = as.factor(gsub("_\\d+", "", as.character(key))))
+
+all_confs$org <- as.factor(ifelse(all_confs$is_org_ACM, "ACM", ifelse(all_confs$is_org_IEEE, "IEEE", ifelse(all_confs$is_org_USENIX, "USENIX", "other"))))
+all_confs$key = gsub("_\\d+", "", as.character(all_confs$key))
 ```
 
 
 # Introduction {#sec:intro}
+
+Contributions:
+
+  * Provide a varied dataset of papers, tagged with rich metadata, including their artifact status. Since comprehensive data on papers with software artifacts is not always readily available, because of the significant manual labor involved, this data set can serve as the basis of additional studies.
+
 
 
 # Data and Methods {#sec:data}
@@ -124,10 +151,11 @@ Furthermore, the manual search for artifacts in the text and in repositories is 
 Although a large enough number of artifacts was identified for statistical analysis,
 there likely remain untagged papers in the dataset that did actually release an artifact (false negatives).
 Nevertheless, there is no evidence to suggest that their number is large or that their distribution is skewed in some way as to bias statistical analyses.
-That said, since this dataset is (naturally) also released as an artifact of this paper, it can be enhanced and corrected over time. 
+That said, since the complete dataset is (naturally) also released as an artifact of this paper, it can be enhanced and corrected over time. 
 
 
 # Results {#sec:results}
+
 
 Research questions:
 
@@ -138,10 +166,6 @@ Research questions:
   * Was the software artifact cited independently of the article at any point?
   * Estimate % of papers with a "system" in them, based on the tags we have (compute confidence intervals for a boolean property / proportion)
   * Compare citation rates for artifact vs. no artifact; available artifact vs. expired; linked vs. not linked; badge vs. not badge; evaluated badge or not; award vs. no award.
-
-Contributions:
-
-  * Provide a varied dataset of papers, tagged with rich metadata, including their artifact status. Since comprehensive data on papers with software artifacts is not always readily available, because of the significant manual labor involved, this data set can serve as the basis of additional studies.
 
 Additional questions:
 
@@ -165,6 +189,72 @@ Additional questions:
 
 
 When comparing artifact to citations or word, control for specific conference or at least conference characteristic.
+
+## Descriptive statistics
+
+We start with simple characterization of the statistical distributions of artifacts in our dataset.
+of the `r nrow(artifacts)` papers with artifacts, we find that about
+`r pct(sum(artifacts$linked), nrow(artifacts))`%
+included an actual link to the artifact in the text.
+The ACM digitial library marked
+`r sum(artifacts$badge)` papers (`r pct(sum(artifacts$badge), nrow(artifacts))`%)
+with an "Artifact available" badge, and
+`r sum(artifacts$evaluated)` papers (`r pct(sum(artifacts$evaluated), nrow(artifacts))`%)
+with an "Artifact evaluated" badge.
+The majority of artifact papers
+(`r pct(sum(!artifacts$expired), nrow(artifacts))`%)
+still had their artifacts available for download at the time of this writing.
+(Of the papers that promised artifacts, `r sum(artifacts$unreleased)` appear to have never released them.)
+The distribution of the location of the discoverable artifacts is shown in Table \@ref(tab:location-dist), and is dominated by Github repositories.
+
+```{r location-dist, echo=F}
+artifacts %>%
+  mutate(Location = factor(location, levels = c("Repository", "Academic", "Other", "ACM", "Filesharing", NA))) %>% 
+  group_by(Location) %>%
+  summarize(Count = n()) %>%
+  knitr::kable(booktabs = T,
+               align = "lr",
+               caption = "Class of artifact URLs. `NA' locations indicate expired or unreleased URLs.")
+
+```
+
+```{r artifact-ratios, warning=F, message=F, fig.height = 7, out.width="95%", fig.cap="Papers with artifact by conference."}
+# Show N per conference, color by organization
+by_conf <- by_paper %>%
+  group_by(conf) %>%
+  summarize(ratio = sum(!is.na(expired)) / n(), n = n()) %>%
+  left_join(all_confs, by = c("conf" = "key")) %>%
+  arrange(desc(ratio)) %>%
+  mutate(org = factor(org, levels = c("ACM", "IEEE", "USENIX", "other")))
+
+ggplot(by_conf, aes(x = reorder (conf, ratio), y = 100 * ratio, fill = org)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(y = 95, label = paste0("n=", n), color = org), hjust = 0, size = 3, show.legend = F) +
+  coord_flip() +
+  theme_minimal() +
+  ylim(0, 100) +
+  xlab("Conference") +
+  ylab("Percent of paper with artifacts") +
+  guides(fill = guide_legend("Organization")) +
+  scale_color_manual(values = c(cbp1[2:4], cbp1[1])) +
+  scale_fill_manual(values = c(cbp1[2:4], cbp1[1])) +
+  theme(legend.position = "bottom",
+        axis.text.y = element_text(angle = 0, hjust = 1),
+        panel.grid.major.y = element_blank())
+```
+
+Looking at the differences across conferences, Fig. \@ref(fig:artifact-ratios) shows the percentage of papers with artifacts, ranging from 0% to OOPSLA's
+`r round(100 * by_conf[1,]$ratio, 2)`%
+(mean: `r round(100 * mean(by_conf$ratio), 2)`%,
+SD: `r round(100 * sd(by_conf$ratio), 2)`%).
+Unsurprisingly, nearly all of the conferences were artifacts were evaluated are prominent in their relatively high artifact rates.
+Only MobiCom stands out as a conference that evaluated artifacts for the "best community paper award" but had a low overall ratio of papers with artifacts.
+It should be noted, however, that many papers in MobiCom are hardware-related, where artifacts are tyically infeasible.
+The same is true for a number of other conferences with low artifact ratios, such as ISCA, HPCA, and MICRO.
+Also worth noting is the fact ACM conferences appear to attract many more artifacts than IEEE conferences, although the reasons likely vary on a conference-by-conference basis.
+
+## Relationships to citations
+
 
 ```{r, eval=F}
 x <- papers %>% left_join(filter(citations, near(months, 42, 3))) %>% select(c(words, award, artifact, labeled_title, references, citations))

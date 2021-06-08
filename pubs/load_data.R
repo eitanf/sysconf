@@ -3,10 +3,8 @@
 
 library('tidyverse')
 library('lubridate')
-library(lme4)
-library(lmerTest)
 
-toplevel = "/Users/mcconville/Documents/Research/csPublications/sysconf/"
+toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
 sep <- ';'
 
 ############# Conference data
@@ -109,6 +107,7 @@ countries <- read.csv(paste0(toplevel, "features/countries.csv"), na.strings = "
                         "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+05:00", "+05:30", "+06:00", "+07:00", "+08:00", "+09:00", "+10:00", "+12:00")))
 
 
+artifacts <- read.csv(paste0(toplevel, "features/artifacts.csv"), na.strings = "")
 
 #######################################################################3
 # Common utility functions
@@ -192,4 +191,3 @@ report_test <- function(test, rounding = 3, p_option = "rounded", show_stat = TR
   }
   paste0(ret, p_str)
 }
-

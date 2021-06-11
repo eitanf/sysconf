@@ -15,5 +15,7 @@ Each subdirectory has a README.md with the description of the files.
   * `interest_mapping.csv`: A table that maps from author interests to canonical interest names and topic group,
   * `s2authors.json`: Counts of authors in the Semantic Scholar database dump.
   * `s2papers.json`: A subset of the Semantic Scholar database dump (dated 2018-05-03). Refer to http://api.semanticscholar.org/corpus/download for data description. This subset covers nearly all the papers in our collection.
+  * `top_companies.csv`: A list of the top companies based on [@tomkins17:reviewer].
+  * `top_universities.csv`: A list of the top universities based on QS university rankings.
   * `topics.csv`: A listing of possible systems topics per paper (sub-fields).
   * `verified_gender_mapping.json`: A mapping from names to genders, manually derived.

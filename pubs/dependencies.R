@@ -8,6 +8,8 @@ dependencies <- c(
                   "ggrepel",
                   "jsonlite",
                   "kableExtra",
+                  "lme4",
+                  "lmerTest",
                   "lubridate",
                   "multidplyr",
                   "NLP",

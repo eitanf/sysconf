@@ -7,6 +7,7 @@ library('lubridate')
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
 sep <- ';'
 
+
 ############# Conference data
 #### confs.csv:
 all_confs <- read.csv(paste0(toplevel, "features/confs.csv"), na.strings = "", stringsAsFactors = F, colClasses = c(
@@ -106,8 +107,6 @@ countries <- read.csv(paste0(toplevel, "features/countries.csv"), na.strings = "
                         "00:00",
                         "+01:00", "+02:00", "+03:00", "+03:30", "+04:00", "+05:00", "+05:30", "+06:00", "+07:00", "+08:00", "+09:00", "+10:00", "+12:00")))
 
-
-artifacts <- read.csv(paste0(toplevel, "features/artifacts.csv"), na.strings = "")
 
 #######################################################################3
 # Common utility functions

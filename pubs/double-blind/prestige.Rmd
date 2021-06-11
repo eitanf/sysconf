@@ -1083,7 +1083,7 @@ The variation in S2 publications between those with and without GS profiles prov
 ((( How can the separate values for SB and DB be lower than overall values?!?)))
 
 For handling these missing values, we consider three strategies.
-The simplest approach involves removing the missing values when computing aggregate measures.
+The simplest approach, which we have used in all previous experiments, involves removing the missing values when computing aggregate measures.
 This strategy likely inflates some paper aggregation metrics such as the mean, but has less influence on the maximum metric.
 On the other end of the spectrum, we also consider imputing the missing metrics with the minimum value for that metric.
 This assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics,
@@ -1221,7 +1221,11 @@ ppl %>%
 # Discussion {#sec:discussion}
 
 The previous section explored the observed relationships between author prestige and review policy across numerous dimensions.
-We started with a simple model for prestige bias and then one by one we analyze the effect of each assumptions underlying the model: ...
+We started with a simple model for prestige bias, as many studies do, and then one by one analyzed the effect of the assumptions underlying the model.
+We found for example that different reputation metrics can yield contradictory results.
+Even the same popular metric, number of publications, can yield very different distributions based on the database it comes from, because each database comes up with its own choices to inherently hard questions like "what constitutes a publication" and "how to disambiguate names".
+
+
 
 -- There are two "types" of senior researchers. Type A publish fewer but more cited papers, and type B just publishes a lot of papers, but have lower h-index than type A relative to npubs. The DB conferences show more type-A people, and the SB more type B. The DB conferences also average higher on various prestige metrics and are more competitive. This would be consistent with fewer, more cited papers. But it means you have to correct for conference prestige.
 
@@ -1398,28 +1402,44 @@ Standardizing and incorporating such \emph{altmetrics} as part of an author's re
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->
 
-# Conclusion {#sec:conclusion}
+# Conclusions {#sec:conclusion}
 
+This study focuses on the topic of prestige bias in peer review.
+It analyzes an expansive dataset from one large subfield of computer science, and examines multiple pieces of statistical evidence on the association between "famous authors" and higher publication rates in single- or double-blind conferences.
+Rather than focusing on identifying conclusive evidence one way or the other, which our dataset is too limited to offer, we focus instead on the methodology of this search, and the many choices involved in such research.
 
-Randomized controlled trials are the gold standard for social experiments, such as those trying to evaluate the peer review system.
-These trials clearly require cognizant choices of control covariates and metrics.
-In practice, various practical and ethical challenges mean that such trials are often unfeasible for evaluating bias, necessitating observational studies.
-These studies also require the same careful consideration for metrics and control variables.
-Our analysis showed that ...
+Throughout our empirical results, we explore the decisions and assumptions that are involved in prestige-bias analysis, both for experimental and observational studies.
+These choices can all make a substantive difference in the direction and significance of the study's conclusions, and include:
 
- - Add recommendations? perhaps to discussion?
-    * For observational studies: the many limitations pointed out in this study suggest that observational approaches conduct thorough sensitivity testing to different metrics, aggregations, and confounding variables before concluding for or against bias.
-    * Experimental studies allow for more control and elimination of some confounding variables, like the conference. But still require careful evaluation of the question of "who is famous?" with several approaches and metrics. Perhaps a new approach can be tried where reviewers are actually asked to rank the "fame" of the authors they reviewed, but only after all papers have been reviewed, to avoid priming effects.
- - Nearly all the metrics tested show higher prestige in single-blind, suggesting prestige bias.
- - The only exception is the metric max h-index (h-index of most senior author per paper), which is lower in single-blind (p=0.0055).
- - This reversal isn't changed whether we drop the NA h-index, flatten them, or linearly impute them from # papers or S2npubs (at least for median; also for mean when eliminating extremely high imputed values).
- - The higher prestige bias survives when controlling for conference prestige (either with h5_hindex or with I(mean_historical_citations/age)). But not when controlling for pc_author_ratio and pc_paper_ratio.
+* Choice of reputation metric.
+* Reputation aggregation methods across coauthors.
+* Continuous or categorical treatment of reputation.
+* Confounding variables and mixed-effect models.
+* Handling of missing and suspect observations.
 
-Experimental studies are hard to control and scale; observational studies can be very complex. 
+Perhaps the most critical of these dimensions is the choice of reputation metric.
+This choice is a central deciding factor in whether our dataset yields bias consistent with review bias.
+The two most common metrics, number of publications and h-index, produced statistically significant contradictory results on the same data.
+Our analysis reveals that the reasons for this apparent contradiction relate to the "type" of publication activities characteristic of different researchers.
+Some researchers clearly appear to publish a smaller number of highly competitive papers, some prefer to publish prolifically in less competitive venus, and others lie in the spectrum between these two groups.
+These types of researchers exhibit different metric values, and two established researchers could represent extreme opposites across these two common metric.
 
-We hope that this paper provides a guideline and a roadmap to studies on bias on how to carefully address methodological issues that could limit the generalization or credibility of their results.
+This phenomenon complicates any analysis of prestige bias that uses a single metric for prestige, as most do, because it may misclassify some authors as "not famous" if they exhibit higher metric value on the metric not chosen for the study.
+Cross-sectional observational studies are further complicated by the interaction of researcher type and confounding conference factors.
+The review policy of a conference is not an entirely independent random variable, and other conference factors likely play a larger role in the submission (and acceptance) decisions for a researcher.
+In our dataset, double-blind conferences tend to also be more competitive and prestigious.
+This property, which leads to higher citation-based metrics and lower publications-based metrics, likely attracts more researchers of the "impact" type.
 
-### Acknowledgements {-}
+Our main recommendation for future prestige bias research is thefore to not focus on a single reputation metric.
+More generally, we recommend that researchers design a thorough sensitivity analysis as part of their prestige-bias study, especially for observational data.
+The evidence for or against prestige bias appears to be strongly influenced by multiple factors (listed in this paper), and researchers should consider these carefully before finalizing their conclusions.
+Experimental studies allow for more control and elimination of some confounding variables, like the publication venue.
+But even experimental studies still require careful evaluation of the question of "who is famous?" with important choices for metrics and aggregations.
+
+We must also acknowledge that "reputation" and "name recognition" are not purely measurable values that lend themselves easily to quantitative analysis.
+Perhaps a better approach for experimental studies might be to ask reviewers to rank the "reputation" of the authors they reviewed, but only after all papers have been reviewed, to reduce priming effects.
+We hope further that this paper provides a guideline and a roadmap to studies on bias on how to carefully address methodological issues that could limit the generalization or credibility of their results.
+
 
 # References {-}
 

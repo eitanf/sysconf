@@ -4,6 +4,7 @@
 library('tidyverse')
 library('lubridate')
 
+# Sys.setenv(SYSCONF_HOME = "~/Dropbox/sysconf")
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
 sep <- ';'
 

@@ -291,11 +291,12 @@ Figure \@ref(fig:cite-hist) shows the overall paper distribution as a histogram,
 
 ```{r cite-hist, echo = F, warning = F, message = F, fig.asp = 0.6, fig.cap = paste("Distribution of paper citations", how_long, "months after publication (log-scale)")}
 ggplot(by_paper, aes(x = citations)) +
-  stat_density(aes(y = ..count..), color = "black", fill = "blue", alpha = 0.3) +
-  scale_x_continuous(breaks = c(0,1,2,3,4,5,10,30,100,300,1000), trans="log1p", expand = c(0,0)) +
+  geom_histogram(color = "black", fill = "blue", alpha = 0.3) +
+#  stat_density(aes(y = ..count..), color = "black", fill = "blue", alpha = 0.3) +
+  scale_x_continuous(breaks = c(0, 1, 2, 3, 5, 10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000), trans = "log1p", expand = c(0, 0)) +
 #  geom_histogram(stat = "count") +
-  theme_minimal() +
-  scale_x_log10()
+  theme_minimal()
+#  scale_x_log10() #breaks = c(1, 2, 11, 101, 1001, 2001), labels = c(0, 1, 10, 100, 1000, 2000))
 ```
 
 ```{r cite-dist, echo = F, warning = F, message = F, fig.asp = 0.6, fig.cap = paste("Density plot of paper citations", how_long, "months after publication (log-scale)")}
@@ -310,13 +311,14 @@ ggplot(by_paper, aes(x = citations, color = artifact_released)) +
 
 
 Citations range from none at all
-(`r nrow(filter(by_paper, citations == 0))` papers) to nearly 1,000, with two outlier papers exceeding 2,000 citations [@carlini17:towards; @jouppi17:datacenter].
+(`r nrow(filter(by_paper, citations == 0))` papers) to nearly 1,000, with two outlier papers exceeding 2,000 citations [@carlini17:towards; @jouppi17:datacenter],
+and appear to be a log-normal distribution.
 The mean citations per paper with artifacts released was
 `r round(mean(with_ar$citations), 1)`,
 compared to
 `r round(mean(without_ar$citations), 1)` with none
 (`r report_test(t.test(with_ar$citations, without_ar$citations))`).
-Since the citation distribution is so right-skewed, it makes sense to also compare the median citations with and without artifacts
+Since the log-normal citation distribution is so right-skewed, it makes sense to also compare the median citations with and without artifacts
 (`r median(with_ar$citations)` vs. `r median(without_ar$citations)`, `r report_test(wilcox.test(with_ar$citations, without_ar$citations))`).
 Both statistics suggest a clear and statistically signicant advantage in citations for papers that released an artifact.
 Likewise, the `r nrow(released)` papers that relased an artifact garnered more citations than the `r nrow(unreleased)` papers that did promised an artifact that could not be found
@@ -333,13 +335,13 @@ was much lower than the
 `r round(mean(with_ar_nl$citations), 1)`
 mean for the `r nrow(with_ar_nl)` papers with artifacts we found using a search engine
 (`r report_test(t.test(with_ar_l$citations, with_ar_nl$citations))`;
-`r `report_test(wilcox.test(with_ar_l$citations, with_ar_nl$citations))`).
+`r report_test(wilcox.test(with_ar_l$citations, with_ar_nl$citations))`).
 Curiously, the inclusion of a link in the paper, presumably making the artifact more accessible, was associated with fewer citations.
 
 Similarly counter-intuitive, papers who received an "Artifact evaluated" badge fared worse in citations than artifact papers who did not
 (`r report_test(t.test(with_ar_e$citations, with_ar_ne$citations))`;
-`r report_test(wilcox.test(with_ar_e$citations, with_ar_ne$citations))`),
-and to a lesser extent, papers who received an "Artifact available" badge fared a little worse than artifact papers who did not
+`r report_test(wilcox.test(with_ar_e$citations, with_ar_ne$citations))`).
+Papers who received an "Artifact available" badge did not fare significantly worse than artifact papers who did not
 (`r report_test(t.test(with_ar_b$citations, with_ar_nb$citations))`;
 `r report_test(wilcox.test(with_ar_b$citations, with_ar_nb$citations))`).
 
@@ -549,6 +551,11 @@ When comparing artifact to citations or word, control for specific conference or
 
 # Discussion {#sec:discussion}
 
+We observed some strong associations between artifact release and paper attributes such as: (citations, length, ...).
+As cautioned throughout this study, these associations are insufficient to draw strong causal conclusion, primarily because there are many confounding variables, most of which related to the publishing conference.
+In other words, papers published in the same conference might exhibit strong correlations that interact or inteference with the attribute we are trying to compare to artifact release.
+We can attempt to control for these confounding variables by controlling for conference when evaluating associations.
+We do this by building mixed-effects linear and logistic models, where the fixed effect is the level-one attribute as before, and the random effect is the conference where each paper was published [@roback21:beyond].
 
  * Conference organizers have a large impact on the availability of artifacts.
  * Address the F and A of FAIR.

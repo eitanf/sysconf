@@ -38,11 +38,11 @@ persons.csv: ${PERSONS_DEP}
 	done
 
 
-confs.csv:	$(wildcard ${SYSCONF_HOME}/data/conf/*.json) ${SYSCONF_HOME}/src/gather_confs.py
+confs.csv:	$(wildcard ${SYSCONF_HOME}/data/conf/*.json) ${SYSCONF_HOME}/src/gather_confs.py ${SYSCONF_HOME}/src/shared_utils.py
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/gather_confs.py ${CONFS}
 
-papers.csv: $(wildcard ${SYSCONF_HOME}/data/papers/*.json) ${SYSCONF_HOME}/src/gather_papers.py
+papers.csv: $(wildcard ${SYSCONF_HOME}/data/papers/*.json) ${SYSCONF_HOME}/src/gather_papers.py ${SYSCONF_HOME}/src/shared_utils.py
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/gather_papers.py ${CONFS}
 
@@ -52,7 +52,7 @@ interests.csv: persons.csv
 roles.csv: confs.csv
 	touch roles.csv
 
-coauthors.csv: roles.csv ${SYSCONF_HOME}/src/authorship_graph.py
+coauthors.csv: roles.csv ${SYSCONF_HOME}/src/authorship_graph.py ${SYSCONF_HOME}/src/shared_utils.py
 	echo "Computing co-authorship graph"
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/authorship_graph.py

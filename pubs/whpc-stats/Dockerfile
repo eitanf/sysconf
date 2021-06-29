@@ -25,7 +25,7 @@ RUN Rscript deps.R
 
 RUN git clone http://github.com/eitanf/sysconf
 WORKDIR sysconf/
-RUN git checkout 66f122522e21255596a7338a99f31ac1f9a2f9f0
+RUN git checkout sc21-final
 WORKDIR pubs/whpc-stats
 
 CMD /bin/bash

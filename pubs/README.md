@@ -29,9 +29,9 @@ There are two ways to recreate the documents (which embed the analysis):
   * `gender-gap`: Initial draft of paper on gender gap in systems.
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
-  * `whpc-stats`: "Representation of Women in High-Performance Computing Conferences" (`docker pull eitanf/sysconf:sc21`).
+  * `whpc-stats`: "Representation of Women in HPC Conferences" (`docker pull eitanf/sysconf:sc21`).
 
-The following lists in bibtex format the published peer-reviewed documents in reverse publication order:
+The following lists in bibtex format the published peer-reviewed documents in publication order:
 
 ```
 @Article{frachtenberg20:survey,
@@ -43,4 +43,34 @@ The following lists in bibtex format the published peer-reviewed documents in re
   doi =		 {10.7717/peerj-cs.299}
 }
 
+@InProceedings{frachtenberg21:whpc,
+  title =	 {Representation of Women in HPC Conferences},
+  author =	 {Eitan Frachtenberg and Rhody Kaner},
+  booktitle =	 {Proceedings of the International Conference for High
+                  Performance Computing, Networking, Storage, and
+                  Analysis ({SC'21})},
+  address =	 {St. Louis, {MO}},
+  month =	 nov,
+  year =	 2021,
+  url =
+                  {https://mail.easychair.org/publications/preprint_download/2nVv}
+}
 ```
+
+---
+
+Steps to create a reproducible Docker image for a paper:
+
+  0. If desired, ensure the current git version is tagged appropriately, and then use `git push origin tag`.
+
+  1. Create a DockerFile in the paper's directory by copying an existing one and modifying the Linux packages, directories, etc. Change the `git checkout` command to point to the appropriate tag or commit.
+
+  2. Create a deps.R file in the same directory by copying an existing one and modifying the R libraries and versions as necessary (use `SessionInfo()` to find current versions).
+
+  3. Run everything as root from this point. Start with `service docker restart`.
+
+  4. In the paper's directory, run `docker build -t sysconf:tag .` (where `tag` is the appropriate paper identifier, e.g., sc21). If you're having cache issues, you can delete it with `docker system prune -a`.
+
+  5. Run `docker push dockeruser/sysconf:tag`.
+
+  6. Verify image is on docker.com and optionally test it by pulling it on a different computer.

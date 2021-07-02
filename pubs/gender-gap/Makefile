@@ -6,10 +6,9 @@ export
 
 all: gender-gap.pdf
 
-%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R
+%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R ../sysconf.bib ../load_data.R
 	$(R) -e 'library(bookdown); bookdown::render_book("$(basename $<).Rmd", "bookdown::pdf_book", config_file = "$(basename $<).yml")'
 	mv _book/_main.pdf $@
-
 
 clean:
 	$(R) -e 'bookdown::clean_book(clean = T)'

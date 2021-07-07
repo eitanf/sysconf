@@ -23,6 +23,55 @@ tidy_tags = tidydata.TidyData("content_tags",
 tidy_artifacts = tidydata.TidyData("artifacts",
         "A mapping from papers to artifact data.")
 
+# Manually computed list of number of references per paper for those that
+# don't have Semantic Scholar data.
+refs_map = {
+        'CIDR_17_004': 26, 'CIDR_17_029': 52,
+        'HPCA_17_001': 38, 'HPCA_17_048': 75,
+        'NDSS_17_002': 25, 'NDSS_17_005': 64, 'NDSS_17_013': 34,
+        'NDSS_17_015': 45, 'NDSS_17_026': 25, 'NDSS_17_030': 57,
+        'NDSS_17_033': 29, 'NDSS_17_034': 36, 'NDSS_17_040': 56,
+        'NDSS_17_045': 57, 'NDSS_17_059': 30,
+        'NSDI_17_009': 48,
+        'ICPE_17_022': 41,
+        'EuroSys_17_012': 53,
+        'CCGrid_17_029': 49,
+        'SIGMOD_17_010': 82,
+        'PODS_17_006': 29,
+        'IPDPS_17_092': 27,
+        'SIGMETRICS_17_014': 34, 'SIGMETRICS_17_024': 45,
+        'ISC_17_001': 46, 'ISC_17_003': 36, 'ISC_17_007': 27,
+        'ISC_17_008': 26, 'ISC_17_011': 33, 'ISC_17_013': 13,
+        'ISC_17_014': 33, 'ISC_17_015': 26, 'ISC_17_017': 20,
+        'ISC_17_014': 33, 'ISC_17_015': 26, 'ISC_17_017': 20,
+        'ISC_17_018': 28, 'ISC_17_020': 14,
+        'CLOUD_17_016': 42,
+        'HotStorage_17_006': 21,
+        'PODC_17_020': 37, 'PODC_17_021': 15, 'PODC_17_022': 36,
+        'PODC_17_024': 17, 'PODC_17_031': 14, 'PODC_17_034': 38,
+        'ICPP_17_031': 22, 'ICPP_17_047': 26,
+        'EuroPar_17_004': 12, 'EuroPar_17_006': 20, 'EuroPar_17_007': 19,
+        'EuroPar_17_010': 20, 'EuroPar_17_011': 12, 'EuroPar_17_014': 24,
+        'EuroPar_17_015': 12, 'EuroPar_17_016': 23, 'EuroPar_17_020': 14,
+        'EuroPar_17_024': 24, 'EuroPar_17_028': 15, 'EuroPar_17_029': 21,
+        'EuroPar_17_030': 17, 'EuroPar_17_031': 16, 'EuroPar_17_032': 11, 'EuroPar_17_033': 15,
+        'EuroPar_17_034': 9,  'EuroPar_17_038': 12, 'EuroPar_17_039': 10,
+        'EuroPar_17_041': 21, 'EuroPar_17_042': 22, 'EuroPar_17_043': 20,
+        'EuroPar_17_044': 20, 'EuroPar_17_045': 20, 'EuroPar_17_046': 17,
+        'EuroPar_17_047': 16, 'EuroPar_17_049': 15, 'EuroPar_17_050': 17,
+        'Cluster_17_062': 23,
+        'PACT_17_002': 33, 'PACT_17_013': 49, 'PACT_17_023': 42,
+        'MASCOTS_17_020': 62,
+        'IISWC_17_006': 35,
+        'MobiCom_17_005': 42, 'MobiCom_17_024': 93,
+        'IGSC_17_012': 24, 'IGSC_17_021': 35, 'IGSC_17_022': 27,
+        'CCS_17_093': 78,
+        'HiPC_17_029': 32,
+        'HPCC_17_014': 18, 'HPCC_17_032': 17, 'HPCC_17_061': 9, 'HPCC_17_076': 24,
+        'ICDM_17_025': 27,
+        'OOPSLA_17_016': 43
+        }
+
 
 #########################################################################
 # Select a category for the type of a location (URL) based on regex
@@ -85,11 +134,11 @@ def add_artifact_features(key, artifact):
 
 #########################################################################
 # Add statistics from the Semantic Scholar record for the paper
-def add_s2_features(s2):
+def add_s2_features(key, s2):
     if 'outCitations' in s2 and len(s2['outCitations']) > 0:
         oc = len(s2['outCitations'])
     else:
-        oc = ''
+        oc = refs_map[key]
 
     tidy_papers.add("references", "int", oc,
             "Number of papers cited in this one (underestimated by S2)")
@@ -170,7 +219,7 @@ def add_paper_vars(conf, s2data, papers):
 
         # Features related to the Semantic Scholar record of the paper:
         if p['s2pid'] in s2data:
-            add_s2_features(s2data[p['s2pid']])
+            add_s2_features(key, s2data[p['s2pid']])
 
 
 #########################################################################

@@ -599,7 +599,7 @@ This dependence may explain part of the higher citability of papers with artifac
 We observed some strong associations between artifact release and paper attributes such as: citations, length, etc.
 Comparing citations across groups with and without artifacts as computed in the previous section is informative, but not necessarily indicative of a causal relationship.
 As cautioned throughout this study, these associations are insufficient to draw strong causal conclusion, primarily because there are many confounding variables, most of which related to the publishing conference.
-These confounding factors could provide provide partial or complete explanation to differences in citations beyond artifact availability.
+These confounding factors could provide partial or complete explanation to differences in citations beyond artifact availability.
 
 In other words, papers published in the same conference might exhibit strong correlations that interact or interfere with the attribute we are trying to compare to artifact release.
 We can attempt to control for these confounding variables by controlling for conference when evaluating associations using a multilevel model.
@@ -632,7 +632,7 @@ with
 We can now add various paper covariates to the linear model in an attempt to get more precise estimates for the artifact released predictor, by iteratively experimenting with different predictor combinations to minimize BIC using stepwise model selection [@garcia-portugues21:modeling, Ch. 3].
 The per-paper factors considered were: **paper length** (words), **number of coauthors**, **accessibility speed** (months to eprint^[Papers with no eprint available at the time of this writing were given a time to eprint of 1,000 months, which turned out to be insignificant for the regression analysis.)]), **number of references**, **colon in the title**, and **award** given.
 
-```{r modelBIC1, cache = T, echo = F, message = F, results = 'hide'}
+```{r model-BIC1, echo=F, message=F, warning=F, cache=T, results = 'hide'}
 cleaner <- clean %>%
   mutate(months_to_eprint = ifelse(is.na(months_to_eprint), 1000, months_to_eprint))
 
@@ -640,7 +640,20 @@ model1 <- lm(data = cleaner, log(citations + epsilon) ~ artifact_released + word
 modelBIC1 <- stepAIC(model1, k = log(nrow(cleaner)))
 ```
 
-It turns out that all but the last factor have a statistically significant effect on citations, which brings the model to an increased adjusted $R^2$ value of
+```{r BIC1-params, echo=F, message=F, warning=F, cache=T, eval=F}
+tmp <- coef(summary(modelBIC1))
+tbl <- data.frame(Factor = c("Intercept", "Artifact released", "Word count", "Months to eprint", "References number", "Coauthors number", "Colon in title"),
+                  Coefficient = round(tmp[,1], 5),
+                  "p-value" = format(tmp[,4], format = "e", digits = 2),
+                  check.names = F)
+rownames(tbl) <- NULL
+tbl %>%
+  knitr::kable(booktabs = T, linesep = "", align = c("l", "r", "r"),
+               caption = "Estimated parameters for multilevel model of ln(citations) by paper factors")
+```
+
+
+It turns out that all these paper-level factors except award availability have a statistically significant effect on citations (Table \@ref(tab:BIC1-params)), which brings the model to an increased adjusted $R^2$ value of
 `r round(summary(modelBIC1)$adj.r.squared, 3)`
 and a BIC of
 `r round(BIC(modelBIC1), 2)` (df = `r summary(modelBIC1)$df[2]`).
@@ -663,13 +676,28 @@ We enhance our linear model with the following metrics (omitting `r nrow(cleaner
  * Whether all the coauthors with a known affiliation came from the same country, as international collaborations can be associated with higher citations [@puuska14:international].
  * Is the lead author affiliated with the United States, which may also lead to higher citations [@gargouri10:self; @peng12:where].
  * Whether any of the coauthors was affiliated with one of the top 50 universities per [www.topuniversities.com](www.topuniversities.com)  (27% of papers) or a top company (if any author was affiliated with either (Google, Microsoft, Yahoo!, or Facebook: 18% of papers), based on the definitions of a similar study [@tomkins17:reviewer].
- * The sum of the total past publications of all coauthors of the paper [@bjarnason02:nordic].
- * The maximum h-index of all coauthors [@hurley13:deconstructing].
  * Whether all the coauthors with a known affiliation came from industry.
  * The gender of the first author [@frachtenberg21:whpc].
+ * The sum of the total past publications of all coauthors of the paper [@bjarnason02:nordic].
+ * The maximum h-index of all coauthors [@hurley13:deconstructing].
 
-Only the maximum h-index and top-university affiliation had statistically significant coefficients, but hardly affected the overall model.
-The minimal changes likely do not justify the cost in increased complexity and reduced dataset (because of missing data), so for the remainder of the analysis we ignore author-related factors and proceed with the previous model.
+Only the maximum h-index and top-university affiliation had statistically significant coefficients, but hardly affected the overall model^[Note that the last two metrics are correlated
+(`r  report_test(cor.test(cleaner$max_h, cleaner$total_npubs))`),
+so one may cancel the other out].
+These minimal changes likely do not justify the cost in increased complexity and reduced dataset (because of missing data), so for the remainder of the analysis we ignore author-related factors and proceed with the previous model.
+
+```{r BIC2-params, echo=F, message=F, warning=F, cache=T, eval=F}
+tmp <- coef(summary(modelBIC2))
+tbl <- data.frame(Factor = c("Intercept", "Artifact released", "Word count", "Months to eprint", "References number", "Coauthors number", "Colon in title", "Maximum h-index", "Top university"),
+                  Coefficient = round(tmp[,1], 5),
+                  "p-value" = format(tmp[,4], format = "e", digits = 2),
+                  check.names = F)
+rownames(tbl) <- NULL
+tbl %>%
+  knitr::kable(booktabs = T, linesep = "", align = c("l", "r", "r"),
+               caption = "Estimated parameters for multilevel model of ln(citations) by paper and author factors")
+```
+
 
 Finally, we add the last level: conference factors.
 Conference (or journal) factors, such as the conference's own prestige and competitiveness, can have large effects on citations, as discussed in the previous section.
@@ -687,10 +715,12 @@ This last model does indeed reduce the relative effect of artifact release on ci
 But this coefficient still represents a relative citation increase of about a third for papers with released artifacts
 (`r round(100 * (exp(coef(summary(modelLMER))[2, 1]) - 1), 0)`%),
 which is significant.
-We can approximate a p-value for this coefficient via Satterthwaite’s degrees of freedom method using R's `lmerTest` package [@kuznetsova17:lmertest], which is also statistically significant at
+We can approximate a p-value for this coefficient via Satterthwaite’s degrees of freedom method, using R's `lmerTest` package [@kuznetsova17:lmertest], which is also statistically significant at
 `r round(coef(summary(modelLMER))[2, 5], 14)`.
+The parameters for this final model are enumerated in Table \@ref(tab:LMER-params).
+The only difference in paper-level factors is that award availability has replaced paper word count as a significant parameter, but realistically, both had a negligible effect on citations.
 
-```{r model-params, echo=F, message=F, warning=F, cache=T}
+```{r LMER-params, echo=F, message=F, warning=F, cache=T}
 tmp <- coef(summary(modelLMER))
 tbl <- data.frame(Factor = c("Intercept", "Artifact released", "Award given", "Months to eprint", "References number", "Coauthors number", "Colon in title"),
                   Coefficient = round(tmp[,1], 5),
@@ -702,8 +732,8 @@ tbl %>%
                caption = "Estimated parameters for final multilevel mixed-effects model of ln(citations)")
 ```
 
-Even with all these controls, it is still important to emphasize that this strong observational association is still insufficient to claim causation [@lewis18:open].
-Nevertheless, the increased citations could be an indication that releasing artifacts indeed improve the prospects of a systems research studies to achieve wider acceptance, recogniction, and scientific impact.
+Even with all these controls, we observe a strong association between artifact release and citations.
+This association may not be enough to claim causation [@lewis18:open], but it supports the hypothesis that releasing artifacts can indeed improve the prospects of a systems research studies to achieve wider acceptance, recogniction, and scientific impact.
 
 # Conclusion {#sec:conclusion}
 

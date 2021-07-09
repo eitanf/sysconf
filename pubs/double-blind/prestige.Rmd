@@ -895,21 +895,18 @@ Therefore, we should account for this correlation structure in our models direct
 
 ### Linear regression
 
-To evaluate the effect of these confounding variables, we built mixed-effects linear-regression models with author prestige as the outcome variable (maximum in paper), an indicator variable for reviewing policy (where 1 = SB, 0 = DB) as the predictor variable, and conference as a random effect (Fig. \@ref(fig:linear-regression)).
-The first row is very similar to the first row in Fig. \@ref(fig:mean-diffs) and shows the coefficient of the reviewing policy alone on author prestige, which often exhibits a statistically strong association.
-Each row afterwards includes one of the variables listed above as an additional fixed effect that could stand in for conference prestige.
+To evaluate the effect of these confounding variables, we built fixed-effects and mixed-effects linear regression models with author prestige as the outcome variable (maximum in paper), an indicator variable for reviewing policy (where 1 = SB, 0 = DB) as the fixed effect predictor variable, and conference as a random effect in the mixed-effects model (Figs. \@ref(fig:linear-regression) and  \@ref(fig:linear-mixed-regression)).  The first row of Fig. \@ref(fig:linear-regression) is equivalent to the first row in Fig. \@ref(fig:mean-diffs) and shows the coefficient of the reviewing policy alone on author prestige, which often exhibits a statistically strong association. Each row afterwards includes one of the variables listed above as an additional fixed effect that could stand in for conference prestige.  All of the analyses conducted up the linear regression model assume the papers are independent observations.  However, we believe papers in the same conference are likely to be more correlated and therefore account for this correlation explicited in the linear mixed-model (Fig. \@ref(fig:linear-mixed-regression)).  In comparing Figs. \@ref(fig:linear-regression) and  \@ref(fig:linear-mixed-regression), notice that the significance of reviewing policy is greatly dampen when accounting for conference.  For the rest of this section, we will focus on the mixed-effects model. 
+
+
 
 ```{r linear-regression, echo = F, warning = F, fig.asp = 0.4, fig.cap="Linear regression of various author prestige metrics as predicted by review policy and other conference variables. Values shown are the coefficient of the reviewing policy variable in the linear model and their associated p-values. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 tbl <- compute_glm()  # Placeholder / filler just to have the columns
-
 predictors <- c("", "age", "acceptance_rate", "h5_index", "submissions", "past_citations", "mean_historical_citations")
-
 for (metric in c("s2npubs", "npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index")) {
   for (predictor in predictors) {
     tbl <- rbind(tbl, compute_glm(experience.all, predictor, metric))
   }
 }
-
 reg.all <- as_tibble(tbl[-1,])
 reg.all$metric <- factor(reg.all$metric, ordered = T,
                          levels = c("npubs", "s2npubs", "as_author", "citedby", "paper_cites", "hindex", "i10index"),
@@ -926,7 +923,6 @@ reg.all$linear_m_c <- as.numeric(reg.all$linear_m_c)
 reg.all$linear_m_p <- as.numeric(reg.all$linear_m_p)
 reg.all$logistic_m_c <- as.numeric(reg.all$logistic_m_c)
 reg.all$logistic_m_p <- as.numeric(reg.all$logistic_m_p)
-
 reg.all %>%
   group_by(metric) %>%
   mutate(normalized = linear_c / metric_denominator(reg.all, metric, "linear_c")) %>%
@@ -942,7 +938,6 @@ reg.all %>%
     guides(fill = "none") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
 ```
-
 
 ```{r linear-mixed-regression, echo = F, warning = F, fig.asp = 0.4, fig.cap="Mixed-effects linear regression models of various author prestige metrics as predicted by review policy and other conference variables with conference as a random effect. Values shown are the coefficient of the reviewing policy variable in the linear model and their associated p-values. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 reg.all %>%
@@ -961,7 +956,7 @@ reg.all %>%
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
 ```
 
-(((TODO: remove fig 8, but first explain why the "None" rows are different between Figs. 8--9. Should they be? I like 8's better)))
+
 
 Looking first at citation-based author metrics (total citations, citations per paper, and h-index), we can indeed confirm that adding a conference prestige confounder and accounting for the intraclass correlation within conferences generally lowers the values of the review-policy coefficient and its significance, sometimes even changing signs.
 Some of these citation author-conference relationships are almost tautological in nature.
@@ -1063,8 +1058,8 @@ We therefore chose not to winsorize these inflated metrics, a common data cleani
 ```{r, echo = FALSE}
 # Find prop missing by double_blind (author counted twice if published in both double and single)
 ppl_blind <- ppl %>%
-  left_join(all_confs, by = c("conf" = "key")) %>%
-  distinct(name, gs_email, double_blind, .keep_all = TRUE)
+  left_join(all_confs, by = c("conf" = "key")) #%>%
+ # distinct(name, gs_email, double_blind, .keep_all = TRUE)
 
 ppl_distinct <- ppl %>%
   distinct(name, gs_email, .keep_all = TRUE)
@@ -1076,11 +1071,10 @@ missing_props <- count(ppl_blind, double_blind, is.na(npubs)) %>%
 ```
 
 
-On the lower tail, note that `r round(mean(is.na(ppl_distinct$npubs)) * 100, digits = 2)`% of the values for the GS measures are missing for authors for who we could not uniquely identify a GS profile (`r round(mean(missing_props %>% filter(double_blind) %>% pull(var = prop)) * 100, digits = 2)`% of DB authors and `r round(mean(missing_props %>% filter(!double_blind) %>% pull(var = prop))*100, digits = 2)`% of SB authors).
+On the lower tail, note that `r round(mean(is.na(ppl$npubs)) * 100, digits = 2)`% of the values for the GS measures are missing for authors for who we could not uniquely identify a GS profile.  Proportionally, these authors are distributed almost evenly between SB and DB publications.
 Since the median number of publications from S2 is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without GS measures, compared to `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with GS measures, these authors with missing values are likely less experienced and therefore would contribute to the lower tail of the author-level prestige metric distributions.
 The variation in S2 publications between those with and without GS profiles provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is treated.  
 
-((( How can the separate values for SB and DB be lower than overall values?!?)))
 
 For handling these missing values, we consider three strategies.
 The simplest approach, which we have used in all previous experiments, involves removing the missing values when computing aggregate measures.
@@ -1276,7 +1270,7 @@ sb_cites = filter(cites, !double_blind)$citations
 
 We cannot confirm this hypothesis conclusively without information on all submitted papers.
 However, we can find some confirmation in a different statistic: how well-cited are the papers in our dataset, now that a few years have passed since publication.
-If we look at GS statistics for each paper `r how_long` exactly months after it were published, we find that DB papers average
+If we look at GS statistics for each paper exactly `r how_long` months after it were published, we find that DB papers average
 `r round(mean(db_cites), 1)`
 citations per paper, significantly higher than SB's
 `r round(mean(sb_cites), 1)`
@@ -1289,7 +1283,7 @@ These statistics provide additional evidence that DB conferences in our dataset 
 It also lends additional support to the idea that prestige-bias evaluation should account for venue prestige when comparing across venues or across years, for example, using a mixed-effects model.
 When we did corrected for conference prestige using using the proxy of mean citations per paper, most of the previously found differences in bias lost statistical significance (\@ref(fig:linear-mixed-regression)).
 
-(((TODO: review the following remaining question for possible inclusion or mention)))
+
 <!--
 DB reviewing is also associated with fewer authors that are PC members
 (`r report_test(t.test(db_confs$pc_author_ratio, sb_confs$pc_author_ratio))`),

@@ -19,17 +19,17 @@ There are two ways to recreate the documents (which embed the analysis):
  * By pulling the appropriate docker image and building the paper in the container.
     1. Install [docker](https://docs.docker.com/get-docker/).
     2. Look at the [Dockerhub repository](http::/dockerhub.com/eitanf/sysconf) and identify the tag for the image whose paper you'd like to build.
-    3. Run `docker pull <eitanf/sysconf:tag>`.
-    4. Run `docker run --rm -ti <sysconf:tag>`.
-    5. Refer to steps 3--4 above to build the document.
+    3. Run `docker run -ti <eitanf/sysconf:tag>`.
+    4. Refer to steps 3--4 above to build the document.
+    5. Access the document on your host by first finding out the container id (with `docker ps`), then by copying it (for example, `docker cp <id>:/sysconf/pubs/whpc-stats/women-hpc.pdf .`).
 
 ## List of completed and ongoing publications:
 
-  * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker pull eitanf/sysconf:peerj20`).
+  * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: Initial draft of paper on gender gap in systems.
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
-  * `whpc-stats`: "Representation of Women in HPC Conferences" (`docker pull eitanf/sysconf:sc21`).
+  * `whpc`: "Representation of Women in HPC Conferences" (`docker run -ti eitanf/sysconf:whpc`).
 
 The following lists in bibtex format the published peer-reviewed documents in publication order:
 
@@ -52,8 +52,7 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   address =	 {St. Louis, {MO}},
   month =	 nov,
   year =	 2021,
-  url =
-                  {https://mail.easychair.org/publications/preprint_download/2nVv}
+  url =	 {https://mail.easychair.org/publications/preprint_download/2nVv}
 }
 ```
 
@@ -67,10 +66,10 @@ Steps to create a reproducible Docker image for a paper:
 
   2. Create a deps.R file in the same directory by copying an existing one and modifying the R libraries and versions as necessary (use `SessionInfo()` to find current versions).
 
-  3. Run everything as root from this point. Start with `service docker restart`.
+  3. Run everything as root from this point. Start with `service docker restart`. If necessary, also run `docker system prune -a` to clear all caches.
 
-  4. In the paper's directory, run `docker build -t sysconf:tag .` (where `tag` is the appropriate paper identifier, e.g., sc21). If you're having cache issues, you can delete it with `docker system prune -a`.
+  4. In the paper's directory, run `docker build -t dockeruser/sysconf:tag .` (where *tag* is the appropriate paper identifier, e.g., *whpc*). If you're having cache issues, you can delete it with `docker system prune -a`.
 
-  5. Run `docker push dockeruser/sysconf:tag`.
+  5. Run `docker login` followed by `docker push dockeruser/sysconf:tag`.
 
   6. Verify image is on docker.com and optionally test it by pulling it on a different computer.

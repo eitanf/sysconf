@@ -1,18 +1,16 @@
-FROM rocker/r-base:3.6.3
+FROM rocker/verse:4.1.0
 
 RUN apt-get update
 
 RUN apt-get install -V -y \
-  build-essential \
-  git \
-  libcurl4-gnutls-dev \
-  libfontconfig1-dev \
-  libxml2-dev libssl-dev \
-  pandoc \
+  texlive-binaries \
+  texlive-base \
   texlive-font-utils \
   texlive-latex-base \
   texlive-latex-extra \
-  texlive-latex-recommended
+  texlive-latex-recommended \
+  libudunits2-dev \
+  libgdal-dev
 
 COPY deps.R .
 

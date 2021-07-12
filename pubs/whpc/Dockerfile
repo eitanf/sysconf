@@ -1,21 +1,16 @@
-FROM rocker/r-base:3.6.3
+FROM rocker/verse:4.1.0
 
 RUN apt-get update
 
 RUN apt-get install -V -y \
-  build-essential \
-  git \
-  libcurl4-gnutls-dev \
-  libudunits2-dev \
-  libfontconfig1-dev \
-  libgdal-dev \
-  libgeos-dev \
-  libxml2-dev libssl-dev \
-  pandoc \
+  texlive-binaries \
+  texlive-base \
   texlive-font-utils \
   texlive-latex-base \
   texlive-latex-extra \
-  texlive-latex-recommended
+  texlive-latex-recommended \
+  libudunits2-dev \
+  libgdal-dev
 
 COPY deps.R .
 
@@ -26,6 +21,6 @@ RUN Rscript deps.R
 RUN git clone http://github.com/eitanf/sysconf
 WORKDIR sysconf/
 RUN git checkout sc21-final
-WORKDIR pubs/whpc-stats
+WORKDIR pubs/whpc
 
 CMD /bin/bash

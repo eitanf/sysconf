@@ -42,6 +42,8 @@ confs.csv:	$(wildcard ${SYSCONF_HOME}/data/conf/*.json) ${SYSCONF_HOME}/src/gath
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/gather_confs.py ${CONFS}
 
+artifacts.csv: papers.csv
+
 papers.csv: $(wildcard ${SYSCONF_HOME}/data/papers/*.json) ${SYSCONF_HOME}/src/gather_papers.py ${SYSCONF_HOME}/src/shared_utils.py
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/gather_papers.py ${CONFS}

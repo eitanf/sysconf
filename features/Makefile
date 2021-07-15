@@ -11,7 +11,7 @@ export
 
 SRC=${SYSCONF_HOME}/src
 DATA=confs.csv interests.csv persons.csv roles.csv interests.csv \
-		 coauthors.csv papers.csv
+		 coauthors.csv papers.csv artifacts.csv
 DATA_MD=$(patsubst %.csv,%.md,${DATA})
 TEXT=tokens.csv
 
@@ -41,6 +41,8 @@ persons.csv: ${PERSONS_DEP}
 confs.csv:	$(wildcard ${SYSCONF_HOME}/data/conf/*.json) ${SYSCONF_HOME}/src/gather_confs.py ${SYSCONF_HOME}/src/shared_utils.py
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/gather_confs.py ${CONFS}
+
+artifacts.csv: papers.csv
 
 papers.csv: $(wildcard ${SYSCONF_HOME}/data/papers/*.json) ${SYSCONF_HOME}/src/gather_papers.py ${SYSCONF_HOME}/src/shared_utils.py
 	cd ${SYSCONF_HOME}; \

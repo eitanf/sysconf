@@ -11,6 +11,7 @@ dependencies <- c(
                   "lme4",
                   "lmerTest",
                   "lubridate",
+                  "MASS",
                   "multidplyr",
                   "NLP",
                   "plotly",

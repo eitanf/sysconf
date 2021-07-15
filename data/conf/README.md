@@ -38,8 +38,13 @@ Empty fields (where not data was available or applicable) are denoted as empty s
     - `title` (string): Paper title, copied from the conference web page
     - `authors` (list of strings): Author names, and sometimes affiliation in parenthesis. The affiliation wasn't used for any features or training, but rather to help disambiguate among multiple scholar profiles with the same name, as described in the next section.
     - `award` (bool): Did the paper receive an award, such as "Best Paper" or "Best Student Paper"?
-    - `artifact` (bool): Did the paper receive an "artifacts evaluated", "artifacts available" or similar seal? (primarily ACM papers; see https://www.acm.org/publications/policies/artifact-review-badging)
     - `s2pid` (hexadecimal string)`: An identifier for the paper in semanticscholar.org.
     - `words` (int): Approximate number of words in the paper (wc of text file).
     - `topics` (list of categorical strings): List of keywords (see `topics.csv` for full list). These are high-level topics that roughly correspond to undergraduate courses in computer systems, such as "Operating Systems", "Networking", or "Security". They were manually assigned, and as such, likely include some errors, misrepresentations, and ommisions. Each topic had at least one conference focused primarily on this topic, although multi-topic papers are common. The following table lists the topic selection that was used.
     - `content_tags` (dictionary of lists of categorical strings): List of research categories for the paper, taken from `data/content_tags.json` (currently all are manually assigned).
+    - `artifact` (dictionary): A collection of fields describing software or data artifact (only when available or evaluated), as follow:
+      - `badge` (bool): Did the paper receive an "artifacts available" or similar seal? (primarily [ACM papers](https://www.acm.org/publications/policies/artifact-review-badging)).
+      - `evaluated` (bool): Did the paper receive an "artifacts evaluated" or similar seal? (primarily [ACM papers](https://www.acm.org/publications/policies/artifact-review-badging)).
+      - `linked` (bool): Was the artifact linked to from the paper?
+      - `url` (string): URL from the paper or elsewhere. An empty string means an artifact was ostensibly never made openly available (only evaluated).
+      - `last_accessed` (date): Last date that the URL/DOI was tested and found accessibile (empty string if never, "NA" if it couldn't be found).

@@ -1,5 +1,5 @@
 ---
-title: The role of software availability in computer systems papers
+title: Software artifact sharing and citations in computer systems research
 preprint: false
 author:
   - name: Eitan Frachtenberg
@@ -9,12 +9,14 @@ affiliation:
     address: Department of Computer Science, Reed College
 bibliography: ../sysconf.bib
 abstract: >
-  Research in computer systems typically involves the engineering, implementation, and measurement of complex systems software. The availability of these software artifacts is crucial for reproducibility and replicability of the research's results, because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Regrettably, it is still not a common practice for systems researchers to make their software artifacts fully available, which may be a factor in the low rate of studies that replicate or reproduce other systems studies.
+  Research in computer systems often involves the engineering, implementation, and measurement of complex systems software. The availability of these software artifacts is critical for the reproducibility and replicability of the research's results, because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Artifact sharing has also been associated with higher citations counts. And yet, the sharing of research artifacts is still not as common as warranted by its importance.
+  
+  
+  The primary goal of this study is to provide a statistical analysis of the artifact-sharing rates and associated factors and effects in the field.
+  To this end, we explore a cross-sectional dataset of papers in 56 systems conferences from 2017. In addition to extensive data on the conferences, papers, and authors, this dataset includes up-to-date data on the release, ongoing availability, badging, and locations of research artifacts. We combine this manually curated data with recent citation counts to evaluate the relationships between different artifact properties and citation metrics. Additionally, we revisit previous observations from other fields on the relationships between artifact properties and various other characteristics of papers, authors, and venue and apply them to this field.
 
 
-  In this paper we  explore the effects of including the original software artifacts with computer systems papers. We analyze a cross-sectional data set of papers from 56 systems conferences from 2017. We collected extensive data on the conferences, papers, and authors.
-  Exploratory paper... observations... main ones:
-  After controlling for paper-, author-, and conference-related factors, the release of an artifact appears to increase the citations of a systems paper by some 34%.
+  The overall rate of artifact sharing we find in this dataset is approximately 30%, although it varies significantly with paper, author and conference factors, and it is closer to 43% for conferences that actively evaluated artifact sharing. Approximately 20% of all shared artifacts are no longer accessible four years after publications, predominately when hosted on personal and academic websites. In terms of citations, papers with shared artifacts averaged approximately 75% more citations than papers with none. Even after controlling for numerous confounding covariates, the release of an artifact appears to increase the citations of a systems paper by some 34%. This metric is further boosted by the open availability of the paper's text.
 output:
   bookdown::pdf_book:
     base_format: rticles::peerj_article
@@ -53,7 +55,7 @@ cbp2 <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 
-how_long <- 42  # Citations 3.5 years since publiaation
+how_long <- 42  # Citations 3.5 years since publication
 tolerance <- 7
 
 
@@ -117,7 +119,7 @@ report_means <- function(col)
 # Motivation and Background {#sec:intro}
 
 
-Many scientific experimental results cannot be successfuly repeated or reproduced, leading to the so-called "reproducibility crisis" [@baker16:reproducibility; @van15:sluggish].
+Many scientific experimental results cannot be successfully repeated or reproduced, leading to the so-called "reproducibility crisis" [@baker16:reproducibility; @van15:sluggish].
 An experimental result is not fully established unless it can be independently reproduced [@stodden08:legal], and an important step towards this goal is the release and possibly audit of artifacts associated with the work, including computer code [@ACM20:artifact; @fehr16:best].
 The availability of experimental artifacts is not only crucial for reproducibility, but also contributes to the transparency, reusability, and credibility of the work [@feitelson15:repeatability].
 Artifacts additionally play an important role in open-science initiatives, which have gained substantial momentum in computer science [@heumuller20:publish].
@@ -126,6 +128,7 @@ Unfortunately, the sharing and auditing of artifacts is still not as commonplace
 In particular, in the field of computer systems, where we might expect that many software-based experiments should be both easy and imperative to share and reproduce [@ince12:case], we find instead that many artifacts are not readily available or buildable [@collberg16:repeatability; @freire12:computational; @heumuller20:publish; @krishnamurthi15:real].
 Some of the reasons that researchers struggle to reproduce experimental results and reuse research code from scientific papers are the continuously changing software and hardware, lack of common APIs, stochastic behavior of computer systems and a lack of a common experimental methodology [@fursin21:collective], as well as copyright restrictions [@stodden08:legal].
 
+One challenge in addressing this topic is that definitions and expectations for research artifacts are not always clear.
 The Association of Computing Machinery (ACM) defines a paper's artifact as follows:
 
 > By "artifact" we mean a digital object that was either created by the authors to be used as part of the study or generated by the experiment itself. For example, artifacts can be software systems, scripts used to run experiments, input datasets, raw data collected in the experiment, or scripts used to analyze results.  [@ACM20:artifact]
@@ -140,13 +143,13 @@ Other conferences in computer systems are also increasingly encouraging artifact
 An interesting question then emerges, what are some of the effects of artifact sharing in computer systems that we can observe and measure?
 
 The primary effect we are interested in is citations.
-In addition to their benefits for open and reproducible science, papers with linked artifacts haev been sometimes associated with higher citation counts [@childers17:artifact; @heumuller20:publish].
+In addition to their benefits for open and reproducible science, papers with linked artifacts have been sometimes associated with higher citation counts [@childers17:artifact; @heumuller20:publish].
 Citations are not only a widely used metric of influence for papers and researchers, but also an indirect measure of the work's quality and usefulness, which presumably are both helped by the availability of artifacts.
-Citations may also stand in as a proxy metrics for the transparency, reusability, reproducibility, and credibility of papers, if we make the assumption that any these qualities encourage conbsequent researcher to cite the original work.
+Citations may also stand in as a proxy metrics for the transparency, reusability, reproducibility, and credibility of papers, if we make the assumption that any these qualities encourage subsequent researcher to cite the original work.
 The main goal of this paper is therefore to evaluate the association between artifacts availability as a predictor variable and citations as an outcome variable in the research field of computer systems.
 
 With this expansive dataset, we can broaden the scope of our exploration in to uncover more relationships between artifact properties and other paper properties.
-Despite bing primarily exploratory in nature, this paper still poses and answers  as secondary contributions a few concrete research questions, inspired by similar studies:
+Despite being primarily exploratory in nature, this paper still poses and answers  as secondary contributions a few concrete research questions, inspired by similar studies:
 
 1. What is the ratio of papers in computer systems for which artifacts are available?
 2. How many of these artifacts are actually linked from the paper?
@@ -201,12 +204,12 @@ We also collected historical conference metrics from the Institute of Electrical
 The dataset also includes extensive data on the authors and the textual properties of the papers, and the relevant features are discussed in the next section.
 
 We are mainly interested in the effect of software artifacts on citation of their associated papers.
-Citation metrics typically lag pubblication by a few months or years, allowing for the original papers to be discovered, read, cited, and then the citations themselves published and recorded.
+Citation metrics typically lag publication by a few months or years, allowing for the original papers to be discovered, read, cited, and then the citations themselves published and recorded.
 The time duration since these papers had been published, approximately four years, permits the analysis of their short-to-medium term impact in terms of citations.
 In practice, this duration is long enough that only
-`r top_cites <- group_by(citations, key) %>% summarize(max = max(citations)); sum(top_cites$max == 0)` papers
+`r top_cites <- group_by(citations, key) %>% summarize(.groups = "drop", max = max(citations)); sum(top_cites$max == 0)` papers
 (`r pct(sum(top_cites$max == 0), nrow(top_cites), 2)`%)
-had not been cited at all at the time of this writing, while several others already garnered hundres of citations.
+had not been cited at all at the time of this writing, while several others already garnered hundreds of citations.
 (This paper does not address the question of how citations decay over the longer term, especially as artifacts expire over time, but this dataset could be clearly expanded to this end in the future.)
 
 For this study, the most critical piece of information on these papers is their artifacts.
@@ -223,7 +226,7 @@ Moreover, the artifacts for numerous papers could actually be discovered online 
 
 In all, `r nrow(artifacts)` papers in our dataset
 (`r pct(nrow(artifacts), nrow(papers), 2)`%)
-had an identifiable artifact, primarily source code but occasionally data, configuration, or benchmarking files.
+had an identifiable or promised artifact, primarily source code but occasionally data, configuration, or benchmarking files.
 Artifacts that had been included in previous papers or written by someone other than the paper's authors were excluded from this count.
 Anecdotally, most of the source-code repositories in these artifacts showed no development activity---commits, forks, or issues---after the publication of their paper.
 
@@ -384,7 +387,7 @@ ggplot(by_paper, aes(x = citations, color = artifact_released)) +
 
 
 Citations range from none at all
-(`r nrow(filter(by_paper, citations == 0))` papers) to nearly 1,000, with two outlier papers exceeding 2,000 citations [@carlini17:towards; @jouppi17:datacenter].
+(`r nrow(filter(by_paper, citations == 0))` papers) to about 1000, with two outlier papers exceeding 2000 citations [@carlini17:towards; @jouppi17:datacenter].
 The distributions appear roughly log-normal.
 The mean citations per paper with artifacts released was
 `r round(mean(with_ar$citations), 1)`,
@@ -394,7 +397,7 @@ compared to
 Since the citation distribution is so right-skewed, it makes sense to also compare the median citations with and without artifacts
 (`r median(with_ar$citations)` vs. `r median(without_ar$citations)`, `r report_test(wilcox.test(with_ar$citations, without_ar$citations))`).
 Both statistics suggest a clear and statistically significant advantage in citations for papers that released an artifact.
-Likewise, the `r nrow(released)` papers that released an artifact garnered more citations than the `r nrow(unreleased)` papers that did promise an artifact that could later not be found
+Likewise, the `r nrow(released)` papers that actually released an artifact garnered more citations than the `r nrow(unreleased)` papers that did promise an artifact that could later not be found
 (`r report_test(t.test(released$citations, unreleased$citations))`),
 and extant artifacts fared better than expired ones
 (`r report_test(t.test(unexpired$citations, expired$citations))`).
@@ -732,25 +735,31 @@ tbl %>%
 ```
 
 Even with all these controls, we observe a strong association between artifact release and citations.
-This association may still not suffice to claim causation [@lewis18:open], but it supports the hypothesis that releasing artifacts can indeed improve the prospects of a systems research paper to achieve wider acceptance, recogniction, and scientific impact.
+This association may still not suffice to claim causation [@lewis18:open], but it supports the hypothesis that releasing artifacts can indeed improve the prospects of a systems research paper to achieve wider acceptance, recognition, and scientific impact.
 
 # Conclusion {#sec:conclusion}
 
-After controlling for various paper-related and conference-related factors, we still find a positive association between artifact availability and paper citations in computer systems.
-Number of citations is a contentions metric,  and it is associated with many other factors, primarily among those--we can hope--is the subjective quality of the work.
-Some of these factors may better explain the increase in citations for papers with artifacts.
-Although this association does not necessarily imply causation, it is possible and perhaps even plausible that that artifact availability does contribute to the citation count of a paper.
-Certainly, there are many other benefits to open and reproducible science that make this effort worthwhile regardless of citation.
-It is therefore encouraging to see an increasing number of systems conferences actively encouraging and investing effort in the artifact evaluation and dissemination process.
-For example, The automated archiving of artifacts by ACM and the inclusion of badges may be Conducive to higher artifact availability, but not necessarily to higher citations for these paper.
+Several studies across disparate fields found a positive relationship between the sharing of research artifacts and increased citation of the research work.
+In this cross-sectional study of computer systems research, we also observed a strong statistical association between the two, although there are numerous potential confounding and explanatory variables to increased citations.
+Still, even when controlling for various paper-related and conference-related factors, we observe that papers with shared artifacts receive approximately a third more citations than papers without.
 
- * Many computer systems papers include artifacts, primarily in the form of the software that implements the new system that is at the center of the paper.
- * The majority of these artifacts are hosted on Github. Although we found that very few of these expired, Github currently offers no guarantees for persistence or indexing. Conference organizers could request artifacts to have their own persistent, citable links (as SC currently does). Alternatively, Github could offer easier tools or automated integration with other tools (such as Zenodo) to offer this service.
- * Conference organizers have a large impact on the availability of artifacts.
+Citation metrics are a controversial measure of a work's quality, impact, and importance, and perhaps should not represent the sole or primary motivation for authors to share their artifacts.
+Instead, authors and readers may want to focus on the clear and important benefits to science in general, and to the increased reproducibility and credibility of their work in particular.
+Although there remain many obstacles to universal sharing of artifacts, the field of computer systems does have the advantage that many----f not most---of its artifacts come in the form of software, which is much easier to share than artifacts in other experimental fields.
+It is therefore not surprising that we find the majority of shared and extant artifacts in computer systems hosted on github.com, a highly accessible source-code sharing platform.
 
-Future work:
-  * IR of FAIR
-  * Additional questions above.
+If increased citation counts are not enough to incent more systems authors to share their artifacts, perhaps conference organizers can leverage their substantial influence to motivate authors.
+Although artifact evaluation can represent a nontrivial additional burden on the program committee, our data shows that it does promote higher rates of artifact sharing.
+However, increasing the sharing rates is not enough for the goals of reproducible science, since many of the shared artifacts in our dataset have since expired or been difficult to locate.
+
+Our analysis found that both the findability and accessibility of systems artifacts can decay significantly even after only a few years, especially when said artifacts are not hosted in dedicated open and free repositories.
+Conference organizers could likely improve both aspects by requiring---and perhaps offering---standardized tools, techniques, and repositories, in addition to the sharing itself.
+The ACM has taken significant steps in this direction by not only standardizing various artifact badges, but also offering its own supplementary material repository in its digital library.
+A few conferences in our dataset, like SC, are taking another step in this direction by also requesting a standrardized artifact description appendix and review for every technical paper, including a citeable link to the research artifacts.
+
+To evaluate the impact of such efforts, we must look beyond the findability and accessibility of artifacts, as was done in this study.
+In future work, this analysis can be expanded to the two remaining aspects of the FAIR principles: interoperability and reusability, possibly by incorporating input from the artifact review process itself.
+The hope is that as the importance and awareness of research artifacts grows in computer systems research, many more conferences will require and collect this information, facilitating not only better, reproducible research, but also a better understanding of the nuanced effects of software artifact sharing.
 
 ## Acknowledgments {-}
 

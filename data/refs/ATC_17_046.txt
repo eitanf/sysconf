@@ -1,0 +1,126 @@
+[1] S. Boyd-Wickizer, A. T. Clements, Y. Mao, A. Pesterev, M. F.
+Kaashoek, R. Morris, and N. Zeldovich. An Analysis of Linux
+Scalability to Many Cores. In Proceedings of the 9th USENIX
+Conference on Operating Systems Design and Implementation,
+OSDI, 2010.
+[2] S. Boyd-Wickizer, M. F. Kaashoek, R. Morris, and N. Zeldovich.
+Non-scalable locks are dangerous. In Proceedings of the Linux
+Symposium, Ottawa, Canada, July 2012.
+[3] D. Bueso and S. Norton. An Overview of Kernel Lock Improvements, 2014. https://events.linuxfoundation.org/
+sites/events/files/slides/linuxcon-2014-lockingfinal.pdf.
+[4] I. Calciu, D. Dice, Y. Lev, V. Luchangco, V. J. Marathe, and
+N. Shavit. NUMA-aware Reader-writer Locks. In Proceedings of
+the 18th ACM Symposium on Principles and Practice of Parallel
+Programming (PPOPP), pages 157–166, Shenzhen, China, Feb.
+2013.
+[5] M. Chabbi and J. Mellor-Crummey. Contention-conscious,
+Locality-preserving Locks. In Proceedings of the 21st ACM
+Symposium on Principles and Practice of Parallel Programming
+(PPOPP), pages 22:1–22:14, Barcelona, Spain, Mar. 2016.
+[6] M. Chabbi, M. Fagan, and J. Mellor-Crummey. High Performance
+Locks for Multi-level NUMA Systems. In Proceedings of the
+20th ACM Symposium on Principles and Practice of Parallel
+Programming (PPOPP), San Francisco, CA, Feb. 2015.
+[7] G. Chadha, S. Mahlke, and S. Narayanasamy. When Less is
+More (LIMO):Controlled Parallelism For improved Efficiency. In
+Proceedings of the 2012 International Conference on Compilers,
+Architectures and Synthesis for Embedded Systems, CASES ’12,
+2012.
+[8] D. Chinner. Re: [regression, 3.16-rc] rwsem: optimistic spinning
+causing performance degradation, 2014. https://lkml.org/
+lkml/2014/7/3/25.
+[9] D. Dice. Malthusian Locks. CoRR, abs/1511.06035, 2015. URL
+http://arxiv.org/abs/1511.06035.
+[10] D. Dice, V. J. Marathe, and N. Shavit. Flat-combining NUMA
+Locks. In Proceedings of the Twenty-third Annual ACM Symposium on Parallelism in Algorithms and Architectures, SPAA ’11,
+pages 65–74, 2011.
+[11] D. Dice, V. J. Marathe, and N. Shavit. Lock Cohorting: A General Technique for Designing NUMA Locks. In Proceedings of
+the 17th ACM Symposium on Principles and Practice of Parallel
+Programming (PPOPP), pages 247–256, New Orleans, LA, Feb.
+2012.
+[12] Facebook. A persistent key-value store for fast storage environments, 2012. http://rocksdb.org/.
+[13] P. Fatourou and N. D. Kallimanis. Revisiting the Combining
+Synchronization Technique. In Proceedings of the 17th ACM
+Symposium on Principles and Practice of Parallel Programming
+(PPOPP), pages 257–266, New Orleans, LA, Feb. 2012.
+[14] H. Guiroux, R. Lachaize, and V. Quéma. Multicore Locks: The
+Case is Not Closed Yet. In Proceedings of the 2016 USENIX
+Annual Technical Conference (ATC), pages 649–662, Denver, CO,
+June 2016.
+[15] IBM. IBM K42 Group, 2016. http://researcher.watson.
+ibm.com/researcher/view_group.php?id=2078.
+[16] Xeon Processor E7-8890 v4 (60M Cache, 2.20 GHz). Intel, 2016. http://ark.intel.com/products/93790/IntelXeon-Processor-E7-8890-v4-60M-Cache-2_20-GHz.
+[17] F. R. Johnson, R. Stoica, A. Ailamaki, and T. C. Mowry. Decoupling Contention Management from Scheduling. In Proceedings of
+the 15th ACM International Conference on Architectural Support
+for Programming Languages and Operating Systems (ASPLOS),
+pages 117–128, New York, NY, Mar. 2010.
+[18] X. Leroy. The open group base specifications issue 7, 2016. http:
+//pubs.opengroup.org/onlinepubs/9699919799/.
+[19] R. Liu, H. Zhang, and H. Chen. Scalable Read-mostly Synchronization Using Passive Reader-writer Locks. In Proceedings of
+the 2014 USENIX Annual Technical Conference (ATC), pages
+219–230, Philadelphia, PA, June 2014.
+[20] Y. Liu. aim7 performance regression by commit 5a50508 report
+from LKP, 2014. https://lkml.org/lkml/2013/1/29/84.
+[21] W. Long. qspinlock: Introducing a 4-byte queue spinlock, 2014.
+https://lwn.net/Articles/582897/.
+[22] W. Long. locking/mutex: Enable optimistic spinning of lock
+waiter, 2016. https://lwn.net/Articles/696952/.
+[23] J.-P. Lozi, F. David, G. Thomas, J. Lawall, and G. Muller. Fast
+and Portable Locking for Multicore Architectures. ACM Trans.
+Comput. Syst., 33(4):13:1–13:62, Jan. 2016.
+[24] V. Luchangco, D. Nussbaum, and N. Shavit. A Hierarchical CLH
+Queue Lock. In Proceedings of the 12th International Conference
+on Parallel Processing, Euro-Par’06, pages 801–810, 2006.
+[25] J. M. Mellor-Crummey and M. L. Scott. Algorithms for Scalable
+Synchronization on Shared-memory Multiprocessors. ACM Trans.
+Comput. Syst., 9(1):21–65, Feb. 1991.
+[26] Microsoft.
+SQL Server 2014, 2014.
+http://www.
+microsoft.com/en-us/server-cloud/products/sqlserver/features.aspx.
+[27] C. Min, S. Kashyap, S. Maass, W. Kang, and T. Kim. Understanding Manycore Scalability of File Systems. In Proceedings of the
+2016 USENIX Annual Technical Conference (ATC), Denver, CO,
+June 2016.
+[28] I. Molnar. Linux rwsem, 2006. http://www.makelinux.net/
+ldd3/chp-5-sect-3.
+[29] I. Molnar and D. Bueso.
+Generic Mutex Subsystem,
+2016.
+https://www.kernel.org/doc/Documentation/
+locking/mutex-design.txt.
+[30] O. Nesterov. Linux percpu-rwsem, 2012. http://lxr.freeelectrons.com/source/include/linux/percpurwsem.h.
+SPARC M7-16 Server.
+Oracle,
+[31] Data Sheet:
+http://www.oracle.com/us/products/serversstorage/sparc-m7-16-ds-2687045.pdf.
+[32] Y. Oyama, K. Taura, and A. Yonezawa. Executing parallel programs with synchronization bottlenecks efficiently. In Proceedings
+of International Workshop on Parallel and Distributed Computing
+for Symbolic and Irregular Applications (PDSIA), pages 182–204,
+jul 1999.
+[33] C. Ranger, R. Raghuraman, A. Penmetsa, G. Bradski, and
+C. Kozyrakis. Evaluating MapReduce for Multi-core and Multiprocessor Systems. In Proceedings of the 2007 IEEE 13th International Symposium on High Performance Computer Architecture,
+HPCA ’07, pages 13–24, 2007.
+[34] SAP. SAP HANA 2: the transformer, 2015. http://hana.sap.
+com/abouthana.html.
+[35] M. L. Scott. Non-blocking Timeout in Scalable Queue-based Spin
+Locks. In Proceedings of the Twenty-first Annual Symposium on
+Principles of Distributed Computing, PODC ’02, pages 31–40,
+New York, NY, USA, 2002. ISBN 1-58113-485-1.
+[36] M. L. Scott and W. N. Scherer. Scalable Queue-based Spin Locks
+with Timeout. In Proceedings of the 6th ACM Symposium on
+Principles and Practice of Parallel Programming (PPOPP), pages
+44–52, Snowbird, Utah, June 2001.
+[37] A. Shi. [PATCH] rwsem: steal writing sem for better performance,
+2013. https://lkml.org/lkml/2013/2/5/309.
+[38] L. Torvalds. Linux Wait Queues, 2005. http://www.tldp.org/
+LDP/tlk/kernel/kernel.html#wait-queue-struct.
+[39] L. Torvalds. The Linux Kernel Archives, 2017. https://www.
+kernel.org/.
+[40] A. Viro. parallel lookups, 2016. https://lwn.net/Articles/
+684089/.
+[41] M. Zaharia, M. Chowdhury, M. J. Franklin, S. Shenker, and I. Stoica. Spark: Cluster Computing with Working Sets. In Proceedings
+of the 2Nd USENIX Conference on Hot Topics in Cloud Computing, HotCloud’10, 2010.
+[42] S. Zhuravlev, J. C. Saez, S. Blagodurov, A. Fedorova, and M. Prieto. Survey of Scheduling Techniques for Addressing Shared
+Resources in Multicore Processors. ACM Comput. Surv., 45(1),
+Dec. 2012.
+

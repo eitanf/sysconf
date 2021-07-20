@@ -1,0 +1,154 @@
+[1] Anant Agarwal, Mark Horowitz, and John L. Hennessy. An analytical
+cache model. ACM Transactions on Computer Systems, 7(2):184–215,
+1989.
+[2] George Almasi, Calin Cascaval, and David A. Padua. Calculating
+stack distances efficiently. In Proceedings of the ACM SIGPLAN
+Workshop on Memory System Performance, pages 37–43, Berlin, Germany, June 2002.
+[3] Matthew Arnold and Barbara G. Ryder. A framework for reducing the
+cost of instrumented code. In Proceedings of PLDI, pages 168–179,
+Snowbird, Utah, June 2001.
+[4] John K. Bennett, John B. Carter, and Willy Zwaenepoel. Adaptive
+software cache management for distributed shared memory architectures. In Proceedings of ISCA, pages 125–134, 1990.
+[5] Erik Berg and Erik Hagersten. StatCache: A probabilistic approach to
+efficient and accurate data locality analysis. In Proceedings of ISPASS,
+pages 20–27, 2004.
+[6] Kristof Beyls and Erik H. D’Hollander. Generating cache hints
+for improved program efficiency. Journal of Systems Architecture,
+51(4):223–250, 2005.
+[7] Kristof Beyls and Erik H. D’Hollander. Discovery of localityimproving refactoring by reuse path analysis. In Proceedings of
+High Performance Computing and Communications. Springer. Lecture Notes in Computer Science, volume 4208, pages 220–229, 2006.
+[8] Christian Bienia. Benchmarking Modern Multiprocessors. PhD thesis,
+Princeton University, January 2011.
+[9] Christian Bienia, Sanjeev Kumar, Jaswinder Pal Singh, and Kai Li.
+The PARSEC benchmark suite: characterization and architectural implications. In Proceedings of PACT, pages 72–81, 2008.
+[10] Christian Bienia and Kai Li. Fidelity and scaling of the PARSEC
+benchmark inputs. In Proceedings of the 2010 International Symposium on Workload Characterization, December 2010.
+[11] Michael D. Bond, Katherine E. Coons, and Kathryn S. McKinley.
+PACER: proportional detection of data races. In Proceedings of PLDI,
+pages 255–268, 2010.
+[12] Jacob Brock, Chencheng Ye, Chen Ding, Yechen Li, Xiaolin Wang,
+and Yingwei Luo. Optimal cache partition-sharing. In Proceedings of
+ICPP, 2015.
+[13] Calin Cascaval, Evelyn Duesterwald, Peter F. Sweeney, and Robert W.
+Wisniewski. Multiple page size modeling and optimization. In Proceedings of PACT, pages 339–349, 2005.
+[14] Calin Cascaval and David A. Padua. Estimating cache misses and
+locality using stack distances. In Proceedings of ICS, pages 150–159,
+2003.
+[15] Dhruba Chandra, Fei Guo, Seongbeom Kim, and Yan Solihin. Predicting inter-thread cache contention on a chip multi-processor architecture. In Proceedings of HPCA, pages 340–351, 2005.
+[16] Arun Chauhan and Chun-Yu Shei. Static reuse distances for localitybased optimizations in MATLAB. In Proceedings of ICS, pages 295–
+304, 2010.
+[17] T. M. Chilimbi and M. Hirzel. Dynamic hot data stream prefetching
+for general-purpose programs. In Proceedings of PLDI, pages 199–
+209, 2002.
+[18] Huimin Cui, Qing Yi, Jingling Xue, Lei Wang, Yang Yang, and Xiaobing Feng. A highly parallel reuse distance analysis algorithm on
+GPUs. In Proceedings of IPDPS, 2012.
+[19] Peter J. Denning. Working sets past and present. IEEE Transactions
+on Software Engineering, SE-6(1), January 1980.
+[20] Peter J. Denning and Stuart C. Schwartz. Properties of the working set
+model. Communications of the ACM, 15(3):191–198, 1972.
+[21] Chen Ding and Trishul Chilimbi. All-window profiling of concurrent
+executions. In Proceedings of PPoPP, 2008. Poster paper.
+[22] Chen Ding and Trishul Chilimbi. A composable model for analyzing
+locality of multi-threaded programs. Technical Report MSR-TR2009-107, Microsoft Research, August 2009.
+[23] Susan J. Eggers and Randy H. Katz. A characterization of sharing in
+parallel programs and its application to coherency protocol evaluation.
+In Proceedings of ISCA, pages 373–382, 1988.
+[24] David Eklov, David Black-Schaffer, and Erik Hagersten. Fast modeling of shared caches in multicore systems. In Proceedings of HiPEAC,
+pages 147–157, 2011. Best paper.
+[25] Babak Falsafi and David A. Wood. Modeling cost/performance of
+a parallel computer simulator. ACM Transactions on Modeling and
+Computer Simulation, 7(1):104–130, 1997.
+[26] Saurabh Gupta, Ping Xiang, Yi Yang, and Huiyang Zhou. Locality
+principle revisited: A probability-based quantitative approach. In
+Proceedings of IPDPS, 2012.
+[27] Mark D. Hill and Alan Jay Smith. Evaluating associativity in CPU
+caches. IEEE Transactions on Computers, 38(12):1612–1630, 1989.
+[28] Xiameng Hu, Xiaolin Wang, Yechen Li, Yingwei Luo, Chen Ding,
+and Zhenlin Wang. Optimal program symbiosis in shared cache. In
+Proceedings of CCGrid, June 2015.
+[29] Xiameng Hu, Xiaolin Wang, Lan Zhou, Yingwei Luo, Chen Ding,
+and Zhenlin Wang. Kinetic modeling of data eviction in cache. In
+Proceedings of USENIX ATC, pages 351–364, 2016.
+[30] Intel Corporation. IntelR 64 and IA-32 Architectures Software Developer’s Manual. Number 325462-051US. June 2014.
+[31] Yunlian Jiang, Kai Tian, and Xipeng Shen. Combining locality analysis with online proactive job co-scheduling in chip multiprocessors.
+In Proceedings of HiPEAC, pages 201–215, 2010.
+[32] Yunlian Jiang, Eddy Z. Zhang, Kai Tian, and Xipeng Shen. Is reuse
+distance applicable to data locality analysis on chip multiprocessors?
+In Proceedings of CC, pages 264–282, 2010.
+[33] Chi-Keung Luk, Robert S. Cohn, Robert Muth, Harish Patil, Artur
+Klauser, P. Geoffrey Lowney, Steven Wallace, Vijay Janapa Reddi, and
+Kim M. Hazelwood. Pin: building customized program analysis tools
+with dynamic instrumentation. In Proceedings of PLDI, pages 190–
+200, 2005.
+[34] Matthias S. Muller, John Baron, William C. Brantley, Huiyu Feng, ¨
+Daniel Hackenberg, Robert Henschel, Gabriele Jost, Daniel Molka,
+Chris Parrott, Joe Robichaux, Pavel Shelepugin, Matthijs van Waveren, Brian Whitney, and Kalyan Kumaran. SPEC OMP2012 – an
+application benchmark suite for parallel systems using OpenMP. In
+Proceedings of the International Workshop on OpenMP, pages 223–
+236, Berlin, Heidelberg, 2012. Springer-Verlag.
+[35] Qingpeng Niu, James Dinan, Qingda Lu, and P. Sadayappan. PARDA:
+A fast parallel reuse distance analysis algorithm. In Proceedings of
+IPDPS, 2012.
+[36] Cedric Nugteren, Gert-Jan van den Braak, Henk Corporaal, and
+Henri E. Bal. A detailed GPU cache model based on reuse distance
+theory. In Proceedings of HPCA, 2014.
+[37] F. Olken. Efficient methods for calculating the success function
+of fixed space replacement policies. Technical Report LBL-12370,
+Lawrence Berkeley Laboratory, 1981.
+[38] Kishore Kumar Pusukuri, Rajiv Gupta, and Laxmi N. Bhuyan. No
+more backstabbing... a faithful scheduling policy for multithreaded
+programs. In Proceedings of PACT, pages 12–21, 2011.
+[39] Derek L. Schuff, Milind Kulkarni, and Vijay S. Pai. Accelerating
+multicore reuse distance analysis with sampling and parallelization.
+In Proceedings of PACT, pages 53–64, 2010.
+[40] Rathijit Sen and David A. Wood. Reuse-based online models for
+caches. In Proceedings of SIGMETRICS, pages 279–292, 2013.
+[41] A. J. Smith. On the effectiveness of set associative page mapping
+and its applications in main memory management. In Proceedings of
+ICSE, 1976.
+[42] G. Edward Suh, Srinivas Devadas, and Larry Rudolph. Analytical
+cache models with applications to cache partitioning. In Proceedings
+of ICS, pages 1–12, 2001.
+[43] David K. Tam, Reza Azimi, Livio Soares, and Michael Stumm.
+RapidMRC: approximating L2 miss rate curves on commodity systems for online optimizations. In Proceedings of ASPLOS, pages 121–
+132, 2009.
+[44] Dominique Thiebaut and Harold S. Stone. Footprints in the cache. ´
+ACM Transactions on Computer Systems, 5(4):305–329, 1987.
+[45] Carl A Waldspurger, Nohhyun Park, Alexander Garthwaite, and Irfan
+Ahmad. Efficient mrc construction with shards. In 13th USENIX
+Conference on File and Storage Technologies (FAST 15), pages 95–
+110, 2015.
+[46] Richard West, Puneet Zaroo, Carl A. Waldspurger, and Xiao Zhang.
+Online cache modeling for commodity multicore processors. Operating Systems Review, 44(4):19–29, 2010.
+[47] Jake Wires, Stephen Ingram, Zachary Drudi, Nicholas JA Harvey, Andrew Warfield, and Coho Data. Characterizing storage workloads with
+counter stacks. In Proceedings of OSDI, pages 335–349. USENIX Association, 2014.
+[48] Steven Cameron Woo, Moriyoshi Ohara, Evan Torrie, Jaswinder Pal
+Singh, and Anoop Gupta. The SPLASH-2 Programs: Characterization
+and Methodological Considerations. The 22nd annual international
+symposium on Computer architecture (ISCA ’95), pages 24–36, 1995.
+[49] Meng-Ju Wu and Donald Yeung. Coherent profiles: Enabling efficient
+reuse distance analysis of multicore scaling for loop-based parallel
+programs. In Proceedings of PACT, pages 264–275, 2011.
+[50] Meng-Ju Wu, Minshu Zhao, and Donald Yeung. Studying multicore
+processor scaling via reuse distance analysis. In Proceedings of ISCA,
+pages 499–510, 2013.
+[51] Xiaoya Xiang, Bin Bao, Tongxin Bai, Chen Ding, and Trishul M.
+Chilimbi. All-window profiling and composable models of cache
+sharing. In Proceedings of PPoPP, pages 91–102, 2011.
+[52] Xiaoya Xiang, Bin Bao, Chen Ding, and Yaoqing Gao. Linear-time
+modeling of program working set in shared cache. In Proceedings of
+PACT, pages 350–360, 2011.
+[53] Xiaoya Xiang, Chen Ding, Hao Luo, and Bin Bao. HOTL: a higher
+order theory of locality. In Proceedings of ASPLOS, pages 343–356,
+2013.
+[54] Seyed Majid Zahedi and Benjamin C. Lee. REF: resource elasticity
+fairness with sharing incentives for multiprocessors. In Proceedings
+of ASPLOS, pages 145–160, 2014.
+[55] Yutao Zhong and Wentao Chang. Sampling-based program locality
+approximation. In Proceedings of ISMM, pages 91–100, 2008.
+[56] Yutao Zhong, Xipeng Shen, and Chen Ding. Program locality analysis
+using reuse distance. ACM TOPLAS, 31(6):1–39, August 2009.
+[57] Pin Zhou, Vivek Pandey, Jagadeesan Sundaresan, Anand Raghuraman,
+Yuanyuan Zhou, and Sanjeev Kumar. Dynamic tracking of page miss
+ratio curve for memory management. In Proceedings of ASPLOS,
+pages 177–188, 2004.

@@ -1,0 +1,200 @@
+
+[1] H. Attiya, E. Hillel, and A. Milani. Inherent limitations
+on disjoint-access parallel implementations of transactional memory. In Proceedings of the 21st Annual ACM
+Symposium on Parallelism in Algorithms and Architectures, pages 69–78, Calgary, Canada, Aug. 2009.
+[2] D. J. Bernstein. qmail internals, 1998. http://www.
+qmail.org/man/misc/INTERNALS.txt.
+[3] S. S. Bhat. Designing multicore scalable filesystems
+with durability and crash consistency. Master’s thesis, Massachusetts Institute of Technology, Department
+of Electrical Engineering and Computer Science, June
+2017.
+[4] S. Boyd-Wickizer, A. T. Clements, Y. Mao, A. Pesterev,
+M. F. Kaashoek, R. Morris, and N. Zeldovich. An analysis of Linux scalability to many cores. In Proceedings
+of the 9th Symposium on Operating Systems Design and
+Implementation (OSDI), pages 1–16, Vancouver, Canada,
+Oct. 2010.
+[5] S. Boyd-Wickizer, M. F. Kaashoek, R. Morris, and N. Zeldovich. OpLog: a library for scaling update-heavy data
+structures. Technical Report MIT-CSAIL-TR-2014-019,
+MIT Computer Science and Artificial Intelligence Laboratory, Cambridge, MA, Sept. 2014.
+
+Figure 12: Peak memory use in MemFS and ScaleFS during
+the execution of different benchmarks.
+
+8
+
+[6] M. Castro and B. Liskov. Practical Byzantine fault tolerance. In Proceedings of the 3rd Symposium on Operating
+Systems Design and Implementation (OSDI), pages 173–
+186, New Orleans, LA, Feb. 1999.
+
+CONCLUSION
+
+It is a challenge to achieve multicore scalability, durability,
+and crash consistency in a file system. This paper proposes
+a new design that addresses this challenge using the insight
+of completely decoupling the in-memory file system from
+the on-disk file system. The in-memory file system can be
+optimized for concurrency and the on-disk file system can
+be tailored for durability and crash consistency. To achieve
+this decoupling, this paper introduces an operation log that
+extends oplog [5] with a novel scheme to timestamp the
+logged operations at their linearization points in order to
+apply them to the disk in the same order a user process
+observed them in memory. The operation log also minimizes
+the data that must be written out at an fsync by computing
+dependencies and absorbing operations that cancel out each
+other. We implemented this design in a prototype file system,
+ScaleFS, that was built on the existing sv6 kernel and we
+
+[7] V. Chidambaram, T. Sharma, A. C. Arpaci-Dusseau, and
+R. H. Arpaci-Dusseau. Consistency without ordering.
+In Proceedings of the 10th USENIX Conference on File and
+Storage Technologies (FAST), pages 101–116, San Jose,
+CA, Feb. 2012.
+[8] S. Chutani, O. T. Anderson, M. L. Kazar, B. W. Leverett,
+W. A. Mason, and R. N. Sidebotham. The Episode file
+system. In Proceedings of the Winter 1992 USENIX Technical Conference, pages 43–59, Jan. 1992.
+[9] A. T. Clements, M. F. Kaashoek, and N. Zeldovich.
+RadixVM: Scalable address spaces for multithreaded
+applications. In Proceedings of the 8th ACM EuroSys Conference, pages 211–224, Prague, Czech Republic, Apr.
+2013.
+
+84
+
+[10] A. T. Clements, M. F. Kaashoek, N. Zeldovich, R. T.
+Morris, and E. Kohler. The scalable commutativity rule:
+Designing scalable software for multicore processors.
+In Proceedings of the 24th ACM Symposium on Operating
+Systems Principles (SOSP), pages 1–17, Farmington, PA,
+Nov. 2013.
+
+[21] M. Jambor, T. Hruby, J. Taus, K. Krchak, and V. Holub.
+Implementation of a Linux log-structured file system
+with a garbage collector. ACM SIGOPS Operating Systems Review, 41(1):24–32, Jan. 2007.
+[22] J. Kang, B. Zhang, T. Wo, W. Yu, L. Du, S. Ma, and J. Huai.
+SpanFS: A scalable file system on fast storage devices.
+In Proceedings of the 2015 USENIX Annual Technical
+Conference, Santa Clara, CA, July 2015.
+
+[11] J. Corbet. Dcache scalability and RCU-walk, Apr. 2012.
+http://lwn.net/Articles/419811/.
+
+[23] Y. Klonatos, M. Marazakis, and A. Bilas. A scaling
+analysis of Linux I/O performance. Poster presented at
+EuroSys, 2011.
+http://eurosys2011.cs.unisalzburg.at/pdf/postersubmission/
+eurosys11-poster-klonatos.pdf.
+
+[12] R. Cox, M. F. Kaashoek, and R. T. Morris. Xv6, a simple
+Unix-like teaching operating system, 2016. http://
+pdos.csail.mit.edu/6.828/xv6.
+[13] M. Curtis-Maury, V. Devadas, V. Fang, and A. Kulkarni. To Waffinity and beyond: A scalable architecture
+for incremental parallelization of file system code. In
+Proceedings of the 12th Symposium on Operating Systems Design and Implementation (OSDI), pages 419–434,
+Savannah, GA, Nov. 2016.
+
+[24] C. Lameter. Effective synchronization on Linux/NUMA
+systems. In Gelato Conference, May 2005. http://www.
+lameter.com/gelato2005.pdf.
+[25] E. Lee, H. Bahn, and S. H. Noh. Unioning of the buffer
+cache and journaling layers with non-volatile memory.
+In Proceedings of the 11th USENIX Conference on File
+and Storage Technologies (FAST), pages 73–80, San Jose,
+CA, Feb. 2013.
+
+[14] S. R. Dulloor, S. Kumar, A. Keshavamurthy, P. Lantz,
+D. Reddy, R. Sankaran, and J. Jackson. System software
+for persistent memory. In Proceedings of the 9th ACM
+EuroSys Conference, Amsterdam, The Netherlands, Apr.
+2014.
+
+[26] L. Lu, A. C. Arpaci-Dusseau, R. H. Arpaci-Dusseau,
+and S. Lu. A study of Linux file system evolution. In
+Proceedings of the 11th USENIX Conference on File and
+Storage Technologies (FAST), pages 31–44, San Jose, CA,
+Feb. 2013.
+
+[15] C. Frost, M. Mammarella, E. Kohler, A. de los Reyes,
+S. Hovsepian, A. Matsuoka, and L. Zhang. Generalized file system dependencies. In Proceedings of
+the 21st ACM Symposium on Operating Systems Principles (SOSP), pages 307–320, Stevenson, WA, Oct. 2007.
+
+[27] L. Lu, Y. Zhang, T. Do, S. Al-Kiswany, A. C. ArpaciDusseau, and R. H. Arpaci-Dusseau. Physical disentanglement in a container-based file system. In Proceedings
+of the 11th Symposium on Operating Systems Design and
+Implementation (OSDI), pages 81–96, Broomfield, CO,
+Oct. 2014.
+
+[16] G. R. Ganger and Y. N. Patt. Metadata update performance in file systems. In Proceedings of the 1st Symposium on Operating Systems Design and Implementation (OSDI), pages 49–60, Monterey, CA, Nov. 1994.
+
+[28] Y. Lu, J. Shu, and W. Wang. ReconFS: A reconstructable
+file system on flash storage. In Proceedings of the
+12th USENIX Conference on File and Storage Technologies (FAST), pages 75–88, Santa Clara, CA, Feb. 2014.
+
+[17] C. Gruenwald, III, F. Sironi, M. F. Kaashoek, and N. Zeldovich. Hare: a file system for non-cache-coherent
+multicores. In Proceedings of the 10th ACM EuroSys
+Conference, Bordeaux, France, Apr. 2015.
+
+[29] A. Mathur, M. Cao, S. Bhattacharya, A. Dilger, A. Tomas,
+and L. Vivier. The new ext4 filesystem: current status
+and future plans. In Proceedings of the Linux Symposium,
+pages 21–34, Ottawa, Canada, June 2007.
+
+[18] R. Hagmann. Reimplementing the Cedar file system
+using logging and group commit. In Proceedings of
+the 11th ACM Symposium on Operating Systems Principles (SOSP), pages 155–162, Austin, TX, Nov. 1987.
+
+[30] P. E. McKenney, D. Sarma, and M. Soni. Scaling dcache
+with RCU. Linux Journal, 2004(117), Jan. 2004.
+
+[19] M. P. Herlihy and J. M. Wing. Linearizability: a correctness condition for concurrent objects. ACM Transactions on Programming Languages Systems, 12(3):463–
+492, 1990.
+
+[31] C. Min, S. Kashyap, S. Maass, and T. Kim. Understanding manycore scalability of file systems. In Proceedings
+of the 2016 USENIX Annual Technical Conference, Denver, CO, June 2016.
+
+[20] A. Israeli and L. Rappoport. Disjoint-access-parallel
+implementations of strong shared memory primitives.
+In Proceedings of the 13th ACM SIGACT-SIGOPS Symposium on Principles of Distributed Computing, Los Angeles, CA, Aug. 1994.
+
+[32] D. Park and D. Shin. iJournaling: Fine-grained journaling for improving the latency of fsync system call.
+In Proceedings of the 2017 USENIX Annual Technical
+Conference, pages 787–798, Santa Clara, CA, July 2017.
+
+85
+
+[33] S. Park, T. Kelly, and K. Shen. Failure-atomic msync():
+A simple and efficient mechanism for preserving the
+integrity of durable data. In Proceedings of the 8th ACM
+EuroSys Conference, pages 225–238, Prague, Czech Republic, Apr. 2013.
+[34] T. S. Pillai, V. Chidambaram, R. Alagappan, S. AlKiswany, A. C. Arpaci-Dusseau, and R. H. ArpaciDusseau. All file systems are not created equal: On the
+complexity of crafting crash-consistent applications. In
+Proceedings of the 11th Symposium on Operating Systems Design and Implementation (OSDI), pages 433–448,
+Broomfield, CO, Oct. 2014.
+[35] T. S. Pillai, R. Alagappana, L. Lu, V. Chidambaram, A. C.
+Arpaci-Dusseau, and R. H. Arpaci-Dusseau. Application crash consistency and performance with CCFS. In
+Proceedings of the 15th USENIX Conference on File and
+Storage Technologies (FAST), pages 181–196, Santa Clara,
+CA, Feb.–Mar. 2017.
+[36] K. Ren and G. Gibson. TABLEFS: Enhancing metadata
+efficiency in the local file system. In Proceedings of
+the 2013 USENIX Annual Technical Conference, pages
+145–156, San Jose, CA, June 2013.
+[37] D. M. Ritchie and K. Thompson. The UNIX time-sharing
+system. Communications of the ACM, 17(7):365–375,
+July 1974.
+[38] O. Rodeh, J. Bacik, and C. Mason. BTRFS: The Linux
+B-tree filesystem. ACM Transactions on Storage, 9(3):
+9:1–32, Aug. 2013.
+[39] M. Rosenblum and J. Ousterhout. The design and implementation of a log-structured file system. In Proceedings
+of the 13th ACM Symposium on Operating Systems Principles (SOSP), pages 1–15, Pacific Grove, CA, Oct. 1991.
+[40] A. Sweeney, D. Doucette, W. Hu, C. Anderson, M. Nishimoto, and G. Peck. Scalability in the XFS file system.
+In Proceedings of the 1996 USENIX Annual Technical
+Conference, San Diego, CA, Jan. 1996.
+[41] A. Tridgell and R. Sahlberg. DBENCH, 2013. https:
+//dbench.samba.org/.
+[42] J. Xu and S. Swanson. NOVA: A log-structured file
+system for hybrid volatile/non-volatile main memories.
+In Proceedings of the 14th USENIX Conference on File
+and Storage Technologies (FAST), pages 323–338, Santa
+Clara, CA, Feb. 2016.
+[43] J. Yang, P. Twohey, D. Engler, and M. Musuvathi. eXplode: A lightweight, general system for finding serious storage system errors. In Proceedings of the 7th
+Symposium on Operating Systems Design and Implementation (OSDI), pages 131–146, Seattle, WA, Nov. 2006.
+

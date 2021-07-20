@@ -1,0 +1,218 @@
+[1] Lukasz Anaczkowski. Linux VM workaround for
+Knights Landing A/D leak. Linux Kernel Mailing
+List, lkml.org/lkml/2016/6/14/505, 2016.
+[2] Manu Awasthi, David W Nellans, Kshitij Sudan, Rajeev Balasubramonian, and Al Davis. Handling the
+problems and opportunities posed by multiple onchip memory controllers. In ACM/IEEE International
+Conference on Parallel Architecture & Compilation Techniques (PACT), pages 319–330, 2010.
+[3] Thomas W Barr, Alan L Cox, and Scott Rixner. Translation caching: skip, don’t walk (the page table). In
+ACM/IEEE International Symposium on Computer Architecture (ISCA), pages 48–59, 2010.
+[4] Arkaprava Basu, Jayneel Gandhi, Jichuan Chang,
+Mark D Hill, and Michael M Swift. Efficient virtual
+memory for big memory servers. In ACM/IEEE International Symposium on Computer Architecture (ISCA),
+pages 237–248, 2013.
+[5] Andrew Baumann, Paul Barham, Pierre-Evariste Dagand, Tim Harris, Rebecca Isaacs, Simon Peter, Timothy Roscoe, Adrian Schüpbach, and Akhilesh Singhania. The multikernel: a new OS architecture for
+scalable multicore systems. In ACM Symposium on Operating Systems Principles (SOSP), pages 29–44, 2009.
+[6] Abhishek Bhattacharjee, Daniel Lustig, and Margaret
+Martonosi. Shared last-level TLBs for chip multiprocessors. In IEEE International Symposium on High
+Performance Computer Architecture (HPCA), pages 62–
+63, 2011.
+
+[7] Christian Bienia, Sanjeev Kumar, Jaswinder Pal Singh,
+and Kai Li. The PARSEC benchmark suite: Characterization and architectural implications. In ACM/IEEE
+International Conference on Parallel Architecture & Compilation Techniques (PACT), pages 72–81, 2008.
+
+[8] David L Black, Richard F Rashid, David B Golub,
+Charles R Hill, and Robert V Baron. Translation
+lookaside buffer consistency: a software approach. In
+ACM Architectural Support for Programming Languages
+& Operating Systems (ASPLOS), pages 113–122, 1989.
+
+[9] Daniel Bovet and Marco Cesati. Understanding the
+Linux Kernel, Third Edition. O’Reilly & Associates, Inc.,
+2005.
+
+[10] Silas Boyd-Wickizer, Haibo Chen, Rong Chen, Yandong Mao, M Frans Kaashoek, Robert Morris, Aleksey Pesterev, Lex Stein, Ming Wu, Yue-hua Dai, et al.
+Corey: An operating system for many cores. In
+USENIX Symposium on Operating Systems Design &
+Implementation (OSDI), pages 43–57, 2008.
+
+[11] Austin T Clements, M Frans Kaashoek, and Nickolai
+Zeldovich. RadixVM: Scalable address spaces for
+multithreaded applications. In ACM SIGOPS European Conference on Computer Systems (EuroSys), pages
+211–224, 2013.
+
+[12] Joel Coburn, Adrian M Caulfield, Ameen Akel,
+Laura M Grupp, Rajesh K Gupta, Ranjit Jhala, and
+Steven Swanson. NV-Heaps: making persistent objects fast and safe with next-generation, non-volatile
+memories. In ACM Architectural Support for Programming Languages & Operating Systems (ASPLOS), pages
+105–118, 2011.
+
+[13] Jonathan Corbet.
+Realtime and interrupt latency.
+LWN.net, https://lwn.net/Articles/
+139784/, 2005.
+
+[14] Jonathan Corbet. Memory compaction. LWN.net,
+https://lwn.net/Articles/368869/, 2010.
+
+[15] Jonathan Corbet. Memory management locking.
+LWN.net,
+https://lwn.net/Articles/591978/,
+2014.
+
+[16] Christopher Covington. arm64: Work around Falkor
+erratum 1003. Linux Kernel Mailing List, https://
+lkml.org/lkml/2016/12/29/267, 2016.
+
+[17] Linux Kernel Driver DataBase.
+CONFIG_ARM_ERRATA_720789. http://cateee.net/
+lkddb/web-lkddb/ARM_ERRATA_720789.html, 2012.
+
+[18] Jake Edge. Persistent memory. LWN.net, https://
+lwn.net/Articles/591779/, 2014.
+
+[19] Balazs Gerofi, Akira Shimada, Atsushi Hori, and Yozo
+Ishikawa. Partially separated page tables for efficient operating system assisted hierarchical memory management on heterogeneous architectures. In
+IEEE/ACM International Symposium on Cluster, Cloud
+and Grid Computing (CCGrid), pages 360–368, 2013.
+
+[20] Jeff Gilchrist. Parallel data compression with bzip2.
+In IASTED International Conference on Parallel and Distributed Computing and Systems (ICPDCS), volume 16,
+pages 559–564, 2004.
+
+[21] Mel Gorman. TLB flush multiple pages per IPI v4.
+Linux Kernel Mailing List, https://lkml.org/lkml/
+2015/4/25/125, 2015.
+
+[22] Julien Grall. Force broadcast of TLB and instruction
+cache maintenance instructions. Xen development
+mailing list https://patchwork.kernel.org/patc
+h/8955801/, 2016.
+
+[23] Dave Hansen. Patch: x86: set TLB flush tunable
+to sane value. https://patchwork.kernel.org/
+patch/4460841/, 2014.
+
+[24] Xeon phi processor. http://www. intel .com/
+content/www/us/en/processors/xeon/xeon-phi-
+detail -html.
+
+[25] Intel Corporation. Intel 64 and IA-32 Architectures
+Software Developer’s Manual. Reference number:
+325462-057US, 2015. https://software.intel.c
+om/en-us/articles/intel-sdm.
+
+[26] Youngjin Kwon, Hangchen Yu, Simon Peter, Christopher J Rossbach, and Emmett Witchel. Coordinated
+and efficient huge page management with Ingens. In
+USENIX Symposium on Operating Systems Design &
+Implementation (OSDI), pages 705–721, 2016.
+
+[27] Yong Li, Rami Melhem, and Alex K Jones. PSTLB: Leveraging page classification information
+for fast, scalable and efficient translation for future
+CMPs. ACM Transactions on Architecture and Code
+Optimization (TACO), 9(4):28, 2013.
+
+[28] Likai Liu. Parallel computing and the cost of TLB
+shoot-down.
+http://lifecs.likai.org/2010/
+06/parallel-computing-and-cost-of-tlb.html,
+2010.
+
+[29] Daniel Lustig, Abhishek Bhattacharjee, and Margaret
+Martonosi. TLB improvements for chip multiprocessors: Inter-core cooperative prefetchers and shared
+last-level TLBs. ACM Transactions on Architecture and
+Code Optimization (TACO), 10(1), 2013.
+
+[30] Ophir Maor. What is CPU affinity? https://
+community.mellanox.com/docs/DOC-1924, 2014.
+[31] Ophir Maor. Mellanox BIOS performance tuning example. https://community.mellanox.com/docs/
+DOC-2297, 2015.
+
+[32] Marshall Kirk McKusick, George V Neville-Neil, and
+Robert NM Watson. The design and implementation
+of the FreeBSD operating system. Pearson Education,
+2014.
+
+[33] Jinzhan Peng, Guei-Yuan Lueh, Gansha Wu, Xiaogang
+Gou, and Ryan Rakvic. A comprehensive study
+of hardware/software approaches to improve TLB
+performance for Java applications on embedded
+systems. In ACM Workshop on Memory System
+Performance and Correctness (MSPC), pages 102–111,
+2006.
+VM-scalability benchmark
+
+[34] Aristeu Rozanski.
+suite. https://github.com/aristeu/vm-scalabil
+ity, 2010.
+
+[35] Anand Lal Shimpi. AMD’s B3 stepping Phenom
+previewed, TLB hardware fix tested. AnandTech
+http://www.anandtech.com/show/2477/2, 2008.
+
+[36] Kirill A. Shutemov. mm: map few pages around
+fault address if they are in page cache. Linux
+Kernel Mailing List, https://lwn.net/Articles/
+588802, 2014.
+
+[37] Kirill A. Shutemov.
+unixbench.score -6.3%
+regression.
+Linux Kernel Mailing List,
+http://lkml.kernel.org/r/20160613125248.
+GA30109@black.fi.intel.com, 2016.
+
+[38] Patricia J Teller. Translation-lookaside buffer consistency. IEEE Computer, 23(6):26–36, June 1990.
+
+[39] Patricia J Teller, Richard Kenner, and Marc Snir. TLB
+consistency on highly-parallel shared-memory multiprocessors. Courant Inst. of Math. Sci, 1987.
+
+[40] Gil Tene, Balaji Iyengar, and Michael Wolf. C4:
+The continuously concurrent compacting collector.
+ACM International Symposium on Memory Management
+(ISMM), pages 79–88, 2011.
+
+[41] Michael Y Thompson, JM Barton, TA Jermoluk, and
+JC Wagner. Translation lookaside buffer synchronization in a multiprocessor system. In USENIX Winter,
+pages 297–302, 1988.
+
+[42] Linus Torvalds. Splice: fix race with page invalidation. http://yarchive.net/comp/linux/zerocopy.html, 2008.
+Scalability of microkernel-based
+
+[43] Volkmar Uhlig.
+systems.
+PhD thesis, TH Karlsruhe, 2005.
+https://os.itec.kit.edu/downloads/publ_
+2005_uhlig_scalability_phd-thesis.pdf.
+
+[44] Volkmar Uhlig. The mechanics of in-kernel synchronization for a scalable microkernel. ACM SIGOPS
+Operating Systems Review (OSR), 41(4):49–58, 2007.
+
+[45] Ahsen J Uppal and Mitesh R Meswani. Towards
+workload-aware page cache replacement policies
+for hybrid memories. In International Symposium
+on Memory Systems (MEMSYS), pages 206–219, 2015.
+
+[46] Theo Valich.
+Intel explains the Core 2 CPU
+errata. The Inquirer http://www.theinquirer.net/
+inquirer/news/1031406/intel-explains-corecpu-errata, 2007.
+
+[47] Brian Van Essen, Henry Hsieh, Sasha Ames, and Maya
+Gokhale. DI-MMAP: A high performance memorymap runtime for data-intensive applications. In
+IEEE International Workshop on Data-Intensive Scalable
+Computing Systems (SCC), pages 731–735, 2012.
+
+[48] Carlos Villavieja, Vasileios Karakostas, Lluis Vilanova,
+Yoav Etsion, Alex Ramirez, Avi Mendelson, Nacho
+Navarro, Adrian Cristal, and Osman S Unsal. DiDi:
+Mitigating the performance impact of TLB shootdowns using a shared TLB directory. In ACM/IEEE
+International Conference on Parallel Architecture & Compilation Techniques (PACT), pages 340–349, 2011.
+
+[49] Carl A. Waldspurger. Memory resource management
+in VMware ESX server. In USENIX Symposium on
+Operating Systems Design & Implementation (OSDI),
+volume 36, pages 181–194, 2002.
+
+[50] wrk. HTTP benchmarking tool. https://github.c
+om/wg/wrk, 2015.

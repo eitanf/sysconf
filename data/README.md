@@ -9,6 +9,7 @@ Each subdirectory has a README.md with the description of the files.
   * `cfp/`: A collection of text files, one per conference, with the call for papers. Free-form text (no codebook available).
   * `conf/`: A collection of JSON files, one per conference, with statistics and qualitative information about conferences near its first day (postdate).
   * `geo/`: Geographical data on countries.
+  * `refs/`: Text files (one per paper) with the list of references of each paper.
   * `papers/`: A collection of JSON files, one per conference, with Google Scholar statistics on each paper in the conference.
   * `content_tags.csv`: A listing of possible content tags per paper.
   * `domain_mapping.csv`: A mapping from regular expressions on domain names to country and sector.

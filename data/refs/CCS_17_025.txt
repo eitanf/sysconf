@@ -1,0 +1,117 @@
+[1] 2017. OpenSNP - A Crowdsourced Web Resource for Personal Genomics. https:
+//opensnp.org/snps/rs11200638. (2017).
+[2] 2017. Privacy of Genomics. https://www.genome.gov/27561246/privacy-ingenomics/. (2017).
+[3] Michael Backes, Pascal Berrang, Mathias Humbert, and Praveen Manoharan.
+2016. Membership Privacy in MicroRNA-based Studies. In Proceedings of the 2016
+ACM SIGSAC Conference on Computer and Communications Security (CCS ’16).
+ACM, New York, NY, USA, 319–330. https://doi.org/10.1145/2976749.2978355
+[4] Clark Barrett, Aaron Stump, Cesare Tinelli, et al. 2010. The smt-lib standard:
+Version 2.0. In Proceedings of the 8th International Workshop on Satisfiability
+Modulo Theories (Edinburgh, England), Vol. 13. 14.
+[5] Béatrice Bérard, Krishnendu Chatterjee, and Nathalie Sznajder. 2015. Probabilistic
+opacity for Markov decision processes. Inform. Process. Lett. 115, 1 (2015), 52–59.
+[6] Béatrice Bérard, John Mullins, and Mathieu Sassolas. 2015. Quantifying opacity.
+Mathematical Structures in Computer Science 25, 02 (2015), 361–403.
+[7] Frédéric Besson, Nataliia Bielova, and Thomas Jensen. 2014. Browser randomisation against fingerprinting: A quantitative information flow approach. In Nordic
+Conference on Secure IT Systems. Springer, 181–196.
+[8] Nikolaj Bjørner, Anh-Dung Phan, and Lars Fleckenstein. 2015. ν Z-an optimizing
+SMT solver. In International Conference on Tools and Algorithms for the Construction and Analysis of Systems. Springer, 194–199.
+[9] Matt Blaze, Joan Feigenbaum, John Ioannidis, and Angelos Keromytis. 2017. The
+KeyNote Trust-Management System. http://www.cs.columbia.edu/~angelos/
+keynote.html. (2017).
+[10] Nicolás E. Bordenabe and Geoffrey Smith. 2016. Correlated Secrets in Quantitative Information Flow. In IEEE 29th Computer Security Foundations Symposium, CSF 2016, Lisbon, Portugal, June 27 - July 1, 2016. 93–104. https:
+//doi.org/10.1109/CSF.2016.14
+[11] Johannes Borgström, Andrew D. Gordon, Long Ouyang, Claudio Russo, Adam
+Ścibior, and Marcin Szymczak. 2016. Fabular: Regression Formulas As Probabilistic Programming (POPL).
+[12] Jeremy W. Bryans, Maciej Koutny, Laurent Mazaré, and Peter Y. A. Ryan. 2008.
+Opacity generalised to transition systems. International Journal of Information
+Security 7, 6 (2008), 421–435. https://doi.org/10.1007/s10207-008-0058-x
+[13] Konstantinos Chatzikokolakis, Catuscia Palamidessi, and Prakash Panangaden.
+2006. Anonymity protocols as noisy channels. In International Symposium on
+Trustworthy Global Computing. Springer, 281–300.
+[14] Michael R. Clarkson, Andrew C. Myers, and Fred B. Schneider. 2009. Quantifying
+Information Flow with Beliefs. J. Comput. Secur. 17, 5 (Oct. 2009), 655–701.
+http://dl.acm.org/citation.cfm?id=1662658.1662660
+[15] Patrick Cousot and Radhia Cousot. 1977. Abstract Interpretation: A Unified
+Lattice Model for Static Analysis of Programs by Construction or Approximation
+of Fixpoints. In Proceedings of the 4th ACM SIGACT-SIGPLAN Symposium on
+Principles of Programming Languages (POPL ’77). ACM, New York, NY, USA,
+238–252. https://doi.org/10.1145/512950.512973
+[16] Leonardo De Moura and Nikolaj Bjørner. 2008. Z3: An efficient SMT solver. In
+International conference on Tools and Algorithms for the Construction and Analysis
+of Systems. Springer, 337–340.
+[17] Andrew DeWan, Mugen Liu, Stephen Hartman, Samuel Shao-Min Zhang, David
+T. L. Liu, Connie Zhao, Pancy O. S. Tam, Wai Man Chan, Dennis S. C. Lam,
+Michael Snyder, Colin Barnstable, Chi Pui Pang, and Josephine Hoh. 2006. HTRA1
+Promoter Polymorphism in Wet Age-Related Macular Degeneration. 314, 5801
+(2006), 989–992. https://doi.org/10.1126/science.1133807
+[18] Jérémy Dubreil, Philippe Darondeau, and Hervé Marchand. 2008. Opacity enforcing control synthesis. In Discrete Event Systems, 2008. WODES 2008. 9th
+14
+
+and then check whether R is an equivalence relation, R enforces the
+policy Φ, |R| = N , α ⊆ R, and accept only if all of these conditions
+are met, which can be checked in polynomial time.
+We now show that the functional problem is in FPNP by providing a polynomial algorithm with an oracle for the decision problem:
+(1) We determine the maximum possible size of an equivalence relation enforcing Φ. We use binary search on the
+interval [0, |O|]. To determine if an equivalence relation
+of size k exists, we query the oracle with an instance
+(I, O, δ, π , Φ, k, ∅). Let the maximum size be K.
+(2) We find an equivalence relation of size K enforcing the
+policy Φ. To do this, we initialize ξ ← ∅ and ξˆ ← O × O
+and iterate the following procedure until ξˆ , ∅:
+(a) Pick an arbitrary element (o, o ′ ) from ξˆ. Query the
+oracle with (I, O, δ, π , Φ, K, ξ ∪ {(o, o ′ )})
+(b) If the answer is Yes, then ξ ← ξ ∪ {(o, o ′ )}. If the
+answer is No, do nothing.
+(c) ξˆ ← ξˆ \ {(o, o ′ )}
+(d) Iterate until ξˆ , ∅.
+After the iteration ends, we just output ξ .
+□
+
+[43] Anooshiravan Saboori and Christoforos N Hadjicostis. 2007. Notions of security
+and opacity in discrete event systems. In Decision and Control, 2007 46th IEEE
+Conference on. IEEE, 5056–5061.
+[44] Anooshiravan Saboori and Christoforos N Hadjicostis. 2014. Current-state
+opacity formulations in probabilistic finite automata. IEEE Transactions on
+automatic control 59, 1 (2014), 120–133.
+[45] Pierangela Samarati. 2001. Protecting Respondents’ Identities in Microdata
+Release. IEEE Transactions on Knowledge and Data Engineering 13, 6 (2001),
+1010–1027.
+[46] Pierangela Samarati and Latanya Sweeney. 1998. Protecting privacy when disclosing information: k-anonymity and its enforcement through generalization and
+suppression. Technical Report. Technical report, SRI International.
+[47] Taisuke Sato. 2008. A Glimpse of Symbolic-statistical Modeling by PRISM. J. Intell.
+Inf. Syst. 31, 2 (Oct. 2008), 161–176. https://doi.org/10.1007/s10844-008-0062-7
+[48] Daniel Schoepe and Andrei Sabelfeld. 2015. Understanding and Enforcing Opacity.
+In 2015 IEEE 28th Computer Security Foundations Symposium. IEEE, 539–553.
+[49] Geoffrey Smith. 2009. On the foundations of quantitative information flow. In
+International Conference on Foundations of Software Science and Computational
+Structures. Springer, 288–302.
+[50] David Sommer, Aritra Dhar, Luka Malisa, Esfandiar Mohammadi, Daniel Ronzani,
+and Srdjan Capkun. 2017. CoverUp: Privacy Through "Forced" Participation in
+Anonymous Communication Networks. In ASIA CCS. ACM. https://doi.org/10.
+1145/3052973.3056126
+[51] Latanya Sweeney. 2002. Achieving k-anonymity privacy protection using generalization and suppression. International Journal of Uncertainty, Fuzziness and
+Knowledge-Based Systems 10, 05 (2002), 571–588.
+[52] Manolis Terrovitis. 2011. Privacy Preservation in the Dissemination of Location
+Data. SIGKDD Explor. Newsl. 13, 1 (Aug. 2011), 6–18. https://doi.org/10.1145/
+2031331.2031334
+[53] Petar Tsankov, Mohammad Torabi Marinovic, and David Basin. 2016. Access
+Control Synthesis for Physical Spaces. In CSF.
+[54] Petar Tsankov, Srdjan Marinovic, Mohammad Torabi Dashti, and David Basin.
+2014. Decentralized Composite Access Control. In POST.
+[55] L.G. Valiant. 1979. The complexity of computing the permanent. Theoretical
+Computer Science 8, 2 (1979), 189 – 201. https://doi.org/10.1016/0304-3975(79)
+90044-6
+[56] Dennis Volpano and Geoffrey Smith. 1999. Probabilistic noninterference in a
+concurrent language1. Journal of Computer Security 7, 2-3 (1999), 231–253.
+[57] Frank Wood, Jan Willem van de Meent, and Vikash Mansinghka. 2014. A New
+Approach to Probabilistic Programming Inference. In AISTATS.
+[58] Yi-Chin Wu and StÃľphane Lafortune. 2014. Synthesis of insertion functions for
+enforcement of opacity security properties. Automatica 50, 5 (2014), 1336 – 1348.
+https://doi.org/10.1016/j.automatica.2014.02.038
+[59] Elena Zheleva and Lise Getoor. 2009. To Join or Not to Join: The Illusion of
+Privacy in Social Networks with Mixed Public and Private User Profiles. In
+Proceedings of the 18th International Conference on World Wide Web (WWW ’09).
+ACM, New York, NY, USA, 531–540. https://doi.org/10.1145/1526709.1526781
+
+

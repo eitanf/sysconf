@@ -1,0 +1,15 @@
+
+
+Many distributed systems require coordination between the components involved. With the steady growth of such systems, the probability of failures increases, which necessitates scalable fault-tolerant
+agreement protocols. The most common practical agreement protocol, for such scenarios, is leader-based atomic broadcast. In this
+work, we propose ALLCONCUR, a distributed system that provides
+agreement through a leaderless concurrent atomic broadcast algorithm, thus, not suffering from the bottleneck of a central coordinator.
+In ALLCONCUR, all components exchange messages concurrently
+through a logical overlay network that employs early termination
+to minimize the agreement latency. Our implementation of ALLCONCUR supports standard sockets-based TCP as well as highperformance InfiniBand Verbs communications. ALLCONCUR can
+handle up to 135 million requests per second and achieves 17x higher
+throughput than today’s standard leader-based protocols, such as
+Libpaxos. Thus, ALLCONCUR is highly competitive with regard to
+existing solutions and, due to its decentralized approach, enables
+hitherto unattainable system designs in a variety of fields.
+

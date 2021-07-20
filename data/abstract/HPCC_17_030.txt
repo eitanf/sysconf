@@ -1,0 +1,34 @@
+
+Distributed deep learning systems place stringent
+requirement on communication bandwidth in its model training
+with large volumes of input data under user-time constraint. The
+communications take place mainly between cluster of worker
+nodes for training data and parameter servers for maintaining
+a global trained model. For fast convergence the worker nodes
+and parameter servers have to frequently exchange billions of
+parameters to quickly broadcast updates and minimize staleness.
+Demand on the bandwidth becomes even higher with the introduction of dedicated GPUs in the computation. While RDMAcapable network has a great potential to provide sufficiently high
+bandwidth, its current use over TCP/IP or tied to particular
+programming models, such as MPI, limits its capability to break
+the bandwidth bottleneck.
+
+In this work we propose iRDMA, an RDMA-based parameter
+server architecture optimized for high-performance network
+environment supporting both GPU- and CPU-based training. It
+utilizes native asynchronous RDMA verbs to achieve network line
+speed while minimizing the communication processing cost on
+both worker and parameter-server sides. Furthermore, iRDMA
+exposes the parameter server system as a POSIX-compatible file
+API for convenient support of load balance and fault tolerance as
+well as its easy use. We have implemented iRDMA at IBM’s deep
+learning platform. Experiment results show that our design can
+help deep learning applications, including image recognition and
+language classification, to achieve near-linear improvement on
+convergence speed and training accuracy acceleration by using
+distributed computing resources. From the system perspective,
+iRDMA can efficiently utilize about 95% network bandwidth of
+fast networks to synchronize models among distributed training
+processes.
+
+Index Terms—RDMA; deep learning; network;
+

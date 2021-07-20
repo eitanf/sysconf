@@ -1,0 +1,13 @@
+
+Modern analytics applications combine multiple functions from
+different libraries and frameworks to build increasingly complex
+workflows. Even though each function may achieve high performance in isolation, the performance of the combined workflow is
+often an order of magnitude below hardware limits due to extensive
+data movement across the functions. To address this problem, we
+propose Weld, a runtime for data-intensive applications that optimizes across disjoint libraries and functions. Weld uses a common
+intermediate representation to capture the structure of diverse dataparallel workloads, including SQL, machine learning and graph
+analytics. It then performs key data movement optimizations and
+generates efficient parallel code for the whole workflow. Weld can
+be integrated incrementally into existing frameworks like TensorFlow, Apache Spark, NumPy and Pandas without changing their
+user-facing APIs. We show that Weld can speed up these frameworks, as well as applications that combine them, by up to 30x.
+

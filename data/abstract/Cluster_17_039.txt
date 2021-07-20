@@ -1,0 +1,25 @@
+
+Stream processing applications continuously process
+large amounts of online streaming data in real-time or near
+real-time. They have strict latency constraints, but they are
+also vulnerable to failures. Failure recoveries may slow down
+the entire processing pipeline and break latency constraints.
+Upstream backup is one of the most widely applied fault-tolerant
+schemes for stream processing systems. It introduces complex
+backup dependencies to tasks, and increases the difficulty of
+controlling recovery latencies. Moreover, when dependent tasks
+are located on the same processor, they fail at the same time
+in processor-level failures, bringing extra recovery latencies that
+increase the impacts of failures. This paper presents a correlated
+failure effect model to describe the recovery latency of a stream
+topology in processor-level failures for an allocation plan. We
+introduce a Recovery-latency-aware Task Allocation Problem
+(RTAP) that seeks task allocation plans for stream topologies that
+will achieve guaranteed recovery latencies. We present a heuristic
+algorithm with a computational complexity of O(nlog? n) to
+solve the problem. Extensive experiments were conducted to
+verify the correctness and effectiveness of our approach.
+
+Keywords-Stream processing, task Allocation, fault-tolerance,
+upstream backup, recovery latency
+

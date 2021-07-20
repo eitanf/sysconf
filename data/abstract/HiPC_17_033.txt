@@ -1,0 +1,22 @@
+
+In this paper, we combine high-performance computing science with computational neuroscience methods to
+show how to speed-up cutting-edge methods for mapping and
+evaluation of the large-scale network of brain connections. More
+specifically, we use a recent factorization method of the Linear
+Fascicle Evaluation model (i.e., LiFE [1], [2]) that allows for
+statistical evaluation of brain connectomes. The method called
+ENCODE [3], [4] uses a Sparse Tucker Decomposition approach
+to represent the LiFE model. We show that we can implement
+the optimization step of the ENCODE method using MPI and
+OpenMP programming paradigms. Our approach involves the
+parallelization of the multiplication step of the ENCODE method.
+We model our design theoretically and demonstrate empirically
+that the design can be used to identify optimal configurations for
+the LiFE model optimization via ENCODE method on different
+hardware platforms. In addition, we co-design the MPI runtime
+with the LiFE model to achieve profound speed-ups. Extensive
+evaluation of our designs on multiple clusters corroborates our
+theoretical model. We show that on a single node on TACC
+Stampede2, we can achieve speed-ups of up to 8.7x as compared
+to the original approach.
+

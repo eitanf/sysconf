@@ -1,0 +1,24 @@
+
+Networks-on-Chip (NoCs) in chip multiprocessors
+are prone to within-die process variation as they span the
+whole chip. To tolerate variation, their voltages (Via) carry
+over-provisioned guardbands. As a result, prior work has
+proposed to save energy by operating at reduced Via while
+occasionally suffering and fixing errors. Unfortunately, these
+proposals use heuristic controller designs that provide no error
+bounds guarantees.
+
+In this work, we develop a scheme that dynamically minimizes the Vaq of groups of routers in a variation-prone NoC
+using formal control-theoretic methods. The scheme, called
+Sthira, saves substantial energy while guaranteeing the stability
+and convergence of error rates. We also enhance the scheme
+with a low-cost secondary network that retransmits erroneous
+packets for higher energy efficiency. The enhanced scheme is
+called Sthira+. We evaluate Sthira and Sthira+ with simulations
+of NoCs with 64-100 routers. In an NoC with 8 routers per Via
+domain, our schemes reduce the average energy consumption
+of the NoC by 27%; in a futuristic NoC with one router per
+Vaa domain, Sthira+ and Sthira reduce the average energy
+consumption by 36% and 32%, respectively. The performance
+impact is negligible. These are significant savings over the stateof-the-art. We conclude that formal control is essential, and that
+the cheaper Sthira is more cost-effective than Sthira+.

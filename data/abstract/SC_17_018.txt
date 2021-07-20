@@ -1,0 +1,12 @@
+
+In this paper we propose DRAFTS — a methodology for implementing probabilistic guarantees of instance reliability in the Amazon
+Spot tier. Amazon offers “unreliable” virtual machine instances
+(ones that may be terminated at any time) at a potentially large discount relative to “reliable” On-demand and Reserved instances. Our
+method predicts the “bid values” that users can specify to provision
+Spot instances which ensure at least a fixed duration of execution
+with a given probability. We illustrate the method and test its validity using Spot pricing data post facto, both randomly and using
+real-world workload traces. We also test the efficacy of the method
+experimentally by using it to launch Spot instances and then observing the instance termination rate. Our results indicate that it
+is possible to obtain the same level of reliability from unreliable
+instances that the Amazon service level agreement guarantees for
+reliable instances with a greatly reduced cost.

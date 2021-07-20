@@ -1,0 +1,12 @@
+
+Virtual Machines (VMs) with Just-In-Time (JIT) compilers are traditionally thought to execute programs in
+two phases: the initial warmup phase determines which parts of a program would most benefit from dynamic
+compilation, before JIT compiling those parts into machine code; subsequently the program is said to be at a
+steady state of peak performance. Measurement methodologies almost always discard data collected during
+the warmup phase such that reported measurements focus entirely on peak performance. We introduce a fully
+automated statistical approach, based on changepoint analysis, which allows us to determine if a program has
+reached a steady state and, if so, whether that represents peak performance or not. Using this, we show that
+even when run in the most controlled of circumstances, small, deterministic, widely studied microbenchmarks
+often fail to reach a steady state of peak performance on a variety of common VMs. Repeating our experiment
+on 3 different machines, we found that at most 43.5% of ⟨VM, benchmark⟩ pairs consistently reach a steady
+state of peak performance.

@@ -1,0 +1,31 @@
+
+A novel efficient inplace, multithreaded, and cachefriendly parallel 2-D wavelet transform algorithm based on
+the lifting transform is introduced. In order to maximize the
+cache utilization and consequently minimize the memory bus
+bandwidth use, the threads compete to work on a small memory
+area maximizing the chance of finding it in the cache and
+their synchronization is done with very low overhead without
+the use of any locks and relying solely on the basic compareand-swap (CAS) atomic primitive. An implementation in the
+C programming language with and without the use of vector
+(single instruction multiple data - SIMD) instructions is provided
+for both single (serial) and multi (parallel) threaded singleloop DWT implementations as well as serial and parallel naive
+implementations using linear (row order) and strided (column
+order) memory access patterns for comparison. Results show
+a significant improvement over the single-threaded optimized
+implementation and a much greater improvement over both
+the single and multi threaded naive implementations, reaching
+minimum running time depending on the number of processor
+cores and the available memory bus bandwidth, i.e., it becomes
+memory bound using the minimum number of memory accesses.
+Given the simplicity and high speed of the lifting steps, an analysis
+based on the number of memory bus operations (read and write)
+is done for images that are larger than twice the shared cache
+size which establishes a lower bound for the running time of
+all linear memory access algorithms and also determines the
+maximum speed gains to be expected in relation to currently
+implemented parallel schemes based on the parallel execution
+of independent lifting steps. It also shows the optimality of
+the parallel algorithm presented. Finally, a comparison with
+currently available implementations shows the gains achieved by
+the proposed algorithm.
+

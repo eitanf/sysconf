@@ -1,0 +1,19 @@
+
+Massively multithreaded GPUs achieve high throughput by
+running thousands of threads in parallel. To fully utilize
+the hardware, workloads spawn work to the GPU in bulk
+by launching large tasks, where each task is a kernel that
+contains thousands of threads that occupy the entire GPU.
+GPUs face severe underutilization and their performance
+benefits vanish if the tasks are narrow, i.e., they contain
+< 500 threads. Latency-sensitive applications in network,
+signal, and image processing that generate a large number
+of tasks with relatively small inputs are examples of such
+limited parallelism.
+This paper presents Pagoda, a runtime system that virtualizes GPU resources, using an OS-like daemon kernel
+called MasterKernel. Tasks are spawned from the CPU
+onto Pagoda as they become available, and are scheduled
+by the MasterKernel at the warp granularity. Experimental results demonstrate that Pagoda achieves a geometric
+mean speedup of 5.70x over PThreads running on a 20-core
+CPU, 1.51x over CUDA-HyperQ, and 1.69x over GeMTC,
+the state-of-the-art runtime GPU task scheduling system.

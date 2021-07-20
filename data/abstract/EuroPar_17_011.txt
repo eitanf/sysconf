@@ -1,0 +1,13 @@
+
+. We propose a novel parallel approach to compute the sparse
+matrix-vector product (SPMV) on graphics processing units (GPUs),
+optimized for matrices with an irregular row distribution of the non-zero
+entries. Our algorithm relies on the standard CSR format to store the
+sparse matrix, requires an inexpensive pre-processing step, and consumes
+only a minor amount of additional memory compared with significantly
+more expensive GPU-specific sparse matrix layouts. In addition, we propose a simple heuristic to determine whether our method or the standard
+CSR SPMV algorithm should be used for a specific matrix. As a result,
+our proposal, combined with the standard CSR SPMV, can be adopted
+as the default choice for the implementation of SPMV in general-purpose
+sparse linear algebra libraries for GPUs.
+

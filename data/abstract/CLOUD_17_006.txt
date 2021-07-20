@@ -1,0 +1,21 @@
+
+Cloud storage services are associated with high
+latency variance, and degraded throughput which is problematic when users are fetching and storing content for interactive
+applications. This can be attributed to performance hotspots
+created by slow nodes in a storage cluster, and performance
+interference caused by multi-tenancy, and background tasks
+such as data scrubbing, backfilling, recovery, etc. In this paper,
+we present DLR, a system that improves the performance
+of cloud storage services in the presence of hardware heterogeneity, and performance interference through a dynamic
+load redistribution technique. We designed DLR to dynamically
+adjust the load serving ratio of storage servers based on the
+system-level performance measurements from the storage cluster. We implemented DLR using Ceph, a popular distributed
+object storage system, and evaluated its performance on NSFCloud’s Chameleon testbed using Ceph’s Rados benchmark.
+Experimental results show that DLR improves the average
+throughput and latency of Ceph storage by up to 65%, and
+41% respectively compared to the default case. Compared to
+Ceph’s in-built load balancing technique, DLR improves the
+throughput by up to 98%, and latency by 96%.
+
+Keywords-Hardware Heterogeneity; Performance Interference; Ceph; Cloud Storage;
+

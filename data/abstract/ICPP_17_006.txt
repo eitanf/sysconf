@@ -1,0 +1,23 @@
+
+The architectural trend towards heterogeneity has
+pushed heterogeneous computing to the fore of parallel computing research. Heterogeneous algorithms, often carefully handcrafted, have been designed for several important problems from
+parallel computing such as sorting, graph algorithms, matrix
+computations, and the like. A majority of these algorithms follow
+a work partitioning approach where the input is divided into
+appropriate sized parts so that individual devices can process
+the “right” parts of the input. However, arriving at a good work
+partitioning is usually non-trivial and may require extensive empirical search. Such an extensive empirical search can potentially
+offset any gains accrued out of heterogeneous algorithms. Other
+recently proposed approaches too are in general inadequate.
+
+In this paper, we propose a simple and effective technique for
+work partitioning in the context of heterogeneous algorithms.
+Our technique is based on sampling and therefore can adapt to
+both the algorithm used and the input instance. Our technique
+is generic in its applicability as we will demonstrate in this
+paper. We validate our technique on three problems: finding
+the connected components of a graph (CC), multiplying two
+unstructured sparse matrices (spmm), and multiplying two scalefree sparse matrices. For these problems, we show that using our
+method, we can find the required threshold that is under 10%
+away from the best possible thresholds.
+

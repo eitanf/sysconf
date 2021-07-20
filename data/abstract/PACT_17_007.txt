@@ -1,0 +1,18 @@
+
+
+This work proposes and discusses the implications of adding a new
+feature to hardware transactional memory, allowing a program to
+specify that a transaction should always abort (even if it executes
+a commit instruction), and is thus guaranteed to be free of side
+effects. Perhaps counterintuitively, we believe such a primitive can
+be useful.
+
+Prior art has already noted that HTM transactions, even in failure, can accelerate the subsequent execution of their contents by
+warming up the branch predictor and caches. However, traditional
+HTM requires that the programmer properly coordinate between
+HTM and other synchronization primitives, otherwise data races
+can occur. With always-abort HTM (AAHTM), no such synchronization is necessary, because there is no risk of accidentally committing a transaction that has seen inconsistent state. We can therefore use AAHTM in scenarios where traditional HTM would be
+unsafe. In this paper, we present several designs that use AAHTM,
+discuss preliminary results, and identify other situations in which
+the new primitive might be useful.
+

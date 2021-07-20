@@ -1,0 +1,44 @@
+
+
+The widely-studied radio network model [Chlamtac and Kutten, 1985] is a graph-based description that captures the
+inherent impact of collisions in wireless communication. In
+this model, the strong assumption is made that node v receives a, message from a neighbor if and only if exactly one
+of its neighbors broadcasts.
+
+We relax this assumption by introducing a new noisy radio
+network model in which random faults occur at senders or receivers. Specifically, for a constant noise parameter p € [0, 1),
+either every sender has probability p of transmitting noise
+or every receiver of a single transmission in its neighborhood
+has probability p of receiving noise.
+
+We first study single-message broadcast algorithms in noisy
+radio networks and show that the Decay algorithm [BarYehuda et al., 1992] remains robust in the noisy model while
+the diameter-linear algorithm of Gasieniec et al., 2007 does
+not. We give a modified version of the algorithm of Gasieniec
+et al., 2007 that is robust to sender and receiver faults, and
+extend both this modified algorithm and the Decay algorithm
+to robust multi-message broadcast algorithms, broadcasting
+
+© (cogmigtogn) and 2 (sah)
+tively.
+
+We next investigate the extent to which (network) coding
+improves throughput in noisy radio networks. In particular,
+we study the coding cap — the ratio of the throughput of
+coding to that of routing — in noisy radio networks. We
+address the previously perplexing result of Alon et al. 2014
+that worst case coding throughput is no better than worst
+case routing throughput up to constants: we show that the
+worst case throughput performance of coding is, in fact,
+superior to that of routing — by a O(log(n)) gap — provided
+receiver faults are introduced. However, we show that sender
+faults have little effect on throughput. In particular, we show
+that any coding or routing scheme for the noiseless setting
+can be transformed to be robust to sender faults with only a
+constant throughput overhead. These transformations imply
+that the results of Alon et al., 2014 carry over to noisy radio
+networks with sender faults as well. As a result, if sender
+faults are introduced then there exist topologies for which
+there is a O(loglogn) gap, but the worst case throughput
+
+across all topologies is for both coding and routing.

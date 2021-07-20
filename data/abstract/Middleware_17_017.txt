@@ -1,0 +1,22 @@
+
+High performance computing (HPC) applications, such as metagenomics and other big data systems, need to store and analyze huge
+volumes of semi-structured data. Such applications often rely on
+NoSQL-based datastores, and optimizing these databases is a challenging endeavor, with over 50 configuration parameters in Cassandra alone. As the application executes, database workloads can
+change rapidly from read-heavy to write-heavy ones, and a system
+tuned with a read-optimized configuration becomes suboptimal
+when the workload becomes write-heavy.
+
+In this paper, we present a method and a system for optimizing
+NoSQL configurations for Cassandra and ScyllaDB when running
+HPC and metagenomics workloads. First, we identify the significance of configuration parameters using ANOVA. Next, we apply
+neural networks using the most significant parameters and their
+workload-dependent mapping to predict database throughput, as
+a surrogate model. Then, we optimize the configuration using
+genetic algorithms on the surrogate to maximize the workloaddependent performance. Using the proposed methodology in our
+system (RAFIKI), we can predict the throughput for unseen workloads and configuration values with an error of 7.5% for Cassandra
+and 6.9-7.8% for ScyllaDB. Searching the configuration spaces using
+the trained surrogate models, we achieve performance improvements of 41% for Cassandra and 9% for ScyllaDB over the default
+configuration with respect to a read-heavy workload, and also
+significant improvement for mixed workloads. In terms of searching speed, RAFIKI, using only 1/10000-th of the searching time of
+exhaustive search, reaches within 15% and 9.5% of the theoretically best achievable performances for Cassandra and ScyllaDB,
+respectively—supporting optimizations for highly dynamic workloads.

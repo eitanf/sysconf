@@ -1,0 +1,20 @@
+
+
+Algebras based on combinators, i.e., variable-free, have been
+proposed as a better representation for query compilation
+and optimization. A key benefit of combinators is that they
+avoid the need to handle variable shadowing or accidental
+capture during rewrites. This simplifies both the optimizer
+specification and its correctness analysis, but the environment from the source language has to be reified as records,
+which can lead to more complex query plans.
+
+This paper proposes NRA®, an extension of a combinatorsbased nested relational algebra (NRA) with built-in support
+for environments. We show that it can naturally encode an
+equivalent NRA with lambda terms and that all optimizations on NRA carry over to NRA®. This extension provides
+an elegant way to represent views in query plans, and can
+radically simplify compilation and optimization for source
+languages with rich environment manipulations.
+
+We have specified a query compiler using the Coq proof
+assistant with NRA® at its heart. Most of the compiler, including the query optimizer, is accompanied by a (machinechecked) correctness proof. The implementation is automatically extracted from the specification, resulting in a query
+compiler with a verified core.

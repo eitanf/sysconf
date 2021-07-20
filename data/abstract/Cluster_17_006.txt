@@ -1,0 +1,28 @@
+
+
+Scientific simulations on high performance computing
+(HPC) platforms generate large quantities of data. To bridge
+the widening gap between compute and I/O, and enable data
+to be more efficiently stored and analyzed, simulation outputs
+need to be refactored, reduced, and appropriately mapped to
+storage tiers. However, a systematic solution to support these
+steps has been lacking on the current HPC software ecosystem.
+To that end, this paper develops Canopus, a progressive JPEGlike data management scheme for storing and analyzing big
+scientific data. It co-designs the data decimation, compression
+and data storage, taking the hardware characteristics of each
+storage tier into considerations. With reasonably low overhead,
+our approach refactors simulation data into a much smaller,
+reduced-accuracy base dataset, and a series of deltas that is
+used to augment the accuracy if needed. The base dataset and
+deltas are compressed and written to multiple storage tiers.
+Data saved on different tiers can then be selectively retrieved
+to restore the level of accuracy that satisfies data analytics.
+Thus, Canopus provides a paradigm shift towards elastic data
+analytics and enables end users to make trade-offs between
+analysis speed and accuracy on-the-fly. We evaluate the impact
+of Canopus on unstructured triangular meshes, a pervasive
+data model used by scientific modeling and simulations. In
+particular, we demonstrate the progressive data exploration of
+Canopus using the “blob detection” use case on the fusion
+simulation data.
+

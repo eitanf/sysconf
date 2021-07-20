@@ -1,0 +1,19 @@
+
+Next-generation non-volatile memories (NVMs) will provide byte
+addressability, persistence, high density, and DRAM-like performance. They have the potential to benefit many datacenter applications. However, most previous research on NVMs has focused on
+using them in a single machine environment. It is still unclear how
+to best utilize them in distributed, datacenter environments.
+
+We introduce Distributed Shared Persistent Memory (DSPM), a
+new framework for using persistent memories in distributed datacenter environments. DSPM provides a new abstraction that allows
+applications to both perform traditional memory load and store
+instructions and to name, share, and persist their data.
+
+We built Hotpot, a kernel-level DSPM system that provides lowlatency, transparent memory accesses, data persistence, data reliability, and high availability. The key ideas of Hotpot are to integrate
+distributed memory caching and data replication techniques and
+to exploit application hints. We implemented Hotpot in the Linux
+kernel and demonstrated its benefits by building a distributed graph
+engine on Hotpot and porting a NoSQL database to Hotpot. Our
+evaluation shows that Hotpot outperforms a recent distributed
+shared memory system by 1.3x to 3.2x and a recent distributed
+PM-based file system by 1.5x to 3.0x.

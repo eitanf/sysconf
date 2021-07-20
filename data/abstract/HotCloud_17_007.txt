@@ -1,0 +1,12 @@
+
+Heterogeneity is a growing concern for scheduling on
+the cloud. Hardware is increasingly heterogeneous (e.g.,
+GPUs, FPGAs, diverse I/O devices), emphasizing the
+need to build schedulers that identify the internal structure of applications and utilize available hardware resources to their full potential. In this paper we present
+our initial efforts to build a scheduler that tackles heterogeneity (in hardware and in software) as a primary
+concern. Our scheduler, HCl (Heterogeneous Cluster),
+models applications as annotated directed acyclic graphs
+(DAGs), where each node represents a task. It maps tasks
+onto hardware nodes, also organized in DAGs. Initial results using application models based on TPC-DS queries
+running on Apache Spark show that HCl can improve
+significantly upon approaches that do not consider heterogeneity and generate schedules that approach the critical path in length.

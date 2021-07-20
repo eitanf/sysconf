@@ -1,0 +1,26 @@
+
+
+Graph clustering is a fundamental computational problem with
+a number of applications in algorithm design, machine learning,
+data mining, and analysis of social networks. Over the past decades,
+researchers have proposed a number of algorithmic design methods
+for graph clustering. However, most of these methods are based
+on complicated spectral techniques or convex optimisation, and
+cannot be applied directly for clustering many networks that occur
+in practice, whose information is often collected on different sites.
+Designing a simple and distributed clustering algorithm is of great
+interest, and has wide applications for processing big datasets.
+
+In this paper we present a simple and distributed algorithm
+for graph clustering: for a wide class of graphs that are characterised by a strong cluster-structure, our algorithm finishes in a
+poly-logarithmic number of rounds, and recovers a partition of the
+graph close to an optimal partition. The main component of our
+algorithm is an application of the random matching model of load
+balancing, which is a fundamental protocol in distributed computing and has been extensively studied in the past 20 years. Hence, our
+result highlights an intrinsic and interesting connection between
+graph clustering and load balancing.
+
+At a technical level, we present a purely algebraic result characterising the early behaviours of load balancing processes for graphs
+exhibiting a cluster-structure. We believe that this result can be
+further applied to analyse other gossip processes, such as rumour
+spreading and averaging processes.

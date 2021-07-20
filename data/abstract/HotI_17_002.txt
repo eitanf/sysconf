@@ -1,0 +1,19 @@
+
+The network plays a key role in High-Performance
+Computing (HPC) system efficiency. Unfortunately, current
+HPC routing solutions are not application-aware, and therefore
+cannot deal with the sudden HPC traffic bursts and their
+resulting congestion peaks.
+To address this problem, we introduce Routing Keys, a
+scalable routing paradigm for HPC networks that decouples
+intra- and inter-application flow contention. Our Application
+Routing Key (ARK) algorithm proactively allows each self-aware
+application to route its flows according to a predetermined
+routing key, i.e., its own intra-application contention-free routing. In addition, in our Network Routing Key (NRK) algorithm, a
+centralized scheduler chooses between several routing keys for
+the communication phases of each application, and therefore
+reduces inter-application contention while maintaining intraapplication contention-free routing and avoiding scalability
+issues. Using extensive evaluations, we show that both ARK
+and NRK significantly improve the communication runtime by
+up to 2.7x.
+

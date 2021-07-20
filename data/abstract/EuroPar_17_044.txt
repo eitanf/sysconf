@@ -1,0 +1,19 @@
+
+. Supercomputers are becoming more heterogeneous. They are
+composed by several machines with different computation capabilities
+and different kinds and families of accelerators, such as GPUs or Intel
+Xeon Phi coprocessors. Programming these machines is a hard task, that
+requires a deep study of the architectural details, in order to exploit
+efficiently each computational unit.
+
+In this paper, we present an extension of a GPU-CPU heterogeneous
+programming model, to include support for Intel Xeon Phi coprocessors.
+This contribution extends the previous model and its implementation, by
+taking advantage of both the GPU communication model and the CPU
+execution model of the original approach, to derive a new approach for
+the Xeon Phi. Our experimental results show that using our approach,
+the programming effort needed for changing the kind of target devices
+is highly reduced for several study cases. For example, using our model
+to program a Mandelbrot benchmark, the 97% of the application code is
+reused between a GPU implementation and a Xeon Phi implementation.
+

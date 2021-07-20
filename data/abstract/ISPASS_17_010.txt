@@ -1,0 +1,26 @@
+
+GPwUs are often limited by off-chip memory bandwidth. With the advent of general-purpose computing on GPUs,
+a cache hierarchy has been introduced to filter the bandwidth
+demand to the off-chip memory. However, the cache hierarchy
+presents its own bandwidth limitations in sustaining such high
+levels of memory traffic.
+
+In this paper, we characterize the bandwidth bottlenecks
+present across the memory hierarchy in GPUs for generalpurpose applications. We quantify the stalls throughout the
+memory hierarchy and identify the architectural parameters that
+play a pivotal role in leading to a congested memory system. We
+explore the architectural design space to mitigate the bandwidth
+bottlenecks and show that performance improvement achieved
+by mitigating the bandwidth bottleneck in the cache hierarchy
+can exceed the speedup obtained by a memory system with a
+baseline cache hierarchy and High Bandwidth Memory (HBM)
+DRAM. We also show that addressing the bandwidth bottleneck
+in isolation at specific levels can be sub-optimal and can even be
+counter-productive. Therefore, we show that it is imperative to
+resolve the bandwidth bottlenecks synergistically across different
+levels of the memory hierarchy. With the insights developed in
+this paper, we perform a cost-benefit analysis and identify costeffective configurations of the memory hierarchy that effectively
+mitigate the bandwidth bottlenecks. We show that our final
+configuration achieves a performance improvement of 29% on
+average with a minimal area overhead of 1.6%.
+

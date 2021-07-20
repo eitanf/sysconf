@@ -1,0 +1,24 @@
+
+The implementation of 2D-3v (2D in space and 3D
+in velocity space) PIC-MCC (Particle-In-Cell Monte Carlo Collision) method described in this paper involves the computational
+solution of Vlasov-Poisson equations, which provides the spatial
+and temporal evolution of the charged-particle velocity distribution functions in plasmas under the effect of self-consistent
+electromagnetic (EM) fields and collisions. Stringent numerical
+constraints associated with a PIC code makes it computationally
+prohibitive on CPUs in case of large problem sizes (total number
+of particles, number of grid points and simulation time-scale). We
+present the design and implementation of a Graphics Processing
+Unit (GPU) based 2D-3v PIC code using the CUDA C APIs
+for Kepler architecture. Several parallelization and optimization
+techniques have been presented in this paper with special emphasis on shuffle intrinsic specific to Nvidia Kepler architecture (or
+later), which significantly improves the performance compared
+to existing GPU implementations in the literature. On a test bed
+comprising of a serial implementation on Xeon E5 CPU and
+parallel implementations on Nvidia Tesla K40 graphics card, we
+have achieved a speedup of up to 60x in double precision mode.
+Effect of important numerical parameters on speedup has been
+investigated. Finally, we compare the performance of our best
+parallel implementation on different GPUs (Kepler as well as
+Maxwell) and analyze the effect of hardware architecture on the
+performance of the PIC code.
+

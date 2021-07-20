@@ -1,0 +1,20 @@
+
+Karly design space evaluation of computer systems
+is usually performed using performance models (e.g., detailed
+simulators, RTL-based models, etc.). However, it is very challenging (often impossible) to run many emerging applications on
+detailed performance models owing to their complex softwarestacks and long run times. To overcome such challenges in
+benchmarking these complex applications, we propose a proxy
+generation methodology, PerfProx to generate miniature proxy
+benchmarks, which are representative of the performance of realworld applications and yet, converge to results quickly and do not
+need any complex software-stack support. Past proxy generation
+research utilizes detailed micro-architecture independent metrics
+derived from detailed simulators, which are often difficult to
+generate for many emerging applications. PerfProx enables fast
+and efficient proxy generation using performance metrics derived
+primarily from hardware performance counters. We evaluate
+the proxy generation framework on three modern databases
+(Cassandra, MongoDB and MySQL) running data-serving and
+data-analytics applications. The proxy benchmarks mimic the
+performance (IPC) of the original applications with ~94%
+accuracy, while significantly reducing the instruction count.
+

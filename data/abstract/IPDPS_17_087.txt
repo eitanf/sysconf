@@ -1,0 +1,19 @@
+
+Kernel matrices appear in machine learning and
+non-parametric statistics. Given N points in d dimensions and
+a kernel function that requires O(d) work to evaluate, we
+present an O(dN log N)-work algorithm for the approximate
+factorization of a regularized kernel matrix, a common computational bottleneck in the training phase of a learning task.
+With this factorization, solving a linear system with a kernel
+matrix can be done with O(N log N) work. Our algorithm only
+requires kernel evaluations and does not require that the kernel
+matrix admits an efficient global low rank approximation.
+Instead, our factorization only assumes low-rank properties
+for the off-diagonal blocks under an appropriate row and
+column ordering. We also present a hybrid method that, when
+the factorization is prohibitively expensive, combines a partial
+factorization with iterative methods. As a highlight, we are able
+to approximately factorize a dense 11M x 11M kernel matrix
+in 2 minutes on 3,072 x86 “Haswell” cores and a 4.5M x 4.5M
+matrix in 1 minute using 4,352 “Knights Landing” cores.
+

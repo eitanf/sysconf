@@ -1,0 +1,28 @@
+
+Unintended smartphone rebooting and unexpected
+shutdown (due to reasons like battery run outs, overheating, or
+automatic app upgrades) is annoying. What can be even worse
+is that a phone user has to restart, from the very beginning, the
+apps he or she was using when the phone got rebooted, because
+all the app states would be lost, especially when the number of
+apps in use is large. Hence, a recovery service is sorely needed
+for today’s smartphones where apps are becoming increasingly
+complex. While checkpointing has long been used for desktop and
+laptop computers, such whole-system state preserving techniques
+cannot be applied to smartphones directly, due to the constraints
+of smartphones on energy, delay, and storage space.
+
+In this paper, we propose SmartCP, an intelligent checkpointing methodology, in order to reduce the energy required
+by a smartphone and the amount of efforts required by a
+user to recover the app states after the smartphone restarts.
+SmartCP selectively checkpoints the most important apps based
+on the apps’ characteristics and predicted future usage, under
+the resource constraints of the phone. We propose a novel
+model that quantitatively analyzes the recovery energy and
+efforts of each category of smartphone apps and formulate
+selective checkpointing as a constrained optimization problem.
+We prototype SmartCP on Android and evaluate it using realworld traces as well as real user feedback. The results show
+that SmartCP outperforms two alternative app selection schemes
+by saving 28% more energy and 39% more recovery efforts on
+average.
+

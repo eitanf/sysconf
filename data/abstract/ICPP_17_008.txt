@@ -1,0 +1,32 @@
+
+Dynamic task graph schedulers automatically balance work across processor cores by scheduling tasks among
+available threads while preserving dependences. In this paper,
+we design NABBITC, a provably efficient dynamic task graph
+scheduler that accounts for data locality on NUMA systems.
+NABBITC allows users to assign a color to each task representing
+the location (e.g., a processor core) that has the most efficient
+access to data needed during that node’s execution. NABBITC
+then automatically adjusts the scheduling so as to preferentially
+execute each node at the location that matches its color—leading
+to better locality because the node is likely to make local rather
+than remote accesses. At the same time, NABBITC tries to
+optimize load balance and not add too much overhead compared
+to the vanilla NABBIT scheduler that does not consider locality.
+We provide a theoretical analysis that shows that NABBITC does
+not asymptotically impact the scalability of NABBIT.
+
+We evaluated the performance of NABBITC on a suite of
+memory intensive benchmarks. Our experiments indicates that
+adding locality awareness has a considerable performance advantage compared to the vanilla NABBIT scheduler. In addition, we
+also compared NABBITC to OpenMP programs for both regular
+and irregular applications. For regular applications, OpenMP
+achieves perfect locality and perfect load balance statically. For
+these benchmarks, NABBITC has a small performance penalty
+compared to OpenMP due to its dynamic scheduling strategy. For
+irregular applications, where OpenMP can not achieve locality
+and load balance simultaneously, we find that NABBITC performs
+better. Therefore, NABBITC combines the benefits of localityaware scheduling for regular applications (the forte of static
+schedulers such as those in OpenMP) and dynamically adapting
+to load imbalance (the forte of dynamic schedulers such as Cilk
+Plus, TBB, and Nabbit).
+

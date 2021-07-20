@@ -1,0 +1,13 @@
+
+We present TiML (Timed ML), an ML-like functional language with time-complexity annotations in types. It
+uses indexed types to express sizes of data structures and upper bounds on running time of functions; and
+refinement kinds to constrain these indices, expressing data-structure invariants and pre/post-conditions. Indexed types are flexible enough that TiML avoids a built-in notion of “size,” and the programmer can choose
+to index user-defined datatypes in any way that helps her analysis. TiML’s distinguishing characteristic is
+supporting highly automated time-bound verification applicable to data structures with nontrivial invariants.
+The programmer provides type annotations, and the typechecker generates verification conditions that are
+discharged by an SMT solver. Type and index inference are supported to lower annotation burden, and, furthermore, big-O complexity can be inferred from recurrences generated during typechecking by a recurrence
+solver based on heuristic pattern matching (e.g. using the Master Theorem to handle divide-and-conquerlike recurrences). We have evaluated TiML’s usability by implementing a broad suite of case-study modules,
+demonstrating that TiML, though lacking full automation and theoretical completeness, is versatile enough
+to verify worst-case and/or amortized complexities for algorithms and data structures like classic list operations, merge sort, Dijkstra’s shortest-path algorithm, red-black trees, Braun trees, functional queues, and
+dynamic tables with bounds like mn log n. The learning curve and annotation burden are reasonable, as we
+argue with empirical results on our case studies. We formalized TiML’s type-soundness proof in Coq.

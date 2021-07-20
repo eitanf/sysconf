@@ -1,0 +1,26 @@
+
+Most GPU-based graph systems cannot handle
+large-scale graphs that do not fit in the GPU memory. The
+ever-increasing graph size demands a scale-up graph system,
+which can run on a single GPU with optimized memory access
+efficiency and well-controlled data transfer overhead. However,
+existing systems either incur redundant data transfers or fail to
+use shared memory. In this paper we present Graphie, a system
+to efficiently traverse large-scale graphs on a single GPU. Graphie
+stores the vertex attribute data in the GPU memory and streams
+edge data asynchronously to the GPU for processing. Graphie’s
+high performance relies on two renaming algorithms. The first
+algorithm renames the vertices so that the source vertices can
+be easily loaded to the shared memory to reduce global memory
+accesses. The second algorithm inserts virtual vertices into the
+vertex set to rename real vertices, which enables the use of
+a small boolean array to track active partitions. The boolean
+array also resides in shared memory and can be updated in
+constant time. The renaming algorithms do not introduce any
+extra overhead in the GPU memory or graph storage on disk.
+Graphie’s runtime overlaps data transfer with kernel execution
+and reuses transferred data in the GPU memory. The evaluation
+of Graphie on 7 real-world graphs with up to 1.8 billion edges
+demonstrates substantial speedups over X-Stream, a state-of-theart edge-centric graph processing framework on the CPU, and
+GraphReduce, an out-of-memory graph processing systems on
+GPUs.

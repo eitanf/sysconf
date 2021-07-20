@@ -1,0 +1,22 @@
+
+Deep learning systems have been growing in prominence as a way to automatically characterize objects, trends,
+and anomalies. Given the importance of deep learning systems, researchers have been investigating techniques to optimize
+such systems. An area of particular interest has been using
+large supercomputing systems to quickly generate effective deep
+learning networks: a phase often referred to as “training” of
+the deep learning neural network. As we scale existing deep
+learning frameworks—such as Caffe—on these large supercomputing systems, we notice that the parallelism can help improve
+the computation tremendously, leaving data I/O as the major
+bottleneck limiting the overall system scalability. In this paper, we
+first present a detailed analysis of the performance bottlenecks of
+Caffe on large supercomputing systems. Our analysis shows that
+the I/O subsystem of Caffe—LMDB—relies on memory-mapped
+I/O to access its database, which can be highly inefficient on
+large-scale systems because of its interaction with the process
+scheduling system and the network-based parallel filesystem.
+Based on this analysis, we then present LMDBIO, our optimized
+YO plugin for Caffe that takes into account the data access
+pattern of Caffe in order to vastly improve I/O performance.
+Our experimental results show that LMDBIO can improve the
+overall execution time of Caffe by nearly 20-fold in some cases.
+

@@ -1,0 +1,18 @@
+
+With DevOps automation and an everything-as-code approach to lifecycle management for cloud-native applications, challenges emerge from an operational visibility and
+control perspective. Once a VM is deployed in production it
+typically becomes a hands-off entity in terms of restrictions
+towards inspecting or tuning it, for the fear of negatively
+impacting its operation. We present CIVIC (Cloning and
+Injection based VM Inspection for Cloud), a new mechanism that enables safe inspection of unmodified production
+VMs on-the-fly. CIVIC restricts all impact and side-effects
+of inspection or analysis operations inside a live clone of
+the production VM. New functionality over the replicated
+VM state is introduced using code injection. In this paper,
+we describe the design and implementation of our solution
+over KVM/QEMU. We demonstrate four of its use-cases(i) safe reuse of system monitoring agents, (ii) impact-heavy
+problem diagnostics and troubleshooting, (iii) attaching an
+intrusive anomaly detector to a live service, and (iv) live
+tuning of a webserver’s configuration parameters. Our evaluation shows CIVIC is nimble and lightweight in terms of
+memory footprint as well as clone activation time (6.5s),
+and has a low impact on the original VM (< 10%).

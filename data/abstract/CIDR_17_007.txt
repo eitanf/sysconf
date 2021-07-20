@@ -1,0 +1,22 @@
+
+The rigid schemas of classical relational databases help users
+in specifying queries and inform the storage organization of
+data. However, the advantages of schemas come at a high
+upfront cost through schema and ETL process design. In
+this work, we propose a new paradigm where the database
+system takes a more active role in schema development and
+data integration. We refer to this approach as adaptive
+schema databases (ASDs). An ASD ingests semi-structured
+or unstructured data directly using a pluggable combination of extraction and data integration techniques. Over
+time it discovers and adapts schemas for the ingested data
+using information provided by data integration and information extraction techniques, as well as from queries and
+user-feedback. In contrast to relational databases, ASDs
+maintain multiple schema workspaces that represent individualized views over the data, which are fine-tuned to the
+needs of a particular user or group of users. A novel aspect of ASDs is that probabilistic database techniques are
+used to encode ambiguity in automatically generated data
+extraction workflows and in generated schemas. ASDs can
+provide users with context-dependent feedback on the quality of a schema, both in terms of its ability to satisfy a user’s
+queries, and the quality of the resulting answers. We outline
+our vision for ASDs, and present a proof of concept implementation as part of the Mimir probabilistic data curation
+system.
+

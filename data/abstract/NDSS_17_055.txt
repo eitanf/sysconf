@@ -1,0 +1,26 @@
+
+Trustworthy operation of industrial control systems
+(ICS) depends on secure code execution on the embedded programmable logic controllers (PLCs). The controllers monitor and
+control the underlying physical plants such as electric power
+grids and continuously report back the system status to human
+operators.
+
+We present HARVEY, ! a PLC rootkit that implements a
+physics-aware stealthy attack against cyberphysical power grid
+control systems. HARVEY sits within the PLC’s firmware below
+the control logic and modifies control commands before they are
+sent out by the PLC’s output modules to the physical plant’s
+actuators. HARVEY replaces legitimate control commands with
+malicious, adversary-optimal commands to maximize the damage
+to the physical power equipment and cause large-scale failures. To
+ensure system safety, the operators observe the status of the power
+system by fetching system parameter values from PLC devices.
+To conceal the maliciously caused anomalous behavior from
+operators, HARVEY intercepts the sensor measurement inputs to
+the PLC device. HARVEY simulates the power system with the legitimate control commands (which were intercepted/replaced with
+malicious ones), and calculates/injects the sensor measurements
+that operators would expect to see. We implemented HARVEY
+on the widely spread Allen Bradley PLC and evaluated it on a
+real-world electric power grid test-bed. The results empirically
+prove HARVEY’s deployment feasibility in practice nowadays.
+

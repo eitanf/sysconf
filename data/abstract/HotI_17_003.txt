@@ -1,0 +1,10 @@
+
+The advent of non-volatile memory (NVM) technologies has added an interesting nuance to the node level memory
+hierarchy. With modern 100 Gb/s networks, the NVM tier of storage can often be slower than the high performance network in the
+system; thus, a new challenge arises in the datacenter. Whereas prior efforts have studied the impacts of multiple sources targeting
+one node (i-e., incast) and have studied multiple flows causing congestion in inter-switch links, it is now possible for a single flow from a
+single source to overwhelm the bandwidth of a key portion of the memory hierarchy. This can subsequently spread to the switches and
+lead to congestion trees in a flow-controlled network or excessive packet drops without flow control. In this work we describe protocols
+which avoid overwhelming the receiver in the case of a source/sink rate mismatch. We design our protocols on top of Portals 4, which
+enables us to make use of network offload. Our protocol yields up to 4x higher throughput in a 5k node Dragonfly topology for a
+permutation traffic pattern in which only 1% of all nodes have a memory write-bandwidth limitation of 1/8th of the network bandwidth.

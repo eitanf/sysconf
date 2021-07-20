@@ -1,0 +1,27 @@
+
+Platform as a Service (PaaS) clouds provide part
+of the hardware/software stack and related services to tenant
+applications. Increased load is handled elastically by scaling,
+which either modifies the number of instances an application
+has available on the cloud or increases their available resources.
+However, because all these instances run inside isolated containers, experience gained by the first instance of an application
+cannot be easily shared with subsequent scaled instances. This
+results in both increased startup time and response timeout
+errors for the scaled instances as well as increased performance
+interference for any co-located applications; reacquiring this
+experience is a time-consuming and resource-intensive process.
+We propose a scalable and secure technique to share dynamically
+compiled artifacts produced by the first execution instance of an
+application and otherwise created for intra-OS sharing only with
+subsequent scaled or restarted instances as a solution to these
+problems. Our solution abides by the usual PaaS limitations and
+uses a distributed and containerized cloud service, which we
+experimentally show to be scalable on a Docker Swarm running
+on top of a 6-VM cluster; also, we discuss the results of a usability
+survey for the service’s GUI conducted with expert subjects. The
+effectiveness of the DCAS technique was experimentally tested
+on an isolated installation of the PaaS software Cloudy Foundry;
+we measured significant reductions in both the startup time and
+response errors of scaled out instances as well as performance
+interference to co-located tenants during scaling.
+

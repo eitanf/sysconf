@@ -1,0 +1,27 @@
+
+Pattern matching is a key building block of
+Intrusion Detection Systems and firewalls, which are deployed
+nowadays on commodity systems from laptops to massive web
+servers in the cloud. In fact, pattern matching is one of their
+most computationally intensive parts and a bottleneck to their
+performance. In Network Intrusion Detection, for example,
+pattern matching algorithms handle thousands of patterns and
+contribute to more than 70% of the total running time of the
+system.
+
+In this paper, we introduce efficient algorithmic designs
+for multiple pattern matching which (a) ensure cache locality
+and (b) utilize modern SIMD instructions. We first identify
+properties of pattern matching that make it fit for vectorization
+and show how to use them in the algorithmic design. Second,
+we build on an earlier, cache-aware algorithmic design and we
+show how cache-locality combined with SIMD gather instructions, introduced in 2013 to Intel’s family of processors, can
+be applied to pattern matching. We evaluate our algorithmic
+design with open data sets of real-world network traffic: Our
+results on two different platforms, Haswell and Xeon-Phi, show
+a speedup of 1.8x and 3.6x, respectively, over Direct Filter
+Classification (DFC), a recently proposed algorithm by Choi
+et al. for pattern matching exploiting cache locality, and a
+speedup of more than 2.3x over Aho-Corasick, a widely used
+algorithm in today’s Intrusion Detection Systems.
+

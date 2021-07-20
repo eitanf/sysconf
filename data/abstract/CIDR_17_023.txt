@@ -1,0 +1,22 @@
+
+It is expensive to maintain strong data consistency during concurrent execution. However, weak consistency levels, which are considered harmful, have been widely applied
+in analytical jobs. Their success challenges our belief: data
+consistency, which is believed to be an essential to precise
+computing, does not always need to be preserved. In this
+paper, we tackle one of the core questions related to the application of weak consistency: When does weak consistency
+work well? We propose an effective explanation for the success of weak consistency. We name it bad things do not come
+in threes, or BN3. It is based on the observation that the
+volume of data is far larger than the number of workers. If all
+workers are operating concurrently, the probability that two
+workers access the same data at the same time is relatively
+low. Although it is not small enough to be neglected, the
+chance that three or more workers access the same data at
+the same time is even lower. Based on the BN3 conjecture,
+we analyze different consistency levels. We show that a weak
+consistency level in transaction processing is equivalent to
+snapshot isolation (SI) under reasonable assumptions. Although the BN3 is an oversimplification of real scenarios,
+it explains why weak consistency often achieves results that
+are accurate enough. It also serves as a quality promise for
+the future wide application of weak consistency in analytical
+tasks. We verify our results in experimental studies.
+

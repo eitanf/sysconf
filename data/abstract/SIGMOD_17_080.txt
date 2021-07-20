@@ -1,0 +1,18 @@
+
+
+Science applications are producing an ever-increasing volume of
+multi-dimensional data that are mainly processed with distributed
+array databases. These raw arrays are “cooked” into derived data
+products using complex pipelines that are time-consuming. As a
+result, derived data products are released infrequently and become
+stale soon thereafter. In this paper, we introduce materialized array
+views as a database construct for scientific data products. We model
+the “cooking” process as incremental view maintenance with batch
+updates and give a three-stage heuristic that finds effective update
+plans. Moreover, the heuristic repartitions the array and the view
+continuously based on a window of past updates as a side-effect
+of view maintenance without overhead. We design an analytical
+cost model for integrating materialized array views in queries. A
+thorough experimental evaluation confirms that the proposed techniques are able to incrementally maintain a real astronomical data
+product in a production environment.
+

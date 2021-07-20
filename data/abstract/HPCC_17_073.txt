@@ -1,0 +1,24 @@
+
+The large-scale surveillance video processing workloads are gradually migrated to cloud computing platforms.
+Meanwhile, the hybrid storage architecture, integrating both
+HDD and SSD storage devices, is increasingly used in the current
+cloud platforms. However, the computing and storage capabilities
+of the nodes are constantly changing, and this requires the
+delicate design of the data layout strategy for avoiding the serious
+load skew in the distributed computing nodes with the hybrid
+storage architecture. In this paper, we propose a Load-Aware
+Data Migration (LADM) scheme for distributed surveillance
+video processing with hybrid storage architecture. Specifically,
+according to the proposed the load estimation model and the
+storage capacity constraint, the Node-Level Data Migration
+(NLDM) strategy is used to periodically migrate the appropriate
+video chunks from the local HDD to the local SSD for improving
+the node processing performance, and the Cluster-Level Data
+Migration (CLDM) strategy is used to periodically migrate the
+appropriate video chunks from the high load nodes to the low
+load nodes for achieving the overall load balance of cluster.
+We conduct the extensive experiments based on the distributed
+surveillance video processing platform we developed, and the
+experimental results show that the proposed LADM scheme
+outperforms the current methods.
+

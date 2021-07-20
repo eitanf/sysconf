@@ -1,0 +1,30 @@
+
+Updates to a process’s page table entry (PTE)
+renders any existing copies of that PTE in any of a system’s
+TLBs stale. To prevent a process from making illegal memory
+accesses using stale TLB entries, the operating system (OS)
+performs a costly TLB shootdown operation. Rather than
+explicitly issuing shootdowns, we propose a coordinated TLB
+and page table management mechanism where an expiration
+time is associated with each TLB entry. An expired TLB entry
+is treated as invalid. For each PTE, the OS then tracks the
+latest expiration time of any TLB entry potentially caching that
+PTE. No shootdown is issued if the OS modifies a PTE when
+its corresponding latest expiration time has already passed.
+
+In this paper, we explain the hardware and OS support
+required to support Self-invalidating TLB entries (SITE). As
+an emerging use case that needs fast TLB shootdowns, we
+consider memory systems consisting of different types of
+memory (e.g., faster DRAM and slower non-volatile memory)
+where aggressive migrations are desirable to keep frequentlyaccessed pages in faster memory, but pages cannot migrate
+too often because each migration requires a PTE update and
+corresponding TLB shootdown. We demonstrate that such
+heterogeneous memory systems augmented with SITE can
+allow an average performance improvement of 45.5% over a
+similar system with traditional TLB shootdowns by avoiding
+more than 65% of the shootdowns.
+
+Keywords-Heterogeneous Memory; Self-Invalidation; Virtual
+Memory; TLB; TLB Shootdown; HW/SW Co-design; NonVolatile Memories;
+

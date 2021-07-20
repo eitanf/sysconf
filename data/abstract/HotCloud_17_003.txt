@@ -1,0 +1,15 @@
+
+
+Applications have commonly been oblivious to their
+cloud runtimes. This is primarily because they started
+their journey in IaaS clouds, running on a guestOS inside
+VMs. Then to increase performance, many guestOSes
+have been paravirtualized making them virtualization
+aware, so that they can bypass some of the virtualization layers, as in virtio. This approach still kept applications unmodified. Recently, we are witnessing a rapid
+adoption of containers due to their packaging benefits,
+high density, fast start-up and low overhead. Applications are increasingly being on-boarded to PaaS clouds
+in the form of application containers or appc, where
+they are run directly on a cloud substrate like Kubernetes or Docker Swarm. This shift in deployment practices present an opportunity to make applications aware
+of their cloud. In this paper, we present Paracloud framework for application containers and discuss the Paracloud interface (PaCI) for three cloud operations namely
+migration, auto-scaling and load-balancing.
+

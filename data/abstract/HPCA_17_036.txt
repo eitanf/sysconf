@@ -1,0 +1,18 @@
+
+This paper presents the Compute Cache architecture that enables in-place computation in caches. Compute
+Caches uses emerging bit-line SRAM circuit technology to repurpose existing cache elements and transforms them into active very large vector computational units. Also, it significantly
+reduces the overheads in moving data between different levels
+in the cache hierarchy.
+
+Solutions to satisfy new constraints imposed by Compute
+Caches such as operand locality are discussed. Also discussed
+are simple solutions to problems in integrating them into a
+conventional cache hierarchy while preserving properties such
+as coherence, consistency, and reliability.
+
+Compute Caches increase performance by 1.9x and reduce
+energy by 2.4x for a suite of data-centric applications, including text and database query processing, cryptographic kernels,
+and in-memory checkpointing. Applications with larger fraction of Compute Cache operations could benefit even more, as
+our micro-benchmarks indicate (54x throughput, 9x dynamic
+energy savings).
+

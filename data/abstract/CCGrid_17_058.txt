@@ -1,0 +1,28 @@
+
+Clusters equipped with accelerators such as
+graphics processing unit (GPU) and Many Integrated Core
+(MIC) are widely used. For such clusters, programmers write
+programs for their applications by combining MPI with one of
+the available accelerator programming models. In particular,
+OpenACC enables programmers to develop their applications
+easily, but with lower productivity owing to complex MPI
+programming. XcalableACC (XACC) is a new programming
+model, which is an “orthogonal” integration of a partitioned
+global address space (PGAS) language XcalableMP (XMP) and
+OpenACC. While XMP enables distributed-memory programming on both global-view and local-view models, OpenACC
+allows operations to be offloaded to a set of accelerators. In the
+local-view model, programmers can describe communication
+with the coarray features adopted from Fortran 2008, and we
+extend them to communication between accelerators. We have
+designed and implemented an XACC compiler for NVIDIA
+GPU and evaluated its performance and productivity by using
+two benchmarks, Himeno benchmark and NAS Parallel Benchmarks CG (NPB-CG). The performance of the XACC version
+with the Himeno benchmark and NPB-CG are over 85%
+and 97% in the local-view model against the MPI+OpenACC
+version, respectively. Moreover, using non-blocking communication makes the performance of local-view version over
+89% with the Himeno benchmark. From the viewpoint of
+productivity, the local-view model provides an intuitive form
+of array assignment statement for communication.
+
+Keywords-Accelerator; GPU; Cluster; PGAS; Coarray; OpenACC;
+

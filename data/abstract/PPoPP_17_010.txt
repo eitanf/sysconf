@@ -1,0 +1,15 @@
+
+Programming languages such as C for CUDA, OpenCL
+or ISPC have contributed to increase the programmability
+of SIMD accelerators and graphics processing units. However, these languages still lack the flexibility offered by lowlevel SIMD programming on explicit vectors. To close this
+expressiveness gap while preserving performance, this paper introduces the notion of Call Re-Vectorization (CREV).
+CREV allows changing the dimension of vectorization during the execution of a kernel, exposing it as a nested parallel
+kernel call. CREV affords programmability close to dynamic
+parallelism, a feature that allows the invocation of kernels
+from inside kernels, but at much lower cost. In this paper,
+we present a formal semantics of CREV, and an implementation of it on the ISPC compiler. We have used CREV to implement some classic algorithms, including string matching,
+depth first search and Bellman-Ford, with minimum effort.
+These algorithms, once compiled by ISPC to Intel-based
+vector instructions, are as fast as state-of-the-art implementations, yet much simpler. Thus, CREV gives developers the
+elegance of dynamic programming, and the performance of
+explicit SIMD programming.

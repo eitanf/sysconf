@@ -1,0 +1,15 @@
+
+In JavaScript programs, asynchrony arises in situations such as web-based user-interfaces, communicating with
+servers through HTTP requests, and non-blocking I/O. Event-based programming is the most popular approach
+for managing asynchrony, but suffers from problems such as lost events and event races, and results in code
+that is hard to understand and debug. Recently, ECMAScript 6 has added support for promises, an alternative
+mechanism for managing asynchrony that enables programmers to chain asynchronous computations while
+supporting proper error handling. However, promises are complex and error-prone in their own right, so
+programmers would benefit from techniques that can reason about the correctness of promise-based code.
+
+Since the ECMAScript 6 specification is informal and intended for implementers of JavaScript engines, it
+does not provide a suitable basis for formal reasoning. This paper presents Ap, a core calculus that captures the
+essence of ECMAScript 6 promises. Based on Ap, we introduce the promise graph, a program representation that
+can assist programmers with debugging of promise-based code. We then report on a case study in which we
+investigate how the promise graph can be helpful for debugging errors related to promises in code fragments
+posted to the StackOverflow website.

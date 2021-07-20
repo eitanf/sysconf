@@ -1,0 +1,24 @@
+
+Smartphone users spend more than 80% of their
+phone time accessing web information, which could cause undesirably large energy drain. To provide web information, a web
+activity may invoke asynchronous execution in different hardware
+devices. Thus, traditional energy estimation methods based on
+system statistics are usually insufficient to capture the secluded
+energy cost. In this paper, we propose REEWA, a runtime energy
+estimation framework for web activities on smartphones. In sharp
+contrast to the traditional modeling methods, REEWA features
+a design to provide highly accurate and low-overhead energy
+estimation based on hardware performance counters that can
+accurately record hardware-level events. Specifically, REEWA
+features (1) a set of energy models for smartphone hardware
+components involved in web activities, which are built based on
+their respective performance counters; (2) a correlation study
+on the counter selection process that provides the best tradeoff
+between the estimation accuracy and overhead; (3) a performance
+counter management mechanism for activity deployment. We
+prototyped and evaluated REEWA in two real android smartphones. The results show that, compared to traditional estimation
+methods, REEWA achieves an average 33% higher estimation
+accuracy with a negligible overhead (less than 1%, worst-case).
+We applied REEWA to support heterogeneous core scheduling for
+web activities, which can help reduce 40% energy consumption.
+

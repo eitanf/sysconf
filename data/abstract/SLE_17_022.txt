@@ -1,0 +1,11 @@
+
+
+Red Shift is a new design pattern for implementing parsers.
+The pattern draws ideas from traditional shift-reduce parsing
+as well as procedural PEG parsers. Red Shift parsers behave
+like shift-reduce parsers, but eliminate ambiguity by always
+prioritizing reductions over shifts. To compensate the resulting lack of expressivity, reducers are not simple reduction
+rules but full-blown procedures written in a general-purpose
+host language. I found many advantages to this style of parsing. In particular, we can generate high-quality error messages more easily; and compose different style of parsers.
+I also speculate about how Red Shift parsers may improve
+partial compilation in the context of an IDE.

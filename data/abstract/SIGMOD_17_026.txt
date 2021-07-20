@@ -1,0 +1,23 @@
+
+
+The incremental problem for a class QO of graph queries aims
+to compute, given a query Q € Q, graph G, output Q(G)
+and updates AG to G as input, changes AO to Q(G) such
+that Q(G@AG) = Q(G)@AO. It is called bounded if its cost
+can be expressed as a polynomial function in the sizes of Q,
+AG and AO. It is to reduce computations on possibly big
+G to small AG and AO. No matter how desirable, however,
+our first results are negative: for common graph queries such
+as graph traversal, connectivity, keyword search and pattern
+matching, their incremental problems are unbounded.
+
+In light of the negative results, we propose two characterizations for the effectiveness of incremental computation: (a)
+localizable, if its cost is decided by small neighbors of nodes
+in AG instead of the entire G; and (b) bounded relative to
+a batch algorithm 7, if the cost is determined by the sizes
+of AG and changes to the affected area that is necessarily
+checked by 7. We show that the incremental computations
+above are either localizable or relatively bounded, by providing corresponding incremental algorithms. That is, we can
+either reduce the incremental computations on big graphs to
+small data, or incrementalize batch algorithms by minimizing unnecessary recomputation. Using real-life graphs, we
+experimentally verify the effectiveness of our algorithms.

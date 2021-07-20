@@ -1,0 +1,21 @@
+
+MapReduce applications, which require access to
+a large number of computing nodes, are commonly deployed
+in heterogeneous environments. The performance discrepancy
+between individual nodes in a heterogeneous cluster present
+significant challenges to attain good performance in MapReduce
+jobs. MapReduce implementations designed and optimized for
+homogeneous environments perform poorly on heterogeneous
+clusters.
+
+We attribute suboptimal performance in heterogeneous clusters to significant load imbalance between map tasks. We identify
+two MapReduce designs that hinder load balancing: (1) static
+binding between mappers and their data makes it difficult to
+exploit data redundancy for load balancing; (2) uniform map
+sizes is not optimal for nodes with heterogeneous performance.
+To address these issues, we propose FlexMap, a user-transparent
+approach that dynamically provisions map tasks to match distinct
+machine capacity in heterogeneous environments. We implemented FlexMap in Hadoop-2.6.0. Experimental results show that
+it reduces job completion time by as much as 40% compared to
+stock Hadoop and 30% to SkewTune.
+

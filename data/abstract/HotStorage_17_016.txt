@@ -1,0 +1,14 @@
+
+
+In large scale data centers, controlling tail latencies of
+IO requests keeps storage performance bounded and
+predictable, which is critical for infrastructure resource
+planning. This work provides a transparent mechanism
+for applications to pass prioritized IO commands to storage devices. As a consequence, we observe much shorter
+tail latencies for prioritized IO while impacting nonprioritized IO in a reasonable manner. We also provide a
+detailed description of the changes we made to the Linux
+Kernel that enable applications to pass IO priorities to a
+storage device. Our results show that passing priorities to
+the storage device is capable of decreasing tail latencies
+by a factor of 10x while decreasing IOPS minimally.
+

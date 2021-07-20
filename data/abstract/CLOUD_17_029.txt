@@ -1,0 +1,20 @@
+
+Hadoop clusters have been transitioning from a
+dedicated cluster environment to a shared cluster environment.
+This trend has resulted in the YARN container abstraction
+that isolates computing tasks from physical resources. With
+YARN containers, Hadoop has expanded to support various
+distributed frameworks. However, it has been reported that
+Hadoop tasks suffer from a significant overhead of container
+relaunch. In order to reduce the container overhead without
+making significant changes to the existing YARN framework,
+we propose leveraging the input split, which is the logical
+representation of physical HDFS blocks. Our assorted block
+coalescing scheme combines multiple HDFS blocks and creates
+large input splits of various sizes, reducing the number of
+containers and their initialization overhead. Our experimental
+study shows the assorted block coalescing scheme reduces the
+container overhead by a large margin while it achieves good
+load balance and job scheduling fairness without impairing the
+degree of overlap between map phase and reduce phase.
+

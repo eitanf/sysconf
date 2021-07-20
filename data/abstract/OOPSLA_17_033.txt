@@ -1,0 +1,16 @@
+
+Achieving determinism on real software systems remains difficult. Even a batch-processing job, whose task is
+to map input bits to output bits, risks nondeterminism from thread scheduling, system calls, CPU instructions,
+and leakage of environmental information such as date or CPU model. In this work, we present a system for
+achieving low-overhead deterministic execution of batch-processing programs that read and write the file
+systemÐturning them into pure functions on files.
+We allow multi-process executions where a permissions system prevents races on the file system. Process separation enables different processes to enforce permissions and enforce determinism using distinct
+mechanisms. Our prototype, DetFlow, allows a statically-typed coordinator process to use shared-memory
+parallelism, as well as invoking process-trees of sandboxed legacy binaries. DetFlow currently implements
+the coordinator as a Haskell program with a restricted I/O type for its main function: a new monad we call
+DetIO. Legacy binaries launched by the coordinator run concurrently, but internally each process schedules
+threads sequentially, allowing dynamic determinism-enforcement with predictably low overhead.
+We evaluate DetFlow by applying it to bioinformatics data pipelines and software build systems. DetFlow
+enables determinizing these data-processing workflows by porting a small amount of code to become a
+statically-typed coordinator. This hybrid approach of static and dynamic determinism enforcement permits
+freedom where possible but restrictions where necessary.

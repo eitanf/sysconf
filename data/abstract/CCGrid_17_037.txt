@@ -1,0 +1,30 @@
+
+Many servers use technologies such as virtualization
+or containerization to improve server utilization. These technologies pose challenges for power monitoring since it is not
+possible to directly measure the power use of an abstraction
+such as a virtual machine. Much work has been done in
+modeling the power use of CPUs, virtual machines and entire
+servers; however, there is a scarcity of work in building
+lightweight power monitoring middleware that can be deployed
+across a range of systems. In this paper, we present cWatts+ as
+a prototype lightweight software-based virtual power meter.
+Utilizing a simple but powerful application-agnostic power
+model, it offers comparable performance to existing “more
+complex and heavier-weight” power models. It uses a small
+number of widely available CPU event counters and the
+Performance Application Programming Interface Library to
+estimate power usage on a per-thread basis. It has minimal
+overhead and is portable across a variety of systems. It can
+be used in containerized or virtualized environments. We
+evaluate the estimation performance of cWatts+ for a variety
+of real-world benchmarks that are relevant to large distributed
+systems. Also, we examine the importance of including CPU
+core temperature data in the power model. We demonstrate
+that our power model has an average error of less than 5%.
+This result compares favorably with existing state-of-the-art
+power models and is achieved using a relatively simple power
+model that exhibits minimal power consumption (overhead).
+Consequently, our power monitoring middleware is viable for
+use in real-world applications such as power estimation for
+energy-aware scheduling.
+

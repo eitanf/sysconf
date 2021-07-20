@@ -1,0 +1,23 @@
+
+HPCG and Graph500 can be regarded as the two
+most relevant benchmarks for high-performance computing systems. Existing supercomputer designs, however, tend to focus on
+floating-point peak performance, a metric less relevant for these
+two benchmarks, leaving resources underutilized, and resulting
+in little performance improvements, for these benchmarks, over
+time. In this work, we analyze the implementation of both
+benchmarks on a novel shared-memory near-data processing
+architecture. We study a number of aspects: 1. a system parameter design exploration, 2. software optimizations, and 3. the
+exploitation of unique architectural features like user-enhanced
+coherence as well as the exploitation of data-locality for inter
+near-data processor traffic.
+
+For the HPCG benchmark, we show a factor 2.5x application
+level speedup with respect to a CPU, and a factor 2.5x powerefficiency improvement with respect to a GPU. For the Graph500
+benchmark, we show up to a factor 3.5x speedup with respect toa
+CPU. Furthermore, we show that, with many of the existing datalocality optimizations for this specific graph workload applied,
+local memory bandwidth is not the crucial parameter, and a
+high-bandwidth as well as low-latency interconnect are arguably
+more important, shining a new light on the near-data processing
+characteristics most relevant for this type of heavily optimized
+graph processing.
+

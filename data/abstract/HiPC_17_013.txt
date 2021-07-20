@@ -1,0 +1,22 @@
+
+Learning the structure of Bayesian networks, even
+in the static case, is NP-hard, compelling much of the research
+to focus on heuristic-based approaches. However, there are
+instances where exact solutions are desirable especially for
+small network sizes. In this work, we present a dynamic
+programming based exact solution to learn dynamic Bayesian
+network structure. Our method simultaneously learns intra- as
+well as higher order inter-time-slice interactions in the network.
+For n variables, our exact solution requires O(n?.2"(“+1))
+computations to learn M-th order network. To handle such
+high computational requirements, we present a parallel exact
+solution to push the limit on the size of the networks that can be
+learned. Given p = 2° processors, the parallel algorithm runs
+in O(n?.2”™ (2”—* + k)) time and achieves optimal parallel
+efficiency when 2"—* > k, Using MPI+X parallel programming
+model, the parallel algorithm linearly scales to 1,024 cores of
+a 64-node Intel Xeon InfiniBand cluster, sustaining > 99% of
+parallel efficiency. We also show that the learned networks
+on gene network datasets are of high fidelity compared to
+heuristic-based techniques.
+

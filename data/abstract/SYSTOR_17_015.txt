@@ -1,0 +1,27 @@
+
+Misconfigurations in the storage systems can lead to business losses due to system downtime with substantial people
+resources invested into troubleshooting. Hence, aster troubleshooting of software misconfigurations has been critically
+important or the customers as well as the vendors.
+
+This paper introduces a ramework and a tool called Dexter, which embraces the recent trend of viewing systems as
+data to derive the troubleshooting clues. Dexter provides
+quick insights into the problem root cause and possible resolution by solely using the storage system logs. This diferentiates Dexter from other previously known approaches
+which complement log analysis with source code analysis,
+execution traces etc. Furthermore, Dexter analyzes command history logs rom the sick system after it has been
+healed and predicts the exact command(s) which resolved
+the problem. Dexter’s approach is simple and can be applied
+to other sotware systems with diagnostic logs for immediate
+problem detection without any pre-trained models.
+
+Evaluation on 600 real customer support cases shows 90%
+accuracy in root causing and over 65% accuracy in inding
+an exact resolution or the misconfiguration problem. Results show up to 60% noise reduction in system logs and
+at least 10z savings in case resolution times, bringing down
+the troubleshooting times rom days to minutes at times.
+Dexter runs 24x7 in the NetApp’s® support data center.
+
+The paper also presents insights rom study on thousands
+o real customer support cases over thousands of deployed
+systems over the period o 1.5 years. These investigations
+uncover acts that cause potential delays in customer case
+resolutions and inluence Dexter’s design.

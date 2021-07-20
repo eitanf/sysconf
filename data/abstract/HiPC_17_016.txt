@@ -1,0 +1,23 @@
+
+Frequent subgraph pattern mining (FSM) finds subgraph patterns that occur in a graph database with a frequency
+that is more than a given threshold. In FSM, the notion of
+occurrence captures the presence or absence of a node and an
+edge in a binary fashion and considers relevance of each edge or
+node as same. However, an edge or a node may have different
+relevancy score. Therefore, the utility of a pattern should be
+defined using the relevance score of participating edges or nodes.
+This paper defines the utility notion of a pattern using this idea
+and presents algorithms to mine high-utility patterns from a given
+graph database. A significant issue in high-utility pattern mining
+is that the anti-monotonic property no longer holds contrary to
+the FSM. Hence pruning of the search space becomes a daunting
+task. To address this issue, we incorporate a function to estimate
+an upper-bound utility of a pattern object that also satisfies the
+anti-monotonic property. This paper presents three optimization
+heuristics for the solution on a distributed platform, namely, a
+novel use of bloom filter to avoid exploration of non-candidates,
+avoidance of sending database information with each pattern,
+and avoidance of sending pattern embeddings with each pattern.
+The experimental study on Apache Spark shows the effectiveness
+of our proposed optimization strategies.
+

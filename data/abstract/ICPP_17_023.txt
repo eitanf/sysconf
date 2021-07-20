@@ -1,0 +1,27 @@
+
+With the development of cloud computing, disk
+arrays tolerating triple disk failures (3DFTs) are receiving more
+attention nowadays because they can provide high data reliability
+with low monetary cost. However, a challenging issue in these
+arrays is how to efficiently reconstruct the lost data, especially
+for partial stripe errors (e.g., sector and chunk errors). It is one
+of the most significant scenarios in practice. However, existing
+cache strategies are not efficient for partial stripe reconstruction
+in 3DFTs, which is because the complex relationships among data
+and parities are usually ignored during the recovery process.
+
+To address this problem, in this paper, we proposed a comprehensive cache policy called Favorable Block First (FBF), which
+can speed up the partial stripe reconstruction of 3DFTs. FBF
+investigates the relationships among parity chains via allocating
+various priorities of shared chunks. Thus in the recovery process,
+by giving higher priorities to the chunks which are shared by
+more parities chains, FBF can dynamically hold the significant
+data in buffer cache for partial stripe reconstruction. Obviously,
+it increases the cache hit ratio and reduces the reconstruction
+time. To demonstrate the effectiveness of FBF, we conduct several
+simulations via Disksim. The results show that, compared to
+typical recovery schemes by combining with classic cache policies
+(e.g., LRU, LFU and ARC), FBF improves hit ratio by up to
+2.47x and accelerates the reconstruction process by 14.90%,
+respectively.
+

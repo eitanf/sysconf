@@ -1,0 +1,22 @@
+
+Hines matrices arise in the simulations of mathematical models describing initiation and propagation of action
+potentials in a neuron. In this work, we exploit the structural
+properties of Hines matrices and design a scalable, linear work,
+recursive parallel algorithm for solving a system of linear
+equations where the underlying matrix is a Hines matrix, using
+the Exact Domain Decomposition Method (EDD). We give a
+general form for representing a Hines matrix and use the general
+form to prove that the intermediate matrix obtained via the EDD
+has the same structural properties as that of a Hines matrix.
+
+Using the above observation, we propose a novel decomposition
+strategy called fine decomposition which is suitable for a GPU
+architecture. Our algorithmic approach R-FINE-TPT based on
+fine decomposition outperforms the previously known approach
+in all the cases and gives a speedup of 2.5x on average for a variety
+of input neuron morphologies. We further perform experiments
+to understand the behaviour of R-FINE-TPT approach and show
+its robustness. We also employ a machine learning technique
+called linear regression to effectively guide recursion in our
+algorithm.
+

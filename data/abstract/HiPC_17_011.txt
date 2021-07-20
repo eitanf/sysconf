@@ -1,0 +1,37 @@
+
+Parallel programming models and paradigms are
+increasingly becoming more expressive with a steady increase
+in the number of cores that can be placed on a single chip.
+Concurrent data structures for shared memory parallel programs are now being used in operating systems, middle-ware,
+and device drivers. In such a shared memory model, processes
+communicate and synchronize by applying primitive operations
+on memory words. To implement concurrent data structures
+that are linearizable and possibly lock-free or wait-free, it is
+often necessary to add additional information to memory words
+in a data structure. This additional information can range from
+a single bit to multiple bits that typically represent thread ids,
+request ids, timestamps, and other application dependent fields.
+Since most processors can perform compare-And-Set (CAS)
+or load-link/store-conditional (LL/SC) operations on only 64
+bits at a time, current approaches either use some bits in a
+memory word to pack additional information (packing), or use
+the bits to store a pointer to an object that contains additional
+information (redirection), and the original data item.
+
+The former approach restricts the number of bits for each
+additional field and this reduces the range of the field, and the
+latter approach is wasteful in terms of space. We propose a
+novel and universal method called a memory word expander in
+this paper. It caches information for a set of memory locations
+that need to be augmented with additional information. It
+supports traditional atomic get, set, and CAS operations, and
+tries to maintain state for a minimum number of entries.
+We experimentally demonstrate that it is possible to reduce
+the runtime memory footprint by 20-35% for algorithms that
+use redirection. For algorithms that use packing, the use
+of the EXPANDER can make them feasible. The performance
+overhead is within 2-13% for 32 threads. When we compare the
+performance of the EXPANDER based non-blocking algorithms
+with the version that uses locks, we have a performance gain
+of at least 10-100X.
+

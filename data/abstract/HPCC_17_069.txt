@@ -1,0 +1,28 @@
+
+Non-Uniform Memory Access (NUMA) architecture
+has become the dominant architecture and is widely used in virtualization platforms. In NUMA-based cloud computing platform,
+arbitrary topology of vCPUs and memory may cause significant
+performance degradation for VMs, which introduces great challenges for virtual machine monitors (VMMs) to efficiently manage
+the vCPUs and memory. Previous studies mainly sample the
+characteristics of the vCPUs to indicate the optimizing strategies
+to reduce the NUMA overheads in virtualization platforms. But
+the typical periodical sampling methods have some deviations
+with the real vCPU characteristics. This leads to the inaccurate
+sampling and scheduling decisions for the optimizing strategies.
+
+Motivated by the inaccuracy in sampling methods and scheduling decisions, we propose a fine-grained scheduler, named vScope,
+which makes accurate scheduling decisions according to the
+guest OS processes in the vCPUs, to improve the performance
+of memory-intensive workloads in cloud platforms. In vScope,
+the VMM identifies the guest OS processes in the vCPUs and
+calculates the NUMA affinity of each process from the PMU
+data. At the end of vCPU’s scheduling cycle, the scheduler
+appropriately schedules the vCPUs to their local NUMA node
+to alleviate the unnecessary NUMA overhead. We implement
+vScope in Xen-4.5.1 VMM and evaluate its effectiveness with some
+memory-intensive benchmarks. The experimental results shows
+that vScope can achieve up to 11.5% performance improvement
+for these workloads when compared with the Credit scheduler
+in Xen. Moreover, vScope only introduces limited overhead into
+the system.
+

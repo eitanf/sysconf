@@ -1,0 +1,23 @@
+
+Non-volatile main memory (NVRAM) enables
+data persistence in memory. However, the existence of transient
+CPU caches in modern computer architectures brings a serious
+performance issue. In particular, cache lines have to be flushed
+frequently to guarantee consistent persistent program states.
+Hence, persistence and performance cannot be easily obtained
+simultaneously.
+
+In this paper, we optimize data persistence by proposing a
+software cache. The software cache first buffers lines that need
+to be flushed, and then flushes them out at an appropriate later
+time. The software cache aims to maximize the combination
+of cache line flushes. We designed a new linear-time algorithm
+to calculate cache miss ratio curve (MRC) so as to adaptively
+select the best cache capacity at run-time based on program
+behavior. We evaluated the software cache on a real-world
+memory-based database benchmark, the SPLASH2 benchmark
+suite and four micro-benchmarks. Results indicate that the
+software cache solution reduces cache write backs to persistent
+memory by 12x and improves performance over the state-ofthe-art methods by 2.1 x on average, measured on a real system
+emulator.
+

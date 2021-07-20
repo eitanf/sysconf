@@ -1,0 +1,27 @@
+
+SIMD vectors help improve the performance of
+certain applications. The code gets vectorized into SIMD
+form either by hand, or automatically with auto-vectorizing
+compilers. The Superword-Level Parallelism (SLP) vectoriza—
+tion algorithm is a widely used algorithm for vectorizing
+straight4tine code and is part of most industrial compilers.
+The algorithm attempts to pack scalar instructions into vectors
+starting from specific seed instructions in a bottom-up way.
+This approach, however, suffers from two main problems: (i)
+the algorithm may not reach instructions that could have been
+vectorized, and (ii) atomically operating on individual SLP
+graphs suffers from cost overestimation when consecutive SLP
+graphs share data. Both issues lead to missed vectorization
+opportunities even in simple code.
+
+In this work we propose SuperGraph-SLP (SG-SLP), an
+improved vectorization algorithm that overcomes these limita—
+tions of the existing algorithm. SG-SLP operates on a larger
+region, called the SuperGraph. This allows it to reach and
+successfully vectorize code that was previously unreachable.
+Moreover, the new region helps eliminate the inaccuracies
+in the cost-calculation as it allows for a more holistic view
+of the code. Our experiments show that SG-SLP improves
+the vectorization coverage and outperforms the state-of-theart SLP across a number kernels by 36% on average, without
+affecting the compilation time.
+

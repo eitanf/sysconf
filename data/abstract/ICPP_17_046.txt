@@ -1,0 +1,26 @@
+
+Machine Learning (ML) approaches are widelyused classification/regression methods for data mining applications. However, the time-consuming training process greatly
+limits the efficiency of ML approaches. We use the example
+of SVM (traditional ML algorithm) and DNN (state-of-the-art
+ML algorithm) to illustrate the idea in this paper. For SVM,
+a major performance bottleneck of current tools is that they
+use a unified data storage format because the data formats
+can have a significant influence on the complexity of storage
+and computation, memory bandwidth, and the efficiency of
+parallel processing. To address the problem above, we study the
+factors influencing the algorithm’s performance and conduct
+auto-tuning to speed up SVM training. DNN training is even
+slower than SVM. For example, using a 8-core CPUs to train
+AlexNet model by CIFAR-10 dataset costs 8.2 hours. CIFAR-10
+is only 170 MB, which is not efficient for distributed processing.
+Moreover, due to the algorithm limitation, only a small batch of
+data can be processed at each iteration. We focus on finding the
+right algorithmic parameters and using auto-tuning techniques
+to make the algorithm run faster. For SVM training, our
+implementation achieves 1.7—16.3x speedup (6.8 x on average)
+against the non-adaptive case (using the worst data format) for
+various datasets. For DNN training on CIFAR-10 dataset, we
+reduce the time from 8.2 hours to only roughly 1 minute. We
+use the benchmark of dollars per speedup to help the users to
+select the right deep learning hardware.
+

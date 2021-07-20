@@ -1,0 +1,20 @@
+
+ Production-quality parallel applications are often
+a mixture of diverse operations, such as computation- and
+communication-intensive, regular and irregular, tightly coupled
+and loosely linked operations. In conventional construction of
+parallel applications, each process performs all the operations,
+which might result inefficient and seriously limit scalability,
+especially at large scale. We propose a decoupling strategy to
+improve the scalability of applications running on large-scale
+systems. Our strategy separates application operations onto
+groups of processes and enables a dataflow processing paradigm
+among the groups. This mechanism is effective in reducing the
+impact of load imbalance and increases the parallel efficiency
+by pipelining multiple operations. We provide a proof-of-concept
+implementation using MPI, the de-facto programming system
+on current supercomputers. We demonstrate the effectiveness of
+this strategy by decoupling the reduce, particle communication,
+halo exchange and I/O operations in a set of scientific and dataanalytics applications. A performance evaluation on 8,192 processes of a Cray XC40 supercomputer shows that the proposed
+approach can achieve up to 4x performance improvement.
+

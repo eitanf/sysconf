@@ -1,0 +1,26 @@
+
+Virtualization helps to deploy the functionality of
+expensive and rigid hardware appliances on scalable virtual
+resources running on commodity servers. However, optimal
+resource provisioning for non-trivial services is still an open
+problem. While there have been efforts to answer the questions of
+when to provision additional resources in a running service, and
+how many resources are needed, the question of what should be
+provisioned has not been investigated, in particular, for complex
+applications or services, which consist of a set of connected
+components, where each component in turn potentially consists of
+multiple component instances (e.g., VMs or containers). Each instance of a component can be run in different flavors (i.e., number
+of cores or amount of memory), while the service constructed by
+the combination of these component configurations must satisfy
+the customer Service Level Objective (SLO). In this work, we
+offer to service providers an answer to the what to deploy
+question by introducing RConf, a system that automatically
+chooses the optimal combination of component instances for nontrivial network services. In particular, we propose an analytical
+model based on robust queuing theory that is able to accurately
+model arbitrary components, and develop an algorithm that
+finds the combination of their instances, such that the overall
+utilization of the running instances is maximized while meeting
+SLO requirements.
+
+Index Terms—Robust queue; Resource configuration; Performance of complex services; Optimization
+

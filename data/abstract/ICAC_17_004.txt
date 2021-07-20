@@ -1,0 +1,32 @@
+
+Due to the increasing popularity of smartphones,
+many people are now equipped with both a smartphone and
+at least one desktop (or laptop) computer. Although the two
+computing devices are used for similar purposes (e.g., email, web
+browsing), they are often both kept on for the user’s convenience,
+despite only one device is actively used at a time. Therefore, if
+one of the two computing devices can be put into an energysaving mode when the other one is in use, a significant amount
+of energy can be saved for both the phone and the desktop.
+
+In this paper, we propose CoSmart, a light-weight solution
+that coordinates the smartphone with the desktop for joint
+energy savings. CoSmart dynamically degrades the smartphone
+to a feature phone with only basic GSM functions when the
+user is detected to be with the desktop, in order to save both
+computation and idle energy. The desktop is then put into sleep
+for energy savings when the user leaves it, while the phone can
+be turned back to a smartphone, such that the user can continue
+the operation with seamless task migration. There are several
+research challenges in the design of CoSmart, which include 1)
+predicting whether the user would stay long enough with the
+desktop to offset the migration overheads, and 2) determining
+the best time point for task migration that can result in the
+most energy savings. To this end, we propose a novel algorithm
+for dynamic idle time length prediction, and model joint energy
+savings as an optimization problem for the most energy savings. A
+prototype of CoSmart is implemented in Android and evaluated
+using different real user traces and popular apps. Results show
+CoSmart can achieve, on average, 61.3% energy savings for the
+smartphone and 46.7% energy savings for the desktop, which
+outperforms other baselines by as much as 17.2% to 19.0%.
+

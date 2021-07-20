@@ -1,0 +1,15 @@
+
+
+Multi-core in-memory databases promise high-speed online transaction processing. However, the performance of individual designs
+suffers when the workload characteristics miss their small sweet
+spot of a desired contention level, read-write ratio, record size, processing rate, and so forth.
+
+Cicada is a single-node multi-core in-memory transactional database with serializability. To provide high performance under diverse
+workloads, Cicada reduces overhead and contention at several levels
+of the system by leveraging optimistic and multi-version concurrency control schemes and multiple loosely synchronized clocks
+while mitigating their drawbacks. On the TPC-C and YCSB benchmarks, Cicada outperforms Silo, TicToc, FOEDUS, MOCC, twophase locking, Hekaton, and ERMIA in most scenarios, achieving
+up to 3X higher throughput than the next fastest design. It handles
+up to 2.07 M TPC-C transactions per second and 56.5 M YCSB
+transactions per second, and scans up to 356 M records per second
+on a single 28-core machine.
+

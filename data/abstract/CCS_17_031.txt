@@ -1,0 +1,19 @@
+
+
+Oblivious Random Access Machine (ORAM) enables a client to
+access her data without leaking her access patterns. Existing clientefficient ORAMs either achieve O(log N) client-server communication blowup without heavy computation, or O(1) blowup but
+with expensive homomorphic encryptions. It has been shown that
+O(log N) bandwidth blowup might not be practical for certain applications, while schemes with O(1) communication blowup incur
+even more delay due to costly homomorphic operations.
+
+In this paper, we propose a new distributed ORAM scheme referred to as Shamir Secret Sharing ORAM (S?ORAM), which achieves
+O(1) client-server bandwidth blowup and O(1) blocks of client storage without relying on costly partial homomorphic encryptions.
+S3ORAM harnesses Shamir Secret Sharing, tree-based ORAM structure and a secure multi-party multiplication protocol to eliminate
+costly homomorphic operations and, therefore, achieves O(1) clientserver bandwidth blowup with a high computational efficiency. We
+conducted comprehensive experiments to assess the performance
+of S3ORAM and its counterparts on actual cloud environments,
+and showed that S?7ORAM achieves three orders of magnitude lower
+end-to-end delay compared to alternatives with O(1) client communication blowup (Onion-ORAM), while it is one order of magnitude
+faster than Path-ORAM for a network with a moderate bandwidth
+quality. We have released the implementation of SSORAM for further improvement and adaptation.
+

@@ -1,0 +1,19 @@
+
+While unstructured merge tools rely only on textual analysis to detect and resolve conflicts, semistructured
+merge tools go further by partially exploiting the syntactic structure and semantics of the involved artifacts.
+Previous studies compare these merge approaches with respect to the number of reported conflicts, showing,
+for most projects and merge situations, reduction in favor of semistructured merge. However, these studies do
+not investigate whether this reduction actually leads to integration effort reduction (productivity) without
+negative impact on the correctness of the merging process (quality). To analyze that, and better understand
+how merge tools could be improved, in this paper we reproduce more than 30,000 merges from 50 open source
+projects, identifying conflicts incorrectly reported by one approach but not by the other (false positives),
+and conflicts correctly reported by one approach but missed by the other (false negatives). Our results and
+complementary analysis indicate that, in the studied sample, the number of false positives is significantly
+reduced when using semistructured merge. We also find evidence that its false positives are easier to analyze
+and resolve than those reported by unstructured merge. However, we find no evidence that semistructured
+merge leads to fewer false negatives, and we argue that they are harder to detect and resolve than unstructured
+merge false negatives. Driven by these findings, we implement an improved semistructured merge tool that
+further combines both approaches to reduce the false positives and false negatives of semistructured merge.
+We find evidence that the improved tool, when compared to unstructured merge in our sample, reduces the
+number of reported conflicts by half, has no additional false positives, has at least 8% fewer false negatives,
+and is not prohibitively slower.

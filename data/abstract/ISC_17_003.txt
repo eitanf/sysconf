@@ -1,0 +1,22 @@
+
+. This article introduces EDGE, a solver package for fused
+seismic simulations. Fused seismic simulations are a novel technique
+addressing one of the grand challenges of computational seismology: large
+ensemble runs of geometrically similar forward simulations. Application
+fields include, but are not limited to: uncertainty quantification in the
+context of seismic hazard analysis or the accurate derivation of velocity
+models through tomographic inversion. For efficient and accurate handling of complex model geometries (topography, fault geometries, material heterogeneities), EDGE utilizes the Discontinuous Galerkin (DG)
+method for spatial and Arbitrary high order DERivatives (ADER) for
+time discretization, implemented for unstructured tetrahedral meshes.
+EDGE’s ADER-DG scheme requires sparse and dense matrix-matrix
+multiplications at the kernel level. By choosing a sufficient memory layout and relying on runtime code generation and specialization, both,
+sparse and dense operations, can be efficiently vectorized on wide-SIMD
+machines. We present a convergence study of single and fused seismic
+simulations, code verification in an established benchmark, as well as a
+detailed performance assessment for different discretization orders. As
+target architecture we select the recently released Intel Xeon Phi processor, which powers the Theta and Cori-II supercomputers. For a single
+sixth order seismic forward simulation we achieved 10.4 PFLOPS of hardware performance and 5.0 PFLOPS for fused simulations in fourth order,
+both occupying 9,000 nodes of Cori-II. From a throughput perspective,
+fused seismic simulations can outperform a single forward simulation by
+1.8x to 4.6x, depending on the chosen order of the method.
+

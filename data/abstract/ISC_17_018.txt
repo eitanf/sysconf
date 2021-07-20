@@ -1,0 +1,25 @@
+
+. Broadly, there exist two protocols for point-to-point data
+transfer in the Message Passing Interface (MPI) programming model Eager and Rendezvous. State-of-the-art MPI libraries decide the switch
+point between these protocols based on the trade-off between memory
+footprint of the MPI library and communication performance without
+considering the overlap potential of these communication protocols. This
+results in sub-par overlap of communication and computation at the
+application level. While application developers can manually tune this
+threshold to achieve better overlap, it involves significant effort. Further,
+the communication pattern may change based on the size of the job and
+the input requiring constant re-tuning making such a solution impractical. In this paper, we take up this challenge and propose designs for pointto-point data transfer in MPI which accounts for overlap in addition to
+performance and memory footprint. The proposed designs dynamically
+adapt to the communication characteristic of each communicating pair of
+processes at runtime. Our proposed full in-band design is able to transition from one eager-threshold to another without impacting the communication throughput of the application. The proposed enhancements to
+limit the memory footprint by dynamically freeing unused internal communication buffer is able to significantly cut down on memory footprint
+of the MPI library without affecting the communication performance.
+Experimental evaluations show that the proposed dynamic and adaptive design is able to deliver performance on-par with what exhaustive
+manual tuning provides while limiting the memory consumed to the
+absolute minimum necessary to deliver the desired benefits. For instance,
+with the Amber molecular dynamics application at 1,024 processes, the
+proposed design is able to perform on-par with the best manually tuned
+versions while reducing the memory footprint of the MPI library by 25%.
+With the 3D-Stencil benchmark at 8,192 processes, the proposed design
+is able to deliver much better overlap of computation and communication as well as improved overall time compared to the default version.
+

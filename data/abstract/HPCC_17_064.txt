@@ -1,0 +1,25 @@
+
+ Energy efficiency is considered a challenging
+problem in modern multicore systems. Partitioning the cores into
+multiple voltage and frequency islands (VFI) provides a
+compromise between simple global Dynamic Voltage Frequency
+Scaling (DVFS) and fine-grain per-core, per-task DVFS. This
+paper formulates the optimization problem of scheduling tasks
+statically on multiple VFIs as a Mixed Integer Linear
+Programming (MILP) such that for a given energy budget, the
+program execution time (makespan) is minimized. Our proposed
+solution consists of two steps. In the first step, we use an Integer
+Linear Programming (ILP)-based algorithm, from our previous
+work, to assign per-core fine-grain dynamic Voltage/Frequency
+(V/F) levels to each task in a task set (program) to minimize the
+makespan for a given energy budget. In the second step, which is
+the focus of this paper, we use the MILP framework to schedule
+this task set, with the given V/F levels provided in step one, on the
+islands of a VFI-enabled multicore system to again minimize the
+makespan subject to (1) the energy budget and (2) the task set’s
+precedence (dependency) constraints. Together with the solutions
+obtained by MILP, a round-robin algorithm is used to compare
+these two methodologies to [LP that provides the best solution.
+Our experimental results show that across all the benchmarks
+considered, the MILP-based and round-robin makespan
+solutions are on average 1.2 and 2.28 times slower than the ILPbased makespan solutions, respectively.

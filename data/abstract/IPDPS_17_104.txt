@@ -1,0 +1,20 @@
+
+HPC systems are increasingly used for data intensive computations which exhibit irregular memory accesses,
+non-uniform work distributions, large memory footprints, and
+high memory bandwidth demands. To address these challenging demands, HPC systems are turning to many-core architectures that feature a large number of energy-efficient cores
+backed by high-bandwidth memory. These features are exemplified in Intel’s recent Knights Landing many-core processor
+(KNL), which typically has 68 cores and 16GB of on-package
+multi-channel DRAM (MCDRAM). This work investigates how
+the novel architectural features offered by KNL can be used
+in the context of decomposing sparse, unstructured tensors
+using the canonical polyadic decomposition (CPD). The CPD
+is used extensively to analyze large multi-way datasets arising
+in various areas including precision healthcare, cybersecurity,
+and e-commerce. Towards this end, we (i) develop problem
+decompositions for the CPD which are amenable to hundreds
+of concurrent threads while maintaining load balance and
+low synchronization costs; and (ii) explore the utilization of
+architectural features such as MCDRAM. Using one KNL
+processor, our algorithm achieves up to 1.8x speedup over
+a dual socket Intel Xeon system with 44 cores.
+

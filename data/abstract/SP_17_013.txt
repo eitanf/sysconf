@@ -1,0 +1,13 @@
+
+JavaScript, like many high-level languages, relies on runtime systems written in low-level C and C++. For example, the
+Node.js runtime system gives JavaScript code access to the underlying filesystem, networking, and I/O by implementing utility functions in C++. Since C++’s type system, memory model, and execution
+model differ significantly from JavaScript’s, JavaScript code must
+call these runtime functions via intermediate binding layer code that
+translates type, state, and failure between the two languages. Unfortunately, binding code is both hard to avoid and hard to get right.
+This paper describes several types of exploitable errors that binding code creates, and develops both a suite of easily-to-build static
+checkers to detect such errors and a backwards-compatible, lowoverhead API to prevent them. We show that binding flaws are a
+serious security problem by using our checkers to craft 81 proof-ofconcept exploits for security flaws in the binding layers of the Node.js
+and Chrome, runtime systems that support hundreds of millions of
+users. As one practical measure of binding bug severity, we were
+awarded $6,000 in bounties for just two Chrome bug reports.
+

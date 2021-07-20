@@ -1,0 +1,17 @@
+
+
+Big data systems such as Spark are built around the idea
+of splitting an iterative parallel program into tiny tasks
+with other aspects of system design built around this
+basic design principle. Unfortunately, in spite of immense engineering effort, tiny tasks have unavoidably
+large overheads. We use the example of logistic regression — a common machine learning primitive — to compare the performance of Spark to different designs that
+converge to a hand-coded parallel MPI-based implementation. We conclude that Spark leaves orders of magnitude performance on the table, due to its insistence on
+setting the granularity of a task to a single iteration. We
+counter a common argument for the tiny task approach —
+namely better resilience to faults — by demonstrating that
+optimum job checkpoint intervals are far longer than the
+duration of the tiny tasks favored in Spark’s design. We
+propose an alternative approach that relies on an autoparallelizing compiler tightly integrated with the MPI
+runtime, illustrating the opposite end of the spectrum
+where task granularities are as large as possible.
+

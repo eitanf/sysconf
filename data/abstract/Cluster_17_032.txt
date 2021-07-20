@@ -1,0 +1,24 @@
+
+We present EclipseMR, a novel MapReduce framework prototype that efficiently utilizes a large distributed memory in cluster environments. EclipseMR consists of double-layered
+consistent hash rings - a decentralized DHT-based file system and
+an in-memory key-value store that employs consistent hashing.
+The in-memory key-value store in EclipseMR is designed not
+only to cache local data but also remote data as well so that
+globally popular data can be distributed across cluster servers
+and found by consistent hashing.
+
+In order to leverage large distributed memories and increase
+the cache hit ratio, we propose a /ocality-aware fair (LAF) job
+scheduler that works as the load balancer for the distributed inmemory caches. Based on hash keys, the LAF job scheduler
+predicts which servers have reusable data, and assigns tasks
+to the servers so that they can be reused. The LAF job
+scheduler makes its best efforts to strike a balance between
+data locality and load balance, which often conflict with each
+other. We evaluate EclipseMR by quantifying the performance
+effect of each component using several representative MapReduce
+applications and show EclipseMR is faster than Hadoop and
+Spark by a large margin for various applications.
+
+Index Terms—MapReduce; Distributed Caching; Consistent
+Hashing; Distributed Hash Table;
+

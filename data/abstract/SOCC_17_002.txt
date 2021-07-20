@@ -1,0 +1,20 @@
+
+
+In an Infrastructure As A Service (IaaS) cloud, the scheduler deploys VMs to servers according to service level objectives (SLOs).
+Clients and service providers must both trust the infrastructure. In
+particular they must be sure that the VM scheduler takes decisions
+that are consistent with its advertised behaviour. The difficulties to
+master every theoretical and practical aspects of a VM scheduler
+implementation leads however to faulty behaviours that break SLOs
+and reduce the provider revenues.
+
+We present SafePlace, a specification and testing framework that
+exhibits inconsistencies in VM schedulers. SafePlace mixes a DSL to
+formalise scheduling decisions with fuzz testing to generate a large
+spectrum of test cases and automatically report implementation
+faults.
+
+We evaluate SafePlace on the VM scheduler BtrPlace. Without
+any code modification, SafePlace allows to write test campaigns
+that are 3.83 times smaller than BtrPlace unit tests. SafePlace performs 200 tests per second, exhibited new non-trivial bugs, and
+outperforms the BtrPlace runtime assertion system.

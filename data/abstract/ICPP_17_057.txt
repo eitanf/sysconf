@@ -1,0 +1,26 @@
+
+We propose a heuristic for parallel partitioning of
+graphs into equi-sized components. In particular, we identify a
+relationship between the graph partitioning problem (GPP) and
+the traveling saleman problem (TSP), and use that to reduce
+partitioning to TSP. Given that better performing heuristics are
+known for TSP than are for GPP, this reduction also leads to
+improved GPP heuristics. What is more, a good GPP solution
+can also be used to speed up computation of TSP.
+
+We first derive a good bi-partition from a cut of the TSP cycle
+in time proportional to the number of edges in the graph. We
+then continue this bi-partitioning recursively until the required
+number of partitions are left. Further, in order to speed up the
+computation of TSP, which we use as a subroutine, we perform an
+initial rough partitioning of the graph into K parts, compute TSP
+tours in each of these smaller partitions and then merge these
+local tours to solve the full TSP. We then use this full TSP solution
+to obtain the final partitioning in parallel. Our empirical analysis
+shows that for partition count k > 32, our parallel algorithm
+gives a cut better in size than that of algorithms known for low
+cut-size (e.g., KaBaPE), and when time is of concern, it finishes
+in significantly less time with comparable cuts. We also show that
+our algorithm gives much smaller cuts in comparable time than
+those known for fast computation (e.g., PT-Scotch).
+

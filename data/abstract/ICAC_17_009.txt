@@ -1,0 +1,21 @@
+
+Self-adaptation can be realized in various ways.
+Rule-based approaches prescribe the adaptation to be executed if
+the system or environment satisfy certain conditions and result in
+scalable solutions, however, with often only satisfying adaptation
+decisions. In contrast, utility-driven approaches determine optimal adaptation decisions by using an often costly optimization
+step, which typically does not scale well for larger problems. We
+propose a rule-based and utility-driven approach that achieves
+the beneficial properties of each of these directions such that
+the adaptation decisions are optimal while the computation
+remains scalable since an expensive optimization step can be
+avoided. The approach can be used for the architecture-based
+self-healing of large software systems. We define the utility for
+large dynamic architectures of such systems based on patterns
+capturing issues the self-healing must address and we use patternbased adaptation rules to resolve the issues. Defining the utility as
+well as the adaptation rules pattern-based allows us to compute
+the impact of each rule application on the overall utility and
+to realize an incremental and efficient utility-driven self-healing.
+We demonstrate the efficiency and optimality of our scheme in
+comparative experiments with a static rule-based scheme as a
+baseline and a utility-driven approach using a constraint solver.

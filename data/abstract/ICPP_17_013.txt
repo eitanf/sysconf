@@ -1,0 +1,29 @@
+
+General-purpose computing on GPUs has become
+more accessible due to features such as shared virtual memory
+and demand paging. Unfortunately it comes at a price, and that
+is performance. Automatic memory management is convenient
+but suffers from many drawbacks, preventing heterogeneous
+systems from achieving their full potential. In this work we
+analyze the challenges and inefficiencies of demand paging in
+GPUs, in particular on collaborative computations where data
+migrates multiple times between host and device. We establish
+that demand paging on GPUs introduces significant overheads for
+these kind of computations, and identify the issues of false sharing
+and unnecessary data transfers derived from the granularity at
+which data is migrated. In order to alleviate these problems
+we propose a memory organization and dynamic migration
+scheme to efficiently share data between host and device at fine
+granularities and without software intervention. We evaluate our
+design with a set of collaborative heterogeneous benchmarks and
+find it achieves 15% lower execution times on average with cache
+line-sized migrations, but severely degrading performance on
+benchmarks that access large blocks of contiguous memory. Pagesized migrations, although inefficient, provide on average a 47%
+execution time reduction with our design over a baseline system
+implementing demand paging. Our results suggest that cache linesized migrations are not feasible in systems using a PCI-Express
+interconnect. In order to understand how future interconnect
+technologies will impact the feasibility of fine-grained migrations,
+we evaluate our scheme with various link latencies. We find
+interconnect latencies four to five times lower than PCI-Express
+are sufficient to effectively share data at finer granularities.
+

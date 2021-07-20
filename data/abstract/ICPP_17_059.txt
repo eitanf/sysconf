@@ -1,0 +1,24 @@
+
+Projections and measurements of error rates in
+near-exascale and exascale systems suggest a dramatic growth,
+due to extreme scale (10° cores), concurrency, software complexity, and deep submicron transistor scaling. Such a growth makes
+resilience a critical concern, and may increase the incidence
+of errors that “escape”, silently corrupting application state.
+Such errors can often be revealed by application software tests
+but with long latencies, and thus are known as Jatent errors.
+We explore how to efficiently recover from latent errors, with
+an approach called application-based focused recovery (ABFR).
+Specifically we present a case study of stencil computations,
+a widely useful computational structure, showing how ABFR
+focuses recovery effort where needed, using intelligent testing
+and pruning to reduce recovery effort, and enables recovery
+effort to be overlapped with application computation. We analyze
+and characterize the ABFR approach on stencils, creating a
+performance model parameterized by error rate and detection
+interval (latency). We compare projections from the model
+to experimental results with the Chombo stencil application,
+validating the model and showing that ABFR on stencil can
+achieve a significant reductions in error recovery cost (up to
+400x) and recovery latency (up to 4x). Such reductions enable
+efficient execution at scale with high latent error rates.
+

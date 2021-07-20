@@ -1,0 +1,31 @@
+
+
+The evolution of cloud-computing imposes many challenges
+on performance testing and requires not only a different
+approach and methodology of performance evaluation and
+analysis, but also specialized tools and frameworks to support such work. In traditional performance testing, typically a single workload was run against a static test configuration. The main metrics derived from such experiments
+included throughput, response times, and system utilization
+at steady-state. While this may have been sufficient in the
+past, where in many cases a single application was run on
+dedicated hardware, this approach is no longer suitable for
+cloud-based deployments. Whether private or public cloud,
+such environments typically host a variety of applications on
+distributed shared hardware resources, simultaneously accessed by a large number of tenants running heterogeneous
+workloads. The number of tenants as well as their activity and resource needs dynamically change over time, and
+the cloud infrastructure reacts to this by reallocating existing or provisioning new resources. Besides metrics such as
+the number of tenants and overall resource utilization, performance testing in the cloud must be able to answer many
+more questions: How is the quality of service of a tenant impacted by the constantly changing activity of other tenants?
+How long does it take the cloud infrastructure to react to
+changes in demand, and what is the effect on tenants while it
+does so? How well are service level agreements met? What
+is the resource consumption of individual tenants? How can
+global performance metrics on application- and system-level
+in a distributed system be correlated to an individual tenant’s perceived performance?
+
+In this paper we present CloudPerf, a performance test
+framework specifically designed for distributed and dynamic
+multi-tenant environments, capable of answering all of the
+above questions, and more. CloudPerf consists of a distributed harness, a protocol-independent load generator and
+workload modeling framework, an extensible statistics framework with live-monitoring and post-analysis tools, interfaces
+for cloud deployment operations, and a rich set of both lowlevel as well as high-level workloads from different domains.
+

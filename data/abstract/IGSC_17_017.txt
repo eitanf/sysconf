@@ -1,0 +1,22 @@
+
+In today’s multicore systems, depending on an
+application’s computational demand, cores are either operated
+individually at different Voltage/Frequency (V/F) levels or
+grouped into multiple Voltage-Frequency Islands (VFIs) to
+reduce system energy consumption. This paper formulates a
+task scheduling and VFI partitioning problem whose
+optimization goal is to minimize the task set (application)
+execution time (makespan) for a given energy budget. First, the
+combinatorial optimization problem is formulated with Integer
+Linear Programming (ILP) to obtain per-core, per-task
+dynamic V/F levels in a fine-grain VFI-based system with
+single-core islands. Next, static task scheduling on coarse-grain
+VFI-based systems, where an island can contain several cores
+operated at the same V/F level, is formulated with Mixed
+Integer Linear Programming (MILP), considering the energy
+budget and task set’s precedence constraints. The experimental
+results show that under different energy budget constraints,
+fine-grain, dynamic task allocations provide on average 1.35x
+speedup over static coarse grain scheduling and partitioning
+methods.
+

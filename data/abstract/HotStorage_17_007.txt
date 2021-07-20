@@ -1,0 +1,11 @@
+
+
+File system checkers serve as the last line of defense to
+recover a corrupted file system back to a consistent state.
+Therefore, their reliability is critically important. Motivated by real accidents, in this paper we study the behavior of file system checkers under faults. We systematically inject emulated faults to interrupt the checkers
+and examine the impact on the file system images. In
+doing so, we answer two important questions: Does running the checker after an interrupted-check successfully
+return the file system to a correct state? If not, what goes
+wrong? Our results show that there are vulnerabilities in
+popular file system checkers which could lead to unrecoverable data loss under faults.
+

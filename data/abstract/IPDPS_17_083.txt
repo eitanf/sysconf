@@ -1,0 +1,19 @@
+
+Deadlock avoidance mechanisms for lossless lowdistance networks typically increase the order of virtual channel
+(VC) index with each hop. This restricts the number of buffer
+resources depending on the routing mechanism and limits performance due to an inefficient use. Dynamic buffer organizations
+increase implementation complexity and only provide small gains
+in this context because a significant amount of buffering needs
+to be allocated statically to avoid congestion.
+
+We introduce Flex VC, a simple buffer management mechanism
+which permits a more flexible use of VCs. It combines statically
+partitioned buffers, opportunistic routing and a relaxed distancebased deadlock avoidance policy. FlexVC mitigates Head-of-Line
+blocking and reduces up to 50% the memory requirements.
+Simulation results in a Dragonfly network show congestion reduction and up to 37.8% throughput improvement, outperforming
+more complex dynamic approaches. FlexVC merges different
+flows of traffic in the same buffers, which in some cases makes
+more difficult to identify the traffic pattern in order to support
+nonminimal adaptive routing. An alternative denoted FlexVCminCred improves congestion sensing for adaptive routing by
+tracking separately packets routed minimally and nonminimally,
+rising throughput up to 20.4% with 25% savings in buffer area.

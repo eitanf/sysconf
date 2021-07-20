@@ -1,0 +1,31 @@
+
+GPUs have become an essential component for
+building compute clusters with high compute density and high
+performance per watt. As such clusters scale to have 1000s
+of GPUs, efficiently moving data between the GPUs becomes
+imperative to get maximum performance. NVSHMEM is an
+implementation of the OpenSHMEM standard for NVIDIA GPU
+clusters which allows communication to be issued from inside
+GPU kernels. In earlier work, we have shown how NVSHMEM
+can be used to achieve better application performance on GPUs
+connected through PCIe or NVLink. As part of this effort,
+we implement IB verbs for Mellanox InfiniBand adapters in
+CUDA. We evaluate different design alternatives, taking into
+consideration the relaxed memory model, automatic memory
+access coalescing and thread hierarchy on the GPU. We also
+consider correctness issues that arise in these designs. We
+take advantage of these designs transparently or through API
+extensions in NVSHMEM. With micro-benchmarks, we show
+that a Nvidia Pascal P100 GPU is able saturate the network
+bandwidth using only one or two of its 56 available streaming
+multiprocessors (SM). On a single GPU using a single IB EDR
+adapter, we achieve a throughput of around 90 million messages
+per second. In addition, we implement a 2dstencil application
+kernel using NVSHMEM and compare its performance with a
+CUDA-aware MPI-based implementation that uses GPUDirect
+RDMA. Speedups in the range of 23% to 42% are seen for
+input sizes large enough to fill the occupancy of Nvidia Pascal
+P100 GPUs on 2 to 4 nodes indicating that there are gains to be
+had by eliminating the CPU from the communication path when
+all computation runs on the GPU.
+

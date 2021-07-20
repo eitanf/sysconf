@@ -1,0 +1,33 @@
+
+With current DRAM technology reaching its limit,
+emerging heterogeneous memory systems have become attractive to continue scaling memory performance. This paper
+argues for using a small, fast memory closer to the processor
+as part of a flat address space where the memory system
+is composed of two or more memory types. OS-transparent
+management of such memory has been proposed in prior works
+such as CAMEO and Part of Memory (PoM). Data migration
+is typically handled either at coarse granularity with high
+bandwidth overheads (as in PoM) or at fine granularity with
+low hit rate (as in CAMEO). Prior work uses restricted address
+mapping from only congruence groups in order to simplify the
+mapping. At any time, only one page (block) from a congruence
+group is resident in the fast memory.
+
+In this paper, we present a flat address space organization
+called SILC-FM that uses large granularity but allows subblocks from two pages to coexist in an interleaved fashion in
+fast memory. Data movement is done at subblocked granularity,
+avoiding fetching of useless subblocks and consuming less
+bandwidth compared to migrating the entire large block.
+SILC-FM can achieve more spatial locality hits than CAMEO
+and PoM due to page-level operation and interleaving blocks
+respectively. The interleaved subblock placement improves
+performance by 55% on average over a static placement scheme
+without data migration. We also selectively lock hot blocks
+to prevent them from being involved in hardware swapping
+operations. Additional features such as locking, associativity
+and bandwidth balancing improve performance by 11%, 8%,
+and 8% respectively, resulting in a total of 82% performance
+improvement over a no migration static placement scheme.
+Compared to the best state-of-the-art scheme, SILC-FM gets
+performance improvement of 36% with 13% energy savings.
+

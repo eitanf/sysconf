@@ -1,0 +1,23 @@
+
+In-memory key-value store is a crucial building block
+of large-scale web architecture. Given the growth of the data
+volume and the need for low-latency responses, cost-effective
+storage expansion and fast large-message processing are the
+major challenges. In this paper, we explore the design of keyvalue middleware that takes advantage of modern NVMe SSDs
+and RDMA interconnects to achieve high performance without
+excessive DRAM deployment. We propose an all-in-userland
+approach to improve the data plane efficiency. Both NVMe and
+RDMaA are interfaced directly from the user-space for effective
+data access and tailored data management. We present a lowlatency storage extension framework based on NVMe and a new
+design of JVM-aware Memcache protocol based on RDMA. To
+further accelerate large-message transfer, we provide a hybrid
+communication protocol fusing Eager and Rendezvous schemas,
+and a united I/O staging approach to achieve maximum latency
+hiding through pipelining. As the benchmarking results indicate,
+with the non-negligible JVM overhead taken into account, our
+solution obtains comparable communication performance with
+the RDMA-Memceached released by the OSU. For SSD-involved
+operations, the latency decreases by up to 31% compared to the
+kernel-based I/O processing.
+
+Keywords-key-value middleware; NVMe; RDMA; JVM; userspace I/O

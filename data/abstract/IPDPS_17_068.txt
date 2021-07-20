@@ -1,0 +1,24 @@
+
+We design and develop a work-efficient multithreaded algorithm for sparse matrix-sparse vector multiplication
+(SpMSpV) where the matrix, the input vector, and the output
+vector are all sparse. SpMSpV is an important primitive in
+the emerging GraphBLAS standard and is the workhorse of
+many graph algorithms including breadth-first search, bipartite
+graph matching, and maximal independent set. As thread counts
+increase, existing multithreaded SpMSpV algorithms can spend
+more time accessing the sparse matrix data structure than doing
+arithmetic. Our shared-memory parallel SpMSpV algorithm is
+work efficient in the sense that its total work is proportional to
+the number of arithmetic operations required. The key insight is
+to avoid each thread individually scan the list of matrix columns.
+
+Our algorithm is simple to implement and operates on existing
+column-based sparse matrix formats. It performs well on diverse
+matrices and vectors with heterogeneous sparsity patterns. A
+high-performance implementation of the algorithm attains up to
+15x speedup on a 24-core Intel Ivy Bridge processor and up to 49x
+speedup on a 64-core Intel KNL manycore processor. In contrast
+to implementations of existing algorithms, the performance of our
+algorithm is sustained on a variety of different input types include
+matrices representing scale-free and high-diameter graphs.
+

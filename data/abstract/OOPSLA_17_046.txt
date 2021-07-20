@@ -1,0 +1,14 @@
+
+Algorithms that create and mutate graph data structures are challenging to implement correctly. However,
+verifying even basic properties of low-level implementations, such as referential integrity and memory safety,
+remains non-trivial. Furthermore, any extension to such a data structure multiplies the complexity of its
+implementation, while compounding the challenges in reasoning about correctness. We take a language
+design approach to this problem. We propose Seam, a language for expressing local edits to graph-like
+data structures, based on a relational data model, and such that data integrity can be verified automatically.
+We present a verification method that leverages an SMT solver, and prove it sound and precise (complete
+modulo termination of the SMT solver). We evaluate the verification capabilities of Seam empirically, and
+demonstrate its applicability to a variety of examples, most notably a new class of verification tasks derived
+from geometric remeshing operations used in scientific simulation and computer graphics. We describe our
+prototype implementation of a Seam compiler that generates low-level code, which can then be integrated
+into larger applications. We evaluate our compiler on a sample application, and demonstrate competitive
+execution time, compared to hand-written implementations.

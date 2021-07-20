@@ -1,0 +1,18 @@
+
+We study tiled algorithms for going from a “full”
+matrix to a condensed “band bidiagonal” form using orthogonal transformations: (i) the tiled bidiagonalization algorithm
+BIDIAG, which is a tiled version of the standard scalar bidiagonalization algorithm; and (ii) the R-bidiagonalization algorithm
+R-BIDIAG, which is a tiled version of the algorithm which
+consists in first performing the QR factorization of the initial
+matrix, then performing the band-bidiagonalization of the Rfactor. For both BIDIAG and R-BIDIAG, we use four main types
+of reduction trees, namely FLATTS, FLATTT, GREEDY, and a
+newly introduced auto-adaptive tree, AUTO. We provide a study
+of critical path lengths for these tiled algorithms, which shows
+that (i) R-BIDIAG has a shorter critical path length than BIDIAG
+for tall and skinny matrices, and (ii) GREEDY based schemes are
+much better than earlier proposed algorithms with unbounded
+resources. We provide experiments on a single multicore node,
+and on a few multicore nodes of a parallel distributed sharedMemory system, to show the superiority of the new algorithms
+on a variety of matrix sizes, matrix shapes and core counts.
+
+

@@ -1,0 +1,20 @@
+
+
+Many cloud-based data management and analytics systems
+support complex objects. Dataflow platforms such as Spark
+and Flink allow programmers to manipulate sets consisting of
+objects from a host programming language (often Java). Document databases such as MongoDB make use of hierarchical
+interchange formats—most popularly JSON—which embody
+a data model where individual records can themselves contain
+sets of records. Systems such as Dremel and AsterixDB allow
+complex nesting of data structures.
+
+Clearly, no system designer would expect a system that
+stores JSON objects as text to perform at the same level as a
+system based upon a custom-built physical data model. The
+question we ask is: How significant is the performance hit associated with choosing a particular physical implementation?
+Is the choice going to result in a negligible performance cost,
+or one that is debilitating? Unfortunately, there does not exist
+a scientific study of the effect of physical complex model implementation on system performance in the literature. Hence
+itis difficult for a system designer to fully understand performance implications of such choices. This paper is an attempt
+to remedy that.

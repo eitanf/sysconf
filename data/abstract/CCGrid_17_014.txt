@@ -1,0 +1,23 @@
+
+NVIDIA GPUDirect is a family of technologies
+aimed at optimizing data movement among GPUs (P2P) or
+between GPUs and third-party devices (RDMA). GPUDirect
+Asyne, introduced in CUDA 8.0, is a new addition which
+allows direct synchronization between GPU and third party
+devices. For example, Async allows an NVIDIA GPU to directly
+trigger and poll for completion of communication operations
+queued to an InfiniBand Connect-IB network adapter, removing
+CPU involvement from the critical path in GPU accelerated
+applications. In this paper, we present the building blocks of
+GPUDirect Async and explain the supported usage models of
+this new technology. We also present a performance evaluation
+using a micro-benchmark and a synthetic stencil benchmark.
+Finally, we demonstrate the use of Async in a few multi-GPU
+MPI applications: HPGMG-FV (geometric multi-grid), achieving
+up to 25% improvement in total execution time; CoMD-CUDA
+(classical molecular dynamics), reducing communications times
+up to 30%; LULESH2-CUDA, achieving an average performance
+improvement of 13% in the total execution time.
+
+Index Terms—GPUDirect Async; CUDA 8.0; InfiniBand; asynchronous communications.
+

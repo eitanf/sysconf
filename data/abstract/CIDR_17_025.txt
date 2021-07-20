@@ -1,0 +1,16 @@
+
+Systems for declarative large-scale machine learning (ML)
+algorithms aim at high-level algorithm specification and automatic optimization of runtime execution plans. State-ofthe-art compilers rely on algebraic rewrites and operator selection, including fused operators to avoid materialized intermediates, reduce memory bandwidth requirements, and
+exploit sparsity across chains of operations. However, the
+unlimited number of relevant patterns for rewrites and operators poses challenges in terms of development effort and
+high performance impact. Query compilation has been studied extensively in the database literature, but ML programs
+additionally require handling linear algebra and exploiting
+algebraic properties, DAG structures, and sparsity. In this
+paper, we introduce SPOOF, an architecture to automatically
+(1) identify algebraic simplification rewrites, and (2) generate fused operators in a holistic framework. We describe a
+snapshot of the overall system, including key techniques of
+sum-product optimization and code generation. Preliminary
+experiments show performance close to hand-coded fused
+operators, significant improvements over a baseline without
+fused operators, and moderate compilation overhead.
+

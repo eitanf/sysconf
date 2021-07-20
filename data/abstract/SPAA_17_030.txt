@@ -1,0 +1,28 @@
+
+
+Iterative wavefront algorithms for evaluating dynamic programming recurrences exploit optimal parallelism but show poor cache
+performance. Tiled-iterative wavefront algorithms achieve optimal
+cache complexity and high parallelism but are cache-aware and
+hence are not portable and not cache-adaptive. On the other hand,
+standard cache-oblivious recursive divide-and-conquer algorithms
+have optimal serial cache complexity but often have low parallelism
+due to artificial dependencies among subtasks.
+
+Recently, we introduced cache-oblivious recursive wavefront
+(COW) algorithms, which do not have any artificial dependencies, but they are too complicated to develop, analyze, implement,
+and generalize. Though COW algorithms are based on fork-join
+primitives, they extensively use atomic operations for ensuring
+correctness, and as a result, performance guarantees (i.e., parallel
+running time and parallel cache complexity) provided by state-ofthe-art schedulers (e.g., the randomized work-stealing scheduler)
+for programs with fork-join primitives do not apply. Also, extensive
+use of atomic locks may result in high overhead in implementation.
+
+In this paper, we show how to systematically transform standard
+cache-oblivious recursive divide-and-conquer algorithms into recursive wavefront algorithms to achieve optimal parallel cache complexity and high parallelism under state-of-the-art schedulers for
+fork-join programs. Unlike COW algorithms these new algorithms
+do not use atomic operations. Instead, they use closed-form formulas to compute the time when each divide-and-conquer function
+must be launched in order to achieve high parallelism without losing cache performance. The resulting implementations are arguably
+much simpler than implementations of known COW algorithms.
+We present theoretical analyses and experimental performance and
+scalability results showing a superiority of these new algorithms
+over existing algorithms.

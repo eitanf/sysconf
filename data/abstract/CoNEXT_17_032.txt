@@ -1,0 +1,25 @@
+
+
+Large-scale mobile traffic analytics is becoming essential to digital
+infrastructure provisioning, public transportation, events planning,
+and other domains. Monitoring city-wide mobile traffic is however
+a complex and costly process that relies on dedicated probes. Some
+of these probes have limited precision or coverage, others gather
+tens of gigabytes of logs daily, which independently offer limited insights. Extracting fine-grained patterns involves expensive spatial
+aggregation of measurements, storage, and post-processing. In this
+paper, we propose a mobile traffic super-resolution technique that
+overcomes these problems by inferring narrowly localised traffic
+consumption from coarse measurements. We draw inspiration from
+image processing and design a deep-learning architecture tailored
+to mobile networking, which combines Zipper Network (ZipNet)
+and Generative Adversarial neural Network (GAN) models. This enables to uniquely capture spatio-temporal relations between traffic
+volume snapshots routinely monitored over broad coverage areas
+(‘low-resolution’) and the corresponding consumption at 0.05 km?
+level (‘high-resolution’) usually obtained after intensive computation. Experiments we conduct with a real-world data set demonstrate that the proposed ZipNet(-GAN) infers traffic consumption
+with remarkable accuracy and up to 100x higher granularity as
+compared to standard probing, while outperforming existing data
+interpolation techniques. To our knowledge, this is the first time
+super-resolution concepts are applied to large-scale mobile traffic
+analysis and our solution is the first to infer fine-grained urban
+traffic patterns from coarse aggregates.
+

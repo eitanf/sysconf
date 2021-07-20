@@ -1,0 +1,22 @@
+
+Relational databases are well suited for vertical
+scaling; however, specialized hardware can be expensive. Conversely, NewSQL and NoSQL data stores are designed to scale
+horizontally. NewSQL databases provide ACID transaction support; however, joins are limited to the partition keys, resulting
+in restricted query expressiveness. On the other hand, NoSQL
+databases are designed to scale out on commodity hardware;
+however, they are limited by slow join performance. Hence, we
+consider if the NoSQL join performance can be improved while
+ensuring ACID semantics and without drastically sacrificing write
+performance, disk utilization and query expressiveness.
+
+This paper presents the Synergy system that leverages schema
+and workload driven mechanisms to identify materialized views,
+and a specialized concurrency control system on top of a NoSQL
+database to enable scalable data management with familiar
+relational conventions. Synergy trades slight write performance
+degradation and increased disk utilization for faster join performance (compared to standard NoSQL databases) and improved
+query expressiveness (compared to NewSQL databases).
+
+Keywords-Transaction processing, materialized views, NoSQL
+databases, performance evaluation
+

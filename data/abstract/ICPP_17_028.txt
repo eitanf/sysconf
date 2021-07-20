@@ -1,0 +1,34 @@
+
+String pattern matching with finite automata
+(FAs) is a well-established method across many areas in
+computer science. Until now, data dependencies inherent in
+the pattern matching algorithm have hampered effective parallelization. To overcome the dependency-constraint between
+subsequent matching steps, simultaneous deterministic finite
+automata (SFAs) have been recently introduced. Although an
+SFA facilitates parallel FA matching, SFA construction itself is
+limited by the exponential state-growth problem, which makes
+sequential SFA construction intractable for all but the smallest
+problem sizes.
+
+In this paper, we propose several optimizations to leverage
+parallelism, improve cache and memory utilization and greatly
+reduce the processing steps required to construct an SFA. We
+introduce fingerprints and hashing for efficient comparisons of
+SFA states. Kernels of x86 SIMD-instructions facilitate cachelocality and leverage data-parallelism with the construction of
+SFA states. Our parallelization for shared-memory multicores
+employs lock-free synchronization to minimize cache-coherence
+overhead. Our dynamic work-partitioning scheme employs
+work-stealing with thread-local work-queues. The structural
+properties of FAs allow efficient compression of SFA states.
+Our construction algorithm dynamically switches to in-memory
+compression of SFA states for problem sizes which approach
+the main memory size limit of a given system.
+
+We evaluate our approach with patterns from the PROSITE
+protein database. We achieve speedups of up to 312x on a 64core AMD system and 193x on a 44-core (88 hyperthreads) Intel
+system. Our SFA construction algorithm shows scalability on
+both evaluation platforms.
+
+Keywords-SFA construction; fingerprints; hashing; workstealing; lock-free programming; compression; parallelization;
+multicores;
+

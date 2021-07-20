@@ -1,0 +1,26 @@
+
+Stencil computation arises from a broad set of
+scientific and engineering applications and often plays a critical
+role in the performance of extreme-scale simulations. Due to
+the memory bound nature, it is a challenging task to optimize stencil computation kernels on modern supercomputers
+with relatively high computing throughput whilst relatively
+low data-moving capability. This work serves as a demonstration on the details of the algorithms, implementations
+and optimizations of a real-world stencil computation in 3D
+nonhydrostatic atmospheric modeling on the newly announced
+Sunway TaihuLight supercomputer. At the algorithm level, we
+present a computation-communication overlapping technique
+to reduce the inter-process communication overhead, a localityaware blocking method to fully exploit on-chip parallelism
+with enhanced data locality, and a collaborative data accessing
+scheme for sharing data among different threads. In addition,
+a variety of effective hardware specific implementation and
+optimization strategies on both the process- and thread-level,
+from the fine-grained data management to the data layout
+transformation, are developed to further improve the performance. Our experiments demonstrate that a single-process
+many-core speedup of as high as 170x can be achieved by using
+the proposed algorithm and optimization strategies. The code
+scales well to millions of cores in terms of strong scalability.
+And for the weak-scaling tests, the code can scale in a nearly
+ideal way to the full system scale of more than 10 million cores,
+sustaining 25.96 PFLOPS in double precision, which is 20%
+of the peak performance.
+

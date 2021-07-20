@@ -1,0 +1,25 @@
+
+. Solving large numbers of small linear algebra problems simultaneously is becoming increasingly important in many application areas.
+Whilst many researchers have investigated the design of efficient batch
+linear algebra kernels for GPU architectures, the common approach for
+many /multi-core CPUs is to use one core per subproblem in the batch.
+When solving batches of very small matrices, 2 x 2 for example, this
+design exhibits two main issues: it fails to fully utilize the vector units
+and the cache of modern architectures, since the matrices are too small.
+Our approach to resolve this is as follows: given a batch of small matrices
+spread throughout the primary memory, we first reorganize the elements
+of the matrices into a contiguous array, using a block interleaved memory
+format, which allows us to process the small independent problems as a
+single large matrix problem and enables cross-matrix vectorization. The
+large problem is solved using blocking strategies that attempt to optimize
+the use of the cache. The solution is then converted back to the original
+storage format. To explain our approach we focus on two BLAS routines:
+general matrix-matrix multiplication (GEMM) and the triangular solve
+(TRSM). We extend this idea to LAPACK routines using the Cholesky
+factorization and solve (POSV). Our focus is primarily on very small
+matrices ranging in size from 2 x 2 to 32 x 32. Compared to both MKL
+and OpenMP implementations, our approach can be up to 4 times faster
+for GEMM, up to 14 times faster for TRSM, and up to 40 times faster for
+POSV on the new Intel Xeon Phi processor, code-named Knights Landing (KNL). Furthermore, we discuss strategies to avoid data movement
+between sockets when using our interleaved approach on a NUMA node.
+

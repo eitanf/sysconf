@@ -1,0 +1,18 @@
+
+
+Service providers want to reduce datacenter costs by consolidating workloads onto fewer servers. At the same time, customers
+have performance goals, such as meeting tail latency Service Level
+Objectives (SLOs). Consolidating workloads while meeting tail latency goals is challenging, especially since workloads in production
+environments are often bursty. To limit the congestion when consolidating workloads, customers and service providers often agree
+upon rate limits. Ideally, rate limits are chosen to maximize the
+number of workloads that can be co-located while meeting each
+workload’s SLO. In reality, neither the service provider nor customer
+knows how to choose rate limits. Customers end up selecting rate
+limits on their own in some ad hoc fashion, and service providers
+are left to optimize given the chosen rate limits.
+
+This paper describes WorkloadCompactor, a new system that
+uses workload traces to automatically choose rate limits simultaneously with selecting onto which server to place workloads. Our
+system meets customer tail latency SLOs while minimizing datacenter resource costs. Our experiments show that by optimizing
+the choice of rate limits, WorkloadCompactor reduces the number of required servers by 30-60% as compared to state-of-the-art
+approaches.

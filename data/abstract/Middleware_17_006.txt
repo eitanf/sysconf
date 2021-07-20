@@ -1,0 +1,19 @@
+
+Traditionally, active storage techniques have been proposed to move
+computation tasks to storage nodes in order to exploit data locality.
+However, we argue in this paper that active storage is ill-suited for
+cloud storage for two reasons: 1. Lack of elasticity: Computing can
+only scale out with the number of storage nodes; and 2. Resource
+Contention: Sharing compute resources can produce interferences
+in the storage system. Serverless computing is now emerging as a
+promising alternative for ensuring painless scalability, and also, for
+simplifying the development of disaggregated computing tasks.
+
+Here we present an innovative data-driven serverless computing
+middleware for object storage. It is a lightweight compute solution
+that allows users to create small, stateless functions that intercept
+and operate on data flows in a scalable manner without the need
+to manage a server or a runtime environment. We demonstrate
+through different use cases how our solution scales with minimal
+overhead, while getting rid of the resource contention problems
+incurred by active storage tasks.

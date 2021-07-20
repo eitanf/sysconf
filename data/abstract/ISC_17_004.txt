@@ -1,0 +1,13 @@
+
+. Molecular Dynamics is an important tool for computational
+biologists, chemists, and materials scientists, consuming a sizable amount
+of supercomputing resources. Many of the investigated systems contain
+charged particles, which can only be simulated accurately using a longrange solver, such as PPPM. We extend the popular LAMMPS molecular
+dynamics code with an implementation of PPPM particularly suitable
+for the second generation Intel Xeon Phi. Our main target is the optimization of computational kernels by means of vectorization, and we
+observe speedups in these kernels of up to 12x. These improvements
+carry over to LAMMPS users, with overall speedups ranging between
+2-3x, without requiring users to retune input parameters. Furthermore,
+our optimizations make it easier for users to determine optimal input
+parameters for attaining top performance.
+

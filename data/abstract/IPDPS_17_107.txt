@@ -1,0 +1,34 @@
+
+Large-scale data analysis applications are becoming more and more prevalent in a wide variety of areas.
+These applications are composed of many currently available
+programs called analysis components. Thousands of analysis component processes are orchestrated on many compute
+nodes. This paper proposes a novel self-tuning framework
+for optimizing an application’s throughput in large-scale data
+analysis. One challenge is developing efficient orchestration
+that takes into account the diversity of analysis components
+and the varying performances of compute nodes. In our
+previous work, we achieved such an orchestration to a certain
+degree by introducing our own middleware, which wraps
+each analysis component as a remote procedure call (RPC)
+service. The middleware also pools the processes to reduce
+startup overhead, which is a serious obstacle to achieving
+high throughput. This work tackles the remaining task of
+tuning the size of the analysis components’ process pools to
+maximize the application’s throughput. This is challenging
+because analysis components differ drastically in turnaround
+times and memory footprints. The size of the process pool
+for each type of analysis component should be set by giving
+consideration to these properties as well as the constraints on
+both the memory capacity and the processor core counts. In this
+work, we formulate this task as a linear programming problem
+and obtain the optimal pool sizes by solving it. Compared to our
+previous work, we significantly improved the scalability of our
+framework by reformulating the performance model to work
+on hundreds of heterogeneous nodes. We also extended the
+service allocation mechanism to manage the computational load
+on each compute node and reduce communication overhead.
+The experimental results show that our approach is scalable
+to thousands of analysis component processes running on 200
+compute nodes across three clusters. Moreover, our approach
+significantly reduces memory footprint.
+

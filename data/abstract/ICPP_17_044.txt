@@ -1,0 +1,27 @@
+
+ The home-grown SW26010 many-core processor
+enabled the production of China’s first independently developed number-one ranked supercomputer -— the Sunway
+TaihuLight. The design of the limited off-chip memory bandwidth, however, renders the SW26010 a highly memory-bound
+processor. To compensate for this limitation, the processor
+was designed with a unique hardware feature, “Register Level
+Communication” (RLC), to share register data among its
+8 x 8 computing processing elements (CPEs) via a 2D onchip network. Such a radical architecture has sparked global
+researchers’ concerns regarding the programming challenges
+this may cause. To address these concerns, we adopted two
+compute-bound scientific kernels as benchmarks to identify the
+potential programming challenges. The first kernel is doubleprecision general matrix-multiplication (DGEMM). An RLCfriendly algorithm was designed for this kernel to reuse the data
+that already reside in the registers of 64 CPEs. This novel optimization enables the kernel to achieve up to 88.7% efficiency
+in one core group of the SW26010. This paper reveals, for
+the first time, the details of how the highly efficient DGEMM
+is implemented on the home-grown processor. The second
+kernel that we used is N-body. Due to the inefficient hardware
+support for transcendental operations on the SW26010, we
+replaced the reciprocal square root (rsqrt) instruction of N-body
+with a software routine to tackle the problem. Based on the
+programming challenges identified through these two optimized
+kernels, we proposed a three-level programming guideline for
+the SW26010. The paper concludes with our crucial finding
+that the critical step towards bridging the ninja performance
+gap on the SW26010 is to design an RLC-friendly algorithm
+to increase arithmetic intensity.
+

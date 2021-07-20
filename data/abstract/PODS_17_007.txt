@@ -1,0 +1,20 @@
+
+
+Normal tuple-generating dependencies (NTGDs) are TGDs enriched with default negation, a.k.a. negation as failure. Query answering under NTGDs, where negation is interpreted according to
+the stable model semantics, is an intriguing new problem that gave
+rise to flourishing research activity in the database and KR communities. So far, all the existing works that investigate this problem,
+except for one recent paper that adopts an operational semantics
+based on the chase, follow the so-called logic programming (LP)
+approach. According to the LP approach, the existentially quantified variables are first eliminated via Skolemization, which leads
+to a normal logic program, and then the standard stable model semantics for normal logic programs is applied. However, as we discuss in the paper, Skolemization is not appropriate in the presence
+of default negation since it fails to capture the intended meaning
+of NTGDs, while the operational semantics mentioned above fails
+to overcome the limitations of the LP approach. This reveals the
+need to adopt an alternative approach to stable model semantics that
+is directly applicable to NTGDs with existentially quantified. variables. We propose such an approach based on a recent characterization of stable models in terms of second-order logic, which indeed
+overcomes the limitations of the LP approach. We then perform
+an in-depth complexity analysis of query answering under prominent classes of NTGDs based on the main decidability paradigms
+for TGDs, namely weak-acyclicity, guardedness and stickiness. Interestingly, weakly-acyclic NTGDs give rise to robust and highly
+expressive query languages that allow us to solve in a declarative
+way problems in the second level of the polynomial hierarchy.
+

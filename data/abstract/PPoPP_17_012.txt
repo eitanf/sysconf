@@ -1,0 +1,14 @@
+
+Data-structures can benefit from dynamic data layout modifications when the size or the shape of the data structure
+changes during the execution, or when different phases in the
+program execute different workloads. However, in a modern
+multi-core environment, layout modifications involve costly
+synchronization overhead. In this paper we propose a novel
+layout lock that incurs a negligible overhead for reads and
+a small overhead for updates of the data structure. We then
+demonstrate the benefits of layout changes and also the advantages of the layout lock as its supporting synchronization
+mechanism for two data structures. In particular, we propose
+a concurrent binary search tree, and a concurrent array set,
+that benefit from concurrent layout modifications using the
+proposed layout lock. Experience demonstrates performance
+advantages and integration simplicity

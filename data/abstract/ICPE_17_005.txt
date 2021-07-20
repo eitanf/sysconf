@@ -1,0 +1,24 @@
+
+
+Video streaming applications generate a large fraction of Internet traffic. Much of this content is delivered over HTTP
+using standard web servers. Unlike other types of web workloads, HTTP video streaming workloads are typically disk
+bound, and therefore an important problem is that of optimizing disk access.
+
+In this paper we design, implement and evaluate Libception, an application-level shim library that implements techniques for improving disk I/O efficiency. Web servers can
+achieve the benefits of these techniques simply by linking
+with Libception, without the need to modify source code.
+In contrast to making kernel changes or attempting to optimize kernel tuning, Libception provides a portable and relatively simple setting in which techniques for optimizing I/O
+in HTTP video streaming servers can be implemented and
+evaluated.
+
+We report experimental results evaluating the efficacy of
+the aggressive prefetching and disk I/O serialization techniques currently implemented in Libception, for three web
+servers (Apache, nginx and the userver) and two operating
+systems (FreeBSD, Linux). We find that on FreeBSD, video
+streaming throughput with all three web servers can be doubled by linking with Libception. On Linux, performance
+similar to that provided with Libception was eventually obtained by examining the kernel source to understand and
+tune kernel parameters. With the default kernel parameter
+settings, however, and regardless of which Linux disk scheduler is selected, we find that use of Libception can approximately double throughput. We find that both aggressive
+prefetching and serialization are necessary to achieve these
+benefits.
+

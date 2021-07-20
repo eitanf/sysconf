@@ -1,0 +1,14 @@
+
+Optimizing communication performance is imperative for largescale computing because communication overheads limit the strong
+scalability of parallel applications. Today’s network cards contain
+rather powerful processors optimized for data movement. However,
+these devices are limited to fixed functions, such as remote direct
+memory access. We develop sPIN, a portable programming model to
+offload simple packet processing functions to the network card. To
+demonstrate the potential of the model, we design a cycle-accurate
+simulation environment by combining the network simulator LogGOPSim and the CPU simulator gem5. We implement offloaded
+message matching, datatype processing, and collective communications and demonstrate transparent full-application speedups. Furthermore, we show how sPIN can be used to accelerate redundant
+in-memory filesystems and several other use cases. Our work investigates a portable packet-processing network acceleration model
+similar to compute acceleration with CUDA or OpenCL. We show
+how such network acceleration enables an eco-system that can
+significantly speed up applications and system services.

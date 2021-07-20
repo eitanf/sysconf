@@ -1,0 +1,13 @@
+
+
+Virtual Guard (Vguard) is a track-based static mapping
+translation layer for shingled magnetic recording (SMR)
+drives. Data is written in-place by caching data from the next
+track in the shingling direction, allowing direct overwrite
+of sectors in the target track. This enables Vguard to take
+advantage of track-level locality, nearly eliminating cleaning
+for many workloads. We compare performance of Vguard
+to an available drive-managed SMR drive analyzed and
+modeled in previous research. Vguard reduces the 99.9%
+latency by 15x for real-world traces, and maximum latency
+by 32% for synthetic random write workloads.

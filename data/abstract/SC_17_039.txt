@@ -1,0 +1,14 @@
+
+Parameter tuning is an important task of storage performance
+optimization. Current practice usually involves numerous tweakbenchmark cycles that are slow and costly. To address this issue,
+we developed CAPES, a model-less deep reinforcement learningbased unsupervised parameter tuning system driven by a deep
+neural network (DNN). It is designed to find the optimal values
+of tunable parameters in computer systems, from a simple clientserver system to a large data center, where human tuning can be
+costly and often cannot achieve optimal performance. CAPES takes
+periodic measurements of a target computer system’s state, and
+trains a DNN which uses Q-learning to suggest changes to the
+system’s current parameter values. CAPES is minimally intrusive,
+and can be deployed into a production system to collect training
+data and suggest tuning actions during the system’s daily operation.
+Evaluation of a prototype on a Lustre file system demonstrates an
+increase in I/O throughput up to 45% at saturation point.

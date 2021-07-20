@@ -1,0 +1,29 @@
+
+The design and the deployment of energy-efficient
+distributed systems is a challenging task, which requires software
+engineers to consider all the layers of a system, from hardware to software. In particular, monitoring and analyzing the
+power consumption of a distributed system spanning several—
+potentially heterogeneous—nodes becomes particularly tedious
+when aiming at a finer granularity than observing the power
+consumption of hosting nodes. While the state-of-the-art in
+software-defined power meters fails to deliver adaptive solutions
+to offer such service-level perspective and to cope with the
+diversity of hardware CPU architectures, this paper proposes
+to automatically learn the power models of the nodes supporting
+a distributed system, and then to use these inferred power models
+to better understand how the power consumption of the system’s
+processes is distributed across nodes at runtime.
+
+Our solution, named WATTSKIT, offers a modular toolkit to
+build software-defined power meters “a la carte”, thus dealing
+with the diversity of user and hardware requirements. Beyond
+the demonstrated capability of covering a wide diversity of CPU
+architectures with high accuracy, we illustrate the benefits of
+adopting software-defined power meters to analyze the power
+consumption of complex layered and distributed systems. In
+particular, we illustrate the capability of our approach to monitor
+the power consumption of a system composed of Docker SWARM,
+WEAVE, ELASTICSEARCH, and Apache ZOOKEEPER. Thanks
+to WATTSKIT, developers and administrators are now able to
+identify potential power leaks in their software infrastructure.
+

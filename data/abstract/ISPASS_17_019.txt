@@ -1,0 +1,21 @@
+
+Thanks to modern deep learning frameworks that
+exploit GPUs, convolutional neural networks (CNNs) have been
+greatly successful in visual recognition tasks. In this paper, we
+analyze the GPU performance characteristics of five popular
+deep learning frameworks: Caffe, CNTK, TensorFlow, Theano,
+and Torch in the perspective of a representative CNN model,
+AlexNet. Based on the characteristics obtained, we suggest possible
+optimization methods to increase the efficiency of CNN models
+built by the frameworks. We also show the GPU performance
+characteristics of different convolution algorithms each of which
+uses one of GEMM, direct convolution, FFT, and the Winograd
+method. We also suggest criteria to choose convolution algorithms
+for GPUs and methods to build efficient CNN models on GPUs.
+Since scaling DNNs in a multi-GPU context becomes increasingly
+important, we also analyze the scalability of the CNN models built
+by the deep learning frameworks in the multi-GPU context and
+their overhead. The result indicates that we can increase the speed
+of training the AlexNet model up to 2X by just changing options
+provided by the frameworks.
+

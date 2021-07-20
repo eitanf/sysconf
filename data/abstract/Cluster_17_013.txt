@@ -1,0 +1,27 @@
+
+Multi-tiered memory systems, such as those based
+on Intel® Xeon Phi™ processors, are equipped with several memory tiers with different characteristics including, among others,
+capacity, access latency, bandwidth, energy consumption, and
+volatility. The proper distribution of the application data objects
+into the available memory layers is key to shorten the time—
+to-solution, but the way developers and end-users determine
+the most appropriate memory tier to place the application data
+objects has not been properly addressed to date.
+
+In this paper we present a novel methodology to build an
+extensible framework to automatically identify and place the
+application’s most relevant memory objects into the Intel Xeon
+Phi fast on-package memory. Our proposal works on top of inproduction binaries by first exploring the application behavior
+and then substituting the dynamic memory allocations. This
+makes this proposal valuable even for end-users who do not
+have the possibility of modifying the application source code. We
+demonstrate the value of a framework based in our methodology
+for several relevant HPC applications using different allocation
+strategies to help end-users improve performance with minimal
+intervention. The results of our evaluation reveal that our
+proposal is able to identify the key objects to be promoted
+into fast on-package memory in order to optimize performance,
+leading to even surpassing hardware-based solutions.
+
+Index Terms—heterogeneous memory, hybrid memory, highbandwidth memory, performance analysis, PEBS, sampling, instrumentation
+

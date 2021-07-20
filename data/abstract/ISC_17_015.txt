@@ -1,0 +1,12 @@
+
+. Numerical simulations present challenges because they generate petabyte-scale data that must be extracted and reduced during the
+simulation. We demonstrate a seamless integration of feature extraction
+for a simulation of turbulent fluid dynamics. The simulation produces on
+the order of 6 TB per timestep. In order to analyze and store this data, we
+extract velocity data from a dilated volume of the strong vortical regions
+and also store a lossy compressed representation of the data. Both reduce
+data by one or more orders of magnitude. We extract data from user checkpoints in transit while they reside on temporary burst buffer SSD stores.
+In this way, analysis and compression algorithms are designed to meet specific time constraints so they do not interfere with simulation computations. Our results demonstrate that we can perform feature extraction on
+a world-class direct numerical simulation of turbulence while it is running
+and gather meaningful scientific data for archival and post analysis.
+

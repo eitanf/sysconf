@@ -1,0 +1,28 @@
+
+Task-based programming models such as
+OpenMP, IntelTBB and OmpSs offer the possibility of
+expressing dependences among tasks to drive their execution
+at runtime. Managing these dependences introduces noticeable
+overheads when targeting fine-grained tasks, diminishing the
+potential speedups or even introducing performance losses.
+To overcome this drawback, we present a general purpose
+hardware accelerator, Picost+, to manage the inter-task
+dependences efficiently in both time and energy. Our design
+also includes a novel nested task support. To this end, a new
+hardware/software co-design is presented to overcome the fact
+that nested tasks with dependences could result in system
+deadlocks due to the limited amount of resources in hardware
+task dependence managers.
+
+In this paper we describe a detailed implementation of
+this design and evaluate a parallel task-based programming
+model using Picos++ in a Linux embedded system with two
+ARM Cortex-A9 and a FPGA. The scalability and energy
+consumption of the real system implemented have been studied
+and compared against a software runtime. Even in a system
+limited to 2 threads, using Picos++ results in more than 1.8x
+speedup and 40% of energy savings in the most demanding
+parallelizations of real benchmarks. As a matter of fact, a
+hardware task dependence manager should be able to achieve
+much higher speedup and provide more energy savings with
+more threads.

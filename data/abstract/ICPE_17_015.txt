@@ -1,0 +1,23 @@
+
+
+Video game crash events are characterized primarily by large
+media payloads and by highly bursty traffic patterns, with
+hundreds of thousands or millions of reports being issued in
+only a few minutes. These events are invaluable in quickly
+responding to game breaking issues that directly impact user
+experience. Even the slightest delay in capturing, processing
+and reporting these events can lead to user abandonment
+and significant financial cost.
+
+A traditional standalone RESTful service, backed by a
+vertically scaled SQL database is neither a reliable nor costeffective solution to this problem. An architecture that decouples capture and persistence and uses a horizontally scalable NoSQL database is not only easier to provision, but also
+uses fewer cpu and memory resources to provide the same
+end to end latency and throughput.
+
+By replacing our RESTful implementation with one that
+takes advantage both of the aforementioned design and multitenant provisioning, we have reduced our dedicated cpu footprint by 63% and memory footprint by 59%. Additionally,
+we have decreased our data loss during spikes to essentially
+0, maintained sub-second persistence latency and improved
+query latency in the average case by 54% with only a 3%
+sacrifice for worst case queries.
+

@@ -1,0 +1,18 @@
+
+This paper implements a Smoothed Particle
+Hydrodynamics simulation code and distributes it on a
+heterogeneous cluster. The theoretical analysis results show
+that treating GPU as equivalent peer of CPU rather than an
+assistant or a substitute is the most efficient way of using a
+CPU+GPU compute node. However, it raises complex
+challenges of heterogeneous cooperation. Our strategies of
+hybrid-level domain decomposition, multi-stage thread pool
+and data transfer optimization are addressed and the
+respective effects are showed. Steady balance ratio of 1.1
+between 6 nodes and GPU workload ratio of 0.43 between
+2CPU+1GPU cards are observed. Average speedups of 2.9x,
+1.81x, 1.1x over the single GPU version are obtained on three
+heterogeneous systems. The weak scaling tests are carried out
+on 1 to 16384 CPU-GPU nodes and the overall parallel
+efficiency of 70.3% is achieved.
+

@@ -1,0 +1,27 @@
+
+
+A common approach for designing scalable algorithms for massive data sets is to distribute the computation across, say k, machines and process the data using limited communication between
+them. A particularly appealing framework here is the simultaneous
+communication model whereby each machine constructs a small
+representative summary of its own data and one obtains an approximate/exact solution from the union of the representative summaries.
+If the representative summaries needed for a problem are small,
+then this results in a communication-efficient and round-optimal (requiring essentially no interaction between the machines) protocol.
+Some well-known examples of techniques for creating summaries
+include sampling, linear sketching, and composable coresets. These
+techniques have been successfully used to design communication
+efficient solutions for many fundamental graph problems. However,
+two prominent problems are notably absent from the list of successes, namely, the maximum maiching problem and the minimum
+vertex cover problem. Indeed, it was shown recently that for both
+these problems, even achieving a modest approximation factor of
+polylog(n) requires using representative summaries of size Q(n?)
+ie. essentially no better summary exists than each machine simply
+sending its entire input graph.
+
+The main insight of our work is that the intractability of matching and vertex cover in the simultaneous communication model is
+inherently connected to an adversarial partitioning of the underlying graph across machines. We show that when the underlying
+graph is randomly partitioned across machines, both these problems admit randomized composable coresets of size O(n) that yield an
+O(1)-approximate solution’, In other words, a small subgraph of the
+input graph at each machine can be identified as its representative
+summary and the final answer then is obtained by simply running
+any maximum matching or minimum vertex cover algorithm on
+these combined subgraphs. This results in an O(1)-approximation

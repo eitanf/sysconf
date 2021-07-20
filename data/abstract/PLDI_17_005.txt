@@ -1,0 +1,20 @@
+
+
+We propose a fully-automated technique for inverting functional programs that operate over lists such as string encoders
+and decoders. We consider programs that can be modeled
+using symbolic extended finite transducers (s-EFTs), an expressive model that can describe complex list-manipulating
+programs while retaining several decidable properties. Concretely, given a program P expressed as an s-EFT, we propose techniques for: 1) checking whether P is injective and,
+if that is the case, 2) building an s-EFT P—! describing its
+inverse. We first show that it is undecidable to check whether
+an s-EFT is injective and propose an algorithm for checking
+injectivity for a restricted, but a practical class of s-EFTs. We
+then propose an algorithm for inverting s-EFTs based on the
+following idea: if an s-EFT is injective, inverting it amounts
+to inverting all its individual transitions. We leverage recent
+advances in program synthesis and show that the transition
+inversion problem can be expressed as an instance of the
+syntax-guided synthesis framework. Finally, we implement
+the proposed techniques in a tool called GENIC and show that
+GENIC can invert 13 out of 14 real complex string encoders
+and decoders, producing inverse programs that are almost
+identical to manually written ones.

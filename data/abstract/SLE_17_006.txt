@@ -1,0 +1,28 @@
+
+
+Context-free grammars are suitable for formalizing the syntax of programming languages concisely and declaratively.
+Thus, such grammars are often found in reference manuals of
+programming languages, and used in language workbenches
+for language prototyping. However, the natural and concise
+way of writing a context-free grammar is often ambiguous.
+
+Safe and complete declarative disambiguation of operator
+precedence and associativity conflicts guarantees that all
+ambiguities arising from combining the operators of the
+language are resolved. Ambiguities can occur due to shallow
+conflicts, which can be captured by one-level tree patterns,
+and deep conflicts, which require more elaborate techniques.
+Approaches to solve deep priority conflicts include grammar
+transformations, which may result in large unambiguous
+grammars, or may require adapted parser technologies to
+include data-dependency tracking at parse time.
+
+In this paper we study deep priority conflicts “in the wild”.
+We investigate the efficiency of grammar transformations
+to solve deep priority conflicts by using a lazy parse table
+generation technique. On top of lazily-generated parse tables,
+we define metrics, aiming to answer how often deep priority
+conflicts occur in real-world programs and to what extent
+programmers explicitly disambiguate programs themselves.
+By applying our metrics to a small corpus of popular opensource repositories we found that in OCaml, up to 17% of
+the source files contain deep priority conflicts.

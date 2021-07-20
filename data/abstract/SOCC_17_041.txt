@@ -1,0 +1,22 @@
+
+
+There is a trend in recent database research to pursue coordination
+avoidance and weaker transaction isolation under a long-standing
+assumption: concurrent serializable transactions under read-write
+or write-write conflicts require costly synchronization, and thus
+may incur a steep price in terms of performance. In particular, distributed transactions, which access multiple data items atomically,
+are considered inherently costly. They require concurrency control for transaction isolation since both read-write and write-write
+conflicts are possible, and they rely on distributed commitment
+protocols to ensure atomicity in the presence of failures. This paper
+presents serializable read-only and write-only distributed transactions as a counterexample to show that concurrent transactions
+can be processed in parallel with low-overhead despite conflicts.
+Inspired by the slotted ALOHA network protocol, we propose a
+simpler and leaner protocol for serializable read-only write-only
+transactions, which uses only one round trip to commit a transaction in the absence of failures irrespective of contention. Our
+design is centered around an epoch-based concurrency control
+(ECC) mechanism that minimizes synchronization conflicts and
+uses a small number of additional messages whose cost is amortized
+across many transactions. We integrate this protocol into ALOHAKV, a scalable distributed key-value store for read-only write-only
+transactions, and demonstrate that the system can process close to
+15 million read/write operations per second per server when each
+transaction batches together thousands of such operations.

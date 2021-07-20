@@ -1,0 +1,20 @@
+
+ — Container technology has been prevalent and
+widely-adopted in production environment considering the huge
+benefits to application packing, deploying and management.
+However, the deployment process is relatively slow by using
+conventional approaches. In large-scale concurrent deployments,
+resource contentions on the central image repository would
+aggravate such situation. In fact, it is observable that the image
+pulling operation is mainly responsible for the degraded
+performance. To this end, we propose Cider - a novel deployment
+system to enable rapid container deployment in a_ high
+concurrent and scalable manner at scale. Firstly, on-demand
+image data loading is proposed by altering the local Docker
+storage of worker nodes into all-nodes-sharing network storage.
+Also, the local copy-on-write layer for containers can ensure
+Cider to achieve the scalability whilst improving the costeffectiveness during the holistic deployment. Experimental
+results reveal that Cider can shorten the overall deployment time
+by 85% and 62% on average when deploying one container and
+100 concurrent containers respectively.
+

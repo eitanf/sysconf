@@ -1,0 +1,38 @@
+
+Cloud computing enables end users to execute
+high-performance computing applications by renting the required computing power. This pay-for-use approach enables
+small enterprises and startups to run HPC-related businesses
+with a significant saving in capital investment and a short time
+to market.
+
+When deploying an application in the cloud, the users may
+a) fail to understand the interactions of the application with the
+software layers implementing the cloud system, &) be unaware
+of some hardware details of the cloud system, and c) fail
+to understand how sharing part of the cloud system with
+other users might degrade application performance. These
+misunderstandings may lead the users to select suboptimal
+cloud configurations in terms of cost or performance.
+
+To aid the users in selecting the optimal cloud configuration
+for their applications, we suggest that the cloud provider
+generate a prediction model for the provided system. We
+propose applying machine-learning techniques to generate this
+prediction model. First, the cloud provider profiles a set of
+training applications by means of a hardware-independent
+profiler and then executes these applications on a set of training
+cloud configurations to collect actual performance values. The
+prediction model is trained to learn the dependencies of
+actual performance data on the application profile and cloud
+configuration parameters. The advantage of using a hardwareindependent profiler is that the cloud users and the cloud
+provider can analyze applications on different machines and
+interface with the same prediction model.
+
+We validate the proposed methodology for a cloud system
+implemented with OpenStack. We apply the prediction model
+to the NAS parallel benchmarks. The resulting relative error is
+below 15% and the Pareto optimal cloud configurations finally
+found when maximizing application speed and minimizing
+execution cost on the prediction model are also at most 15%
+away from the actual optimal solutions.
+

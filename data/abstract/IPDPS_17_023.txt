@@ -1,0 +1,21 @@
+
+One-Way Wave Equation Migration (QWEM) is a
+depth migration algorithm used for seismic imaging. A parallel
+version of this algorithm is widely implemented using MPI.
+Heterogenous architectures that use GPUs have become popular
+in the Top 500 because of their performance/power ratio. In this
+paper, we discuss the methodology and code transformations used
+to port OWEM to GPUs using OpenACC, along with the code
+changes needed for scaling the application up to 18,400 GPUs
+(more than 98%) of the Titan leadership class supercomputer at
+Oak Ridget National Laboratory. For the individual OpenACC
+kernels, we achieved an average of 3X speedup on a test dataset
+using one GPU as compared with an 8-core Intel Sandy Bridge
+CPU. The application was then run at large scale on the Titan
+supercomputer achieving a peak of 1.2 petaflops using an average
+of 5.5 megawatts. After porting the application to GPUs, we
+discuss how we dealt with other challenges of running at scale
+such as the application becoming more I/O bound and prone to
+silent errors. We believe this work will serve as valuable proof
+that directive-based programming models are a viable option for
+scaling HPC applications to heterogenous architectures.

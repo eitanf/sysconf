@@ -1,0 +1,18 @@
+
+Nested fork-join programs scheduled using work
+stealing can automatically balance load and adapt to changes
+in the execution environment. In this paper, we design an
+approach to efficiently recover from faults encountered by
+these programs. Specifically, we focus on localized recovery
+of the task space in the presence of fail-stop failures. We
+present an approach to efficiently track, under work stealing,
+the relationships between the work executed by various threads.
+This information is used to identify and schedule the tasks to
+be re-executed without interfering with normal task execution.
+The algorithm precisely computes the work lost, incurs minimal
+re-execution overhead, and can recover from an arbitrary
+number of failures. Experimental evaluation demonstrates low
+overheads in the absence of failures, recovery overheads on the
+same order as the lost work, and much lower recovery costs
+than alternative strategies.
+

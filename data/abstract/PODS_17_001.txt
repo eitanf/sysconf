@@ -1,0 +1,25 @@
+
+
+The evaluation of a query over a probabilistic database boils
+down to computing the probability of a suitable Boolean
+function, the lineage of the query over the database. The
+method of query compilation approaches the task in two
+stages: first, the query lineage is implemented (compiled) in
+a circuit form where probability computation is tractable;
+and second, the desired probability is computed over the
+compiled circuit. A basic theoretical quest in query compilation is that of identifying pertinent classes of queries
+whose lineages admit compact representations over increasingly succinct, tractable circuit classes.
+
+Fostering previous work by Jha and Suciu (ICDT 2012)
+and Petke and Razgon (SAT 2013), we focus on queries
+whose lineages admit circuit implementations with small
+treewidth, and investigate their compilability within tame
+classes of decision diagrams. In perfect analogy with the
+characterization of bounded circuit pathwidth by bounded
+OBDD width, we show that a class of Boolean functions
+has bounded circuit treewidth if and only if it has bounded
+SDD width. Sentential decision diagrams (SDDs) are central in knowledge compilation, being essentially as tractable
+as OBDDs but exponentially more succinct. By incorporating constant width (linear size) SDDs and polynomial size
+SDDs in the picture, we refine the panorama of query compilation for unions of conjunctive queries with and without
+inequalities.
+

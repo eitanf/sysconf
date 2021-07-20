@@ -1,0 +1,17 @@
+
+
+While NoSQL databases are gaining popularity for business applications, they pose unique challenges towards
+backup and recovery. Our solution, BARNS addresses
+these challenges, namely taking: a) cluster consistent
+backup and ensuring repair free restore, b) storage efficient backups, and c) topology oblivious backup and restore. Due to eventual consistency semantics of these databases, traditional database backup techniques of performing quiesce do not guarantee cluster consistent
+backup. Moreover, taking crash consistent backup increases recovery time due to the need for repairs. In this
+paper, we provide detailed solutions for taking backup of
+two popular, but architecturally different NoSQL DBs,
+Cassandra and MongoDB, when hosted on shared storage. Our solution leverages database distribution and
+partitioning knowledge along with shared storage features such as snapshots, clones to efficiently perform
+backup and recovery of NoSQL databases. Our solution
+gets rid of replica copies, thereby saving ~66% backup
+space (under 3x replication). Our preliminary evaluation
+shows that we require a constant restore time of ~2-3
+mins, independent of backup dataset and cluster size.
+

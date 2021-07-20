@@ -1,0 +1,22 @@
+
+Data races in multi-threaded parallel applications are notoriously
+damaging while extremely difficult to detect. Many tools have been
+developed to help programmers find data races. However, there is
+no dedicated OpenMP benchmark suite to systematically evaluate
+data race detection tools for their strengths and limitations.
+
+In this paper, we present DataRaceBench, an open-source benchmark suite designed to systematically and quantitatively evaluate
+the effectiveness of data race detection tools. We focus on data
+race detection in programs written in OpenMP, the popular parallel
+programming model for multi-threaded applications. In particular,
+DataRaceBench includes a set of microbenchmark programs with
+or without data races. These microbenchmarks are either manually
+written, extracted from real scientific applications, or automatically
+generated optimization variants.
+
+We also define several metrics to represent effectiveness and
+efficiency of data race detection tools. Using DataRaceBench and
+its metrics, we evaluate four different data race detection tools: Helgrind, ThreadSanitizer, Archer, and Intel Inspector. The evaluation
+results show that DataRaceBench is effective to provide comparable,
+quantitative results and discover strengths and weaknesses of the
+tools being evaluated.

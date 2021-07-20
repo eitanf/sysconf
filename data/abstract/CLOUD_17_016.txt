@@ -1,0 +1,33 @@
+
+This paper presents a cloud-based positioning method
+that leverages visualized signal images through visual analytics
+and deep learning. At a mobile client, such as a smart phone, this
+approach transforms multidimensional signals captured at a
+known location and at a given time into a signal image and
+transmits such visual signal images to the Cloud. By collecting and
+storing many such visual signal images as fingerprints, we can
+build a visual signal image cloud and produce a signal image map
+for the geographical region of interest and utilize such signal image
+map to serve the positioning requests of mobile clients on the move.
+When a user Alice wants to know her current position, her mobile
+client will generate a signal image from the multiple signals it
+receives with timestamp and send this query image to a Cloud
+server. The server searches the existing signal images stored in the
+cloud to find those that are similar to this query signal image and
+estimates the positioning of Alice based on the locations of those
+similar signal images collected by the server. We evaluate our
+visual signal images based positioning system on the entire two
+floors of a large department store and on the street and shops
+outside the department store, with the signal images collected over
+30 minutes before serving positioning queries. The mean error of
+up to 4 meters is observed. To further verify the applicability of
+the proposed method, extensive experiments were conducted to
+distinguish whether a user is indoor or outdoor by applying a deep
+learning algorithm with 60% of signal images collected for
+training and 40% signal images for testing. This experiment shows
+that the proposed method is able to distinguish indoor and outdoor
+with accuracy of about 95%.
+
+Keywords—Indoor Positioning; Fingerprinting Localization; Data
+Visualization; Cloud Computing; Deep Learning;
+

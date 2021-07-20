@@ -1,0 +1,27 @@
+
+
+We present a simple distributed A-approximation algorithm for
+maximum weight independent set (MaxIS) in the CONGEST model
+which completes in O(MIS(G) - log W) rounds, where A is the maximum degree, MIS(G) is the number of rounds needed to compute a
+maximal independent set (MIS) on G, and W is the maximum weight
+of a node. Plugging in the best known algorithm for MIS gives a
+randomized solution in O(log n log W) rounds, where n is the number of nodes. We also present a deterministic O(A + log* n)-round
+algorithm based on coloring.
+
+We then show how to use our MaxIS approximation algorithms to
+compute a 2-approximation for maximum weight matching without
+incurring any additional round penalty in the CONGEST model.
+We use a known reduction for simulating algorithms on the line
+graph while incurring congestion, but we show our algorithm is
+part of a broad family of local aggregation algorithms for which
+we describe a mechanism that allows the simulation to run in the
+CONGEST model without an additional overhead.
+
+Next, we show that for maximum weight matching, relaxing the
+approximation factor to (2 + ¢) allows us to devise a distributed
+algorithm requiring O(geEe a) rounds for any constant ¢ > 0. For
+the unweighted case, we can even obtain a (1 + ¢)-approximation
+in this number of rounds. These algorithms are the first to achieve
+the provably optimal round complexity with respect to dependency
+on ∆
+

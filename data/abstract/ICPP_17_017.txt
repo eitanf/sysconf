@@ -1,0 +1,27 @@
+
+Broadcast operations (e.g. MPI_Bcast) have been
+widely used in deep learning applications to exchange a
+large amount of data among multiple graphics processing
+units (GPUs). Recent studies have shown that leveraging the
+InfiniBand hardware-based multicast (IB-MCAST) protocol
+can enhance scalability of GPU-based broadcast operations.
+However, these initial designs with IB-MCAST are not optimized for multi-source broadcast operations with large messages, which is the common communication scenario for deep
+learning applications. In this paper, we first model existing
+broadcast schemes and analyze their performance bottlenecks
+on GPU clusters. Then, we propose a novel broadcast design
+based on message streaming to better exploit IB-MCAST and
+NVIDIA GPUDirect RDMA (GDR) technology for efficient
+large message transfer operation. The proposed design can
+provide high overlap among multi-source broadcast operations.
+Experimental results show up to 68% reduction of latency
+compared to state-of-the-art solutions in a benchmark-level
+evaluation. The proposed design also shows near-constant
+latency for a single broadcast operation as a system grows.
+Furthermore, it yields up to 24% performance improvement in
+the popular deep learning framework, Microsoft CNTK, which
+uses multi-source broadcast operations; notably, the performance gains are achieved without modifications to applications.
+Our model validation shows that the proposed analytical model
+and experimental results match within a 10% range. Our model
+also predicts that the proposed design outperforms existing
+schemes for multi-source broadcast scenarios with increasing
+numbers of broadcast sources in large-scale GPU clusters.

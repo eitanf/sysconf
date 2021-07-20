@@ -1,0 +1,9 @@
+
+In this paper we present the design and implementation of Flow, a fast and precise type checker for JavaScript
+that is used by thousands of developers on millions of lines of code at Facebook every day. Flow uses
+sophisticated type inference to understand common JavaScript idioms precisely. This helps it find non-trivial
+bugs in code and provide code intelligence to editors without requiring significant rewriting or annotations from
+the developer. We formalize an important fragment of Flow’s analysis and prove its soundness. Furthermore,
+Flow uses aggressive parallelization and incrementalization to deliver near-instantaneous response times.
+This helps it avoid introducing any latency in the usual edit-refresh cycle of rapid JavaScript development. We
+describe the algorithms and systems infrastructure that we built to scale Flow’s analysis.

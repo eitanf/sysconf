@@ -1,0 +1,21 @@
+
+
+The task of finding heavy hitters is one of the best known
+and well studied problems in the area of data streams. One is
+given a list 41, %2,...,%m € [n] and the goal is to identify the
+items among [n] that appear frequently in the list. In subpolynomial space, the strongest guarantee available is the
+fa guarantee, which requires finding all items that occur at
+least é||f||2 times in the stream, where the vector f € R” is
+the count histogram of the stream with ith coordinate equal
+to the number of times i appears fi = #{j € [m] : i; = i}.
+The first algorithm to achieve the @2 guarantee was the
+CountSketch of [11], which requires O(e~*logn) words of
+memory and O(log 7) update time and is known to be spaceoptimal if the stream allows for deletions. The recent work
+of [7] gave an improved algorithm for insertion-only streams,
+using only O(e~* loge—* log log n) words of memory. In this
+work, we give an algorithm BPTree for 2 heavy hitters in
+insertion-only streams that achieves O(e~? loge) words
+of memory and O(loge~') update time, which is the optimal dependence on n and m. In addition, we describe
+an algorithm for tracking ||f|l2 at all times with O(e~”)
+memory and update time. Our analyses rely on bounding the expected supremum of a Bernoulli process involving
+Rademachers with limited independence, which we accomplish via a Dudley-like chaining argument that may have applications elsewhere.

@@ -1,0 +1,10 @@
+
+We present a concurrent-read exclusive-write buffer system with strong correctness and security properties.
+Our motivating application for this system is the distribution of sensor values in a multicomponent vehiclecontrol system, where some components are unverified and possibly malicious, and other components are
+vehicle-control-critical and must be verified. Valid participants are guaranteed correct communication (i.e., the
+writer is always able to write to an unused buffer, and readers always read the most recently published value),
+while invalid readers or writers cannot compromise the correctness or liveness of valid participants. There is
+only one writer, all operations are wait-free, and there is no extra process or thread mediating communication.
+We prove the correctness of the system with valid participants by formally verifying a C implementation of
+the system in Coq, using the Verified Software Toolchain extended with an atomic exchange operation. The
+result is the first C-level mechanized verification of a nonblocking communication protocol.

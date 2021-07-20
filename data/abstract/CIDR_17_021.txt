@@ -1,0 +1,12 @@
+
+Recent research on multi-core database architectures has made the
+argument that, when possible, database systems should abandon the
+use of latches in favor of latch-free algorithms. Latch-based algorithms are thought to scale poorly due to their use of synchronization based on mutual exclusion. In contrast, latch-free algorithms
+make strong theoretical guarantees which ensure that the progress
+of a thread is never impeded due to the delay or failure of other
+threads. In this paper, we analyze the various factors that influence
+the performance and scalability of latch-free and latch-based algorithms, and perform a microbenchmark evaluation of latch-free and
+latch-based synchronization algorithms. Our findings indicate that
+the argument for latch-free algorithms’ superior scalability is far
+more nuanced than the current state-of-the-art in multi-core database architectures suggests.
+

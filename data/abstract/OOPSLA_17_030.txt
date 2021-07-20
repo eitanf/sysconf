@@ -1,0 +1,17 @@
+
+1 INTRODUCTION
+Types are awesome. Languages like OCaml and Haskell make the value-proposition for types
+even more appealing by using constraints to automatically synthesize the types for all program
+terms without troubling the programmer for any annotations. Unfortunately, this automation has
+come at a price. Type annotations signify the programmer’s intent and help to correctly blame the
+Localizing type errors is challenging in languages with global type inference, as the type checker must make
+assumptions about what the programmer intended to do. We introduce Nate, a data-driven approach to
+error localization based on supervised learning. Nate analyzes a large corpus of training data Ð pairs of
+ill-typed programs and their łfixedž versions Ð to automatically learn a model of where the error is most likely
+to be found. Given a new ill-typed program, Nate executes the model to generate a list of potential blame
+assignments ranked by likelihood. We evaluate Nate by comparing its precision to the state of the art on
+a set of over 5,000 ill-typed OCaml programs drawn from two instances of an introductory programming
+course. We show that when the top-ranked blame assignment is considered, Nate’s data-driven model is
+able to correctly predict the exact sub-expression that should be changed 72% of the time, 28 points higher
+than OCaml and 16 points higher than the state-of-the-art SHErrLoc tool. Furthermore, Nate’s accuracy
+surpasses 85% when we consider the top two locations and reaches 91% if we consider the top three.

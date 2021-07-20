@@ -1,0 +1,27 @@
+
+With the growing energy demands from server
+farms, it becomes necessary to understand the tradeoffs between
+energy consumption and application performance. Typically,
+server farms are provisioned for peak load even when they
+are mostly operating at low utilization levels. This results in
+wasteful energy consumption. At the same time, application
+workloads have Quality of Service (QoS) constraints that need
+to be satisfied. Optimizing server farm energy consumption with
+QoS constraints is a challenging task since the workload can
+have variabilities in job sizes, job arrival patterns and system
+utilization levels.
+
+In this paper, we present WASP, where we explore techniques
+that make smart use of the processor and system low-power
+states, and orchestrate their use with workload adaptivity for
+more effective energy management. We perform an extensive
+study of Energy-Latency tradeoffs with simulations, and evaluate
+WASP on a testbed with a cluster of servers. Our experiments
+on real systems show that WASP achieves up to 57% energy
+reduction over a naive policy that uses a shallow processor sleep
+state when there are no jobs to execute, and 39% over a delaytimer based approach while maintaining the 90" percentile job
+service latency to be under 2x job execution time.
+
+Keywords-Cloud Computing; Data Center Energy Optimization; Energy-Latency tradeoffs; Processor and System low-power
+states; Workload adaptivity
+

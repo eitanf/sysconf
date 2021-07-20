@@ -1,0 +1,35 @@
+
+The following is a very common question in
+numerous theoretical and application-related domains: given
+a graph G, does it satisfy some given property? For example,
+is G connected? Is its diameter smaller than a given threshold?
+Is its average degree larger than a certain threshold?
+
+Traditionally, algorithms to quickly answer such questions
+were developed for static and centralized graphs (i.e. G is stored
+in a central server and the list of its vertices and edges is
+static and quickly accessible). Later, as dictated by practical
+considerations, a great deal of attention was given to on-line
+algorithms for dynamic graphs (where vertices and edges can
+be added and deleted); the focus of research was to quickly
+decide whether the new graph still satisfies the given property.
+
+Today, a more difficult version of this problem, referred to
+as the distributed monitoring problem, is becoming increasingly
+important: large graphs are not only dynamic, but also distributed, that is, G is partitioned between a few servers, none
+of which "sees" G in its entirety. The question is how to define
+local conditions, such that as long as they hold on the local
+graphs, it is guaranteed that the desired property holds for the
+global G. Such local conditions are crucial for avoiding a huge
+communication overhead.
+
+While defining local conditions for linear properties (e.g.
+average degree) is relatively easy, they are considerably more
+difficult to derive for non-linear functions over graphs. We propose a solution and a general definition of solution optimality,
+and demonstrate how to apply it to two important graph properties — the spectral gap and the number of triangles. We also
+define an absolute lower bound on the communication overhead
+for distributed monitoring, and compare our algorithm to it,
+with excellent results. Last but not least, performance improves
+as the graph becomes larger and denser — that is, when
+distributing it is more important.
+

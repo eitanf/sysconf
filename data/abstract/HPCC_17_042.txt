@@ -1,0 +1,15 @@
+
+Deep and shallow convection calculations occupy
+significant times in atmosphere models. These calculations also
+present significant load imbalances due to varying cloud covers
+over different regions of the grid. In this work, we accelerate
+these calculations on Intel® Xeon Phi™ Coprocessor Systems.
+By employing dynamic scheduling in OpenMP, we demonstrate
+large reductions in load imbalance and about 10% increase in
+speedups. By careful categorization of data as private, firstprivate
+and shared, we minimize data copying overheads for the coprocessors. We identify regions of false sharing among threads and
+eliminate them by loop rearrangements. We also employ proportional partitioning of independent column computations across
+both the CPU and coprocessor cores based on the performance
+ratio of the computations on the heterogeneous resources. These
+techniques along with various vectorization strategies resulted in
+about 30% improvement in convection calculations.

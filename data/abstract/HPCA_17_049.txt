@@ -1,0 +1,27 @@
+
+The performance of 3D rendering of Graphics
+Processing Unit that converts 3D vector stream into 2D frame
+with 3D image effects significantly impacts users gaming
+experience on modern computer systems. Due to its high
+texture throughput requirement, main memory bandwidth
+becomes a critical obstacle for improving the overall rendering
+performance. 3D-stacked memory systems such as Hybrid
+Memory Cube provide opportunities to significantly overcome
+the memory wall by directly connecting logic controllers to
+DRAM dies. Although recent works have shown promising
+improvement in performance by utilizing HMC to accelerate
+special-purpose applications, a critical challenge of how to
+effectively leverage its high internal bandwidth and computing
+capability in GPU for 3D rendering remains unresolved. Based
+on the observation that texel fetches greatly impact off-chip
+memory traffic, we propose two architectural designs to enable
+Processing-In-Memory based GPU for efficient 3D rendering.
+Additionally, we employ camera angles of pixels to control
+the performance-quality tradeoff of 3D rendering. Extensive
+evaluation across several real-world games demonstrates that
+our design can significantly improve the performance of texture
+filtering and 3D rendering by an average of 3.97X (up to 6.4X)
+and 43% (up to 65%) respectively, over the baseline GPU.
+Meanwhile, our design provides considerable memory traffic
+and energy reduction without sacrificing rendering quality.
+

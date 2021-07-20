@@ -1,0 +1,27 @@
+
+Modern Graphics Processing Units (GPUs) provide
+much higher off-chip memory bandwidth than CPUs, but many
+GPU applications are still limited by memory bandwidth. Unfortunately, off-chip memory bandwidth is growing slower than the
+number of cores and has become a performance bottleneck. Thus,
+optimizations of effective memory bandwidth play a significant
+role for scaling the performance of GPUs.
+
+Memory compression is a promising approach for improving
+memory bandwidth which can translate into higher performance
+and energy efficiency. However, compression is not free and
+its challenges need to be addressed, otherwise the benefits of
+compression may be offset by its overhead. We propose an
+entropy encoding based memory compression (E7MC) technique
+for GPUs, which is based on the well-known Huffman encoding.
+We study the feasibility of entropy encoding for GPUs and show
+that it achieves higher compression ratios than state-of-the-art
+GPU compression techniques. Furthermore, we address the key
+challenges of probability estimation, choosing an appropriate
+symbol length for encoding, and decompression with low latency.
+The average compression ratio of E7MC is 53% higher than
+the state of the art. This translates into an average speedup
+of 20% compared to no compression and 8% higher compared
+to the state of the art. Energy consumption and energy-delayproduct are reduced by 13% and 27%, respectively. Moreover,
+the compression ratio achieved by E?MC is close to the optimal
+compression ratio given by Shannon’s source coding theorem.
+

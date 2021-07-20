@@ -1,0 +1,21 @@
+
+
+We have recently seen an increasing number of attacks that are
+distributed, and span an entire wide area network (WAN). Today,
+typically, intrusion detection systems (IDSs) are deployed at enterprise scale and cannot handle attacks that cover a WAN. Moreover,
+such IDSs are implemented at a single entity that expects to look
+at all packets to determine an intrusion. Transferring copies of raw
+packets to centralized engines for analysis in a WAN can significantly impact both network performance and detection accuracy. In
+this paper, we propose Jaal, a framework for achieving accurate network intrusion detection at scale. The key idea in Jaal is to monitor
+traffic and construct in-network packet summaries. The summaries
+are then processed centrally to detect attacks with high accuracy.
+The main challenges that we address are (a) creating summaries
+that are concise, but sufficient to draw highly accurate inferences
+and (b) transforming traditional IDS rules to handle summaries
+instead of raw packets. We implement Jaal on a large scale SDN
+testbed. We show that on average Jaal yields a detection accuracy
+of about 98%, which is the highest reported for ISP scale network
+intrusion detection. At the same time, the overhead associated with
+transferring summaries to the central inference engine is only about
+35% of what is consumed if raw packets are transferred.
+

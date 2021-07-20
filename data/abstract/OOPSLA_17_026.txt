@@ -1,0 +1,13 @@
+
+Providing better supports for debugging type errors has been an active research area in the last three decades.
+Numerous approaches from different perspectives have been developed. Most approaches work well under
+certain conditions only, for example, when type errors are caused by single leaves and when type annotations
+are correct. However, the research community is still unaware of which conditions hold in practice and what
+the real debugging situations look like. We address this problem with a study of 3 program data sets, which
+were written in different years, using different compilers, and were of diverse sizes. They include more than
+55,000 programs, among which more than 2,700 are ill typed. We investigated all the ill-typed programs, and
+our results indicate that current error debugging support is far from sufficient in practice since only about
+35% of all type errors were caused by single leaves. In addition, type annotations cannot always be trusted in
+error debuggers since about 30% of the time type errors were caused by wrong type annotations. Our study
+also provides many insights about the debugging behaviors of students in functional programming, which
+could be exploited for developing more effective error debuggers.

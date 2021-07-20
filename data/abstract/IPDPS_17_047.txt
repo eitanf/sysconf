@@ -1,0 +1,29 @@
+
+Hybrid parallel program models that combine
+message passing and multithreading (MP+MT) are becoming
+more popular, extending the basic message passing (MP)
+model that uses single-threaded processes for both inter- and
+intra-node parallelism. A consequence is that coupled parallel applications increasingly comprise MP libraries together
+with MP+MT libraries with differing preferred degrees of
+threading, resulting in thread-level heterogeneity. Retroactively
+matching threading levels between independently developed
+and maintained libraries is difficult; the challenge is exacerbated because contemporary parallel job launchers provide
+only static resource binding policies over entire application
+executions. A standard approach for accommodating threadlevel heterogeneity is to under-subscribe compute resources
+such that the library with the highest degree of threading per
+process has one processing element per thread. This results in
+libraries with fewer threads per process utilizing only a fraction
+of the available compute resources.
+
+We present and evaluate a novel approach for accommodating thread-level heterogeneity. Our approach enables full
+utilization of all available compute resources throughout an
+application’s execution by providing programmable facilities
+to dynamically reconfigure runtime environments for compute
+phases with differing threading factors and memory affinities.
+We show that our approach can improve overall application
+performance by up to 5.8x in real-world production codes.
+Furthermore, the practicality and utility of our approach has
+been demonstrated by continuous production use for over one
+year, and by more recent incorporation into a number of
+production codes.
+

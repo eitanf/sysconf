@@ -1,0 +1,32 @@
+
+While large-scale simulations have been the hallmark of the High Performance Computing (HPC) community
+for decades, Large Scale Data Analytics (LSDA) workloads are
+gaining attention within the scientific community not only as
+a processing component to large HPC simulations, but also as
+standalone scientific tools for knowledge discovery. With the path
+towards Exascale, new HPC runtime systems are also emerging
+in a way that differs from classical distributed computing models.
+However, system software for such capabilities on the latest
+extreme-scale DOE supercomputing needs to be enhanced to
+more appropriately support these types of emerging software
+ecosystems.
+
+In this paper, we propose the use of Virtual Clusters on
+advanced supercomputing resources to enable systems to support
+not only HPC workloads, but also emerging big data stacks.
+Specifically, we have deployed the KVM hypervisor within
+Cray’s Compute Node Linux on a XC-series supercomputer
+testbed. We also use libvirt and QEMU to manage and provision
+VMs directly on compute nodes, leveraging Ethernet-over-Aries
+network emulation. To our knowledge, this is the first known
+use of KVM on a true MPP supercomputer. We investigate the
+overhead our solution using HPC benchmarks, both evaluating
+single-node performance as well as weak scaling of a 32-node
+virtual cluster. Overall, we find single node performance of our
+solution using KVM on a Cray is very efficient with near-native
+performance. However overhead increases by up to 20% as
+virtual cluster size increases, due to limitations of the Ethernetover-Aries bridged network. Furthermore, we deploy Apache
+Spark with large data analysis workloads in a Virtual Cluster,
+effectively demonstrating how diverse software ecosystems can
+be supported by High Performance Virtual Clusters.
+

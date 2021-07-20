@@ -1,0 +1,22 @@
+
+
+With the ever increasing DRAM capacity in commodity computers,
+applications tend to store large amount of data in main memory
+for fast access. Accordingly, efficient traversal of index structures
+to locate requested data becomes crucial to their performance. The
+index data structures grow so large that only a fraction of them can
+be cached in the CPU cache. The CPU cache can leverage access
+locality to keep the most frequently used part of an index in it for
+fast access. However, the traversal on the index to a target data during a search for a data item can result in significant false temporal
+and spatial localities, which make CPU cache space substantially
+underutilized. In this paper we show that even for highly skewed
+accesses the index traversal incurs excessive cache misses leading
+to suboptimal data access performance. To address the issue, we
+introduce Search Lookaside Buffer (SLB) to selectively cache only
+the search results, instead of the index itself. SLB can be easily integrated with any index data structure to increase utilization of
+the limited CPU cache resource and improve throughput of search
+requests on a large data set. We integrate SLB with various index
+data structures and applications. Experiments show that SLB can
+improve throughput of the index data structures by up to an order
+of magnitude. Experiments with real-world key-value traces also
+show up to 73% throughput improvement on a hash table.

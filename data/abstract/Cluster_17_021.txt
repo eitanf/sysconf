@@ -1,0 +1,32 @@
+
+HPC systems have shifted to burst buffer storage
+and high-radix interconnect topologies in order to meet the
+challenges of large-scale, data-intensive scientific computing.
+Both of these technologies have been studied in detail independently, but the interaction between them is not well understood.
+V/O traffic and communication traffic from concurrently scheduled applications may interfere with each other in unexpected
+ways, and this behavior may vary considerably depending on
+resource allocation, scheduling, and routing policies.
+
+In this work, we analyze I/O and network traffic interference
+on burst-buffer-equipped dragonfly-based systems using the
+high-resolution packet-level simulation provided by the CODES
+storage and interconnect simulation framework. The analysis
+is performed using realistic I/O workload sizes, a variety of
+resource allocation and network routing strategies employed
+in production environments, and a dragonfly network configuration modeled after current vendor options. We analyze the
+impact of interference on both I/O and communication traffic.
+
+We observe that although average network packet latency
+is stable across a wide variety of configurations, the maximum
+network packet latency in the presence of concurrent I/O traffic
+is highly sensitive to subtle policy changes. Our simulations
+reveal a worst-case single packet latency of 4,700 times the average latency for sub-optimal configurations. While a topologyaware mapping of compute nodes to burst buffer storage nodes
+can minimize the variation in maximum packet latency, it can
+slow down the I/O traffic by creating contention on the burst
+buffer nodes. Overall, balancing I/O and network performance
+requires careful selection of routing, data placement, and job
+placement policies.
+
+Keywords-burst buffer, dragonfly networks, discrete-event
+simulation, checkpoint, I/O and communication traffic
+

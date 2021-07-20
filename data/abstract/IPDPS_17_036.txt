@@ -1,0 +1,19 @@
+
+Large-scale parallel programming environments
+and algorithms require efficient group-communication on computing systems with failing nodes. Existing reliable broadcast
+algorithms either cannot guarantee that all nodes are reached
+or are very expensive in terms of the number of messages
+and latency. This paper proposes Corrected-Gossip, a method
+that combines Monte Carlo style gossiping with a deterministic
+correction phase, to construct a Las Vegas style reliable
+broadcast that guarantees reaching all the nodes at low cost.
+We analyze the performance of this method both analytically
+and by simulations and show how it reduces the latency and
+network load compared to existing algorithms. Our method
+improves the latency by 20% and the network load by 53%
+compared to the fastest known algorithm on 4,096 nodes. We
+believe that the principle of corrected-gossip opens an avenue
+for many other reliable group communication operations.
+
+Keywords-gossip algorithms; reliable broadcast
+

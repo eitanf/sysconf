@@ -1,0 +1,19 @@
+
+Currently, the attempt to choose the “best" content replica
+server for a client is carried out solely by CDNs. While CDNs
+have a decent view of load distribution and content placement, they receive little input from the clients themselves.
+We propose a hybrid solution, subnet assimilation, where the
+client participates in the server selection process while still
+leaving the final say to the CDN. Subnet assimilation allows
+clients to declare their own “network location," different from
+the actual one, which in turn drives a CDN towards making better decisions. To demonstrate, we introduce Drongo,
+a client-side system, readily deployable on existing clients
+without any changes to the CDNs, that employs subnet assimilation to dramatically improve replica server selection.
+We implemented and extensively evaluated Drongo on a
+set of 429 clients spread across 177 countries and 6 major
+CDNs. We show that Drongo affects 69.93% of all clients,
+prompting better CDN replica choices which reduce the latency of affected requests by up to an order of magnitude
+and by 24.89% on average across six major providers, with
+Google’s performance improving by 50% in the median case.
+Our results indicate that client participation holds great opportunities for the advancement of CDN performance.
+

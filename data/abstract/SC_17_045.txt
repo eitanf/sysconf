@@ -1,0 +1,10 @@
+
+Betweenness centrality (BC) is a crucial graph problem that measures the significance of a vertex by the number of shortest paths
+leading through it. We propose Maximal Frontier Betweenness Centrality (MFBC): a succinct BC algorithm based on novel sparse matrix multiplication routines that performs a factor of p/3 less communication on p processors than the best known alternatives, for
+graphs with n vertices and average degree k = n/p?/>, We formulate,
+implement, and prove the correctness of MFBC for weighted graphs
+by leveraging monoids instead of semirings, which enables a surprisingly succinct formulation. MFBC scales well for both extremely
+sparse and relatively dense graphs. It automatically searches a space
+of distributed data decompositions and sparse matrix multiplication
+algorithms for the most advantageous configuration. The MFBC implementation outperforms the well-known CombBLAS library by
+up to 8x and shows more robust performance. Our design methodology is readily extensible to other graph problems.

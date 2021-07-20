@@ -1,0 +1,22 @@
+
+Over the last few years, Graphics Processing Units (GPUs)
+have become popular in computing, and have found their
+way into a number of cloud platforms. However, integrating
+a GPU into a cloud environment requires the cloud provider
+to efficiently virtualize the GPU. While several research
+projects have addressed this challenge in the past, few of
+these projects attempt to properly enable sharing of GPU
+memory between multiple clients: To date, GPUswap is the
+only project that enables sharing of GPU memory without inducing unnecessary application overhead, while maintaining
+both fairness and high utilization of GPU memory. However,
+GPUswap includes only a rudimentary swapping policy, and
+therefore induces a rather large application overhead.
+
+In this paper, we work towards a practicable swapping
+policy for GPUs. To that end, we analyze the behavior of
+various GPU applications to determine their memory access
+patterns. Based on our insights about these patterns, we
+derive a swapping policy that includes a developer-assigned
+priority for each GPU buffer in its swapping decisions. Experiments with our prototype implementation show that a
+swapping policy based on buffer priorities can significantly
+reduce the swapping overhead.

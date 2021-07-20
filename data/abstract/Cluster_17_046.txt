@@ -1,0 +1,15 @@
+
+Graph models of social information systems typically contain trillions of edges. Such big graphs cannot be
+processed on a single machine. The graph object must be
+partitioned and distributed among machines and processed
+in parallel on a computer cluster. Programming such systems
+is very challenging. In this work, we present DH-Falcon,
+a graph DSL (domain-specific language) which can be used
+to implement parallel algorithms for large-scale graphs, targeting Distributed Heterogeneous (CPU and GPU) clusters.
+DH-Falcon compiler is built on top of the Falcon compiler,
+which targets single node devices with CPU and multiple
+GPUs. An important facility provided by DH-Falcon is that it
+supports mutation of graph objects, which allows programmer
+to write dynamic graph algorithms. Experimental evaluation
+shows that DH-Falcon matches or outperforms state-of-theart frameworks and gains a speedup of up to 13x.
+

@@ -1,0 +1,21 @@
+
+Improving single thread performance is a key challenge in modern microprocessors especially because the traditional approach of increasing clock frequency and deep pipelining
+cannot be pushed further due to power constraints. Therefore,
+researchers have been looking at unconventional architectures
+to boost single thread performance without running into the
+power wall. HW/SW co-designed processors like Nvidia Denver,
+are emerging as a promising alternative.
+
+However, HW/SW co-designed processors need to address
+some key challenges such as startup delay, providing high performance with simple hardware, translation/optimization overhead, etc. before they can become mainstream. A fundamental
+requirement for evaluating different design choices and trade-offs
+to meet these challenges is to have a simulation infrastructure.
+Unfortunately, there is no such infrastructure available today.
+Building the aforementioned infrastructure itself poses significant
+challenges as it encompasses the complexities of not only an
+architectural framework but also of a compilation one.
+
+This paper identifies the key challenges that HW/SW codesigned processors face and the basic requirements for a simulation infrastructure targeting these architectures. Furthermore,
+the paper presents DARCO, a simulation infrastructure to enable
+research in this domain.
+

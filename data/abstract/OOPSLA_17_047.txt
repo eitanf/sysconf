@@ -1,0 +1,17 @@
+
+With more and more web scripting languages on offer, programmers have access to increasing language
+support for web scraping tasks. However, in our experiences collaborating with data scientists, we learned that
+two issues still plague long-running scraping scripts: i) When a network or website goes down mid-scrape,
+recovery sometimes requires restarting from the beginning, which users find frustratingly slow. ii) Websites
+do not offer atomic snapshots of their databases; they update their content so frequently that output data is
+cluttered with slight variations of the same information — e.g., a tweet from profile 1 that is retweeted on
+profile 2 and scraped from both profiles, once with 52 responses then later with 53 responses.
+
+We introduce the skip block, a language construct that addresses both of these disparate problems. Programmers write lightweight annotations to indicate when the current object can be considered equivalent to a
+previously scraped object and direct the program to skip over the scraping actions in the block. The construct
+is hierarchical, so programs can skip over long or short script segments, allowing adaptive reuse of prior work.
+After network and server failures, skip blocks accelerate failure recovery by 7.9x on average. Even scripts that
+do not encounter failures benefit; because sites display redundant objects, skipping over them accelerates
+scraping by up to 2.1x. For longitudinal scraping tasks that aim to fetch only new objects, the second run
+exhibits an average speedup of 5.2x. Our small user study reveals that programmers can quickly produce skip
+block annotations.

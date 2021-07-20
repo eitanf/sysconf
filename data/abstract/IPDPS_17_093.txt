@@ -1,0 +1,28 @@
+
+Energy efficiency in high performance computing
+(HPC) will be critical to limit operating costs and carbon
+footprints in future supercomputing centers. Energy efficiency of
+a computation can be improved by reducing time to completion
+without a substantial increase in power drawn or by reducing
+power with a little increase in time to completion. We present an
+Adaptive Core-specific Runtime (ACR) that dynamically adapts
+core frequencies to workload characteristics, and show examples
+of both reductions in power and improvement in the average
+performance. This improvement in energy efficiency is obtained
+without changes to the application.
+
+The adaptation policy embedded in the runtime uses existing
+core-specific power controls like software-controlled clock modulation and per-core Dynamic Voltage Frequency Scaling (DVFS)
+introduced in Intel Haswell. Experiments on six standard MPI
+benchmarks and a real world application show an overall 20%
+improvement in energy efficiency with less than 1% increase in
+execution time on 32 nodes (1024 cores) using per-core DVFS.
+
+An improvement in energy efficiency of up to 42% is obtained
+with the real world application ParaDis through a combination
+of speedup and power reduction. For one configuration, ParaDis
+achieves an average speedup of 11%, while the power is lowered
+by about 31%. The average improvement in the performance
+seen is a direct result of the reduction in run-to-run variation
+and running at turbo frequencies.
+

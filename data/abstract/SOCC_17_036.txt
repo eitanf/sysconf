@@ -1,0 +1,22 @@
+
+
+Cloud spot markets offer virtual machines (VMs) for a dynamic
+price that is much lower than the fixed price of on-demand VMs. In
+exchange, spot VMs expose applications to multiple forms of risk,
+including price risk, or the risk that a VM’s price will increase relative to others. Since spot prices vary continuously across hundreds
+of different types of VMs, flexible applications can mitigate price
+risk by moving to the VM that currently offers the lowest cost. To
+enable this flexibility, we present HotSpot, a resource container that
+“hops” VMs—by dynamically selecting and self-migrating to new
+VMs~as spot prices change. HotSpot containers define a migration
+policy that lowers cost by determining when to hop VMs based on
+the transaction costs (from vacating a VM early and briefly double
+paying for it) and benefits (the expected cost savings). As a side effect of migrating to minimize cost, HotSpot is also able to reduce the
+number of revocations without degrading performance. HotSpot
+is simple and transparent: since it operates at the systems-level on
+each host VM, users need only run an HotSpot-enabled VM image
+to use it. We implement a HotSpot prototype on EC2, and evaluate it
+using job traces from a production Google cluster. We then compare
+HotSpot to using on-demand VMs and spot VMs (with and without
+fault-tolerance) in EC2, and show that it is able to lower cost and
+reduce the number of revocations without degrading performance.

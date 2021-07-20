@@ -1,0 +1,24 @@
+
+RDMA (Remote Direct Memory Access) is a technology that enables user applications to perform direct data
+transfer between the virtual memory of processes on remote
+endpoints, without operating system involvement or intermediate
+data copies. Achieving zero intermediate data copies using
+RDMA requires specialized network interface hardware. Software RDMA drivers emulate RDMA semantics in software to
+allow the use of RDMA without investing in such hardware,
+although they cannot perform zero-copy transfers. Nonetheless,
+software RDMA drivers are useful for research, application
+development, testing, debugging, or as a less expensive desktop
+client for a centralized RDMA server application running on
+RDMA-capable hardware.
+
+Existing software RDMA drivers perform data transfer in
+the kernel. Data Plane Development Kit (DPDK) provides a
+framework for mapping Ethernet interface cards into userspace
+and performing bulk packet transfers. This in turn allows a
+software RDMA driver to perform data transfer in userspace.
+We present our software RDMA driver, urdma, that performs
+data transfer in userspace, discuss its design and implementation,
+and demonstrate that it can achieve lower small message latency
+than existing kernel-based implementations while maintaining
+high bandwidth utilization for large messages.
+

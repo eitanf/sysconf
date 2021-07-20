@@ -1,0 +1,19 @@
+
+We present the design and implementation of a
+parallel and fully algebraic preconditioner based on an approximate sparse factorization using low-rank matrix compression.
+The sparse factorization uses a multifrontal algorithm with fill-in
+occurring in dense frontal matrices. These frontal matrices are
+approximated as hierarchically semi-separable matrices, which
+are constructed using a randomized sampling technique. The
+resulting preconditioner has (close to) optimal complexity in
+terms of flops and memory usage for many discretized partial
+differential equations. We illustrate the robustness and performance of this new preconditioner for a number of unstructured
+grid problems. Initial results show that the rank-structured
+preconditioner could be a viable alternative to algebraic multigrid
+and incomplete LU, for instance. Our implementation uses MPI
+and OpenMP and supports real and complex arithmetic and 32
+and 64 bit integers. We present a detailed performance analysis.
+The code is released as the STRUMPACK library with a BSD
+license, and a PETSc interface is available to allow for easy
+integration in existing applications.
+

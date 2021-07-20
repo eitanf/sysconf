@@ -1,0 +1,20 @@
+
+Stencil computations expose a large and complex
+space of equivalent implementations. These computations often
+rely on autotuning techniques, based on iterative compilation or
+machine learning (ML), to achieve high performance. Iterative
+compilation autotuning is a challenging and time-consuming
+task that may be unaffordable in many scenarios. Meanwhile,
+traditional ML autotuning approaches exploiting classification algorithms (such as neural networks and support vector machines)
+face difficulties in capturing all features of large search spaces.
+This paper proposes a new way of automatically tuning stencil
+computations based on structural learning. By organizing the
+training data in a set of partially-sorted samples (i.e., rankings),
+the problem is formulated as a ranking prediction model, which
+translates to an ordinal regression problem. Our approach can
+be coupled with an iterative compilation method or used as a
+standalone autotuner. We demonstrate its potential by comparing
+it with state-of-the-art iterative compilation methods on a set of
+nine stencil codes and by analyzing the quality of the obtained
+ranking in terms of Kendall rank correlation coefficients.
+

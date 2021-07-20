@@ -1,0 +1,23 @@
+
+Today’s large-scale supercomputers are producing
+a huge amount of log data. Exploring various potential correlations of fatal events is crucial for understanding their causality
+and improving the working efficiency for system administrators. To this end, we developed a toolkit, named LogAider,
+that can reveal three types of potential correlations: acrossfield, spatial, and temporal. Across-field correlation refers to
+the statistical correlation across fields within a log or across
+multiple logs based on probabilistic analysis. For analyzing
+the spatial correlation of events, we developed a generic, easyto-use visualizer that can view any events queried by users
+on a system machine graph. LogAider can also mine spatial
+correlations by an optimized K-meaning clustering algorithm
+over a Torus network topology. It is also able to disclose the
+temporal correlations (or error propagations) over a certain
+period inside a log or across multiple logs, based on an effective
+similarity analysis strategy. We assessed LogAider using the
+one-year reliability-availability-serviceability (RAS) log of Mira
+system (one of the world’s most powerful supercomputers), as
+well as its job log. We find that LogAider very helpful for
+revealing the potential correlations of fatal system events and
+job events, with an accurate mining of across-field correlation
+with both precision and recall of 99.9-100%, as well as precise
+detection of temporal-correlation with a high similarity (up to
+95%) to the ground-truth.
+

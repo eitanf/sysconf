@@ -1,0 +1,25 @@
+
+
+Cache contention in the form of false sharing and true sharing
+arises when threads overshare cache lines at high frequency. Such
+oversharing can reduce or negate the performance benefits of parallel execution. Prior systems for detecting and repairing cache
+contention lack efficiency in detection or repair, contain subtle
+memory consistency flaws, or require invasive changes to the program environment.
+
+In this paper, we introduce a new way to combat cache line
+oversharing via the Thread Memory Isolation (Tm1) system. TMI
+operates completely in userspace, leveraging performance counters
+and the Linux ptrace mechanism to tread lightly on monitored
+applications, intervening only when necessary. Tm1’s compatibleby-default design allows it to scale to real-world workloads, unlike
+previous proposals. T1 introduces a novel code-centric consistency
+model to handle cross-language memory consistency issues. TMI
+exploits the flexibility of code-centric consistency to efficiently
+repair false sharing while preserving strong consistency model
+semantics when necessary.
+
+Tai has minimal impact on programs without oversharing, slowing their execution by just 2% on average. We also evaluate TI
+on benchmarks with known false sharing, and manually inject a
+false sharing bug into the leveldb key-value store from Google.
+For these programs, Tm1 provides an average speedup of 5.2x and
+achieves 88% of the speedup possible with manual source code fixes.
+

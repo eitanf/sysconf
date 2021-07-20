@@ -1,0 +1,16 @@
+
+OpenMP is the de facto standard application programming interface (API) for on-node parallelism. The most
+popular OpenMP runtimes rely on POSIX threads (pthreads)
+implementations that offer an excellent performance for coarsegrained parallelism and match perfectly with the current hardware. However, a recent trend in runtimes/applications points in
+the direction of leveraging massive on-node parallelism in conjunction with fine-grained and dynamic scheduling paradigms. It
+has been demonstrated that lightweight thread CLWT) solutions
+are more appropriate for these new parallel paradigms. We have
+developed GLTO, an OpenMP implementation over the recentlyemerged Generic Lightweight Threads (GLT) API. GLT exports
+a common API for LWT libraries that offers the possibility of
+running the same application over different native LWT solutions.
+In this paper we use GLTO to analyze different scenarios where
+OpenMP implementations may benefit from the use of either
+LWT or pthreads. Our study reveals that none of the threading
+approaches obtains the best performance in all the scenarios, but
+that there are important gaps among them.
+

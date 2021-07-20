@@ -1,0 +1,24 @@
+
+This paper proposes a scalable and efficient cache
+update technique to improve the performance of in-memory
+cluster computing in Spark, a popular open-source system for
+big data computing. Although the memory cache speeds up data
+processing in Spark, its data immutability constraint requires
+reloading the whole RDD when part of its data is updated. Such
+constraint makes the RDD update inefficient. To address this
+problem, we divide an RDD into partitions, and propose the
+partial-update RDD (PRDD) method to enable users to replace
+individual partition(s) of an RDD. We devise two solutions to the
+RDD partition problem — a dynamic programming algorithm and
+a nonlinear programming method. Experiment results suggest
+that, PRDD achieves 4.32x speedup when compared with the
+original RDD in Spark. We apply PRDD to a billing system for
+Chunghwa Telecomm, the largest telecommunication company in
+Taiwan. Our result shows that the PRDD based billing system
+outperforms the original billing system in CHT by a factor of
+24x in throughput. We also evaluate PRDD using the TPC-H
+benchmark, which also yields promising result.
+
+Keywords—big data computing, cache update, Spark, resilient
+distributed dataset, telecom billing system
+

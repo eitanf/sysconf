@@ -1,0 +1,18 @@
+
+Stencil computations are an important class of compute and
+data intensive programs that occur widely in scientific and
+engineering applications. A number of tools use sophisticated tiling, parallelization, and memory mapping strategies, and generate code that relies on vendor-supplied compilers. This code has a number of parameters, such as tile
+sizes, that are then tuned via empirical exploration.
+
+We develop a model that guides such a choice. Our model
+is a simple set of analytical functions that predict the execution time of the generated code. It is deliberately optimistic,
+since we are targeting modeling and parameter selections
+yielding highly tuned codes.
+
+We experimentally validate the model on a number of 2D
+and 3D stencil codes, and show that the root mean square
+error in the execution time is less than 10% for the subset
+of the codes that achieve performance within 20% of the
+best. Furthermore, based on using our model, we are able
+to predict tile sizes that achieve a further improvement of
+9% on average.

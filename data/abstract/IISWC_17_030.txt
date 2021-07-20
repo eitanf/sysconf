@@ -1,0 +1,15 @@
+
+Traditionally GPUs focused on streaming, dataparallel applications, with little data reuse or sharing and
+coarse-grained synchronization. However, the rise of generalpurpose GPU (GPGPU) computing has made GPUs desirable
+for applications with more general sharing patterns and finegrained synchronization, especially for recent GPUs that have
+a unified address space and coherent caches. Prior work has
+introduced microbenchmarks to measure the impact of these
+changes, but each paper uses its own set of microbenchmarks.
+In this work, we combine several of these sets together in a single
+suite, HeteroSync. HeteroSync includes several synchronization
+primitives, data sharing at different levels of the memory
+hierarchy, and relaxed atomics. We characterize the scalability
+of HeteroSync for different coherence protocols and consistency
+models on modern, tightly coupled CPU-GPU systems and show
+that certain algorithms, coherence protocols, and consistency
+models scale better than others.

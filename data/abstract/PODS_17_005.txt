@@ -1,0 +1,16 @@
+
+
+Our concern is the overhead of answering OWL 2QL ontology-mediated queries (OMQs) in ontology-based data access compared to evaluating their underlying tree-shaped
+and, more generally, bounded treewidth conjunctive queries
+(CQs). We show that OMQs with bounded depth ontologies
+have nonrecursive datalog (NDL) rewritings that can be constructed and evaluated in LOGCFL for combined complexity,
+and even in NL if their CQs are tree-shaped with a bounded
+number of leaves. Thus, such OMQs incur no overhead in
+complexity-theoretic terms. For OMQs with arbitrary ontologies and bounded-leaf tree-shaped CQs, NDL-rewritings
+are constructed and evaluated in LOGCFL. We experimentally demonstrate feasibility and scalability of our rewritings
+compared to previously proposed NDL-rewritings. On the
+negative side, we prove that answering OMQs with treeshaped CQs is not fixed-parameter tractable if the ontology
+depth or the number of leaves in the CQs is regarded as the
+parameter, and that answering OMQs with a fixed ontology
+(of infinite depth) is NP-complete for tree-shaped CQs and
+LOGCFL-complete for bounded-leaf CQs.

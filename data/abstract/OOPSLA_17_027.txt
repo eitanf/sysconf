@@ -1,0 +1,15 @@
+
+Program analyses frequently track objects throughout a program, which requires reasoning about aliases.
+Most dataflow analysis frameworks, however, delegate the task of handling aliases to the analysis clients,
+which causes a number of problems. For instance, custom-made extensions for alias analysis are complex and
+cannot easily be reused. On the other hand, due to the complex interfaces involved, off-the-shelf alias analyses
+are hard to integrate precisely into clients. Lastly, for precision many clients require strong updates, and alias
+abstractions supporting strong updates are often relatively inefficient.
+In this paper, we present IDEal , an alias-aware extension to the framework for Interprocedural Distributive
+Environment (IDE) problems. IDEal relieves static-analysis authors completely of the burden of handling
+aliases by automatically resolving alias queries on-demand, both efficiently and precisely. IDEal supports
+a highly precise analysis using strong updates by resorting to an on-demand, flow-sensitive, and contextsensitive all-alias analysis. Yet, it achieves previously unseen efficiency by propagating aliases individually,
+creating highly reusable per-pointer summaries.
+We empirically evaluate IDEal by comparing TSf , a state-of-the-art typestate analysis, to TSal , an IDEal based typestate analysis. Our experiments show that the individual propagation of aliases within IDEal enables
+TSal to propagate 10.4× fewer dataflow facts and analyze 10.3× fewer methods when compared to TSf . On
+the DaCapo benchmark suite, TSal is able to efficiently compute precise results.

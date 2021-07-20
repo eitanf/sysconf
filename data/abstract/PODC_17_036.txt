@@ -1,0 +1,19 @@
+
+
+Population protocols are a well established model of computation by
+anonymous, identical finite state agents. A protocol is well-specified
+if from every initial configuration, all fair executions of the protocol
+reach a common consensus. The central verification question for
+population protocols is the well-specification problem: deciding if a
+given protocol is well-specified. Esparza et al. have recently shown
+that this problem is decidable, but with very high complexity: it
+is at least as hard as the Petri net reachability problem, which is
+EXPSPACE-hard, and for which only algorithms of non-primitive
+recursive complexity are currently known.
+
+In this paper we introduce the class WS? of well-specified
+strongly-silent protocols and we prove that it is suitable for automatic verification. More precisely, we show that WS? has the
+same computational power as general well-specified protocols, and
+captures standard protocols from the literature. Moreover, we show
+that the membership problem for WS? reduces to solving boolean
+combinations of linear constraints over N. This allowed us to develop the first software able to automatically prove well-specification for all of the infinitely many possible inputs.

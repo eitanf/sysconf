@@ -1,0 +1,8 @@
+
+TTFLASH is a “tiny-tail” flash drive (SSD) that eliminates GC-induced tail latencies by circumventing GCblocked I/Os with four novel strategies: plane-blocking
+GC, rotating GC, GC-tolerant read, and GC-tolerant
+flush. It is built on three SSD internal advancements:
+powerful controllers, parity-based RAIN, and capacitorbacked RAM, but is dependent on the use of intra-plane
+copyback operations. We show that TTFLASH comes significantly close to a “no-GC” scenario. Specifically, between 99-99.99th percentiles, TTFLASH is only 1.0 to
+2.6 slower than the no-GC case, while a base approach
+suffers from 5—138x GC-induced slowdowns.

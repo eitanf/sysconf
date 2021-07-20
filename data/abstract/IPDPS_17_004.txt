@@ -1,0 +1,25 @@
+
+Vectorization and GPUs will profoundly change
+graph processing. Traditional graph algorithms tuned for
+32- or 64-bit based memory accesses will be inefficient on
+architectures with 512-bit wide (or larger) instruction units
+that are already present in the Intel Knights Landing (KNL)
+manycore CPU. Anticipating this shift, we propose SlimSell: a
+vectorizable graph representation to accelerate Breadth-First
+Search (BFS) based on sparse-matrix dense-vector (SpMV)
+products. SlimSell extends and combines the state-of-the-art
+SIMD-friendly Sell-C-c matrix storage format with tropical,
+real, boolean, and sel-max semiring operations. The resulting
+design reduces the necessary storage (by up to 50%) and thus
+pressure on the memory subsystem. We augment SlimSell with
+the Slim Work and SlimChunk schemes that reduce the amount
+of work and improve load balance, further accelerating BFS.
+We evaluate all the schemes on Intel Haswell multicore CPUs,
+the state-of-the-art Intel Xeon Phi KNL manycore CPUs, and
+NVIDIA Tesla GPUs. Our experiments indicate which semiring
+offers highest speedups for BFS and illustrate that SlimSell
+accelerates a tuned Graph500 BFS code by up to 33%. This
+work shows that vectorization can secure high-performance in
+BFS based on SpMV products; the proposed principles and
+designs can be extended to other graph algorithms.
+

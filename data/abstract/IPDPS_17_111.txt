@@ -1,0 +1,27 @@
+
+Today’s HPC applications are producing extremely large amounts of data, such that data storage and
+analysis are becoming more challenging for scientific research.
+In this work, we design a new error-controlled lossy compression algorithm for large-scale scientific data. Our key
+contribution is significantly improving the prediction hitting
+rate (or prediction accuracy) for each data point based on
+its nearby data values along multiple dimensions. We derive
+a series of multilayer prediction formulas and their unified
+formula in the context of data compression. One serious
+challenge is that the data prediction has to be performed based
+on the preceding decompressed values during the compression
+in order to guarantee the error bounds, which may degrade
+the prediction accuracy in turn. We explore the best layer
+for the prediction by considering the impact of compression
+errors on the prediction accuracy. Moreover, we propose an
+adaptive error-controlled quantization encoder, which can further improve the prediction hitting rate considerably. The data
+size can be reduced significantly after performing the variablelength encoding because of the uneven distribution produced by
+our quantization encoder. We evaluate the new compressor on
+production scientific data sets and compare it with many other
+state-of-the-art compressors: GZIP, FPZIP, ZFP, SZ-1.1, and
+ISABELA. Experiments show that our compressor is the best
+in class, especially with regard to compression factors (or bitrates) and compression errors (including RMSE, NRMSE, and
+PSNR). Our solution is better than the second-best solution
+by more than a 2x increase in the compression factor and
+3.8x reduction in the normalized root mean squared error on
+average, with reasonable error bounds and user-desired bitrates.
+

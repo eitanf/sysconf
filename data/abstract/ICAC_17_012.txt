@@ -1,0 +1,24 @@
+
+Distributed micro-batch streaming systems, such as
+Spark Streaming, employ backpressure mechanisms to maintain
+a stable, high throughput stream of results that is robust to
+runtime dynamics. Checkpointing in stream processing systems is
+a process that creates periodic snapshots of the data flow for fault
+tolerance. These checkpoints can be expensive to produce and
+add significant delay to the data processing. The checkpointing
+latencies are also variable at runtime, which in turn compounds
+the challenges for the backpressure mechanism to maintain
+stable performance. Consequently, the interferences caused by
+the checkpointing may degrade system performance significantly,
+even leading to exhaustion of resources or system crash.
+
+This paper describes GOVERNOR, a controller that factors
+the checkpointing costs into the backpressure mechanism. It not
+only guarantees a smooth execution of the stream processing
+but also reduces the throughput loss caused by interferences
+of the checkpointing. Our experimental results on four stateful
+streaming operators with real-world data sources demonstrate
+that Governor implemented in Spark Streaming can achieve 26%
+throughput improvement, and lower the risk of system crash,
+with negligible overhead.
+

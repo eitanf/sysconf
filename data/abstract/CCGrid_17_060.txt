@@ -1,0 +1,22 @@
+
+Supercomputers have batch queues to which parallel jobs with specific requirements are submitted. Commercial
+schedulers come with various configurable parameters for the
+queues which can be adjusted based on the requirements of
+the system. The employed configuration affects both system
+utilization and job response times. Often times, choosing an
+optimal configuration with good performance is not straightforward and requires good knowledge of the system behavior to
+various kinds of workloads. In this paper, we propose a dynamic
+scheme for setting queue configurations, namely, the number of
+queues, partitioning of the processor space and the mapping of
+the queues to the processor partitions, and the processor size
+and execution time limits corresponding to the queues based
+on the historical workload patterns. We use a novel non-linear
+programming formulation for partitioning and mapping of nodes
+to the queues for homogeneous HPC systems. We also propose
+a novel hybrid partitioned-nonpartitioned scheme for allocating
+processors to the jobs submitted to the queues. Our simulation
+results for a supercomputer system with 35,000+ CPU cores show
+that our hybrid scheme gives up to 74% reduction in queue
+waiting times and up to 12% higher utilizations than static queue
+configurations.
+

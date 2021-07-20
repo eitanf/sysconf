@@ -1,0 +1,20 @@
+
+In this paper, we performed a comprehensive study
+of quantifying and mitigating computational inefficiency of current genomic analysis approaches. First, we found current parallelization approaches that have limited scalability due to either
+unexploited parallelism or low utilization of system resource.
+Thus, we proposed Spark-Gene, which is on the basis of Spark
+in-memory programming model. To test the performance of our
+Spark-Gene, we used WGS in the GATK as the test case. We show
+that Spark-Gene reduces the execution time of WGS analysis
+from 19 hours to 30 minutes with a speedup in excess of 37-fold
+at 256 CPU cores. Furthermore, we identified that garbage collection is the major scalable bottleneck of better parallel efficiency
+for native in-memory computing model. Second, we quantified
+microarchitectural inefficiency for typical genomic applications
+and uncovered opportunities for microarchitectural optimizations
+for the design of genomic domain-specific accelerator, especially
+on specializing concurrency, computation and memory hierarchy.
+This paper is to leverage state-of-art big-data technologies to
+improve parallelization for genomics analysis and motivate the
+integration of accelerators into the genomic analysis computing
+system.
+

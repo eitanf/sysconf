@@ -1,0 +1,36 @@
+
+
+We consider a problem of routing on directed paths and
+trees to a single destination, with rate-limited, adversarial
+traffic. In particular, we focus on local buffer management
+algorithms that ensure no packet loss, while minimizing the
+size of the required buffers.
+
+While a centralized algorithm for the problem that uses
+constant-sized buffers has been recently shown [21], there is
+no known local algorithm that achieves a sub-linear buffer size.
+In this paper we show tight bounds for the maximum buffer
+size needed by ¢-local algorithms for information gathering
+on directed paths and trees, where an algorithm is called
+£-local if the decision made by each node v depends only on
+the sizes of the buffers at most £ hops away from v.
+
+We show three main results:
+
+e a lower bound of 2(clogn/é) for all @local algorithms on
+both directed and undirected paths, where c is an upper
+bound on the link capacity and injection rate.
+
+e asurprisingly simple 1-local algorithm for directed paths
+that uses buffers of size O(logn), when c = 1.
+
+e a natural 2-local extension of this algorithm to directed
+trees, for c= 1, with the same asymptotic bound.
+
+Our O(log 7) lower bound is significantly lower than the
+Q(n) lower bound for greedy algorithms, and perhaps surprisingly, there is a matching upper bound. The algorithm that
+achieves it can be summarized in two lines: If the size of your
+buffer is odd, forward a message if your successor’s buffer
+size is equal or lower. If your buffer size is even, forward a
+message only if your successor’s buffer size is strictly lower.
+For trees, a simple arbitration between siblings is added.

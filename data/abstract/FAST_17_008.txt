@@ -1,0 +1,15 @@
+
+Drive-Managed SMR (Shingled Magnetic Recording) disks
+offer a plug-compatible higher-capacity replacement for
+conventional disks. For non-sequential workloads, these
+disks show bimodal behavior: After a short period of high
+throughput they enter a continuous period of low throughput.
+
+We introduce ext4-lazy', a small change to the Linux
+ext4 file system that significantly improves the throughput
+in both modes. We present benchmarks on four different
+drive-managed SMR disks from two vendors, showing that
+ext4-lazy achieves 1.7-5.4x improvement over ext4 on a
+metadata-light file server benchmark. On metadata-heavy
+benchmarks it achieves 2-13 improvement over ext4 on
+drive-managed SMR disks as well as on conventional disks.

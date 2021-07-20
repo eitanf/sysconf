@@ -1,0 +1,29 @@
+
+
+We formulate and study an optimization problem that arises in
+the energy management of data centers and, more generally, multiprocessor environments. Data centers host a large number of
+heterogeneous servers. Each server has an active state and several
+standby/sleep states with individual power consumption rates. The
+demand for computing capacity varies over time. Idle servers may
+be transitioned to low-power modes so as to rightsize the pool of
+active servers. The goal is to find a state transition schedule for
+the servers that minimizes the total energy consumed. On a small
+scale the same problem arises in multi-core architectures with heterogeneous processors on a chip. One has to determine active and
+idle periods for the cores so as to guarantee a certain service and
+minimize the consumed energy.
+
+For this power/capacity management problem, we develop two
+main results. We use the terminology of the data center setting.
+First, we investigate the scenario that each server has two states,
+ie. an active state and a sleep state. We show that an optimal
+solution, minimizing energy consumption, can be computed in
+polynomial time by a combinatorial algorithm. The algorithm resorts to a single-commodity min-cost flow computation. Second,
+we study the general scenario that each server has an active state
+and multiple standby/sleep states. We devise a t-approximation algorithm that relies on a two-commodity min-cost flow computation.
+Here tr is the number of different server types. A data center has a
+large collection of machines but only a relatively small number of
+different server architectures. Moreover, in the optimization one
+can assign servers with comparable energy consumption to the
+same class. Technically, both of our algorithms involve non-trivial
+flow modification procedures. In particular, given a fractional twocommodity flow, our algorithm executes advanced rounding and
+flow packing routines.

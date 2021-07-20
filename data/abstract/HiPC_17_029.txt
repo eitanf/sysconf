@@ -1,0 +1,18 @@
+
+To expose hidden parallelism from programs with
+complex dependences, modern compilers employ memory profilers to augment imprecise static analyses. Since dynamic dependence patterns among instructions can vary widely depending
+on the context, such as function call site stack and loop nest
+level, context-aware memory profiling is of great value for precise
+memory profiling. However, recording memory dependences with
+full context information causes huge overheads in terms of CPU
+cycles and memory space. Existing profilers mitigate this problem
+by compromising precision, coverage, or both. This paper proposes a new precise Context-Aware Memory Profiling (CAMP)
+framework that efficiently traces all the memory dependences
+with full context information. CAMP statically analyzes a context
+tree of a program that illustrates all the possible dynamic
+contexts, and simplifies context management during profiling. For
+14 programs from SPEC CINT2000 and CINT2006 benchmark
+suites, CAMP increases speculative parallelism opportunities by
+12.6% on average and by up to 63.0% compared to the baseline
+context-oblivious, loop-aware memory profiler.
+

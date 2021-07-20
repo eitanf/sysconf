@@ -1,0 +1,18 @@
+
+
+Cloud computing offers a cost-efficient data analytics platform.
+However, due to the sensitive nature of data, many organizations
+are reluctant to analyze their data in public clouds. Both softwarebased and hardware-based solutions have been proposed to address
+the stalemate, yet all have substantial limitations. We observe that
+a main issue cutting across all solutions is that they attempt to support confidentiality in data queries in a way transparent to queries.
+We propose the novel abstraction of secure data types with corresponding annotations for programmers to conveniently denote
+constraints relevant to security. These abstractions are leveraged by
+novel compilation techniques in our system Cuttlefish to compute
+data analytics queries in public cloud infrastructures while keeping
+sensitive data confidential. Cuttlefish encrypts all sensitive data
+residing in the cloud and employs partially homomorphic encryption schemes to perform operations securely, resorting however to
+client-side completion, re-encryption, or secure hardware-based
+re-encryption based on Intel’s SGX when available based on a novel
+planner engine. Our evaluation shows that our prototype can execute all queries in standard benchmarks such as TPC-H and TPC-DS
+with an average overhead of 2.34x and 1.69x respectively compared
+to a plaintext execution that reveals all data.

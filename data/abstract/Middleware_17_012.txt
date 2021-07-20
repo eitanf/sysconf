@@ -1,0 +1,28 @@
+
+Big Data applications suffer from unpredictable and unacceptably
+high pause times due to bad memory management (Garbage Collection, GC) decisions. This is a problem for all applications but
+it is even more important for applications with low pause time
+requirements such as credit-card fraud detection or targeted website advertisement systems, which can easily fail to comply with
+Service Level Agreements due to long GC cycles (during which the
+application is stopped). This problem has been previously identified
+and is related to Big Data applications keeping in memory (for a
+long period of time, from the GC’s perspective) massive amounts
+of data objects.
+
+Memory management approaches have been proposed to reduce
+the GC pause time by allocating objects with similar lifetimes close
+to each other. However, they either do not provide a general solution
+for all types of Big Data applications (thus only solving the problem
+for a specific set of applications), and/or require programmer effort
+and knowledge to change/annotate the application code.
+
+This paper proposes POLM2, a profiler that automatically: i) estimates application allocation profiles based on execution records,
+and ii) instruments application bytecode to help the GC taking
+advantage of the profiling information. Thus, no programmer effort
+is required to change the source code to allocate objects according
+to their lifetimes. POLM2 is implemented for the OpenJDK HotSpot
+Java Virtual Machine 8 and uses NG2C, a recently proposed GC
+which supports multi-generational pretenuring. Results show that
+POLM2 is able to: i) achieve pauses as low as NG2C (which requires
+manual source code modification), and ii) significantly reduce application pauses by up to 80% when compared to G1 (default collector
+in OpenJDK). POLM2 does not negatively impact neither application throughput nor memory utilization.

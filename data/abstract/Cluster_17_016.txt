@@ -1,0 +1,32 @@
+
+While the memory footprints of cloud and HPC applications
+continue to increase, fundamental issues with DRAM scaling are
+likely to prevent traditional main memory systems, composed
+of monolithic DRAM, from greatly growing in capacity. Hybrid
+memory systems can mitigate the scaling limitations of monolithic DRAM by pairing together multiple memory technologies
+(e.g., different types of DRAM, or DRAM and non-volatile memory) at the same level of the memory hierarchy. The goal of a
+hybrid main memory is to combine the different advantages of
+the multiple memory types in a cost-effective manner while
+avoiding the disadvantages of each technology. Memory pages are placed in and migrated between the different memories
+within a hybrid memory system, based on the properties of each
+page. It is important to make intelligent page management (i.e.,
+placement and migration) decisions, as they can significantly
+affect system performance.
+
+In this paper, we propose utility-based hybrid memory management (UH-MEM), a new page management mechanism
+for various hybrid memories, that systematically estimates the
+utility (i.e. the system performance benefit) of migrating a page
+between different memory types, and uses this information to
+guide data placement. UH-MEM operates in two steps. First, it
+estimates how much a single application would benefit from
+migrating one of its pages to a different type of memory, by
+comprehensively considering access frequency, row buffer locality, and memory-level parallelism. Second, it translates the
+estimated benefit of a single application to an estimate of the
+overall system performance benefit from such a migration.
+
+We evaluate the effectiveness of UH-MEM with various types
+of hybrid memories, and show that it significantly improves
+system performance on each of these hybrid memories. For a
+memory system with DRAM and non-volatile memory, UHMEM improves performance by 14% on average (and up to 26%)
+compared to the best of three evaluated state-of-the-art mechanisms across a large number of data-intensive workloads.
+

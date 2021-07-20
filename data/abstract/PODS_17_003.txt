@@ -1,0 +1,28 @@
+
+We consider the task of enumerating and counting answers
+to k-ary conjunctive queries against relational databases that
+may be updated by inserting or deleting tuples.
+
+We exhibit a new notion of g-hierarchical conjunctive queries and show that these can be maintained efficiently in the
+following sense. During a linear time preprocessing phase,
+we can build a data structure that enables constant delay
+enumeration of the query results; and when the database is
+updated, we can update the data structure and restart the
+enumeration phase within constant time. For the special
+case of self-join free conjunctive queries we obtain a dichotomy: if a query is not q-hierarchical, then query enumeration with sublinear* delay and sublinear update time (and
+arbitrary preprocessing time) is impossible.
+
+For answering Boolean conjunctive queries and for the
+more general problem of counting the number of solutions of
+k-ary queries we obtain complete dichotomies: if the query’s
+homomorphic core is q-hierarchical, then size of the the
+query result can be computed in linear time and maintained
+with constant update time. Otherwise, the size of the query
+result cannot be maintained with sublinear update time.
+
+All our lower bounds rely on the OMv-conjecture, a conjecture on the hardness of online matrix-vector multiplication that has recently emerged in the field of fine-grained
+complexity to characterise the hardness of dynamic problems. The lower bound for the counting problem additionally relies on the orthogonal vectors conjecture, which in
+turn is implied by the strong exponential time hypothesis.
+
+*) By sublinear we mean O(n'—*) for some ¢ > 0, where
+n is the size of the active domain of the current database.

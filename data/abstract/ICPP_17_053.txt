@@ -1,0 +1,16 @@
+
+Optimizing the performance of GPU kernels is
+challenging for both human programmers and code generators.
+For example, CUDA programmers must set thread and block
+parameters for a kernel, but might not have the intuition to
+make a good choice. Similarly, compilers can generate working
+code, but may miss tuning opportunities by not targeting GPU
+models or performing code transformations. Although empirical
+autotuning addresses some of these challenges, it requires extensive experimentation and search for optimal code variants. This
+research presents an approach for tuning CUDA kernels based
+on static analysis that considers fine-grained code structure and
+the specific GPU architecture features. Notably, our approach
+does not require any program runs in order to discover nearoptimal parameter settings. We demonstrate the applicability
+of our approach in enabling code autotuners such as Orio to
+produce competitive code variants comparable with empiricalbased methods, without the high cost of experiments.
+

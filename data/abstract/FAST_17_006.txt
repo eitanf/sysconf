@@ -1,0 +1,15 @@
+
+Cloud-based storage provides reliability and ease-ofmanagement. Unfortunately, it can also incur significant
+costs for both storing and communicating data, even after
+using techniques such as chunk-based deduplication and
+delta compression. The current trend of providing access
+to past versions of data exacerbates both costs.
+
+In this paper, we show that deterministic recomputation of data can substantially reduce the cost of cloud
+storage. Borrowing a well-known dualism from the faulttolerance community, we note that any data can be equivalently represented by a log of the nondeterministic inputs needed to produce that data. We design a file system, called Knockoff, that selectively substitutes nondeterministic inputs for file data to reduce communication
+and storage costs. Knockoff compresses both data and
+computation logs: it uses chunk-based deduplication for
+file data and delta compression for logs of nondeterminism. In two studies, Knockoff reduces the average cost
+of sending files to the cloud without versioning by 21%
+and 24%; the relative benefit increases as versions are
+retained more frequently.

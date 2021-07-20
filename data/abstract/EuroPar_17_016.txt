@@ -1,0 +1,22 @@
+
+. Although simulators provide approximate, faster and easier
+simulation of an application execution in Clouds, still many researchers
+argue that these results cannot be always generalized for complex application types, which consist of many dependencies among tasks and various scheduling possibilities, such as workflows. DynamicCloudSim, the
+extension of the well known CloudSim simulator, offers users the capability to simulate the Cloud heterogeneity by introducing noisiness in
+dozens parameters. Still, it is difficult, or sometimes even impossible to
+determine appropriate values for all these parameters because they are
+usually Cloud or application-dependent. In this paper, we propose a new
+model that simplifies the simulation setup for a workflow and reduces
+the bias between the behavior of simulated and real Cloud environments
+based on one parameter only, the Cloud noisiness. It represents the noise
+produced by the Cloud’s interference including the application’s (in our
+case a workflow) noisiness too. Another novelty in our model is that it
+does not use a normal distribution naively to create noised values, but
+shifts the mean value of the task execution time by the cloud noisiness
+and uses its deviation as a standard deviation. Besides our model reduces
+the complexity of DynamicCloudSim’s heterogeneity model, evaluation
+conducted in Amazon EC2 shows that it is also more accurate, with
+better trueness (closeness to the real mean values) of up to 9.2% and
+precision (closeness to the real deviation) of up to 8.39 times.
+
+

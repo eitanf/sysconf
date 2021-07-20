@@ -1,0 +1,13 @@
+
+. In a Cloud computing data center and especially in a IaaS
+(Infrastructure as a Service), performance predictability is one of the most
+important challenges. For a given allocated virtual machine (VM) in one
+laaS, a client expects his application to perform identically whatever is
+the hosting physical server or its resource management strategy. However, performance predictability is very difficult to enforce in a heterogeneous hardware environment where machines do not have identical performance characteristics, and even more difficult when machines are internally heterogeneous as for Asymmetric Multicore Processor machines.
+In this paper, we introduce a VM scheduler extension which takes into
+account hardware performance heterogeneity of Asymmetric Multicore
+Processor machines in the cloud. Based on our analysis of the problem,
+we designed and implemented two solutions: the first weights CPU allocations according to core performance, while the second adapts CPU allocations to reach a given instruction execution rate (Ips) regardless the
+core types. We demonstrate that such scheduler extensions can enforce
+predictability with a negligible overhead on application performance.
+

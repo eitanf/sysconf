@@ -1,0 +1,26 @@
+
+Exascale computing will get mankind closer to
+solving important social, scientific and engineering problems.
+Due to high prototyping costs, High Performance Computing
+(HPC) system architects make use of simulation models for design
+space exploration and hardware-software co-design. However, as
+HPC systems reach exascale proportions, the cost of simulation
+increases, since simulators themselves are largely single-threaded.
+Tools for selecting representative parts of parallel applications to
+reduce running costs are widespread, e.g., BarrierPoint achieves
+this by analysing, in simulation, abstract characteristics such as
+basic blocks and reuse distances. However, architectures new to
+HPC have a limited set of tools available.
+
+In this work, we provide an independent cross-architectural
+evaluation on real hardware—across Intel and ARM—of the
+BarrierPoint methodology, when applied to parallel HPC proxy
+applications. We present both cases: when the methodology can
+be applied and when it cannot. In the former case, results show
+that we can predict the performance of full application execution
+by running shorter representative sections. In the latter case,
+we dive into the underlying issues and suggest improvements.
+We demonstrate a total simulation time reduction of up to
+178x, whilst keeping the error below 2.3% for both cycles and
+instructions.
+

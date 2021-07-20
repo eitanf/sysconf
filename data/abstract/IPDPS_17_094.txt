@@ -1,0 +1,30 @@
+
+Limited power budgets will be one of the biggest
+challenges for deploying future exascale supercomputers. One
+of the promising ways to deal with this challenge is hardware
+overprovisioning, that is, installing more hardware resources than
+can be fully powered under a given power limit coupled with
+software mechanisms to steer the limited power to where it is
+needed most. Prior research has demonstrated the viability of
+this approach, but could only rely on small-scale simulations of
+the software stack. While such research is useful to understand
+the boundaries of performance benefits that can be achieved, it
+does not cover any deployment or operational concerns of using
+overprovisioning on production systems.
+
+This paper is the first to present an extensible power-aware
+resource management framework for production-sized
+overprovisioned systems based on the widely established
+SLURM resource manager. Our framework provides flexible
+plugin interfaces and APIs for power management that can
+be easily extended to implement site-specific strategies and for
+comparison of different power management techniques. We
+demonstrate our framework on a 965-node HA8000 production
+system at Kyushu University. Our results indicate that it is
+indeed possible to safely overprovision hardware in production.
+We also find that the power consumption of idle nodes, which
+depends on the degree of overprovisioning, can become a
+bottleneck. Using real-world data, we then draw conclusions
+about the impact of the total number of nodes provided in an
+overprovisioned environment.
+

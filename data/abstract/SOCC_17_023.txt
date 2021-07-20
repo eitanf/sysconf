@@ -1,0 +1,17 @@
+
+ accountability, such as determining the bandwidth of each point
+Network usage accountability is critical in helping operators and
+customers of multi-tenant data centers deal with concerns such
+as capacity planning, resource allocation, hotspot detection, link
+failure detection, and troubleshooting. However, the cost of measurements and instrumentation to achieve flow-level accountability
+is non-trivial. We propose Polygravity to determine tenant traffic
+usage via lightweight measurements in multi-tenant data centers.
+We adopt a tomogravity model widely used in ISP networks, and
+adapt it to a multi-tenant data center environment. By integrating datacenter-specific domain knowledge, sampling-based partial
+estimation and gravity-based internal sinks/sources estimation,
+Polygravity addresses two key challenges for adapting tomogravity
+to a data center environment: sparse traffic matrices and internal
+traffic sinks/sources. We conducted extensive evaluation of our approach using realistic data center workloads. Our results show that
+Polygravity can determine tenant IP flow usage with less than 1%
+average relative error for tenants with fine-grained domain knowledge. In addition, for tenants with coarse-grained domain knowledge and with partial host-based sampling, Polygravity reduces the
+relative error of sampling-based estimation by 5

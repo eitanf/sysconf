@@ -1,0 +1,21 @@
+
+SQL is the de facto language for manipulating relational
+data. Though powerful, SQL queries can be difficult to
+write due to their highly expressive constructs. Using the
+programming-by-example paradigm to help users write SQL
+queries presents an attractive proposition, as evidenced by online help forums such as Stack Overflow. However, developing techniques to synthesize SQL queries from input-output
+(I/O) examples has been difficult due to SQL’s rich set of
+operators.
+In this paper, we present a new scalable and efficient algorithm to synthesize SQL queries from I/O examples. Our
+key innovation is the development of a language for abstract
+queries, i.e., queries with uninstantiated operators, that can express a large space of SQL queries efficiently. Using abstract
+queries to represent the search space nicely decomposes the
+synthesis problem into two tasks: (1) searching for abstract
+queries that can potentially satisfy the given I/O examples,
+and (2) instantiating the found abstract queries and ranking
+the results. We implemented the algorithm in a new tool,
+called S CYTHE, and evaluated it on 193 benchmarks collected from Stack Overflow. Our results showed that S CYTHE
+efficiently solved 74% of the benchmarks, most in just a few
+seconds. Queries synthesized by S CYTHE range from simple
+ones involving a single selection to complex ones with six
+levels of nested queries.

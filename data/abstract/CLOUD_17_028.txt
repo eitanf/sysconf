@@ -1,0 +1,23 @@
+
+Network function virtualization has emerged as a
+promising technology to enable rapid network service composition/innovation, energy conservation and cost minimization for
+network operators. To optimally operate a virtualized network
+service, it is of key importance to optimally deploy a VNF
+(virtualized network function) service chain within the provisioning infrastructure (e.g., servers and the network within a
+cloud datacenter), and dynamically scale it in response to flow
+traffic changes. Most of the existing work on VNF scaling assume
+access to precise network bandwidth information for placement
+decisions, while in reality, network bandwidth typically fluctuates
+following an unknown pattern and an effective way to adapt
+to it is to do trials. In this paper, we address dynamic VNF
+service chain deployment and scaling by a novel combination
+of an online provisioning algorithm and a multi-armed bandit
+optimization framework, which exploits online learning of the
+available bandwidths to enable optimal deployment of a scaled
+service chain. Specifically, we adopt the online algorithm to
+minimize the cost for provisioning VNF instances on the go,
+and a bandit-based online learning algorithm to place the
+VNF instances which minimizes the congestion in a datacenter
+network. We demonstrate effectiveness of our algorithms using
+solid theoretical analysis and trace-driven evaluation.
+

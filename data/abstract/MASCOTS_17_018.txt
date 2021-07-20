@@ -1,0 +1,20 @@
+
+This paper investigates the problem of deriving a white box performance model of Hardware Transactional Memory (HTM) systems. The proposed model
+targets TSX, a popular implementation of HTM integrated
+in Intel processors starting with the Haswell family in 2013.
+
+An inherent difficulty with building white-box models of
+commercially available HTM systems is that their internals
+are either vaguely documented or undisclosed by their
+manufacturers. We tackle this challenge by designing a set
+of experiments that allow us to shed lights on the internal
+mechanisms used in TSX to manage conflicts among
+transactions and to track their readsets and writesets.
+
+We exploit the information inferred from this experimental study to build an analytical model of TSX focused on capturing the impact on performance of two
+key mechanisms: the concurrency control scheme and the
+management of transactional meta-data in the processor’s
+caches. We validate the proposed model by means of an
+extensive experimental study encompassing a broad range
+of workloads executed on a real system.
+

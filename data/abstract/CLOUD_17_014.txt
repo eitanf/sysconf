@@ -1,0 +1,21 @@
+
+Apache HBase is a widely used non-relational
+database in the Hadoop ecosystem. However, it will be inefficient
+if users perform multidimensional queries. Some of existing
+approaches incur extra costs in write performance or consistency
+maintenance, others are limited to specific applications. In this
+paper, we propose a novel data model called CFIDM, short for
+Column Family Indexed Data Model. In CFIDM, we convert
+the queried column into multiple column families. Values in the
+specific column are partitioned. Each partition is manifested by
+a column family, turning column family into an index with no
+additional cost. Then we provide guides to build this data model.
+Finally, we evaluate the effectiveness and versatility of CFIDM
+on the Bixi data set and the TPC-DS benchmark. Results show
+that CFIDM can save 6.6% disk space for Bixi and 35% for
+TPC-DS, maximally speeding up the queries by 5X and 5.5X
+respectively.
+
+Index Terms—HBase; Multiple Column Families; Data Model;
+Dimension Extension.
+

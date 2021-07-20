@@ -1,0 +1,17 @@
+
+Many modern applications are a mixture of streaming, transactional
+and analytical workloads. However, traditional data platforms are
+each designed for supporting a specific type of workload. The
+lack of a single platform to support all these workloads has forced
+users to combine disparate products in custom ways. The common
+practice of stitching heterogeneous environments has caused enormous production woes by increasing complexity and the total cost
+of ownership.
+
+To support this class of applications, we present SnappyData as
+the first unified engine capable of delivering analytics, transactions,
+and stream processing in a single integrated cluster. We build this
+hybrid engine by carefully marrying a big data computational engine (Apache Spark) with a scale-out transactional store (Apache
+GemFire). We study and address the challenges involved in building such a hybrid distributed system with two conflicting components designed on drastically different philosophies: one being a
+lineage-based computational model designed for high-throughput
+analytics, the other a consensus- and replication-based model designed for low-latency operations.
+

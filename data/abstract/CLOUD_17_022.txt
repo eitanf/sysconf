@@ -1,0 +1,16 @@
+
+We present Timestamp Order Preserving (TOP),
+a replicated state machine (RSM) protocol that exploits the
+synchrony of networks to provide high performance. TOP uses
+physical timestamp of synchronized clock as a consistent total
+order to achieve consensus. It keeps estimating the bounds of
+network latency and offset of synchronized clock to deduce the
+commit time for each operation. It adopts speculative processing and reconciliation techniques to improve performance. To
+demonstrate its advantages, we implement a key-value data store
+that uses TOP for data replication. Through evaluations in a
+geo-deployed testbed, by comparing it with Primary-Copy and
+Quorum-Replication protocols, we demonstrate that TOP has a
+similar commit latency with a higher sustainable throughput.
+In addition, it processes operations in the order of submission
+timestamp, which provides a stricter form of consistency.
+

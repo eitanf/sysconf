@@ -1,0 +1,24 @@
+
+Large-scale systems with arrays of solid state disks
+(SSDs) have become increasingly common in many computing
+segments. To make such systems resilient, we can adopt erasure
+coding such as Reed-Solomon (RS) code as an alternative to
+replication because erasure coding can offer a significantly lower
+storage cost than replication. To understand the impact of using
+erasure coding on system performance and other system aspects
+such as CPU utilization and network traffic, we build a storage
+cluster consisting of approximately one hundred processor cores
+with more than fifty high-performance SSDs, and evaluate the
+cluster with a popular open-source distributed parallel file
+system, Ceph. Then we analyze behaviors of systems adopting
+erasure coding from the following five viewpoints, compared
+with those of systems using replication: (1) storage system //O
+performance; (2) computing and software overheads; (3) VO
+amplification; (4) network traffic among storage nodes; (5) the
+impact of physical data layout on performance of RS-coded SSD
+arrays. For all these analyses, we examine two representative
+RS configurations, which are used by Google and Facebook
+file systems, and compare them with triple replication that a
+typical parallel file system employs as a default fault tolerance
+mechanism. Lastly, we collect 54 block-level traces from the
+cluster and make them available for other researchers.

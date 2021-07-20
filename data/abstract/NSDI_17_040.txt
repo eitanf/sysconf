@@ -1,0 +1,13 @@
+
+
+Recent work has made great progress in verifying the forwarding correctness of networks [26—28, 35]. However,
+these approaches cannot be used to verify networks containing middleboxes, such as caches and firewalls, whose
+forwarding behavior depends on previously observed traffic. We explore how to verify reachability properties for
+networks that include such “mutable datapath” elements,
+both for the original network and in the presence of failures.
+The main challenge lies in handling large and complicated
+networks. We achieve scaling by developing and leveraging the concept of slices, which allow network-wide
+verification to only require analyzing small portions of the
+network. We show that with slices the time required to
+verify an invariant on many production networks is independent of the size of the network itself.
+

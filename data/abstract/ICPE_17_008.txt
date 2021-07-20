@@ -1,0 +1,29 @@
+
+
+Elastic scaling of event stream processing systems has gained significant attention recently due to the prevalence of cloud computing technologies. We investigate on the complexities associated
+with elastic scaling of an event processing system in a private/public cloud scenario. We develop an Elastic Switching Mechanism
+(ESM) which reduces the overall average latency of event processing jobs by significant amount considering the cost of operating the
+system. ESM is augmented with adaptive compressing of upstream
+data. The ESM conducts one of the two types of switching where
+either part of the data is sent to the public cloud (data switching)
+or a selected query is sent to the public cloud (query switching)
+based on the characteristics of the query. We model the operation
+of the ESM as the function of two binary switching functions. We
+show that our elastic switching mechanism with compression is capable of handling out-of-order events more efficiently compared
+to techniques which does not involve compression. We used two
+application benchmarks called EmailProcessor and a Social Networking Benchmark (SNB2016) to conduct multiple experiments
+to evaluate the effectiveness of our approach. In a single query
+deployment with EmailProcessor benchmark we observed that our
+elastic switching mechanism provides 1.24 seconds average latency
+improvement per processed event which is 16.70% improvement
+compared to private cloud only deployment. When presented the
+option of scaling EmailProcessor with four public cloud VMs ESM
+further reduced the average latency by 37.55% compared to the
+single public cloud VM. In a multi-query deployment with both
+EmailProcessor and SNB2016 we obtained a reduction of average
+latency of both the queries by 39.61 seconds which is a decrease
+of 7% of overall latency. These performance figures indicate that
+our elastic switching mechanism with compressed data streams can
+effectively reduce the average elapsed time of stream processing
+happening in private/public clouds.
+

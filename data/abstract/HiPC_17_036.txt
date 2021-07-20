@@ -1,0 +1,28 @@
+
+Factorizing large matrices by QR with column
+pivoting (QRCP) is substantially more expensive than QR
+without pivoting, owing to communication costs required for
+pivoting decisions. In contrast, randomized QRCP (RQRCP)
+algorithms have proven themselves empirically to be highly
+
+xGEQPF and PxGEQPF respectively. They are considerably
+faster, while maintaining same numerical behavior.
+
+Given a target rank 1 < k < min (m, n) in partial QRCP,
+equation (1) can be written in a 2 x 2 block form as
+
+competitive with high-performance implementations of QR in R R R R
+processing time, on uniprocessor and shared memory machines, AT=Q ( 6. z,. ) _ ( Qi Qe ) ( o z, ) ;
+and as reliable as QRCP in pivot quality. 22 22
+
+We show that RQRCP algorithms can be as reliable as
+QRCP with failure probabilities exponentially decaying in
+oversampling size. We also analyze efficiency differences among
+different RQRCP algorithms. More importantly, we develop
+distributed memory implementations of RQRCP that are significantly better than QRCP implementations in ScaLAPACK.
+
+As a further development, we introduce the concept of
+and develop algorithms for computing spectrum-revealing QR
+factorizations for low-rank matrix approximations, and demonstrate their effectiveness against leading low-rank approximation methods in both theoretical and numerical reliability and
+efficiency.
+

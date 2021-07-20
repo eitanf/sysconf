@@ -1,0 +1,19 @@
+
+Multipath TCP enables remarkable optimizations for throughput,
+load balancing, and mobility in today’s networks. The design space
+of Multipath TCP scheduling, i.e., the application-aware mapping of
+packets to paths, is largely unexplored due to its inherent complexity. Evidence in this paper suggests that an application-aware scheduling decision, if leveraged right, pushes Multipath TCP beyond
+throughput optimization and thereby provides benefits for a wide
+range of applications.
+This paper introduces a high-level programming model that enables application-defined Multipath TCP scheduling. We provide
+an efficient interpreter and eBPF-based runtime environment for
+the Linux Kernel, enabling isolated application-defined schedulers
+in multi-tenancy environments. In combination with a high-level
+API, our work closes the gap between scheduler specification and
+deployment. We show the strength of our programming model by
+implementing seven novel schedulers tackling diverse objectives.
+Our real world measurements, for example, of an application- and
+preference-aware scheduler, show that the programming model
+enables timely scheduling decisions to retain fine-grained throughput objectives. Further measurements of a novel HTTP/2-aware
+scheduler show significantly improved interactions with upperlayer protocols, e.g., an optimized dependency resolution, while
+preserving path preferences.

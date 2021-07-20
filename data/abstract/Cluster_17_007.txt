@@ -1,0 +1,22 @@
+
+Reading and writing data efficiently from storage
+system is necessary for most scientific simulations to achieve
+good performance at scale. Many software solutions have been
+developed to decrease the I/O bottleneck. One well-known strategy, in the context of collective I/O operations, is the twophase I/O scheme. This strategy consists of selecting a subset
+of processes to aggregate contiguous pieces of data before
+performing reads/writes. In this paper, we present TAPIOCA, an
+MPI-based library implementing an efficient topology-aware twophase I/O algorithm. We show how TAPIOCA can take advantage
+of double-buffering and one-sided communication to reduce as
+much as possible the idle time during data aggregation. We also
+introduce our cost model leading to a topology-aware aggregator
+placement optimizing the movements of data. We validate our
+approach at large scale on two leadership-class supercomputers:
+Mira (IBM BG/Q) and Theta (Cray XC40). We present the
+results obtained with TAPIOCA on a micro-benchmark and the
+TV/O kernel of a large-scale simulation. On both architectures, we
+show a substantial improvement of I/O performance compared
+with the default MPI I/O implementation. On BG/Q+GPFS, for
+instance, our algorithm leads to a performance improvement by
+a factor of twelve while on the Cray XC40 system associated
+with a Lustre filesystem, we achieve an improvement of four.
+

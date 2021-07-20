@@ -1,0 +1,19 @@
+
+. The scale of applications and computing systems is tremendously increasing and needs to increase even more to realize exascale
+systems. As the number of nodes keeps growing, communication has
+become key to high performance.
+
+The Message Passing Interface (MPI) has evolved to the de facto standard for inter-node data transfers. Consequently, MPI is well suited to
+serve as proxy for an analysis of communication characteristics of exascale proxy applications.
+
+This work presents characteristics like time spent in certain operations, point-to-point versus collective communication, and message sizes
+and rates, gathered from a comprehensive trace analysis. We provide an
+understanding of how applications use MPI to exploit node-level parallelism, always with respect to scalability, and also locate parts which
+require more optimization. We emphasize on the analysis of the message
+matching and report queue lengths and associated matching rates.
+
+It is shown that most data is transferred via point-to-point operations,
+but the most time is spent in collectives. Message matching rates significantly depend on the length of message queues, which tend to increase
+with the number of processes. As messages are also become smaller, the
+matching is important to high message rates in large-scale applications.
+

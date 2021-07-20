@@ -1,0 +1,33 @@
+
+Modern computer systems are accelerator-rich,
+equipped with many types of hardware accelerators to speed
+up computation. For example, graphics processing units (GPUs)
+are a type of accelerators that are widely employed to accelerate
+parallel workloads. In order to well utilize different accelerators
+to gain better execution time speedup or reduce total energy
+consumption, many scheduling algorithms have been proposed
+to select the optimal target device to process an OpenCL kernel
+according to the kernel’s individual characteristics. However, in
+a real computer system, there are a lot of workloads co-located
+together on a single machine and would be processed on different
+devices simultaneously. The CPU cores and accelerators may contend shared resources, such as the host main memory and shared
+last-level cache. Thus, it is not robust to schedule an OpenCL
+kernel execution by simply considering the characteristics of the
+kernel. To maximize the system throughput, it is important to
+consider the execution behavior of all co-located applications
+when performing OpenCL kernel execution scheduling.
+
+In this paper, we provide a detailed characterization study
+demonstrating that scheduling an OpenCL kernel to run on
+different devices can introduce varying performance impact
+to itself and the other co-located applications due to memory
+interference. Based on the characterization results, we then
+develop a light-weight, scalable performance degradation predictor specifically for heterogeneous computer systems, called
+HeteroPDP. HeteroPDP aims to dynamically predict and balance
+the execution time slowdown of all co-located applications in
+a heterogeneous computation environment. Our real system
+evaluation results show that comparing with always running an
+OpenCL kernel on the host CPU, HeteroPDP is able to achieve
+3X execution time speedup when an OpenCL kernel runs alone
+and improve the system fairness from 24% to 65% when an
+OpenCL kernel is co-located with other applications.

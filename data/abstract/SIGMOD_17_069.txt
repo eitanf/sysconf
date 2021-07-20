@@ -1,0 +1,13 @@
+
+
+Verifying the integrity of outsourced data is a classic, well-studied
+problem. However current techniques have fundamental performance and concurrency limitations for update-heavy workloads. In
+this paper, we investigate the potential advantages of deferred and
+batched verification rather than the per-operation verification used in
+prior work. We present Concerto, a comprehensive key-value store
+designed around this idea. Using Concerto, we argue that deferred
+verification preserves the utility of online verification and improves
+concurrency resulting in orders-of-magnitude performance improvement. On standard benchmarks, the performance of Concerto is
+within a factor of two when compared to state-of-the-art key-value
+stores without integrity.
+

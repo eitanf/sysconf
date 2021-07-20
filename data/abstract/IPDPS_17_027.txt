@@ -1,0 +1,25 @@
+
+Near-threshold computing is emerging as a
+promising energy-efficient alternative for power-constrained
+environments. Unfortunately, aggressive reduction in supply
+voltage to the near-threshold range, albeit effective, faces a
+host of challenges. This includes higher relative leakage power
+and high error rates, particularly in dense SRAM structures
+such as on-chip caches.
+
+This paper presents an architecture that rethinks the cache
+hierarchy in near-threshold multiprocessors. Our design uses
+STT-RAM to implement all on-chip caches. STT-RAM has
+several advantages over SRAM at low voltages including low
+leakage, high density, and reliability. The design consolidates
+the private caches of near-threshold cores into shared L1
+instruction/data caches organized in clusters. We find that
+our consolidated cache design can service more than 95% of
+incoming requests within a single cycle. We demonstrate that
+eliminating the coherence traffic associated with private caches
+results in a performance boost of 11%. In addition, we propose
+a hardware-based core management system that dynamically
+consolidates virtual cores into variable numbers of physical
+cores to increase resource efficiency. We demonstrate that this
+approach can save up to 33% in energy.
+

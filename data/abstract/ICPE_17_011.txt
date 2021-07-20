@@ -1,0 +1,22 @@
+
+
+Black-box modeling techniques are used when modeling computer systems with unknown internal structure or behavior
+and/or when it is not feasible or too time consuming to
+monitor a running computer system. The main challenge in
+these situations lies in estimating values for the parameters
+of these models, especially the values of service demands
+at the various devices for each transaction class. These estimates have to be compliant with the input-output relationships observed through measurements. This means that
+solving a model of the system with the estimated parameters
+should yield the same outputs (e.g., response times) for the
+same inputs (e.g., arrival rates or concurrency level). This
+paper presents a method for automatically estimating service demands for open, closed, single and multiclass queuing
+networks (QN). The method is based on casting the estimation problem as a non-linear optimization problem. However, because the solution of closed QNs does not have a
+closed form, we need to resort to black-box optimization
+techniques. The parameter estimation method presented
+here is part of «Model, a framework for automatically deriving performance models of systems whose detailed characteristics (structure and behavior) are unknown. Other portions of the framework were discussed in detail in previous
+publications by the authors. This paper illustrates the ideas
+through several numerical examples and then applies them
+to a multi-tiered operational system running OFBiz. The
+estimated service demands closely satisfy the input-output
+relationships at various workload intensity levels and can be
+used for prediction purposes.

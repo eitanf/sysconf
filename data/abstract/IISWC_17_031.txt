@@ -1,0 +1,40 @@
+
+The trends of transistor size and system complexity
+scaling continue. As a result, soft errors in the system, including
+the processor core, are predicted to become one of the major
+reliability challenges. A fraction of soft errors at the device level
+could become an unmasked error visible to the user. Unmasked
+soft errors may manifest as a detectable error, which could be
+recoverable (DRE) or unrecoverable (DUE), or a Silent Data
+Corruption (SDC). Detecting and recovering from an SDC is
+especially challenging since an explicit checker is needed to detect
+erroneous state. Predicting when SDCs are more likely could be
+valuable in designing resilient systems.
+
+To gain insight, we evaluate the Architectural Vulnerability
+Factor (AVF) of all major in-core memory structures of an
+out-of-order superscalar processor. In particular, we focus on
+the vulnerability factors for detectable and unrecoverable errors
+(DUEavr) and silent data corruptions (SDCayr) across windows
+of execution to study their characteristics, time-varying behavior,
+and their predictability using a linear regression trained offline.
+We perform more than 35 million microarchitectural fault
+injection simulations and, if necessary, run-to-completion using
+functional simulations to determine AVF, DUEavr, and SDCavr.
+
+Our study shows that, similar to AVF, DUEaye and SDCayr
+vary over time and across applications. We also find significant differences in DUEgye and SDCayr across the processor
+structures we studied. Furthermore, we find that DUEavr can
+be predicted using a linear regression with similar accuracy as
+AVF estimation. However, SDCavr could not be predicted with
+the same level of accuracy. As a remedy, we propose adding a
+software vulnerability factor, in the form of SDCpvr, to the linear
+regression model for estimating SDCayr. We find that SDCpvr of
+the Architectural Register File explains most of the behavior of
+SDCayr for the combined microarchitectural structures studied
+in this paper. Our evaluation shows that the addition of SDCpvr
+improves the accuracy by 5.19x, on average, to a level similar
+to DUEavr and AVF estimates. We also evaluate the impact of
+limiting software-layer reliability information to only 5 basic
+blocks (16x cost reduction, on average), and observe that it
+increases error only by 18.7%, on average.

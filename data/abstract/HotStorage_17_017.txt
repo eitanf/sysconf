@@ -1,0 +1,17 @@
+
+
+Interactive data center applications suffer from the tail
+latency problem. Since most modern data center applications take the sharded architecture to serve scale-out services, a request comprises multiple sub-requests handled
+in individual back-end nodes. Depending on the state
+of each back-end node, a node may issue multiple I/Os
+for a single sub-request. Since traditional I/O scheduling operates in an application-agnostic manner, it sometimes causes a long latency gap between the responses
+of sub-requests, thereby delaying the response to endusers. In this paper, we propose a request-aware cooperative I/O scheduling scheme to reduce the tail latency of
+a database application. Our proposed scheme captures
+request arrival order at the front-end of an application
+and exploits it to make a decision for I/O scheduling in
+individual back-end nodes. We implemented a prototype
+based on MongoDB and the Linux kernel and evaluated
+it with a read-intensive scan workload. Experimental results show that our proposed scheme effectively reduces
+the latency gap between sub-requests, thereby reducing
+the tail latency.
+

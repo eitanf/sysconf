@@ -1,0 +1,27 @@
+
+Designing low-latency network topologies of
+switches is a key objective for next-generation large-scale
+clusters. Low latency is preconditioned on low hop counts, but
+existing network topologies have hop counts much larger than
+theoretical lower bounds. To alleviate this problem, we propose
+building network topologies based on uni-directional graphs that
+are known to have hop counts close to theoretical lower bounds.
+A practical difficulty with uni-directional topologies is switchby-switch flow control, which we resolve by using hot-potato
+routing. Cycle-accurate network simulation experiments for
+various traffic patterns on uni-directional topologies show that
+hot-potato routing achieves performance comparable to that of
+conventional deadlock-free routing. Similar experiments are used
+to compare several uni-directional topologies to bi-directional
+topologies, showing that the former achieve significantly
+lower latency and higher throughput. We quantify end-to-end
+application performance for parallel application benchmarks via
+discrete-even simulation, showing that uni-directional topologies
+can lead to large application performance improvements over
+their bi-directional counterparts. Finally, we discuss practical
+issues for uni-directional topologies such as cabling complexity
+and cost, power consumption, and soft-error tolerance. Our
+results make a compelling case for considering uni-directional
+topologies for upcoming large-scale clusters.
+
+Index Terms—HPC clusters, interconnection networks, unidirectional network topologies, hot-potato routing
+

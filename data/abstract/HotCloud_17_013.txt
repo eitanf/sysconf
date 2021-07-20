@@ -1,0 +1,19 @@
+
+
+Verification is often regarded as a one-time procedure undertaken after a protocol is specified but before it is implemented. However, in practice, protocols continually
+evolve with the addition of new capabilities and performance optimizations. Existing verification tools are illsuited to “tracking” protocol evolution and programmers
+are too busy (or too lazy?) to simultaneously co-evolve
+specifications manually. This means that the correctness
+guarantees determined at verification time can erode as
+protocols evolve. Existing software quality techniques
+such as regression testing and root cause analysis, which
+naturally support system evolution, are poorly suited to
+reasoning about fault tolerance properties of a distributed
+system because these properties require a search of the
+execution schedule rather than merely replaying inputs.
+This paper advocates that our community should explore
+the intersection of testing and verification to better ensure
+quality for distributed software and presents our experience evolving a data replication protocol at Elastic using
+a novel bug-finding technology called Lineage Driven
+Fault Injection (LDFID) as evidence.
+

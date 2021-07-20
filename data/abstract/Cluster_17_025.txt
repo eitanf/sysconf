@@ -1,0 +1,27 @@
+
+Burst buffers tolerate I/O spikes in HighPerformance Computing environments by using a non-volatile
+flash technology. Burst buffers are commonly located between
+parallel file systems and compute nodes, handling bursty I/Os
+in the middle. In this architecture, burst buffers are shared
+resources. The performance of an SSD is significantly reduced
+when it is used excessively because of garbage collection, and
+we have observed that SSDs in a burst buffer become slow when
+many users simultaneously use the burst buffer. To mitigate the
+performance problem, we propose a new user-level I/O isolation
+framework in a High-Performance Computing environment
+using a multi-streamed SSD. The multi-streamed SSD allocates
+the same flash block for I/Os in the same stream. We assign
+a different stream to each user; thus, the user can use the
+stream exclusively. To evaluate the performance, we have used
+open-source supercomputing workloads and I/O traces from
+real workloads in the Cori supercomputer at the National
+Energy Research Scientific Computing Center. Via user-level
+I/O isolation, we have obtained up to a 125% performance
+improvement in terms of I/O throughput. In addition, our
+approach reduces the write amplification in the SSDs, leading
+to improved SSD endurance. This user-level I/O isolation
+framework could be applied to deployed burst buffers without
+having to make any user interface changes.
+
+Keywords-Burst Buffer; SSD; Write Amplification; Multistreamed SSD; Supercomputing Workload
+

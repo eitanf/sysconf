@@ -1,0 +1,32 @@
+
+Large data analysis problems often involve a large
+number of variables, and the corresponding analysis algorithms
+may examine all variable combinations to find the optimal
+solution. For example, to model the time required to complete a
+scientific workflow, we need to consider the impact of dozens of
+parameters. To reduce the model building time and reduce the
+likelihood of overfitting, we look to variable selection methods
+to identify the critical variables for the performance model.
+In this work, we create a combination of variable selection
+and performance prediction methods that is as effective as the
+exhaustive search approach when the exhaustive search could be
+completed in a reasonable amount of time. To handle the cases
+where the exhaustive search is too time consuming, we develop the
+parallelized variable selection algorithm. Additionally, we develop
+a parallel grouping mechanism that further reduces the variable
+selection time by 70%.
+
+As a case study, we exercise the variable selection technique
+with the performance measurement data from the Palomar
+Transient Factory (PTF) workflow. The application scientists have
+determined that about 50 variables and parameters are important
+to the performance of the workflows. Our tests show that the
+Sequential Backward Selection algorithm is able to approximate
+the optimal subset relatively quickly. By reducing the number of
+variables used to build the model from 50 to 4, we are able to
+maintain the prediction quality while reducing the model building
+time by a factor of 6. Using the parallelization and grouping
+techniques we developed in this work, the variable selection
+process was reduced from over 18 hours to 15 minutes while
+ending up with the same variable subset.
+

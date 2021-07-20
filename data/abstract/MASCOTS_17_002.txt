@@ -1,0 +1,20 @@
+
+Demand is mounting in the industry for scalable GPU-based deep learning systems. Unfortunately, existing training applications built atop popular deep learning frameworks, including Caffe, Theano, and Torch, etc,
+are incapable of conducting distributed GPU training over
+large-scale clusters.
+
+To remedy such a situation, this paper presents Nexus,
+a platform that allows existing deep learning frameworks
+to easily scale out to multiple machines without sacrificing model accuracy. Nexus leverages recently proposed
+distributed parameter management architecture to orchestrate distributed training by a large number of learners
+spread across the cluster. Through characterizing the runtime behavior of existing single-node based applications,
+Nexus is equipped with a suite of optimization schemes,
+including hierarchical and hybrid parameter aggregation,
+enhanced network and computation layer, and qualityguided communication adjustment, etc, to strengthen the
+communication channels and resource utilization. Empirical evaluations with a diverse set of deep learning
+applications demonstrate that Nexus is easy to integrate
+and can deliver efficient distributed training services to
+major deep learning frameworks. In addition, Nexus’s
+optimization schemes are highly effective to shorten the
+training time with targeted accuracy bounds.
+

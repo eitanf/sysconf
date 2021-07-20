@@ -1,0 +1,24 @@
+
+
+Increasingly, smart Network Interface Cards (sNICs) are being used.
+in data centers to offload networking functions (NFs) from host
+processors thereby making these processors available for tenant applications. Modern sNICs have fully programmable, energy-efficient
+multi-core processors on which many packet processing functions,
+including a full-blown programmable switch, can run. However,
+having multiple switch instances deployed across the host hypervisor and the attached sNICs makes controlling them difficult and
+data plane operations more complex.
+
+This paper proposes a generalized SDN-controlled NF offload
+architecture called UNO. It can transparently offload dynamically
+selected host processors’ packet processing functions to sNICs by
+using multiple switches in the host while keeping the data centerwide network control and management planes unmodified. UNO
+exposes a single virtual control plane to the SDN controller and
+hides dynamic NF offload behind a unified virtual management
+plane. This enables UNO to make optimal use of host’s and sNIC’s
+combined packet processing capabilities with local optimization
+based on locally observed traffic patterns and resource consumption,
+and without central controller involvement. Experimental results
+based on areal UNO prototype in realistic scenarios show promising
+results: it can save processing worth up to 8 CPU cores, reduce
+power usage by up to 2x, and reduce the control plane overhead by
+more than 50%.

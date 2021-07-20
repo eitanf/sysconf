@@ -1,0 +1,14 @@
+
+This paper presents the first, 15-PetaFLOP Deep Learning system for
+solving scientific pattern classification problems on contemporary
+HPC architectures. We develop supervised convolutional architectures for discriminating signals in high-energy physics data as well
+as semi-supervised architectures for localizing and classifying extreme weather in climate data. Our Intelcaffe-based implementation
+obtains ~2TFLOP/s on a single Cori Phase-II Xeon-Phi node. We use
+a hybrid strategy employing synchronous node-groups, while using
+asynchronous communication across groups. We use this strategy
+to scale training of a single model to ~9600 Xeon-Phi nodes; obtaining peak performance of 11.73-15.07 PFLOP/s and sustained
+performance of 11.41-13.27 PFLOP/s. At scale, our HEP architecture produces state-of-the-art classification accuracy on a dataset
+with 10M images, exceeding that achieved by selections on highlevel physics-motivated features. Our semi-supervised architecture
+successfully extracts weather patterns in a 15TB climate dataset.
+Our results demonstrate that Deep Learning can be optimized and
+scaled effectively on many-core, HPC systems.

@@ -1,0 +1,49 @@
+
+Recent work has argued that sequential consistency (SC) in GPUs can perform on par with weak memory
+models, provided ordering stalls are made less frequent by
+relaxing ordering for private and read-only data. In this
+paper, we address the complementary problem of reducing
+stall latencies for both read-only and read-write data.
+We find that SC stalls are particularly problematic for workloads with inter-workgroup sharing, and occur primarily due
+to earlier stores in the same thread; a substantial part of the
+overhead comes from the need to stall until write permissions
+are obtained (to ensure write atomicity). To address this, we
+propose RCC, a GPU coherence protocol which grants write
+permissions without stalling but can still be used to implement
+SC. RCC uses logical timestamps to determine a global memory
+order and L1 read permissions; even though each core may see
+a different logical “time,” SC ordering can still be maintained.
+Unlike previous GPU SC proposals, our design does not
+require invasive core changes and additional per-core storage
+to classify read-only/private data. For workloads with interworkgroup sharing overall performance is 29% better and
+energy is 25% less than in best previous GPU SC proposals,
+and within 7% of the best non-SC design.
+consistency [9] similar to WO [10] or RC [11] models.
+Correctly inserting fences is difficult, however, especially
+in GPUs where all practical programs are concurrent and
+performance-sensitive. The authors of [9] found missing
+fences in a variety of peer-reviewed publications, and even
+vendor guides [12]. Such bugs are very difficult to detect:
+some occurred in as few as 4 out of 100,000 executions
+in real hardware, and most occurred in fewer than 1% of
+executions [9]. Code fenced properly for a specific GPU
+may not even work correctly on other GPUs from the same
+vendor: some of these bugs were observable in Fermi and
+Kepler but not in older or newer microarchitectures [9].
+SC hardware is desirable, then, if it can be implemented
+without significant performance loss. Recent work [13, 14]
+has argued that this is possible in GPUs: unlike CPUs,
+which lack enough instruction-level parallelism (ILP) to
+cover the additional latency of SC stalls, GPUs can leverage
+abundant thread-level parallelism (TLP) to cover most SC
+stalls. The authors of [14] propose reducing the frequency
+of the remaining SC stalls by relaxing SC for read-only and
+private data; classifying these at runtime, however, requires
+complex changes to GPU core microarchitecture and carries
+an area overhead in devices where silicon is already at
+a premium. Moreover, both studies focused on SC built
+using CPU coherence protocols (MOESI and MESI) with
+write-back L1 caches. In GPUs, however, write-through L1s
+perform better [15]: GPU L1 caches have very little space per
+thread, so a write-back policy brings infrequently written data
+into the L1 only to write it back soon afterwards. Commercial

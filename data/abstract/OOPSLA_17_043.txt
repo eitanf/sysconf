@@ -1,0 +1,12 @@
+
+In scenarios such as web programming, where code is linked together from multiple sources, object capability patterns (OCPs)
+provide an essential safeguard, enabling programmers to protect the private state of their objects from corruption by unknown
+and untrusted code. However, the benefits of OCPs in terms of program verification have never been properly formalized. In
+this paper, building on the recently developed Iris framework for concurrent separation logic, we develop OCPL, the first
+program logic for compositionally specifying and verifying OCPs in a language with closures, mutable state, and concurrency.
+The key idea of OCPL is to account for the interface between verified and untrusted code by adopting a well-known idea from
+the literature on security protocol verification, namely robust safety. Programs that export only properly wrapped values
+to their environment can be proven robustly safe, meaning that their untrusted environment cannot violate their internal
+invariants. We use OCPL to give the first general, compositional, and machine-checked specs for several commonly-used
+OCPs—including the dynamic sealing, membrane, and caretaker patterns—which we then use to verify robust safety for
+representative client code. All our results are fully mechanized in the Coq proof assistant.

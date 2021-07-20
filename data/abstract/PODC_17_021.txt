@@ -1,0 +1,16 @@
+
+
+Flat combining (FC) and transactional lock elision (TLE) are two
+techniques that facilitate efficient multi-thread access to a sequentially implemented data structure protected by a lock. FC allows
+threads to delegate their operations to another (combiner) thread,
+and benefit from executing multiple operations by that thread under
+the lock through combining and elimination optimizations tailored
+to the specific data structure. TLE employs hardware transactional
+memory (HTM) that allows multiple threads to apply their operations concurrently as long as they do not conflict. This paper
+explores how these two radically different techniques can complement one another, and introduces the HTM-assisted Combining
+Framework (HCF). HCF leverages HTM to allow multiple combiners to run concurrently with each other, as well as with other,
+non-combiner threads. This makes HCF a good fit for data structures and workloads in which some operations may conflict with
+each other while others may run concurrently without conflicts.
+HCF achieves all that with changes to the sequential code similar to
+those required by TLE and FC, and in particular, without requiring
+the programmer to reason about concurrency.

@@ -1,0 +1,13 @@
+
+. This study compares the performance of high-order discontinuous Galerkin finite elements on modern hardware. The main computational kernel is the matrix-free evaluation of differential operators
+by sum factorization, exemplified on the symmetric interior penalty discretization of the Laplacian as a metric for a complex application code in
+fluid dynamics. State-of-the-art implementations of these kernels stress
+both arithmetics and memory transfer. The implementations of SIMD
+vectorization and shared-memory parallelization are detailed. Computational results are presented for dual-socket Intel Haswell CPUs at 28
+cores, a 64-core Intel Knights Landing, and a 16-core IBM Power8 processor. Up to polynomial degree six, Knights Landing is approximately twice
+as fast as Haswell. Power8 performs similarly to Haswell, trading a higher
+frequency for narrower SIMD units. The performance comparison shows
+that simple ways to express parallelism through for loops perform better
+on medium and high core counts than a more elaborate task-based parallelization with dynamic scheduling according to dependency graphs,
+despite less memory transfer in the latter algorithm.
+

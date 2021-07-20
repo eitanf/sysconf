@@ -1,0 +1,26 @@
+
+Finding a good partition of a computational
+directed acyclic graph associated with an algorithm can help
+find an execution pattern improving data locality, conduct
+an analysis of data movement, and expose parallel steps. The
+partition is required to be acyclic, i.e., the inter-part edges
+between the vertices from different parts should preserve an
+acyclic dependency structure among the parts. In this work,
+we adopt the multilevel approach with coarsening, initial
+partitioning, and refinement phases for acyclic partitioning of
+directed acyclic graphs and develop a direct k-way partitioning
+scheme. To the best of our knowledge, no such scheme exists
+in the literature. To ensure the acyclicity of the partition
+at all times, we propose novel and efficient coarsening and
+refinement heuristics. The quality of the computed acyclic
+partitions is assessed by computing the edge cut, the total
+volume of communication between the parts, and the critical
+path latencies. We use the solution returned by well-known
+undirected graph partitioners as a baseline to evaluate our
+acyclic partitioner, knowing that the space of solution is more
+restricted in our problem. The experiments are run on large
+graphs arising from linear algebra applications.
+
+Keywords-directed graph; acyclic partitioning; multilevel
+partitioning;
+

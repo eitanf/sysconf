@@ -1,0 +1,16 @@
+
+. With the prevalence of the World Wide Web and social networks, there has been a growing interest in high performance analytics
+for constantly-evolving dynamic graphs. Modern GPUs provide massive
+amount of parallelism for efficient graph processing, but the challenges
+remain due to their lack of support for the near real-time streaming
+nature of dynamic graphs. Specifically, due to the current high volume and velocity of graph data combined with the complexity of user
+queries, traditional processing methods by first storing the updates and
+then repeatedly running static graph analytics on a sequence of versions or snapshots are deemed undesirable and computational infeasible
+on GPU. We present EvoGraph, a highly efficient and scalable GPUbased dynamic graph analytics framework that incrementally processes
+graphs on-the-fly using fixed-sized batches of updates. The runtime realizes this vision with a user friendly programming model, along with a
+vertex property-based optimization to choose between static and incremental execution; and efficient utilization of all hardware resources using
+GPU streams, including its computational and data movement engines.
+Extensive experimental evaluations for a wide variety of graph inputs
+and algorithms demonstrate that EvoGraph achieves up to 429 million
+updates/sec and over 2321 speedup compared to the competing frameworks such as STINGER.
+

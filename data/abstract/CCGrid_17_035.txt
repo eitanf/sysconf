@@ -1,0 +1,23 @@
+
+MapReduce is a framework for processing large
+data sets much used in the context of cloud computing. MapReduce implementations like Hadoop can tolerate crashes and
+file corruptions, but not arbitrary faults. Unfortunately, there
+is evidence that arbitrary faults do occur and can affect the
+correctness of MapReduce job executions. Furthermore, many
+outages of major cloud offerings have been reported, raising
+concerns about the dependence on a single cloud.
+
+In this paper we propose a novel execution system that allows
+to scale out MapReduce computations to a cloud-of-clouds and
+tolerate arbitrary faults, malicious faults, and cloud outages. Our
+system, Chrysaor, is based on a fine-grained replication scheme
+that tolerates faults at the task level. Our solution has three
+important properties: it tolerates the above-mentioned classes of
+faults at reasonable cost; it requires minimal modifications to
+the users’ applications; and it does not involve changes to the
+Hadoop source code. We performed an extensive evaluation of our
+system in Amazon EC2, showing that our fine-grained solution is
+efficient in terms of computation by recovering only faulty tasks.
+This is achieved without incurring a significant penalty for the
+baseline case (i.e., without faults) in most workloads.
+

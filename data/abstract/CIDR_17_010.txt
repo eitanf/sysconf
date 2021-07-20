@@ -1,0 +1,18 @@
+
+Many  of  today’s  interactive  server  applications  are  implemented 
+using actor-oriented programming frameworks. Such applications 
+treat  actors  as  a  distributed  in-memory  object-oriented  database. 
+However,  actor  programming  frameworks  offer  few  if  any  data-
+base  system  features,  leaving  application  developers  to  fend  for 
+themselves.  It  is  challenging  to  add  such  features  because  the 
+design  space  is  different  than  traditional  database  systems.  The 
+system must be scalable to a large number of servers, it must work 
+well with a variety of cloud storage services, and it must integrate 
+smoothly with the actor programming model.  
+
+We  present  the  vision  of  an  actor-oriented  database.  We  then 
+describe  one  component  of  such  a  system,  to  support  indexed 
+actors, focusing especially on details of the fault tolerance design. 
+We  implemented  the  indexing  component  in  the  Orleans  actor-
+oriented programming framework and present the result of initial 
+performance measurements.  

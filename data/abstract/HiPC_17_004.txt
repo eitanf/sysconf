@@ -1,0 +1,18 @@
+
+A good design abstraction framework for high performance computing should provide a higher level programming
+abstraction that strikes a balance between the abstraction and
+visibility over the hardware so that the software developer can
+write a portable software without having to understand the hardware nuances, yet exploit the compute power optimally. In this
+paper we have analyzed a popular design abstraction framework
+called “Thrust” from NVIDIA, and proposed an extension called
+Thrust++ that provides abstraction over the memory hierarchy
+of an NVIDIA GPU. Thrust++ allows developers to make efficient
+use of shared memory and overall, provides better control
+over the GPU memory hierarchy while writing applications in
+Thrust style for the CUDA backend. We have shown that when
+applications are written for the CUDA backend using Thrust++,
+they have minimal performance degradation when compared
+to their equivalent CUDA versions. Further, Thrust++ provides
+almost 4x speedup when compared to Thrust, for certain compute
+intensive kernels that repeatedly use the reduce operation.
+

@@ -1,0 +1,21 @@
+
+Designing and optimizing computer systems require
+deep understanding of the underlying system. Historically many
+important observations that led to the development of essential
+hardware and software optimizations were driven by empirical
+studies of program behavior. In this paper we report an interesting property of dynamic program execution by viewing it as a
+changing (or social) network. In a program social network, two
+instructions are friends if there is a producer-consumer relationship between them. One prominent result is that the outdegree of
+instructions follow heavy tails or power law distributions, i.e., a
+few instructions produce values for many instructions while most
+instructions do so for very few instructions. In other words, the
+number of instruction dependencies is highly skewed.
+
+In this paper we investigate this curious phenomenon. By
+analyzing a large set of workloads under different compilers,
+compilation options, ISAs and inputs we find that the dependence
+skew is widespread, suggesting that it is fundamental. We
+also observe that the skew is fractal across time and space.
+Finally, we describe conditions under which skew emerges within
+programs and provide evidence that suggests that the heavy-tailed
+distributions are a unique program property.

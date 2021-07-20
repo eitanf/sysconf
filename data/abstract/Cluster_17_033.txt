@@ -1,0 +1,31 @@
+
+The last few years saw the emergence of 64-bit
+ARM SoCs targeted for mobile systems and servers. Mobileclass SoCs rely on the heterogeneous integration of a mix of CPU
+cores, GPGPU cores, and accelerators, whereas server-class SoCs
+instead rely on integrating a larger number of CPU cores with no
+GPGPU support and a number of network accelerators. Previous
+works, such as the Mont-Blanc project, built their prototype
+ARM < cluster out of mobile-class SoCs and compared their work
+against x86 solutions. These works mainly focused on the CPU
+performance. In this paper, we propose a novel ARM-based
+cluster organization that exploits faster network connectivity and
+GPGPU acceleration to improve the performance and energy
+efficiency of the cluster. Our custom cluster, based on Nvidia
+Jetson TX1 boards, is equipped with 10Gb network interface
+cards and enables us to study the characteristics, scalability
+challenges, and programming models of GPGPU-accelerated
+workloads. We also develop an extension to the Roofline model to
+establish a visually intuitive performance model for the proposed
+cluster organization. We compare the GPGPU performance of
+our cluster with discrete GPGPUs. We demonstrate that our
+cluster improves both the performance and energy efficiency
+of workloads that scale well and can leverage the better CPUGPGPU balance of our cluster. We contrast the CPU performance
+of our cluster with ARM-based servers that use many CPU cores.
+Our results show the poor performance of the branch predictor
+and L2 cache are the bottleneck of server-class ARM SoCs.
+Furthermore, we elucidate the impact of using 10Gb connectivity
+with mobile systems instead of traditional, 1Gb connectivity.
+
+Index Terms—GPGPU acceleration, energy efficiency, ARM
+computing, distributed systems.
+

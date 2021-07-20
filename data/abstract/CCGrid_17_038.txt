@@ -1,0 +1,19 @@
+
+UCX is an open-source communication framework
+with a two-level API design targeted at addressing the needs of
+large supercomputing systems. The lower-level interface, UCT,
+adds minimal overhead to data transfer but requires considerable
+effort from the user. The higher-level interface, UCP, is easier to
+use, but adds some overhead to the communication. This work
+focuses on charting the performance of UCX over InfiniBand,
+motivated by the usage of UCX as middleware for high-level
+communication libraries. We analyze performance shortcomings
+that stem from the two-level design and the sources of these
+performance losses. In particular, we target basic functions of
+UCP, evaluate their performance over InfiniBand, and analyze
+sources of overheads compared with UCT and Verbs. We propose
+and evaluate some fixes to minimize these overheads, in order to
+enhance UCP performance and scalability.
+
+Index Terms—communication software, communication middleware, UCX, InfiniBand, performance.
+

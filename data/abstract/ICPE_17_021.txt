@@ -1,0 +1,19 @@
+
+
+Today’s embedded systems demand increasing computing
+power to accommodate the ever-growing software functionality. Automotive and avionic systems aim to leverage the
+high performance capabilities of multicore platforms, but are
+faced with challenges with respect to temporal predictability. Multicore designers have achieved much progress on
+improvement of memory-dependent performance in caching
+systems and shared memories in general. However, having
+applications running simultaneously and requesting the access to the shared memories concurrently leads to interference. The performance unpredictability resulting from interference at any shared memory level may lead to violation
+of the timing properties in safety-critical real-time systems.
+In this paper, we introduce a formal analysis framework for
+the schedulability and memory interference of multicore systems with shared caches and DRAM. We build a multicore
+system model with a fine grained application behavior given
+in terms of periodic preemptible tasks, described with explicit read and write access numbers for shared caches and
+DRAM. We also provide a method to analyze and recommend candidates for task-to-core reallocation with the goal
+to find schedulable configurations if a given system is not
+schedulable. Our model-based framework is realized using
+Uppaal and has been used to analyze a case study.
+

@@ -1,0 +1,29 @@
+
+
+The skip list is an elegant dictionary data structure that is commonly deployed in RAM. A skip list with N elements supports
+searches, inserts, and deletes in O(log N) operations with high
+probability (w.h.p.) and range queries returning K elements in
+O(log N + K) operations w.h.p.
+
+A seemingly natural way to generalize the skip list to external
+memory with block size B is to “promote” with probability 1/B,
+rather than 1/2. However, there are practical and theoretical obstacles to getting the skip list to retain its efficient performance, space
+bounds, and high-probability guarantees.
+
+We give an external-memory skip list that achieves writeoptimized bounds. That is, forO < e¢ < 1, range queries take
+O(logye N + K/B) VOs w..p. and insertions and deletions take
+O((logze N)/B'~*) amortized /Os w.h.p.
+
+Our write-optimized skip list inherits the virtue of simplicity
+from RAM skip lists. Moreover, it matches or beats the asymptotic
+bounds of prior write-optimized data structures such as B® trees or
+LSM trees. These data structures are deployed in high-performance
+databases and file systems.
+The main technical challenge in proving our bounds comes from
+the fact that there are so few levels in the skip list, an aspect of the
+data structure that is essential to getting strong external-memory
+bounds. We use extremal-graph coloring to show that it is possible to decompose paths in the skip list into uncorrelated groups,
+regardless of the insertion/deletion pattern. Thus, we achieve our
+bounds by averaging over these uncorrelated paths rather than by
+averaging over uncorrelated levels, as in the standard skip list.
+

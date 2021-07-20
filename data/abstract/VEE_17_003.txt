@@ -1,0 +1,17 @@
+
+Live migration of a virtual machine (VM) is a powerful technique with benefits of server maintenance, resource management, dynamic workload re-balance, etc. Modern research
+has effectively reduced the VM live migration (VMLM) time
+to dozens of milliseconds, but live migration still exhibits
+failures if it cannot terminate within the given time constraint. The ability to predict this type of failure can avoid
+wasting networking and computing resources on the VM
+migration, and the associated system performance degradation caused by wasting these resources. The cost of VM
+live migration highly depends on the application workload
+of the VM, which may undergo frequent changes. At the
+same time, the available system resources for VM migration
+can also change substantially and frequently. To account for
+these issues, we present a solution called MigVisor, which
+can accurately predict the behaviour of VM migration using
+working-set model. This can enable system managers to predict the migration cost and enhance the system management
+efficacy. The experimental results prove the design suitability and show that the MigVisor has a high prediction accuracy since the average relative error between the predicted
+value and the measured value is only 6.2%~9%.
+

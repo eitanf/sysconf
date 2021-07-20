@@ -1,0 +1,18 @@
+
+Distributed Complex Event Processing (DCEP) is a paradigm to infer the occurrence of complex situations in the surrounding world
+from basic events like sensor readings. In doing so, DCEP operators detect event patterns on their incoming event streams. To
+yield high operator throughput, data parallelization frameworks
+divide the incoming event streams of an operator into overlapping
+windows that are processed in parallel by a number of operator
+instances. In doing so, the basic assumption is that the different
+windows can be processed independently from each other. However, consumption policies enforce that events can only be part of
+one pattern instance; then, they are consumed, ie., removed from
+further pattern detection. That implies that the constituent events
+of a pattern instance detected in one window are excluded from all
+other windows as well, which breaks the data parallelism between
+different windows. In this paper, we tackle this problem by means
+of speculation: Based on the likelihood of an event’s consumption
+in a window, subsequent windows may speculatively suppress that
+event. We propose the SPECTRE framework for speculative processing of multiple dependent windows in parallel. Our evaluations
+show an up to linear scalability of SPECTRE with the number of
+CPU cores.

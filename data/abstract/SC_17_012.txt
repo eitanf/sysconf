@@ -1,0 +1,13 @@
+
+Sympiler is a domain-specific code generator that optimizes sparse
+matrix computations by decoupling the symbolic analysis phase
+from the numerical manipulation stage in sparse codes. The computation patterns in sparse numerical methods are guided by the
+input sparsity structure and the sparse algorithm itself. In many
+real-world simulations, the sparsity pattern changes little or not at
+all. Sympiler takes advantage of these properties to symbolically
+analyze sparse codes at compile time and to apply inspector-guided
+transformations that enable applying low-level transformations to
+sparse codes. As a result, the Sympiler-generated code outperforms
+highly-optimized matrix factorization codes from commonly-used
+specialized libraries, obtaining average speedups over Eigen and
+CHOLMOD of 3.8x and 1.5x respectively.

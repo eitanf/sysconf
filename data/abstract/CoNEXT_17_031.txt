@@ -1,0 +1,21 @@
+
+
+Millimeter-wave devices must use highly directional antennas to
+achieve GBit/s data rates over reasonable distances due to the high
+path loss. As a consequence, it is important to precisely align the
+antenna beams between sender and receiver. Even minor movement
+or rotation of a device can result in beam misalignment and thus
+a strong performance degradation. Existing work as well as standards such as IEEE 802.11ad tackle this issue by means of antenna
+sector probing. This comes at the expense of a significant overhead,
+which may significantly reduce the performance of millimeter-wave
+communication, particularly in mobile scenarios. In this paper, we
+present a mechanism that can track both movement and rotation of
+60 GHz mobile devices with zero overhead. To this end, we transmit
+part of the preamble of each packet using a multi-lobe beampattern.
+Our approach does not require any additional control messages and
+is backward compatible with 802.11ad. We implement our scheme
+on a 60 GHz testbed using phased antenna arrays, and show that
+we reduce the angle error to less than 5° in most cases. We also
+perform simulations to validate our approach in a wide range of
+scenarios, achieving up to 2x throughput gain.
+

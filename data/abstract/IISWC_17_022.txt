@@ -1,0 +1,29 @@
+
+Modern multi-core systems employ shared memory
+architecture, entailing problems related to the main memory such
+as row-buffer conflicts, time-varying hot-spots across memory
+channels, and superfluous switches between reads and writes
+originating from different cores. There have been proposals to
+solve these problems by partitioning main memory across banks
+and/or channels such that a DRAM bank is dedicated to a single
+core, being free from inter-thread row-buffer conflicts. However,
+those studies either focused on only multi-programmed workloads on which cores operate independently, not cooperatively,
+or specific hardware configurations with a limited number of
+degrees of freedom in the number of main memory banks, ranks,
+and channels.
+
+We analyze the influence of memory partitioning on systems with various degrees of banks, ranks, and channels using
+multi-threaded and multi-programmed workloads, making the
+following key observations. Bank partitioning is beneficial when
+memory-intensive applications in a multi-programmed workload
+have similar characteristics in bank-level parallelism, bandwidth,
+and capacity demands. Any diversity in these demands with a
+limited memory capacity greatly diminishes the bank partitioning
+benefits. As memory access/usage patterns across cores are
+more easily manageable on multi-threaded workloads, bank
+partitioning is more often effective with memory intensive multithreaded applications. Channel partitioning becomes effective
+when the reduction of the negative impacts of time-varying hotspots across memory channels outweighs the load imbalance
+due to partitioning. We also demonstrate the benefits of rank
+partitioning with regard to minimizing read-write switches on
+multi-threaded applications where cores can coordinate memory
+accesses.

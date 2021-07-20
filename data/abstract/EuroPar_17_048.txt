@@ -1,0 +1,20 @@
+
+. In data centers, up to dozens of tasks are colocated on a single physical machine. Machines are used more efficiently, but tasks’ performance deteriorates, as colocated tasks compete for shared resources.
+As tasks are heterogeneous, the resulting performance dependencies are
+complex. In our previous work [18] we proposed a new combinatorial
+optimization model that uses two parameters of a task—its size and its
+type—to characterize how a task influences the performance of other
+tasks allocated to the same machine.
+
+In this paper, we study the egalitarian optimization goal: maximizing the worst-off performance. This problem generalizes the classic makespan minimization on multiple processors (P||Cmax}. We prove
+that polynomially-solvable variants of P||Cmax are NP-hard and hard to
+approximate when the number of types is not constant. For a constant
+number of types, we propose a PTAS, a fast approximation algorithm,
+and aseries of heuristics. We simulate the algorithms on instances derived
+from a trace of one of Google clusters. Algorithms aware of jobs’ types
+lead to better performance compared to algorithms solving P||Cmax
+The notion of type enables us to model degeneration of performance
+caused by colocation using standard combinatorial optimization methods. Types add a layer of additional complexity. However, our results—
+approximation algorithms and good average-case performance—show
+that types can be handled efficiently.
+

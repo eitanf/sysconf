@@ -1,0 +1,18 @@
+
+
+Consensus protocols are used to provide consistency
+guarantees over replicated data in a distributed system,
+and allow a set of replicas to work together as a coherent group. Raft is a consensus protocol that is designed
+to be easy to understand and implement. It is equivalent to Multi-Paxos in fault-tolerance and performance.
+It uses a leader based approach for coordinating replication to a majority. The leader regularly informs the
+followers of its existence using heartbeats. All reads
+and writes go through the leader to ensure strong consistency. However, read-heavy workloads increase load
+on the leader since the followers in Raft are maintained
+as cold standbys. Since the algorithm itself guarantees
+replication to at least a majority, why not exploit this fact
+to serve strongly consistent reads without a leader? We
+propose mechanisms to use quorum reads in Raft to offload the leader and better utilize the cluster. We integrate our approach in CockroachDB, an open-source distributed SQL database which uses Raft and leader leases,
+to compare our proposed changes. The evaluation results with the YCSB benchmark illustrate that quorum
+reads result in an increased throughput of the system under read-heavy workloads, as well as lower read/write
+latencies.
+

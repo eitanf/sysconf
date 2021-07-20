@@ -1,0 +1,17 @@
+
+
+As one of the most well known graph computation problems, Personalized PageRank is an effective approach for computing the
+similarity score between two nodes, and it has been widely used in
+various applications, such as link prediction and recommendation.
+Due to the high computational cost and space cost of computing the
+exact Personalized PageRank Vector (PPV), most existing studies
+compute PPV approximately. In this paper, we propose novel and
+efficient distributed algorithms that compute PPV exactly based
+on graph partitioning on a general coordinator-based share-nothing
+distributed computing platform. Our algorithms takes three aspects
+into account: the load balance, the communication cost, and the
+computation cost of each machine. The proposed algorithms only
+require one time of communication between each machine and the
+coordinator at query time. The communication cost is bounded, and
+the work load on each machine is balanced. Comprehensive experiments conducted on five real datasets demonstrate the efficiency
+and the scalability of our proposed methods.

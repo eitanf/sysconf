@@ -1,0 +1,19 @@
+
+Heterogeneous hardware is central to modern advances in performance and efficiency. Mainstream programming models for heterogeneous architectures, however, sacrifice safety and expressiveness in favor of
+low-level control over performance details. The interfaces between hardware units consist of verbose, unsafe
+APIs; hardware-specific languages make it difficult to move code between units; and brittle preprocessor
+macros complicate the task of specializing general code for efficient accelerated execution. We propose a
+unified low-level programming model for heterogeneous systems that offers control over performance, safe
+communication constructs, cross-device code portability, and hygienic metaprogramming for specialization.
+The language extends constructs from multi-stage programming to separate code for different hardware units,
+to communicate between them, and to express compile-time code optimization. We introduce static staging,
+a different take on multi-stage programming that lets the compiler generate all code and communication
+constructs ahead of time.
+To demonstrate our approach, we use static staging to implement BraidGL, a real-time graphics programming
+language for CPUśGPU systems. Current real-time graphics software in OpenGL uses stringly-typed APIs for
+communication and unsafe preprocessing to generate specialized GPU code variants. In BraidGL, programmers
+instead write hybrid CPUśGPU software in a unified language. The compiler statically generates target-specific
+code and guarantees safe communication between the CPU and the graphics pipeline stages. Example scenes
+demonstrate the language’s productivity advantages: BraidGL eliminates the safety and expressiveness pitfalls
+of OpenGL and makes common specialization techniques easy to apply. The case study demonstrates how
+static staging can express core placement and specialization in general heterogeneous programming.

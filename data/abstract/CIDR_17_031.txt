@@ -1,0 +1,19 @@
+
+Deciding query equivalence is an important problem in data management with many practical applications. Solving the problem,
+however, is not an easy task. While there has been a lot of work
+done in the database research community in reasoning about the
+semantic equivalence of SQL queries, prior work mainly focuses
+on theoretical limitations. In this paper, we present COSETTE, a
+fully automated prover that can determine the equivalence of SQL
+queries. COSETTE leverages recent advances in both automated
+constraint solving and interactive theorem proving, and returns a
+counterexample (in terms of input relations) if two queries are not
+equivalent, or a proof of equivalence otherwise. Although the problem of determining equivalence for arbitrary SQL queries is undecidable, our experiments show that COSETTE can determine the
+equivalences of a wide range of queries that arise in practice, including conjunctive queries, correlated queries, queries with outer
+joins, and queries with aggregates. Using COSETTE, we have also
+proved the validity of magic set rewrites, and confirmed various
+real-world query rewrite errors, including the famous COUNT bug.
+We are unaware of any prior tool that can automatically determine the equivalences of a broad range of queries as COSETTE,
+and believe that our tool represents a major step towards building
+provably-correct query optimizers for real-world database systems.
+

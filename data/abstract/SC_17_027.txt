@@ -1,0 +1,17 @@
+
+3D-stacked memory devices with processing logic can help alleviate
+the memory bandwidth bottleneck in GPUs. However, in order
+for such Near-Data Processing (NDP) memory stacks to be used
+for different GPU architectures, it is desirable to standardize the
+NDP architecture. Our proposal enables this standardization by
+allowing data to be spread across multiple memory stacks as is
+the norm in high-performance systems without an MMU on the
+NDP stack. The keys to this architecture are the ability to move
+data between memory stacks as required for computation, and a
+partitioned execution mechanism that offloads memory-intensive
+application segments onto the NDP stack and decouples address
+translation from DRAM accesses. By enhancing this system with a
+smart offload selection mechanism that is cognizant of the compute
+capability of the NDP and cache locality on the host processor,
+system performance and energy are improved by up to 66.8% and
+37.6%, respectively.

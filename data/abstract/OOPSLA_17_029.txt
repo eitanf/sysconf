@@ -1,0 +1,18 @@
+
+Type inference is convenient by allowing programmers to elide type annotations, but this comes at the cost
+of often generating very confusing and opaque type error messages that are of little help to fix type errors.
+Though there have been many successful attempts at making type error messages better in the past thirty
+years, many classes of errors are still difficult to fix. In particular, current approaches still generate imprecise
+and uninformative error messages for type errors arising from errors in grouping constructs like parentheses
+and brackets. Worse, a recent study shows that these errors usually take more than 10 steps to fix and occur
+quite frequently (around 45% to 60% of all type errors) in programs written by students learning functional
+programming. We call this class of errors, nonstructural errors.
+
+We solve this problem by developing LEARNSKELL, a type error debugger that uses machine learning
+to help diagnose and deliver high quality error messages, for programs that contain nonstructural errors.
+While previous approaches usually report type errors on typing constraints or on the type level, LEARNSKELL
+generates suggestions on the expression level. We have performed an evaluation on more than 1,500 type
+errors, and the result shows that LEARNSKELL is quite precise. It can correctly capture 86% of all nonstructural
+errors and locate the error cause with a precision of 63%/87% with the first 1/3 messages, respectively. This is
+several times more than the precision of state-of-the-art compilers and debuggers. We have also studied the
+performance of LEARNSKELL and found out that it scales to large programs.

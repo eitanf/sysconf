@@ -1,0 +1,15 @@
+
+
+Parsing expression grammars (PEGs) are a powerful and
+popular foundation for describing syntax. Despite PEGs’ expressiveness, they cannot recognize many syntax patterns of
+popular programming languages. Typical examples include
+typedef-defined names in C/C++ and here documents appearing in many scripting languages. We use a single unified
+state representation, called a symbol table, to capture various
+context-sensitive patterns. Over the symbol table, we design
+a small set of restricted semantic predicates and actions. The
+extended PEGs are called SPEGs, and are designed to be safe
+in contexts of backtracking and the linear time guarantee
+of packrat parsing. This paper will show that SPEGs have
+improved the expressive power in such ways that they recognize practical context-sensitive grammars, including back
+referencing, indentation-based code layout, and contextual
+keywords.

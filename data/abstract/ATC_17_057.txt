@@ -1,0 +1,22 @@
+
+In this paper, we comprehensively investigate the file
+fragmentation problem on mobile flash storage. From
+our evaluation study with real Android smartphones, we
+observed two interesting points on file fragmentation on
+flash storage. First, defragmentation on mobile flash
+storage is essential for high I/O performance on Android
+smartphones because file fragmentation, which is a recurring problem (even after defragmentation), can significantly degrade I/O performance. Second, file fragmentation affects flash storage quite differently than HDDs.
+When files are fragmented on flash storage, the logical fragmentation and the physical fragmentation are decoupled and a performance degradation mostly comes
+from logical fragmentation. Motivated by our observations, we propose a novel defragger, janus defragger
+(janusd), which supports two defraggers, janusdL for a
+logical defragger and janusdP for a physical defragger.
+JanusdL, which takes advantage of flash storage’s internal logical to physical mapping table, supports logical
+defragmentation without data copies. JanusdL is very
+effective for most fragmented files while not sacrificing
+the flash lifetime. JanusdP, which is useful for physically fragmented files but requires data copies, is invoked
+only when absolutely necessary. By adaptively selecting
+janusdL and janusdP, janusd achieves the effect of full
+file defragmentation without reducing the flash lifetime.
+Our experimental results show that janusd can achieve at
+least the same level of I/O performance improvement as
+e4defrag without affecting the flash lifetime, thus making janusd an attractive defragmentation solution for mobile flash storage.

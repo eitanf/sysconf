@@ -1,0 +1,27 @@
+
+Network messaging delay historically constitutes a
+large portion of the wall-clock time for High Performance
+Computing (HPC) applications, as these applications run on
+many nodes and involve intensive communication among their
+tasks. Dragonfly network topology has emerged as a promising
+solution for building exascale HPC systems owing to its low
+network diameter and large bisection bandwidth. Dragonfly
+includes local links that form groups and global links that connect
+these groups via high bandwidth optical links. Many aspects of
+the dragonfly network design are yet to be explored, such as the
+performance impact of the connectivity of the global links, i.e.,
+global link arrangements, the bandwidth of the local and global
+links, or the job allocation algorithm.
+This paper first introduces a packet-level simulation framework to model the performance of HPC applications in detail.
+The proposed framework is able to simulate known MPI (message
+passing interface) routines as well as applications with customdefined communication patterns for a given job placement algorithm and network topology. Using this simulation framework,
+we investigate the coupling between global link bandwidth
+and arrangements, communication pattern and intensity, job
+allocation and task mapping algorithms, and routing mechanisms
+in dragonfly topologies. We demonstrate that by choosing the
+right combination of system settings and workload allocation
+algorithms, communication overhead can be decreased by up
+to 44%. We also show that circulant arrangement provides
+up to 15% higher bisection bandwidth compared to the other
+arrangements; but for realistic workloads, the performance
+impact of link arrangements is less than 3%.

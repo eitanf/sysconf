@@ -1,0 +1,11 @@
+
+Packrat parsing is a popular technique for implementing
+top-down, unlimited-lookahead parsers that operate in guaranteed linear time. In this paper, we describe a method for
+turning a standard packrat parser into an incremental parser
+through a simple modification to its memoization strategy.
+By łincremental”, we mean that the parser can perform syntax analysis without completely reparsing the input after
+each edit operation. This makes packrat parsing suitable for
+interactive use in code editors and IDEs — even with large
+inputs. Our experiments show that with our technique, an
+incremental packrat parser for JavaScript can outperform
+even a hand-optimized, non-incremental parser.

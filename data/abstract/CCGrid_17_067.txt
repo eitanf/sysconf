@@ -1,0 +1,24 @@
+
+A challenging problem for users of Infrastructureas-a-Service (IaaS) clouds is selecting cloud providers, regions,
+and instance types cost-optimally for a given desired service
+level. Issues such as hardware heterogeneity, contention, and
+virtual machine (VM) placement can result in considerably
+differing performance across supposedly equivalent cloud resources. Existing research on cloud benchmarking helps, but
+often the focus is on providing low-level microbenchmarks (e.g.,
+CPU or network speed), which are hard to map to concrete
+business metrics of enterprise cloud applications, such as request
+throughput of a multi-tier Web application. In this paper, we
+propose OKta, a general approach for fairly and comprehensively
+benchmarking the performance and cost of a multi-tier Web
+application hosted in an IaaS cloud. We exemplify our approach
+for a case study based on the two-tier AcmeAir application,
+which we evaluate for 11 real-life deployment configurations on
+Amazon EC2 and Google Compute Engine. Our results show
+that for this application, choosing compute-optimized instance
+types in the Web layer and small bursting instances for the
+database tier leads to the overall most cost-effective deployments.
+This result held true for both cloud providers. The least costeffective configuration in our study provides only about 67%
+of throughput per US dollar spent. Our case study can serve
+as a blueprint for future industrial or academic application
+benchmarking projects.
+

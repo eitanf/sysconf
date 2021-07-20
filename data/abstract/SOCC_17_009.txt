@@ -1,0 +1,27 @@
+
+
+The typical enterprise data architecture consists of several actively
+updated data sources (e.g., NoSQL systems, data warehouses), and a
+central data lake such as HDFS, in which all the data is periodically
+loaded through ETL processes. To simplify query processing, stateof-the-art data analysis approaches solely operate on top of the
+local, historical data in the data lake, and ignore the fresh tail
+end of data that resides in the original remote sources. However,
+as many business operations depend on real-time analytics, this
+approach is no longer viable. The alternative is hand-crafting the
+analysis task to explicitly consider the characteristics of the various
+data sources and identify optimization opportunities, rendering the
+overall analysis non-declarative and convoluted.
+
+Based on our experiences operating in data lake environments,
+we design System-PV, a real-time analytics system that masks the
+complexity of dealing with multiple data sources while offering
+minimal response times. System-PV extends Spark with a sophisticated data virtualization module that supports multiple applications
+— from SQL queries to machine learning. The module features a
+location-aware compiler that considers source complexity, and a
+two-phase optimizer that produces and refines the query plans, not
+only for SQL queries but for all other types of analysis as well.
+The experiments show that System-PV is often faster than Spark
+by more than an order of magnitude. In addition, the experiments
+show that the approach of accessing both the historical and the
+remote fresh data is viable, as it performs comparably to solely
+operating on top of the local, historical data.

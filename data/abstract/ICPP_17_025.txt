@@ -1,0 +1,18 @@
+
+As a fundamental cloud service for modern Web
+applications, the cloud object storage system stores and retrieves millions or even billions of read-heavy data objects.
+Serving for a massive amount of requests each day makes the
+response latency be a vital component of user experiences. Due
+to the lack of suitable understanding on the response latency
+distribution, current practice is to use overprovision resources
+to meet Service Level Agreement (SLA). Hence we build a
+performance model for the cloud object storage system to predict the percentiles of requests meeting SLA (response latency
+requirement), in the context of complicated disk operations
+and event-driven programming model. Furthermore, we find
+that the waiting time for being accept(-ed at storage servers
+may introduce significant delay. And we quantify the impacts
+on system response latency, due to requests waiting for being
+accept()-ed. In a variety of scenarios, our model reduces the
+prediction errors by up to 73% compared to baseline models,
+and the prediction error of our model is 4.44% on average.
+

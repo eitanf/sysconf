@@ -1,0 +1,16 @@
+
+
+To reduce the performance and lifespan loss caused by
+the partial-stripe writes in SSD RAIDs, we propose two
+schemes: parity-stream separation and SLC/MLC convertible programming. Parity-stream separation splits
+the parity block stream from the data block stream to
+decrease valid page copy during garbage collection. In
+the convertible programming scheme, the flash memory
+blocks that are allocated for parity data are programmed
+in SLC mode to reduce the wear caused by programming
+stress, while the other flash memory blocks are written in
+MLC mode as usual. Evaluation shows that our scheme
+decreased garbage collection overhead by up to 58% and
+improved lifespan by up to 54%, assuming that the MLC
+write stress was 3.5 times that of the SLC.
+

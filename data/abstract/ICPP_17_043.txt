@@ -1,0 +1,21 @@
+
+The matrix-matrix multiplication is an essential
+building block that can be found in various scientific and
+engineering applications. High-performance implementations
+of the matrix-matrix multiplication on state-of-the-art processors may be of great importance for both the vendors
+and the users. In this paper, we present a detailed methodology of implementing and optimizing the double-precision
+general format matrix-matrix multiplication (DGEMM) kernel
+on the emerging SW26010 processor, which is used to build
+the Sunway TaihuLight supercomputer. We propose a threelevel blocking algorithm to orchestrate data on the memory
+hierarchy and expose parallelism on different hardware levels,
+and design a collective data sharing scheme by using the
+register communication mechanism to exchange data efficiently
+among different cores. On top of those, further optimizations
+are done based on a data-thread mapping method for efficient
+data distribution, a double buffering scheme for asynchronous
+DMA data transfer, and an instruction scheduling method
+for maximizing the pipeline usage. Experiment results show
+that the proposed DGEMM implementation can fully exploit
+the unique hardware features provided by SW26010 and can
+sustain up to 95% of the peak performance.
+

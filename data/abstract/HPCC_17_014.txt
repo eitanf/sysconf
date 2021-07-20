@@ -1,0 +1,37 @@
+
+With the emergence of 3D TLC/QLC NAND flash,
+the capacity of flash-based SSD is growing rapidly, from
+hundreds of gigabytes to tens/hundreds of terabytes. Accordingly,
+the Flash Translation Layer (FTL) within such a large SSD is
+confronted with serious problems that have not ever appeared
+before. Traditional FTLs either adopt a coarse-grained mapping
+mechanism, thus facilitating the mapping table being kept in
+DRAM completely, or adopt a fine-grained mapping mechanism
+but only keep frequently-accessed mapping information in
+DRAM depending on the localities of workloads. We argue that
+both of the above policies are unsuitable for SSDs supplying
+ultra-large capacity. Firstly, large SSDs introduce so many more
+mapping entries than ever before that even the coarse-grained
+mapping mechanism cannot produce a compact enough mapping
+table to be kept in DRAM completely. Secondly, large SSDs tend
+to be deployed in data centers to serve IO requests from massive
+numbers of users under various application backgrounds, where
+these IO requests exhibit weaker spatial and temporal localities.
+As a result, the method that keeps frequently-accessed mapping
+information in DRAM is also impractical for large scale SSDs. In
+this paper, we propose a novel KV-FTL approach for large scale
+SSDs, which mostly maps logical addresses to physical addresses
+via a simple hash function while handling hash collision and outof-place data update in the traditional manner, i.e., the mapping
+table. Our KV-FTL is able to accelerate address translation by
+avoiding loading the mapping table from flash memory to
+DRAM, thus improving performance, as well as to reduce the
+write-traffic introduced by the mapping table, thus extending the
+lifespan of SSDs. To the best of our knowledge, this is the first
+time the key-value principle has been applied to FTL design.
+Experimental results show that our KV-FTL extends SSD
+lifespan by a factor of up to 18.7% with an average of 13.6%;
+improves read performance ranging from 18.4% to 50.7% with
+an average of 39% with optimization, and in the case of
+extremely intensive requests, improves the overall performance
+for requests with an average of 47%.
+

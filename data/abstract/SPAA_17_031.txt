@@ -1,0 +1,9 @@
+
+ (i.e., duration and number of locations accessed): smaller transac
+In this paper, we introduce revocable reservations, a transactional
+memory mechanism to reserve locations in one transaction and
+check whether they are unchanged in a subsequent transaction
+without preventing reserved locations from being reclaimed in the
+interim. We describe several implementations of revocable reservations, and show how to use revocable reservations to implement
+lists and trees with a transactional analog to hand-over-hand locking. Our evaluation of these data structures shows that revocable
+reservations allow precise and immediate reclamation within transactional data structures, without sacrificing scalability or introducing excessive latency.

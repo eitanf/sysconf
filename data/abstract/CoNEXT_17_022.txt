@@ -1,0 +1,24 @@
+
+Transport Layer Security (TLS), has become the de-facto standard
+for secure Internet communication. When used correctly, it provides secure data transfer, but used incorrectly, it can leave users
+vulnerable to attacks while giving them a false sense of security.
+Numerous efforts have studied the adoption of TLS (and its predecessor, SSL) and its use in the desktop ecosystem, attacks, and
+vulnerabilities in both desktop clients and servers. However, there
+is a dearth of knowledge of how TLS is used in mobile platforms. In
+this paper we use data collected by Lumen, a mobile measurement
+platform, to analyze how 7,258 Android apps use TLS in the wild.
+We analyze and fingerprint handshake messages to characterize the
+TLS APIs and libraries that apps use, and also evaluate weaknesses.
+We see that about 84% of apps use default OS APIs for TLS. Many
+apps use third-party TLS libraries; in some cases they are forced
+to do so because of restricted Android capabilities. Our analysis
+shows that both approaches have limitations, and that improving
+TLS security in mobile is not straightforward. Apps that use their
+own TLS configurations may have vulnerabilities due to developer
+inexperience, but apps that use OS defaults are vulnerable to certain
+attacks if the OS is out of date, even if the apps themselves are up to
+date. We also study certificate verification, and see low prevalence
+of security measures such as certificate pinning, even among highrisk apps such as those providing financial services, though we
+did observe major third-party tracking and advertisement services
+deploying certificate pinning.
+

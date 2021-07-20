@@ -1,0 +1,24 @@
+
+ARM processors have dominated the mobile device
+market in the last decade due to their favorable computing
+to energy ratio. In this age of Cloud data centers and Big
+Data analytics, the focus is increasingly on power efficient
+processing, rather than just high throughput computing. ARM’s
+first commodity server-grade processor is the recent AMD A1100series processor, based on a 64-bit ARM Cortex A57 architecture.
+In this paper, we study the performance and energy efficiency of a
+server based on this ARM64 CPU, relative to a comparable server
+running an AMD Opteron 3300-series x64 CPU, for Big Data
+workloads. Specifically, we study these for Intel’s HiBench suite of
+web, query and machine learning benchmarks on Apache Hadoop
+v2.7 in a pseudo-distributed setup, for data sizes up to 20GB
+files, 5M web pages and 500M tuples. Our results show that the
+ARM64 server’s runtime performance is comparable to the x64
+server for integer-based workloads like Sort and Hive queries,
+and only lags behind for floating-point intensive benchmarks like
+PageRank, when they do not exploit data parallelism adequately.
+We also see that the ARM64 server takes are the energy, and has
+an Energy Delay Product (EDP) that is 50 — 71% lower than the
+x64 server. These results hold promise for ARM64 data centers
+hosting Big Data workloads to reduce their operational costs,
+while opening up opportunities for further analysis.
+

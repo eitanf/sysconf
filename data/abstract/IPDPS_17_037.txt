@@ -1,0 +1,21 @@
+
+Non-Uniform Memory Access (NUMA) architectures are widely used in mainstream multi-socket computer
+systems to scale memory bandwidth. Without a NUMA-aware
+design, programs can suffer from significant performance degradation due to inter-socket bandwidth contention. However, identifying bandwidth contention is challenging. Existing methods
+measure bandwidth consumption. However, consumption alone
+is insufficient to quantify bandwidth contention. Furthermore,
+existing methods diagnose bandwidth for the entire program execution, but lack the ability to associate bandwidth performance
+to the source code and data structures involved. To address these
+challenges, we propose DR-BW, a new tool based on machine
+learning to identify bandwidth contention in NUMA architectures
+and provide optimization guidance. DR-BW first trains a set
+of micro benchmarks and extracts useful features to identify
+bandwidth contention via a supervised machine learning model.
+Our experiments show that DR-BW achieves more than 96%
+accuracy. Second, DR-BW associates memory accesses that incur
+bandwidth contention with data objects, which provides intuitive
+guidance for optimization. Third, we apply DR-BW to a number
+of real benchmarks. Our optimization based on the insights
+obtained from DR-BW yields up to a 6.5x speedup in modern
+NUMA architectures.
+

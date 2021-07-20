@@ -1,0 +1,35 @@
+
+
+TCP does not work well in modern cellular networks because the
+
+current congestion-window-based (cwnd-based) congestion control mechanism intimately couples congestion control and packet
+
+dispatch, which provides TCP with only indirect control of the
+
+effective data rate. The throughput degradation arising from the
+
+cwnd-based mechanism is especially serious when the uplink is
+
+congested. We describe PropRate, a new rate-based TCP algorithm
+
+that directly regulates the packets in the bottleneck buffer to achieve
+a trade-off in terms of delay and throughput along a more efficient
+
+frontier than conventional cwnd-based TCP variants. To the best
+
+of our knowledge, PropRate is the first TCP algorithm that allows
+
+an application to set and achieve a target average latency, if the
+
+network conditions allow for it. Also, unlike the cwnd-based TCP
+
+mechanism, our new rate-based TCP mechanism is significantly
+
+more resilient to saturated uplinks in cellular networks. PropRate
+
+does not require modifications at the receiver and is amenable to
+
+practical deployment in the base stations and proxies in mobile
+
+cellular networks.
+

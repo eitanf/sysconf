@@ -1,0 +1,27 @@
+
+Over the last two decades, the performance gap
+between RAM and disk drives has been widened by about 50%
+per year. This is because the disk access time was improved
+only about 8% per year due to the mechanical delays. In order
+to improve the disk performance, each disk is equipped with
+an on-board disk cache to bridge the performance gap between
+the high-speed I/O bus and the slow magnetic media. The onboard disk cache is normally made of SRAM. This is because
+the SRAM is faster and relatively insensitive to disturbances
+such as electrical noise in contrast to DRAM. However, it is
+challenging to increase the capacity of a single-chip SRAM.
+Furthermore, SRAM is much more expensive and power
+consuming than DRAM. Therefore, the manufacture normally
+integrates a relatively small-size on-board disk cache to the
+disk drives. This paper proposes to compress the on-board
+disk cache to improve the effective cache size, thus improving
+the disk performance. Because the prefetching of on-board disk
+cache has a significant impact on the disk performance, this
+paper only compresses the prefetched data to minimize the
+complexity and side effect of compression. The compression is
+processed in background without affecting ongoing requests.
+Synthetic traces and real traces are employed to evaluate the
+proposed method. Experimental results demonstrate that the
+average response time can be reduced up to 21% with the
+increase of the compression ratio, and the hit ratio achieves
+up to 3x improvement.
+

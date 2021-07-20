@@ -1,0 +1,16 @@
+
+
+Multicore CPUs and cheap co-processors such as GPUs create opportunities for vastly accelerating database queries.
+However, given the differences in their threading models, expected granularities of parallelism, and memory subsystems,
+effectively utilising all cores with all co-processors for an intensive query is very difficult. This paper introduces a novel
+templating methodology to create portable, yet architectureaware, algorithms. We apply this methodology on the very
+compute-intensive task of calculating the skycube, a materialisation of exponentially many skyline query results, which
+finds applications in data exploration and multi-criteria decision making. We define three parallel templates, two that
+leverage insights from previous skycube research and a third
+that exploits a novel point-based paradigm to expose more
+data parallelism. An experimental study shows that, relative
+to the state-of-the-art that does not parallelise well due to
+its memory and cache requirements, our algorithms provide
+an order of magnitude improvement on either architecture
+and proportionately improve as more GPUs are added.
+

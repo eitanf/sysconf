@@ -1,0 +1,25 @@
+
+In-situ analytics have recently emerged as a promising approach to reduce I/O, network, and storage congestion
+for scientific data analysis. At the same time, Mean Time To
+Failure (MTTF) has also continuously decreased for HPC clusters,
+making failures during the execution of a simulation more likely.
+It is difficult to apply Checkpointing and Restart (C/R) to a
+simulation executed with in-situ analytics, because we not only
+need to store analytic and simulation states, but also need to
+ensure consistency between them.
+
+To solve the above problem, we present a novel solution to
+apply C/R approach. The solution exploits a common property
+of analytics applications, which is that they fit the reductionstyle processing pattern. Based on the observation that the
+global reduction result is correct if all local reduction objects
+have been processed, only global reduction objects and progress
+of the reduction procedure is checkpointed, together with an
+application-level checkpoint of the simulation. We also discuss
+the specific details for handling time-sharing and space sharing
+modes, which are suitable for multi-core and many-core environments, respectively.
+
+We have evaluated our approach in the context of Smart
+middleware for developing in-situ analytics, which provides a
+Map-Reduce like API. We demonstrate the low overheads of our
+approach with different scientific simulations and analytics tasks.
+

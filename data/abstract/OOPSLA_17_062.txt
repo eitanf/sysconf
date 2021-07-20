@@ -1,0 +1,13 @@
+
+We introduce canonical sequentialization, a new approach to verifying unbounded, asynchronous, messagepassing programs at compile-time. Our approach builds upon the following observation: due the combinatorial
+explosion in complexity, programmers do not reason about their systems by case-splitting over all the possible
+execution orders. Instead, correct programs tend to be well-structured so that the programmer can reason about
+a small number of representative executions, which we call the program’s canonical sequentialization. We have
+implemented our approach in a tool called Brisk that synthesizes canonical sequentializations for programs
+written in Haskell, and evaluated it on a wide variety of distributed systems including benchmarks from
+the literature and implementations of MapReduce, two-phase commit, and a version of the Disco distributed
+file-system. Brisk verifies unbounded versions of the benchmarks in tens of milliseconds, yielding the first
+concurrency verification tool that is fast enough to be integrated into a design-implement-check cycle.
+CCS Concepts: · Theory of computation → Program verification; Program analysis; Distributed
+computing models; Concurrency; · Software and its engineering → Software notations and tools;
+Additional Key Words and Phrases: canonical sequentialization, asynchronous programs, concurrency, distributed programs, reductions, program verification, parameterized systems, message passing

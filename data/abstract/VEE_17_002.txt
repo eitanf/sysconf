@@ -1,0 +1,10 @@
+
+Video streaming dominates the Internet’s overall traffic mix,
+with reports stating that it will constitute 90% of all consumer traffic by 2019. Most of this video is delivered by
+Content Delivery Networks (CDNs), and, while they optimize QoE metrics such as buffering ratio and start-up time,
+no single CDN provides optimal performance. In this paper
+we make the case for elastic CDNs, the ability to build virtual CDNs on-the-fly on top of shared, third-party infrastructure at a scale. To bring this idea closer to reality we begin
+by large-scale simulations to quantify the effects that elastic
+CDNs would have if deployed, and build and evaluate MiniCache, a specialized, minimalistic virtualized content cache
+that runs on the Xen hypervisor. MiniCache is able to serve
+content at rates of up to 32 Gb/s and handle up to 600K reqs/sec on a single CPU core, as well as boot in about 90 milliseconds on x86 and around 370 milliseconds on ARM32.

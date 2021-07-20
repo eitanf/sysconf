@@ -1,0 +1,23 @@
+
+
+This paper introduces QFrag, a distributed system for graph
+search on top of bulk synchronous processing (BSP) systems
+such as MapReduce and Spark. Searching for patterns in
+graphs is an important and computationally complex problem.
+Most current distributed search systems scale to graphs that
+do not fit in main memory by partitioning the input graph.
+For analytical queries, however, this approach entails running
+expensive distributed joins on large intermediate data.
+
+In this paper we explore an alternative approach: replicating the input graph and running independent parallel
+instances of a sequential graph search algorithm. In principle, this approach leads us to an embarrassingly parallel
+problem, since workers can complete their tasks in parallel
+without coordination. However, the skew present in natural
+graphs makes this problem a deceitfully parallel one, i.e., an
+embarrassingly parallel problem with poor load balancing.
+We therefore introduce a task fragmentation technique that
+avoids stragglers but at the same time minimizes coordination.
+Our evaluation shows that QFrag outperforms BSP-based
+systems by orders of magnitude, and performs similar to
+asynchronous MPI-based systems on simple queries. Furthermore, it is able to run computationally complex analytical
+queries that other systems are unable to handle.

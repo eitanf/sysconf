@@ -1,0 +1,29 @@
+
+Last-level caches are increasingly distributed, consisting of many small banks. To perform well, most accesses
+must be served by banks near requesting cores. An attractive
+approach is to replicate read-only data so that a copy is
+available nearby. But replication introduces a delicate tradeoff
+between capacity and latency: too little replication forces cores
+to access faraway banks, while too much replication wastes
+cache space and causes excessive off-chip misses.
+
+Workloads vary widely in their desired amount of replication, demanding an adaptive approach. Prior adaptive replication techniques only replicate data in each tile’s local bank, so
+they focus on selecting which data to replicate. Unfortunately,
+data that is not replicated still incurs a full network traversal,
+limiting the performance of these techniques.
+
+We argue that a better strategy is to let cores share replicas
+and that adaptive schemes should focus on selecting how
+much to replicate (i.e.. how many replicas to have across the
+chip). This idea fully exploits the latency-capacity tradeoff,
+achieving qualitatively higher performance than prior adaptive
+replication techniques. It can be applied to many prior cache
+organizations, and we demonstrate it on two: Nexus-R extends
+R-NUCA, and Nexus-J extends Jigsaw. We evaluate Nexus on
+HPC and server workloads running on a 144-core chip, where
+it outperforms prior adaptive replication schemes and improves
+performance by up to 90% and by 23% on average across all
+workloads sensitive to replication.
+
+Keywords-cache, data replication, NUCA, multicore
+

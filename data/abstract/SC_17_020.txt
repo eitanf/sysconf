@@ -1,0 +1,15 @@
+
+GPUs are widespread across clusters of compute nodes due to their
+attractive performance for data parallel codes. However, communicating between GPUs across the cluster is cumbersome when
+compared to CPU networking implementations. A number of recent
+works have enabled GPUs to more naturally access the network,
+but suffer from performance problems, require hidden CPU helper
+threads, or restrict communications to kernel boundaries.
+In this paper, we propose GPU Triggered Networking, a novel,
+GPU-centric networking approach which leverages the best of
+CPUs and GPUs. In this model, CPUs create and stage network
+messages and GPUs trigger the network interface when data is
+ready to send. GPU Triggered Networking decouples these two
+operations, thereby removing the CPU from the critical path. We
+illustrate how this approach can provide up to 25% speedup compared to standard GPU networking across microbenchmarks, a
+Jacobi stencil, an important MPI collective operation, and machinelearning workloads.

@@ -1,0 +1,13 @@
+
+
+Erasure coding has been used in storage systems to enhance data durability at a lower storage overhead. However, these systems suffer from long access latency tails
+due to a lack of flexible load balancing mechanisms and
+passively launched degraded reads when the original
+storage node of the requested data becomes a hotspot.
+We provide a new perspective to load balancing in coded
+storage systems by proactively and intelligently launching degraded reads and propose a variety of schemes
+to make optimal decisions either per request or across
+requests statistically. Experiments on a 98-machine cluster based on the request traces of 12 million objects collected from Windows Azure Storage (WAS) show that
+our schemes can reduce the median latency by 44.7%
+and the 95th-percentile tail latency by 77.8% in coded
+storage systems.

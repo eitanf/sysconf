@@ -1,0 +1,21 @@
+
+Compiler high-level automatic optimization and
+parallelization techniques are well suited for some classes of
+simulation or signal processing applications, however they usually
+don’t take into account domain-specific knowledge nor the
+possibility to change or to remove some computations to achieve
+“good enough’’ results. Differently, production simulation and
+signal processing codes have adaptive capabilities: they are
+designed to compute precise results only where it matters if
+the complete problem is not tractable or if computation time
+must be short. In this paper, we present a new way to provide
+adaptive capabilities to compute-intensive codes automatically.
+It relies on domain-specific knowledge provided through special
+pragmas by the programmer in the input code and on polyhedral
+compilation techniques to continuously regenerate at runtime a
+code that performs heavy computations only where it matters.
+We present experimental results on several applications where
+our strategy enables significant computation savings and speedup
+while maintaining a good precision, with a minimal effort from
+the programmer.
+

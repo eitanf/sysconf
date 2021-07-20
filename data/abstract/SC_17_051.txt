@@ -1,0 +1,13 @@
+
+The byte-addressable non-volatile memory (NVM) is new promising storage medium. Compared to NAND flash memory, the nextgeneration NVM not only preserves the durability of stored data
+but has much shorter access latencies. An architect can utilize the
+fast and persistent NVM as an external disk cache. Regarding the
+system’s crash consistency, a prevalent journaling file system needs
+to run atop an NVM disk cache. However, the performance is severely impaired by redundant efforts in achieving crash consistency
+in both file system and disk cache. Therefore, we propose a new
+mechanism called transactional NVM disk cache (Tinca). In brief,
+Tinca jointly guarantees consistency of file system and disk cache
+and removes the performance penalty of file system journaling with
+a lightweight transaction scheme. Evaluations confirm that Tinca
+significantly outperforms state-of-the-art design by up to 2.5x in
+local and cluster tests without causing any inconsistency issue.

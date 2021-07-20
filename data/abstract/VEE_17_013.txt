@@ -1,0 +1,20 @@
+
+Storage consolidation in a virtualized environment introduces numerous duplications in virtual disks and imposes
+considerable pressure on disk I/O and caching. In this paper,
+we present a content look-aside buffer (CLB) approach for
+simultaneously providing redundancy-free virtual disk I/O
+and caching. CLB attaches persistent fingerprints to virtual
+disk blocks, which enables detection of I/O redundancy before disk access. At run time, CLB exploits content pages
+already present in the guest disk caches to service the redundant reads through page sharing, thus eliminating both
+redundant I/O requests and redundant disk cache copies.
+For write requests, CLB uses a group invalidating writeback protocol for updating fingerprints to support crash consistency while minimizing disk write overhead. By implementing and evaluating a CLB prototype on KVM hypervisor, we demonstrate that CLB delivers considerably improved I/O performance with realistic workloads. Our CLB
+prototype improves the throughput of sequential and random
+read on duplicate data by 4.1x and 26.2x, respectively. For
+typical read-intensive workloads, such as booting VM and
+launching application, CLB’s I/O deduplication and cache
+deduplication eliminates 94.9%-98.5% of read requests and
+saves 50%-100% cache memory in each VM, respectively.
+Compared with the QEMU’s raw virtual disk format, CLB
+improves the per-disk VM density by 8x—16x. For mixed
+read-write workloads, the cost of on-line fingerprint updating offsets the read benefit; nevertheless, CLB substantially
+improves overall performance.

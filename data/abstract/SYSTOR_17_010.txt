@@ -1,0 +1,15 @@
+
+Despite the growing popularity of enterprise virtual desktop infrastructure (VDI), little is known about its storage traffic characteristics. In addition, no prior work
+has considered the detailed characteristics of virtual machine (VM) behavior on VDI. In this paper, we analyze the enterprise storage traffic on commercial office
+VDI using designated VMs. For 28 consecutive days,
+we gathered various types of traces, including a usage
+questionnaire and active and passive measurements. To
+characterize the storage traffic, we focused on two perspectives: fibre channel (FC) traffic and VM behavior. From the FC traffic perspective, we found that
+read traffic is dominant, although the applications are
+similar to those in a previous small-scale VDI. In particular, the write response time of large transactions,
+e.g.,128 KiB, is strongly affected by a slight decrease in
+cache hits during an update storm. From the VM behavior, we found that all active user VMs generate only
+25% of traffic. Although a few VMs generate massive
+traffic, their impact is small. These characteristics are
+unique in comparison with the small-scale VDI. Our results have significant implications for designing the next
+generation of VDI and improving its performance.

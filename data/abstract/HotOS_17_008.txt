@@ -1,0 +1,16 @@
+
+
+Modern applications use multiple storage abstractions
+such as the file system, key-value stores, and embedded
+databases such as SQLite. Maintaining consistency of
+data spread across multiple abstractions is complex and
+error-prone. Applications are forced to copy data unnecessarily and use long sequences of system calls to update
+state in a consistent manner. Not only does this create
+implementation complexity, it also introduces potential
+performance problems from redundant IO and fsync ()
+calls, which fragment disk writes into small, random
+IOs. In this paper, we propose that the operating system
+should provide transactions across multiple storage abstractions; we can build such transactions with low development cost by taking advantage of a well-tested piece of
+software: the file-system journal. We present the design
+of our cross-abstraction transactions and some preliminary results, showing such transactions can increase performance by 31% in certain cases.
+

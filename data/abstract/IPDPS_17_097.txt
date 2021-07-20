@@ -1,0 +1,20 @@
+
+We present methods for the effective application level reordering of non-blocking RDMA operations. We supplement
+out-of-order hardware delivery mechanisms with heuristics
+to account for the CPU side overhead of communication and
+for differences in network latency: a runtime scheduler takes
+into account message sizes, destination and concurrency
+and reorders operations to improve overall communication
+throughput. Results are validated on InfiniBand and Cray
+Aries networks, for SPMD and hybrid (SPMD+OpenMP)
+programming models. We show up to 5x potential speedup,
+with 30-50% more typical, for synthetic message patterns in
+microbenchmarks. We also obtain up to 33% improvement in
+the communication stages in application settings. While the
+design space is complex, the resulting scheduler is simple,
+both internally and at the application level interfaces. It also
+provides performance portability across networks and programming models. We believe these techniques can be easily
+retrofitted within any application or runtime framework that
+uses one-sided communication, e.g. using GASNet, MPI 3.0
+RMA or low level APIs such as IBVerbs.
+

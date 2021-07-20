@@ -1,0 +1,22 @@
+
+
+We study two fundamental communication primitives: broadcasting and leader election in the classical model of multi-hop radio
+networks with unknown topology and without collision detection mechanisms. It has been known for almost 20 years that in
+undirected networks with n nodes and diameter D, randomized
+broadcasting requires Q(D log # + log? n) rounds in expectation,
+assuming that uninformed nodes are not allowed to communicate (until they are informed). Only very recently, Haeupler and
+Wajc (PODC’2016) showed that this bound can be slightly improved for the model with spontaneous transmissions, providing an
+
+o(D Ser weret + log) n)-time broadcasting algorithm. In this
+
+paper, we give a new and faster algorithm that completes broadcasting in ows + log) n) time, with high probability. This yields
+the first optimal O(D)-time broadcasting algorithm whenever D is
+polynomial in n.
+
+Furthermore, our approach can be applied to design a new leader
+election algorithm that matches the performance of our broadcasting algorithm. Previously, all fast randomized leader election algorithms have been using broadcasting as their subroutine and their
+complexity have been asymptotically strictly bigger than the complexity of broadcasting. In particular, the fastest previously known
+randomized leader election algorithm of Ghaffari and Haeupler
+(SODA’2013) requires O(D log #§ min {log log n, log $}+ log n)time with high probability. Our new algorithm requires O(D 2 5 +
+log? n) time with high probability, and it achieves the optimal
+O(D) time whenever D is polynomial in n.

@@ -1,0 +1,14 @@
+
+As VMware are now widely used in desktop and server environ
+Mobile apps make extensive use of GPUs on smartphones and
+tablets to access Web content. To support pervasive Web content,
+we introduce three key OS techniques for binary graphics compatibility necessary to build a real-world system to run iOS and
+Android apps together on the same smartphone or tablet. First diplomat usage patterns manage resources to bridge proprietary iOS
+and Android graphics implementations. Second, thread impersonation allows a single thread-specific context to be shared amongst
+multiple threads using multiple iOS and Android personas. Third,
+dynamic library replication allows multiple, independent instances
+of the same library to be loaded in a single process to support iOS
+apps on Android while using multiple graphics API versions at
+the same time. We use these techniques to build a system prototype, and demonstrate that it runs widely-used iOS apps, including
+apps such as Safari that use the popular GPU-accelerated WebKit
+framework, using a Google Nexus tablet running Android.

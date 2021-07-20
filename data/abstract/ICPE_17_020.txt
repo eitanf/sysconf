@@ -1,0 +1,22 @@
+
+
+A number of analytical models have been proposed to estimate the write amplification of the Flash storage to obtain
+the expected lifespan. This work is dedicated to examining
+the practical implication of the four existing analytical models for estimating the write amplification: Coupon Collector,
+Uniform Distribution, Expected Value and Markov model.
+Since the models assume uniform random workload in full
+utilization of an SSD to predict write amplification, they are
+not applicable in predicting write amplification in general
+workload. Moreover, the existing models have not been verified with the real SSD. In this work, we compare the write
+amplification of the models with that of a real SSD. When
+we use 0.147 as the overprovisioning factor of an SSD while
+running uniform random workload, the write amplification
+of Uniform Distribution, Expected Value, Markov model is
+3.90, 4.08, and 4.08, respectively. However, write amplification of the real SSD shows 1.19, which is very different
+from that of the prediction models. Through experiment,
+we found that write amplification is closely related to the
+value of overprovisioning factor. To improve the accuracy
+of existing prediction models, we update the overprovisioning factor to take account of the ratio of a hot file and the
+utilization of the storage. We also find that by setting the
+overprovisioning factor to 1.15, we can obtain write amplification of 1.2 which is close to the write amplification of
+general workload in a real SSD.

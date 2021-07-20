@@ -1,0 +1,32 @@
+
+
+Population protocols are required to converge to the correct answer,
+and are subject to a fairness condition that guarantees eventual
+progress, but generally have no internal mechanism for detecting
+when this progress has occurred. We define an extension to the
+standard population protocol that provides each agent with a clock
+signal that indicates when the agent has waited long enough. To
+simplify the model, we represent “long enough” as an infinite time
+interval, and treat a clocked population protocol as operating over
+transfinite time. This gives a clean theoretical model that we show
+how to translate back into finite real-world executions where the
+clock ticks whenever the underlying protocol is looping or stuck.
+
+Over finite time intervals, the protocol behaves as in the standard
+model. At nonzero limit ordinals w, w-2, etc., corresponding to clock
+ticks, the protocol switches to a limit of previous configurations
+supplemented by an signal registering in an extra component in
+some of the agents’ states. Using transfinite times means that we can
+represent fairness over sequences of transitions that may include
+clock ticks with the same definition as over smaller intervals. Using
+arbitrary ordinals allows using times like w* or w? to represent
+convergence that depends on detecting convergence repeatedly at
+lower levels.
+
+We show that a clocked population protocol running in less than
+co* time for any fixed k > 2 is equivalent in power to a nondeterministic Turing machine with space complexity logarithmic in the
+size of the population. A consequence of this equivalence is that
+any symmetric predicate that can be computed in less than w* time
+can be computed in less than w” time, which requires only finitely
+many clock ticks.
+

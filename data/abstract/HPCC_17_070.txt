@@ -1,0 +1,17 @@
+
+Diskless checkpointing is an effective solution to
+avoid the I/O bottleneck in disk-based checkpointing for
+tolerating a small number of node failures in large distributed
+systems. However, the existing encoding schemes used by diskless
+checkpointing lead to high communication overheads because of
+cross node encoding. This negates the advantages of diskless
+checkpointing, especially in scenarios with a limited network
+bandwidth. This paper proposes a diskless checkpointing scheme
+with vertical encoding to address this problem. Vertical encoding
+eliminates the dependency among nodes and also facilitates a
+balanced communication. Moreover, an analysis model is
+developed to obtain an optimal configuration parameter.
+Experimental results show that the proposed scheme reduces
+significantly the communication overhead of both checkpointing
+and fault recovery, with no encoding overhead introduced.
+

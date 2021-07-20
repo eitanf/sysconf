@@ -1,0 +1,35 @@
+
+There is more than a decade-long history of using static analysis to find bugs in systems such as Linux. Most of the existing
+static analyses developed for these systems are simple checkers that find bugs based on pattern matching. Despite the
+presence of many sophisticated interprocedural analyses, few
+of them have been employed to improve checkers for systems code due to their complex implementations and poor
+scalability.
+
+In this paper, we revisit the scalability problem of interprocedural static analysis from a “Big Data” perspective. That
+is, we turn sophisticated code analysis into Big Data analytics and leverage novel data processing techniques to solve
+this traditional programming language problem. We develop
+Graspan, a disk-based parallel graph system that uses an
+edge-pair centric computation model to compute dynamic
+transitive closures on very large program graphs.
+
+We implement context-sensitive pointer/alias and dataflow
+analyses on Graspan. An evaluation of these analyses on
+large codebases such as Linux shows that their Graspan
+implementations scale to millions of lines of code and are
+much simpler than their original implementations. Moreover,
+we show that these analyses can be used to augment the
+existing checkers; these augmented checkers uncovered 132
+new NULL pointer bugs and 1308 unnecessary NULL tests in
+Linux 4.4.0-re5, PostgreSQL 8.3.9, and Apache httpd 2.2.18.
+
+Categories and Subject Descriptors "3.2 [Logics and
+Meaning of Programs]: Semantics of Programming
+Languages—program analysis; H.3.4 [information Storage
+and Retrieval]: Systems and Software
+
+General Terms Language, Measurements, Performance
+
+
+
+Keywords Static analysis, graph processing, disk-based
+systems

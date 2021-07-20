@@ -1,0 +1,21 @@
+
+
+The level of demand for bare-metal cloud services has increased rapidly because such services are cost-effective for
+several types of workloads, and some cloud clients prefer a
+single-tenant environment due to the lower security vulnerability of such enviornments. However, as the bare-metal
+cloud does not utilize a virtualization layer, it cannot use
+live migration. Thus, there is a lack of manageability with
+the bare-metal cloud. Live migration support can improve
+the manageability of bare-metal cloud services significantly.
+
+This paper suggests an on-demand virtualization technique
+to improve the manageability of bare-metal cloud services.
+A thin virtualization layer is inserted into the bare-metal
+cloud when live migration is requested. After the completion
+of the live migration process, the thin virtualization layer is
+removed from the host. We modified BitVisor [19] to implement on-demand virtualization and live migration on the x86
+architecture.
+
+The elapsed time of on-demand virtualization was negligible. It takes about 20 ms to insert the virtualization layer and
+30 ms to remove the one. After removing the virtualization
+layer, the host machine works with bare-metal performance.

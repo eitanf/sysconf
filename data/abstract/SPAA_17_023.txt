@@ -1,0 +1,19 @@
+
+
+Strassen’s algorithm (1969) was the first sub-cubic matrix multiplication algorithm. Winograd (1971) improved its complexity by a
+constant factor. Many asymptotic improvements followed. Unfortunately, most of them have done so at the cost of very large, often
+gigantic, hidden constants. Consequently, Strassen-Winograd’s
+oO (n!°ee 7) algorithm often outperforms other matrix multiplication algorithms for all feasible matrix dimensions. The leading
+coefficient of Strassen-Winograd’s algorithm was believed to be
+optimal for matrix multiplication algorithms with 2 x 2 base case,
+due to a lower bound of Probert (1976).
+
+Surprisingly, we obtain a faster matrix multiplication algorithm,
+with the same base case size and asymptotic complexity as StrassenWinograd’s algorithm, but with the coefficient reduced from 6
+to 5. To this end, we extend Bodrato’s (2010) method for matrix
+squaring, and transform matrices to an alternative basis. We prove a
+generalization of Probert’s lower bound that holds under change of
+basis, showing that for matrix multiplication algorithms with a 2x2
+base case, the leading coefficient of our algorithm cannot be further
+reduced, hence optimal. We apply our technique to other Strassenlike algorithms, improving their arithmetic and communication
+costs by significant constant factors.

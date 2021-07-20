@@ -1,0 +1,30 @@
+
+Software systems with quality of service
+(QoS), such as database management systems and web
+servers, are ubiquitous. Such systems must meet strict
+performance requirements. Instrumentation is a useful
+technique for the analysis and debugging of QoS systems. Dynamic binary instrumentation (DBI) extracts
+runtime information to comprehend system’s behavior
+and detect performance bottlenecks. However, existing
+DBI tools are intrusive; adding unacceptable delay to
+the program execution. Such delay alters the performance requirements and degrades the overall quality
+and the user experience of the system. Moreover, the
+delay may change the system behavior, thus, producing
+misleading run-time information.
+
+This paper presents QDIME, a QoS-aware dynamic
+binary instrumentation technique that respects system’s performance requirements. QDIME takes a userdefined QoS threshold as an input and periodically
+gathers QoS feedback from the system under analysis
+to decide its instrumentation budget.
+
+We implemented QDIME on top of PIN, a popular
+DBI framework. We evaluated QDIME with Gzip,
+MySQE server, Apache HTTP server, and Redis. The
+experiments show that QDIME respects the userdefined QoS threshold and, thus, improves the performance of the monitored application by manifolds.
+QDIME is able to provide up to 100% instrumentation
+coverage with an average of 92% when compared to
+PIN. Moreover, QDIME reduces the slow-down factor
+of the instrumented application by 1.41, 5.67, and
+10.26 folds for Sys-trace, Call-trace, and Branch-profile
+respectively. A release of QDIME is available for download at https://github.com/pansy-arafa/qdime.
+

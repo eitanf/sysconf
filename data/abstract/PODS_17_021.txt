@@ -1,0 +1,21 @@
+
+
+Schema mappings are a fundamental concept in data integration and exchange, and they have been thoroughly studied in different data models. For graph data, however, mappings have been studied in a restricted context that, unlike real-life graph databases, completely disregards the data
+they store. Our main goal is to understand query answering
+under graph schema mappings — in particular, in exchange
+and integration of graph data — for graph databases that
+mix graph structure with data. We show that adding data
+querying alters the picture in a significant way.
+
+As the model, we use data graphs: a theoretical abstraction of property graphs employed by graph database implementations. We start by showing a very strong negative result: using the simplest form of nontrivial navigation in mappings makes answering even simple queries that mix navigation and data undecidable. This result suggests that for
+the purposes of integration and exchange, schema mappings
+ought to exclude recursively defined navigation over target
+data. For such mappings and analogs of regular path queries
+that take data into account, query answering becomes decidable, although intractable. To restore tractability without imposing further restrictions on queries, we propose a
+new approach based on the use of null values that resemble
+usual nulls of relational DBMSs, as opposed to marked nulls
+one typically uses in integration and exchange tasks. If one
+moves away from path queries and considers more complex
+patterns, query answering becomes undecidable again, even
+for the simplest possible mappings.
+

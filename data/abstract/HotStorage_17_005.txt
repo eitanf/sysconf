@@ -1,0 +1,13 @@
+
+Recently, with the emergence of low-latency NVM storage, software overhead has become a greater bottleneck
+than storage latency, and memory mapped file I/O has
+gained attention as a means to avoid software overhead.
+However, according to our analysis, memory mapped file
+I/O incurs a significant amount of additional overhead. To
+utilize memory mapped file I/O to its true potential, such
+overhead should be alleviated. We propose map-ahead,
+mapping cache, and extended madvise techniques to maximize the performance of memory mapped file I/O on lowlatency NVM storage systems. This solution can avoid
+both page fault overhead and page table entry construction overhead. Our experimental results show throughput
+improvements of 38-70% in microbenchmarks and performance improvements of 6-18% in real applications
+compared to existing memory mapped I/O mechanisms.
+

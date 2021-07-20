@@ -1,0 +1,20 @@
+
+
+Over the past decade, we have witnessed exponential growth in the density (petabyte-level) and breadth
+(across geo-distributed datacenters) of data distribution.
+It becomes increasingly challenging but imperative to
+minimize the response times of data analytic queries over
+multiple geo-distributed datacenters. However, existing
+scheduling-based solutions have largely been motivated
+by pre-established mantras (e.g., bandwidth scarcity).
+Without data-driven insights into performance bottlenecks at runtime, schedulers might blindly assign tasks
+to workers that are suffering from unidentified bottlenecks.
+
+In this paper, we present Lube, a system framework
+that minimizes query response times by detecting and
+mitigating bottlenecks at runtime. Lube monitors geodistributed data analytic queries in real-time, detects potential bottlenecks, and mitigates them with a bottleneckaware scheduling policy. Our preliminary experiments
+on a real-world prototype across Amazon EC2 regions
+have shown that Lube can detect bottlenecks with over
+90% accuracy, and reduce the median query response
+time by up to 33% compared to Spark’s built-in localitybased scheduler.
+

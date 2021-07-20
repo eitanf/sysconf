@@ -1,0 +1,17 @@
+
+The Secure Sockets Layer (SSL) is the main protocol
+used to secure Internet traffic and cloud computing. It relies on
+the computation-intensive RSA cryptography, which primarily
+limits the throughput of the handshake process. In this paper, we
+design and implement an OpenSSL library, termed PhiOpenSSL,
+which targets the Intel Xeon Phi (KNC) coprocessor, and utilizes
+Intel Phi’s SIMD and multi-threading capability to reduce the
+SSL computation latency. In particular, PhiOpenSSL vectorizes
+all big integer multiplications and Montgomery operations involved in RSA calculations and employs the Chinese Remainder
+Theorem and fixed-window exponentiation in its customized
+library. In an experiment involving the computation of Montgomery exponentiation, PhiOpenSSL was as much as 15.3 times
+faster than the two other reference libcrypto libraries, one
+from the Intel Many-core Platform Software Stack (MPSS) and
+the other from the default OpenSSL. Our RSA private key
+cryptography routines in PhiOpenSSL are 1.6-5.7 times faster
+than those in these two reference systems.

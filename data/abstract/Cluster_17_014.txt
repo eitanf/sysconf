@@ -1,0 +1,35 @@
+
+This paper addresses the shared resource contention problem associated with the auto-parallelization of
+running queries in distributed stream processing engines. In
+such platforms, analyzing a large amount of data often requires
+to execute user-defined queries over continues raw-inputs in a
+parallel fashion at each single host. However, previous studies
+showed that the collocated applications can fiercely compete
+for shared resources, resulting in a severe performance degradation among applications. This paper presents an advanced
+resource allocation strategy for handling scenarios in which
+the target applications have different quality of service (QoS)
+requirements while shared-resource interference is considered
+as a key performance-limiting parameter.
+
+To properly allocate the best possible resource to each query,
+the proposed controller predicts the performance degradation
+of the running pane-level as well as the window-level queries
+when co-running with other queries. This is addressed as an
+optimization problem where a set of cost functions is defined to
+achieve the following goals: a) reduce the sum of QoS violation
+incidents over all machines; b) keep the CPU utilization
+level within an accepted range; and c) avoid fierce shared
+resource interference among collocated applications. Particle
+swarm optimization is used to find an acceptable solution
+at each round of the controlling period. The performance
+of the proposed solution is benchmarked with Round-Robin
+and best-effort strategies, and the experimental results clearly
+demonstrate that the proposed controller has the following
+advantages over its opponents: it increases the overall resource
+utilization by 15% on average while can reduce the average
+tuple latencies by 14%. It also achieves an average 123%
+improvement in preventing QoS violation incidents.
+
+Keywords-Stream Processing, Parallelization Factor, Shared
+Resource Interference, Workload Consolidation
+

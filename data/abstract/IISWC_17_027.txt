@@ -1,0 +1,26 @@
+
+Floating-point computations produce approximate
+results, possibly leading to inaccuracy and reproducibility
+problems. Existing work addresses two issues: first, the design of
+high precision floating-point representations; second, the study of
+methods to trade off accuracy and performance of CPU
+applications. However, a comprehensive study of the tradeoffs
+between accuracy and performance on modern GPUs is missing.
+
+This study covers the use of different floating-point precisions
+(i.e., single and double floating-point precision in IEEE 754
+standard, GNU Multiple Precision, and composite floating-point
+precision) on GPU using a variety of synthetic and real-world
+benchmark applications. First, we analyze the support for single
+and double precision floating-point arithmetic on different GPU
+architectures, and we characterize the latencies of all floatingpoint instructions on GPU. Second, we study the
+performance/accuracy tradeoffs related to the use of different
+arithmetic precisions on addition, multiplication, division, and
+natural exponential function. Third, we analyze the combined use
+of different arithmetic operations on three benchmark
+applications characterized by different instruction mixes and
+arithmetic intensities. As a result of this analysis, we provide
+insights to guide users to the selection of the arithmetic precision
+leading to a good performance/accuracy tradeoff depending on
+the arithmetic operations and mathematical functions used in
+their program and the degree of multithreading of the code.

@@ -1,0 +1,15 @@
+
+. Adaptive Mesh Refinement (AMR) is a well known method
+for efficiently solving partial differential equations. A straightforward
+AMR algorithm typically exhibits many synchronization points even
+during a single time step, where costly communication often degrades
+the performance. This problem will be even more pronounced on future
+supercomputers containing billion way parallelism, which will raise the
+communication cost further. Re-designing AMR algorithms to avoid synchronization is not a viable solution due to the large code size and complex control structures. We present a nonintrusive asynchronous approach to hiding the effects of communication in an AMR application.
+Specifically, our approach reasons about data dependencies automatically using domain knowledge about AMR applications, allowing asynchrony to be discovered with only a modest amount of code modification.
+Using this approach, we optimize the synchronous AMR algorithm in the
+BoxLib software framework without severely affecting the productivity
+of the application programmer. We observe around 27-31% performance
+improvement for an advection solver on the Hazel Hen supercomputer
+using 12288 cores.
+

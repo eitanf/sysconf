@@ -1,0 +1,22 @@
+
+Many online application services are now provided
+by cloud-deployed VM clusters. Although economical, VMs in the
+cloud are prone to interference due to contention for physical
+resources among colocated users. Worse, this interference is
+dynamic and unpredictable. Current provider-centric solutions
+are application-oblivious and are thus not always aware of the
+user’s SLO requirements or application bottlenecks. Further,
+such solutions rely on VM scheduling and migration, approaches
+that are not agile enough to mitigate volatile interference.
+
+This paper presents DIAL, an interference-aware load balancer that can be employed by cloud users without requiring any assistance from the provider. DIAL addresses timevarying interference by dynamically shifting load away from
+compromised VMs without violating the application’s tail latency
+SLOs. The key idea behind DIAL is to infer the demand for
+contended resources on the physical hosts, which is otherwise
+hidden from users. Estimates of the colocated load are then
+used to drive the load distribution for the application VMs.
+Our experimental results on OpenStack and AWS clouds show
+that DIAL can reduce application tail latencies by as much as
+70% and 48% compared to interference-oblivious and existing
+interference-aware load balancers, respectively.
+

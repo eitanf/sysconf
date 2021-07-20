@@ -1,0 +1,13 @@
+
+
+Recoverable mutual exclusion (RME) is a variation on the classic mutual exclusion (ME) problem that allows processes to crash
+and recover. The time complexity of RME algorithms is quantified
+in the same way as for ME, namely by counting remote memory references — expensive memory operations that traverse the
+processor-to-memory interconnect. Prior work on the RME problem
+established an upper bound of O(log N) RMRs in an asynchronous
+shared memory model with N processes that communicate using
+atomic read and write operations, prompting the question whether
+sub-logarithmic RMR complexity is attainable using common readmodify-write primitives. We answer this question positively in
+the cache-coherent model by presenting an RME algorithm that
+incurs O(log N/log log N) RMRs and uses read, write, Fetch-AndStore, and Compare-And-Swap instructions. We also present an
+O(1) RMRs algorithm that relies on double-word Compare-AndSwap and a double-word variation of Fetch-And-Store. Both algorithms are inspired by Mellor-Crummey and Scott’s queue lock.

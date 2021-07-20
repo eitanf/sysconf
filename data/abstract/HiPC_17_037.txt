@@ -1,0 +1,18 @@
+
+Neighborhood collectives were added to the Message
+Passing Interface (MPI) to better support sparse communication
+patterns found in many applications. These new collectives
+encourage more scalable programming styles, and greatly extend
+the scope of MPI collectives by allowing users to define their own
+collective communication patterns.
+
+In this paper, we describe a new, distributed algorithm for
+computing improved communication schedules for neighborhood
+collectives. We show how to discover common process neighborhoods in fully general MPI distributed graph topologies,
+and how to exploit this information to build message-combining
+communication schedules for the MPI neighborhood collectives.
+Our experimental results show considerable performance improvements for application communication topologies of various
+shapes and sizes. On average, the performance gain is around
+50%, but it can also be as much as 71% for topologies with
+larger numbers of neighbors.
+

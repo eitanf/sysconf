@@ -1,0 +1,26 @@
+
+Nowadays, nested VMs are often being used to
+address compatibility issues, security concerns, software scaling and continuous integration scenarios. With the increased
+adoption of nested VMs, there is a need for newer techniques
+to troubleshoot any unexpected behavior. Because of privacy
+and security issues, ease of deployment and execution overhead,
+these investigation techniques should preferably limit their data
+collection in most cases to the physical host level, without internal
+access to the VMs. This paper introduces the Nested Virtual
+Machine Detection Algorithm (NDA) - a host hypervisor based
+analysis method which can investigate the performance of nested
+VMs. NDA can uncover the CPU overhead entailed by the host
+hypervisor and guest hypervisors, and compare it to the CPU
+usage of Nested VMs. We further developed several graphical
+views, for the TraceCompass trace visualization tool, to display
+the virtual CPUs of VMs and their corresponding nested VMs,
+along with their states. These approaches are based on host
+hypervisor tracing, which brings a lower overhead (around 1%)
+as compared to other approaches. Based on our analysis and the
+implemented graphical views, our techniques can quickly detect
+different problems and their root causes, such as unexpected
+delays inside nested VMs.
+
+Keywords—Nested Virtualization; KVM; Performance Analysis;
+LTTng; TraceCompass; Process State
+

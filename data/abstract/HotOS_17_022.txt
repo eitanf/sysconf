@@ -1,0 +1,17 @@
+
+
+A production system’s printed logs are often the only source
+of runtime information available for postmortem debugging,
+performance analysis and profiling, security auditing, and
+user behavior analytics. Therefore, the quality of this data is
+critically important. Recent work has attempted to enhance
+log quality by recording additional variable values, but logging statement placement, i.e., where to place a logging statement, which is the most challenging and fundamental problem for improving log quality, has not been adequately addressed so far. This position paper proposes we automate the
+placement of logging statements by measuring how much
+uncertainty, 1.e., the expected number of possible execution
+code paths taken by the software, can be removed by adding
+a logging statement to a basic block. Guided by ideas from
+information theory, we describe a simple approach that automates logging statement placement. Preliminary results suggest that our algorithm can effectively cover, and further improve, the existing logging statement placements selected
+by developers. It can compute an optimal logging statement
+placement that disambiguates the entire function call path
+with only 0.218% of slowdown.
+

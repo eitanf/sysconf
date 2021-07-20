@@ -1,0 +1,18 @@
+
+To explore the potential of training complex deep
+neural networks (DNNs) on other commercial chips rather than
+GPUs, we report our work on swDNN, which is a highlyefficient library for accelerating deep learning applications on
+the newly announced world-leading supercomputer, Sunway
+TaihuLight. Targeting SW26010 processor, we derive a performance model that guides us in the process of identifying the
+most suitable approach for mapping the convolutional neural
+networks (CNNs) onto the 260 cores within the chip. By performing a systematic optimization that explores major factors,
+such as organization of convolution loops, blocking techniques,
+register data communication schemes, as well as reordering
+strategies for the two pipelines of instructions, we manage
+to achieve a double-precision performance over 1.6 Tflops for
+the convolution kernel, achieving 54% of the theoretical peak.
+Compared with Tesla K40m with cuDNNv5, swDNN results in
+1.91-9.75x performance speedup in an evaluation with over 100
+parameter configurations.
+
+

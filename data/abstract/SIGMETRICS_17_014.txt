@@ -1,0 +1,17 @@
+
+Storage-class memory (SCM) combines the benefits of a solid-state memory, such as high-performance and robustness, with
+the archival capabilities and low cost of conventional hard-disk magnetic storage. Among candidate solid-state nonvolatile
+memory technologies that could potentially be used to construct SCM, flash memory is a well-established technology and
+have been widely used in commercially available SCM incarnations. Flash-based SCM enables much better tradeoffs between
+performance, space and power than disk-based systems. However, write endurance is a significant challenge for a flash-based
+SCM (each act of writing a bit may slightly damage a cell, so one flash cell can be written 104-10° times, depending on the
+flash technology, before it becomes unusable). This is a well-documented problem and has received a lot of attention by
+manufactures that are using some combination of write reduction and wear-leveling techniques for achieving longer lifetime.
+In an effort to improve flash lifetime, first, by quantifying data longevity in an SCM, we show that a majority of the data stored
+in a solid-state SCM do not require long retention times provided by flash memory (i.e., up to 10 years in modern devices);
+second, by exploiting retention time relaxation, we propose a novel mechanism, called Dense-SLC (D-SLC), which enables us
+perform multiple writes into a cell during each erase cycle for lifetime extension; and finally, we discuss the required changes
+in the flash management software (FTL) in order to use D-SLC mechanism for extending the lifetime of the solid-state part of
+an SCM. Using an extensive simulation-based analysis of an SLC flash-based SCM, we demonstrate that D-SLC is able to
+significantly improve device lifetime (between 5.1Xx and 8.6x) with no performance overhead and also very small changes at
+the FTL software.

@@ -1,0 +1,17 @@
+
+Data services such as search, discovery, and management in scalable
+distributed environments have traditionally been decoupled from
+the underlying file systems, and are often deployed using external
+databases and indexing services. However, modern data production
+rates, looming data movement costs, and the lack of metadata,
+entail revisiting the decoupled file system-data services design
+philosophy.
+
+In this paper, we present Taglt, a scalable data management
+service framework aimed at scientific datasets, which is tightly integrated into a shared-nothing distributed file system. A key feature
+of Taglt is a scalable, distributed metadata indexing framework,
+using which we implement a flexible tagging capability to support
+data discovery. The tags can also be associated with an active operator, for pre-processing, filtering, or automatic metadata extraction,
+which we seamlessly offload to file servers in a load-aware fashion.
+Our evaluation shows that TagIt can expedite data search by up to
+10x over the extant decoupled approach.

@@ -1,0 +1,26 @@
+
+High performance computing (HPC) applications
+have parallel code sections that must scale to large numbers of
+cores, which makes them sensitive to serial regions. Current supercomputing systems with heterogeneous or asymmetric CMPs
+(ACMP) combine few high-performance big cores for serial
+regions, together with many low-power lean cores for throughput
+computing. The low requirements of HPC applications in the
+core front-end lead some designs, such as SMT and GPU cores,
+to share front-end structures including the instruction cache
+(I-cache). However, little work exists to analyze the benefit of
+sharing the I-cache among full cores, which seems compelling as
+a solution to reduce silicon area and power.
+
+This paper analyzes the performance, power and area impact
+of such a design on an ACMP with one high-performance core
+and multiple low-power cores. Having identified that multiple
+cores run the same code during parallel regions, the lean cores
+share the I-cache with the intent of benefiting from mutual
+prefetching, without increasing the average access latency. Our
+exploration of the multiple parameters finds the sweet spot on a
+wide interconnect to access the shared I-cache and the inclusion
+of a few line buffers to provide the required bandwidth and
+latency to sustain performance. The projections with McPAT and
+a rich set of HPC benchmarks show 11% area savings with a
+5% energy reduction at no performance cost.
+

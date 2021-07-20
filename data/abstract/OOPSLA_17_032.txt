@@ -1,0 +1,22 @@
+
+Binary rewriters are tools that are used to modify the functionality of binaries lacking source code. Binary
+rewriters can be used to rewrite binaries for a variety of purposes including optimization, hardening, and
+extraction of executable components. To rewrite a binary based on semantic criteria, an essential primitive to
+have is a machine-code synthesizer—a tool that synthesizes an instruction sequence from a specification of the
+desired behavior, often given as a formula in quantifier-free bit-vector logic (QFBV). However, state-of-the-art
+machine-code synthesizers such as McSynth++ employ naive search strategies for synthesis: McSynth++
+merely enumerates candidates of increasing length without performing any form of prioritization. This
+inefficient search strategy is compounded by the huge number of unique instruction schemas in instruction
+sets (e.g., around 43,000 in Intel’s IA-32) and the exponential cost inherent in enumeration. The effect is slow
+synthesis: even for relatively small specifications, McSynth++ might take several minutes or a few hours to
+find an implementation.
+
+In this paper, we describe how we use machine learning to make the search in McSynth++ smarter and
+potentially faster. We converted the linear search in McSynth++ into a best-first search over the space of
+instruction sequences. The cost heuristic for the best-first search comes from two models—used together—
+built from a corpus of (QFBV-formula, instruction-sequence) pairs: (i) a language model that favors useful
+instruction sequences, and (ii) a regression model that correlates features of instruction sequences with features
+of QFBV formulas, and favors instruction sequences that are more likely to implement the input formula.
+Our experiments for IA-32 showed that our model-assisted synthesizer enables synthesis of code for 6 out of
+50 formulas on which McSynth++ times out, speeding up the synthesis time by at least 526x, and for the
+remaining formulas, speeds up synthesis by 4.55x.

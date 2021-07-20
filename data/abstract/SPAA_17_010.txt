@@ -1,0 +1,37 @@
+
+
+Interactive services send redundant requests to multiple different
+replicas to meet stringent tail latency requirements. These additional (reissue) requests mitigate the impact of non-deterministic
+delays within the system and thus increase the probability of receiving an on-time response.
+
+There are two existing approaches of using reissue requests to
+reduce tail latency. (1) Reissue requests immediately to one or more
+replicas, which multiplies the load and runs the risk of overloading
+the system. (2) Reissue requests if not completed after a fixed delay.
+The delay helps to bound the number of extra reissue requests, but
+it also reduces the chance for those requests to respond before a
+tail latency target.
+
+We introduce a new family of reissue policies, Single-Time
+/ Random (SINGLER), that reissue requests after a delay d with
+probability g. SINGLER employs randomness to bound the reissue
+rate, while allowing requests to be reissued early enough so they
+have sufficient time to respond, exploiting the benefits of both
+immediate and delayed reissue of prior work. We formally prove,
+within a simplified analytical model, that SINGLER is optimal even
+when compared to more complex policies that reissue multiple
+times.
+
+To use SINGLER for interactive services, we provide efficient algorithms for calculating optimal reissue delay and probability from
+response time logs through data-driven approach. We apply iterative adaptation for systems with load-dependent queuing delays.
+The key advantage of this data-driven approach is its wide applicability and effectiveness to systems with various design choices and
+workload properties.
+
+We evaluated SIncLER policies thoroughly. We use simulation
+to illustrate its internals and demonstrate its robustness to a wide
+range of workloads. We conduct system experiments on the Redis key-value store and Lucene search server. The results show
+that for utilizations ranging from 40-60%, SINGLER reduces the
+99th-percentile latency of Redis by 30-70% by reissuing only 2% of
+requests, and the 99th-percentile latency of Lucene by 15-25% by
+reissuing 1% only.
+

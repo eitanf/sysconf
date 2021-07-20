@@ -1,0 +1,17 @@
+
+ The overwhelming wealth of parallelism exposed
+by Extreme-scale computing is rekindling the interest for finegrain multithreading, particularly at the intranode level. Indeed, popular parallel programming models, such as OpenMP,
+are integrating fine-grain tasking in their newest standards.
+Yet, classical coarse-grain constructs are still largely preferred,
+as they are considered simpler to express parallelism. In
+this paper, we present a Multigrain Parallel Programming
+environment that allows programmers to use these well-known
+coarse-grain constructs to generate a fine-grain multithreaded
+application to be run on top of a fine-grain event-driven program execution model. Experimental results with four scientific
+benchmarks (Graph500, NAS Data Cube, NWChem-SCF, and
+ExMatEx’s CoMD) show that fine-grain applications generated
+by and run on our environment are competitive and even
+outperform their OpenMP counterparts, especially for dataintensive workloads with irregular and dynamic parallelism,
+reaching speedups as high as 2.6x for Graph500 and 50x for
+NAS Data Cube.
+

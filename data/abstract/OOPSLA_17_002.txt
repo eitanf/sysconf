@@ -1,0 +1,13 @@
+
+Dependent Object Types (DOT) is intended to be a core calculus for modelling Scala. Its distinguishing feature
+is abstract type members, fields in objects that hold types rather than values. Proving soundness of DOT has
+been surprisingly challenging, and existing proofs are complicated, and reason about multiple concepts at
+the same time (e.g. types, values, evaluation). To serve as a core calculus for Scala, DOT should be easy to
+experiment with and extend, and therefore its soundness proof needs to be easy to modify.
+This paper presents a simple and modular proof strategy for reasoning in DOT. The strategy separates
+reasoning about types from other concerns. It is centred around a theorem that connects the full DOT type
+system to a restricted variant in which the challenges and paradoxes caused by abstract type members are
+eliminated. Almost all reasoning in the proof is done in the intuitive world of this restricted type system. Once
+we have the necessary results about types, we observe that the other aspects of DOT are mostly standard and
+can be incorporated into a soundness proof using familiar techniques known from other calculi.
+Our paper comes with a machine-verified version of the proof in Coq.

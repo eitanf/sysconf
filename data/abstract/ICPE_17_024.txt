@@ -1,0 +1,24 @@
+
+
+The increasing demand for real-time analytics requires the
+fusion of Transactional (OLTP) and Analytical (OLAP) systems, eschewing ETL processes and introducing a plethora
+of proposals for the so-called Hybrid Analytical and Transactional Processing (HTAP) systems.
+
+Unfortunately, current benchmarking approaches are not
+able to comprehensively produce a unified metric from the
+assessment of an HTAP system. The evaluation of both
+engine types is done separately, leading to the use of disjoint
+sets of benchmarks such as TPC-C or TPC-H.
+
+In this paper we propose a new benchmark, HTAPBench,
+providing a unified metric for HTAP systems geared toward
+the execution of constantly increasing OLAP requests limited by an admissible impact on OLTP performance. To
+achieve this, a load balancer within HTAPBench regulates
+the coexistence of OLTP and OLAP workloads, proposing
+a method for the generation of both new data and requests,
+so that OLAP requests over freshly modified data are comparable across runs.
+
+We demonstrate the merit of our approach by validating
+it with different types of systems: OLTP, OLAP and HTAP;
+showing that the benchmark is able to highlight the differences between them, while producing queries with comparable complexity across experiments with negligible variability.
+

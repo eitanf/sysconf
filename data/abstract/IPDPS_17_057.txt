@@ -1,0 +1,25 @@
+
+The community needs simpler mechanisms to
+access the performance available in accelerators, such as GPUs,
+FPGAs, and APUs, due to their increasing use in stateof-the-art supercomputers. Programming models like CUDA,
+OpenMP, OpenACC and OpenCL can efficiently offload
+compute-intensive workloads to these devices. By default these
+models naively offload computation without overlapping it with
+communication (copying data to or from the device). Achieving
+performance can require extensive refactoring and hand-tuning
+to apply optimizations such as pipelining. Further, users must
+manually partition the dataset whenever its size is larger than
+device memory, which can be especially difficult when the
+device memory size is not exposed to the user.
+
+We propose a directive-based partitioning and pipelining
+extension for accelerators appropriate for either OpenMP or
+OpenACC., Its interface supports overlap of data transfers and
+kernel computation without explicit user splitting of data. It
+can map data to a pre-allocated device buffer and automate
+memory-constrained array indexing and sub-task scheduling.
+We evaluate a prototype implementation with four different
+applications. The experimental results show that our approach
+can reduce memory usage by 52% to 97% while delivering a
+1.41x to 1.65x speedup over the naive offload model.
+

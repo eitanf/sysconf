@@ -1,0 +1,29 @@
+
+Loop collapsing is a well-known loop transformation which combines some loops that are perfectly nested into
+one single loop. It allows to take advantage of the whole amount
+of parallelism exhibited by the collapsed loops, and provides a
+perfect load balancing of iterations among the parallel threads.
+
+However, in the current implementations of this loop optimization, as the ones of the OpenMP language, automatic loop
+collapsing is limited to loops with constant loop bounds that
+define rectangular iteration spaces, although load imbalance
+is a particularly crucial issue with non-rectangular loops. The
+OpenMP language addresses load balance mostly through dynamic runtime scheduling of the parallel threads. Nevertheless,
+this runtime schedule introduces some unavoidable executiontime overhead, while preventing to exploit the entire parallelism
+of all the parallel loops.
+
+In this paper, we propose a technique to automatically
+collapse any perfectly nested loops defining non-rectangular
+iteration spaces, whose bounds are linear functions of the
+loop iterators. Such spaces may be triangular, tetrahedral,
+trapezoidal, rhomboidal or parallelepiped. Our solution is
+based on original mathematical results addressing the inversion
+of a multi-variate polynomial that defines a ranking of the
+integer points contained in a convex polyhedron.
+
+We show on a set of non-rectangular loop nests that our
+technique allows to generate parallel OpenMP codes that
+outperform the original parallel loop nests, parallelized either
+by using options “static” or “dynamic” of the OpenMPschedule clause.
+
+

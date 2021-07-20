@@ -1,0 +1,24 @@
+
+
+Consider the following random process: we are given n queues,
+into which elements of increasing labels are inserted uniformly at
+random. To remove an element, we pick two queues at random,
+and remove the element of lower label (higher priority) among
+the two. The cost of a removal is the rank of the label removed,
+among labels still present in any of the queues, that is, the distance
+from the optimal choice at each step. Variants of this strategy are
+prevalent in state-of-the-art concurrent priority queue implementations. Nonetheless, it is not known whether such implementations
+provide any rank guarantees, even in a sequential model.
+
+We answer this question, showing that this strategy provides
+surprisingly strong guarantees: Although the single-choice process,
+where we always insert and remove from a single randomly chosen
+queue, has degrading cost, going to infinity as we increase the
+number of steps, in the two choice process, the expected rank of
+a removed element is O(n) while the expected worst-case cost is
+O(nlog n). These bounds are tight, and hold irrespective of the
+number of steps for which we run the process. The argument is
+based on a new technical connection between “heavily loaded" ballsinto-bins processes and priority scheduling. Our analytic results
+inspire a new concurrent priority queue implementation, which
+improves upon the state of the art in terms of practical performance.
+

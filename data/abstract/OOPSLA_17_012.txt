@@ -1,0 +1,13 @@
+
+We present a new data-driven approach to achieve highly cost-effective context-sensitive points-to analysis
+for Java. While context-sensitivity has greater impact on the analysis precision and performance than any
+other precision-improving techniques, it is difficult to accurately identify the methods that would benefit the
+most from context-sensitivity and decide how much context-sensitivity should be used for them. Manually
+designing such rules is a nontrivial and laborious task that often delivers suboptimal results in practice. To
+overcome these challenges, we propose an automated and data-driven approach that learns to effectively apply
+context-sensitivity from codebases. In our approach, points-to analysis is equipped with a parameterized and
+heuristic rules, in disjunctive form of properties on program elements, that decide when and how much to apply
+context-sensitivity. We present a greedy algorithm that efficiently learns the parameter of the heuristic rules.
+We implemented our approach in the Doop framework and evaluated using three types of context-sensitive
+analyses: conventional object-sensitivity, selective hybrid object-sensitivity, and type-sensitivity. In all cases,
+experimental results show that our approach significantly outperforms existing techniques.

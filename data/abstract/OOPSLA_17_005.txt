@@ -1,0 +1,24 @@
+
+A memory consistency model (or simply memory model) defines the possible values that a shared-memory
+read may return in a multithreaded programming language. Choosing a memory model involves an inherent
+performance-programmability tradeoff. The Java language has adopted a relaxed (or weak) memory model
+that is designed to admit most traditional compiler optimizations and obviate the need for hardware fences on
+most shared-memory accesses. The downside, however, is that programmers are exposed to a complex and
+unintuitive semantics and must carefully declare certain variables as volatile in order to enforce program
+orderings that are necessary for proper behavior.
+This paper proposes a simpler and stronger memory model for Java through a conceptually small change:
+every variable has volatile semantics by default, but the language allows a programmer to tag certain
+variables, methods, or classes as relaxed and provides the current Java semantics for these portions of code.
+This volatile-by-default semantics provides sequential consistency (SC) for all programs by default. At the
+same time, expert programmers retain the freedom to build performance-critical libraries that violate the SC
+semantics.
+At the outset, it is unclear if the volatile-by-default semantics is practical for Java, given the cost of
+memory fences on today’s hardware platforms. The core contribution of this paper is to demonstrate, through
+comprehensive empirical evaluation, that the volatile-by-default semantics is arguably acceptable for a
+predominant use case for Java today Ð server-side applications running on Intel x86 architectures. We present
+VBD-HotSpot, a modification to Oracle’s widely used HotSpot JVM that implements the volatile-by-default
+semantics for x86. To our knowledge VBD-HotSpot is the first implementation of SC for Java in the context of
+a modern JVM. VBD-HotSpot incurs an average overhead versus the baseline HotSpot JVM of 28% for the Da
+Capo benchmarks, which is significant though perhaps less than commonly assumed. Further, VBD-HotSpot
+incurs average overheads of 12% and 19% respectively on standard benchmark suites for big-data analytics
+and machine learning in the widely used Spark framework.

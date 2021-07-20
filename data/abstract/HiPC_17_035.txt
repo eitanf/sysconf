@@ -1,0 +1,28 @@
+
+ Several applications from computational linguistic
+and genomics perform similarity analysis between sequences of
+characters based on Hamming and Levenshtein distance
+measures. Hamming and Levenshtein distance-based matching
+maps well onto non-deterministic finite automata (NFAs), which
+have been accelerated on GPUs. However, designed with the
+flexibility to support generic topologies, existing NFA engines
+have inefficiencies when processing fixed-topology NFAs.
+
+In this work we target this problem and propose two methods
+to improve the preprocessing and traversal performance of
+Levenshtein and Hamming distance NFAs. Our methods are
+based on the following observation: for these fixed-topologies, the
+transitions do not need to be stored in device memory, but they
+can be inferred from the reference string (i.e., the string to be
+matched against) and the NFA topology alone. Our first, basic
+implementation (implicit-active-sq) minimizes preprocessing by
+bypassing NFA construction and packing, but exhibits several
+traversal inefficiencies. Our optimized method  (implicitrearranged-sv) includes space and time optimizations for global
+memory and radically different shared memory access patterns
+within the kernel, while at the same time incurring only modest
+preprocessing overhead over the basic implementation. Our
+experimental evaluation shows that, on large NFAs consisting of
+several millions states, implicit-rearranged-sv outperforms
+traditional GPU engines both in terms of traversal throughput
+(3-22x speedup) and preprocessing time (856-12,237x speedup).
+

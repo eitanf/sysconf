@@ -1,0 +1,15 @@
+
+Cloud computing needs to process and analyze massive highdimensional data in a real-time manner. Approximate queries
+in cloud computing systems can provide timely queried results with acceptable accuracy, thus alleviating the consumption of a large amount of resources. Locality Sensitive Hashing (LSH) is able to maintain the data locality and support
+approximate queries. However, due to randomly choosing
+hash functions, LSH has to use too many functions to guarantee the query accuracy. The extra computation and storage overheads exacerbate the real performance of LSH. In
+order to reduce the overheads and deliver high performance,
+we propose a distribution-aware scheme, called DLSH, to offer cost-effective approximate nearest neighbor query service
+for cloud computing. The idea of DLSH is to leverage the
+principal components of the data distribution as the projection vectors of hash functions in LSH, further quantify the
+weight of each hash function and adjust the interval value in
+each hash table. We then refine the queried result set based
+on the hit frequency to significantly decrease the time overhead of distance computation. Extensive experiments in a
+large-scale cloud computing testbed demonstrate significant
+improvements in terms of multiple system performance mettics. We have released the source code of DLSH for public
+use.

@@ -1,0 +1,25 @@
+
+Projecting a high-dimensional dataset onto a lower
+dimensional space can improve the efficiency of knowledge
+discovery and facilitate real-time data analysis. One technique
+for dimension reduction, weighted multi-dimensional scaling
+(WMDS), approximately preserves pairwise weighted distances
+during the transformation; but its O(f(n)d) algorithm impedes
+real-time performance on large datasets.
+
+Thus, we present CLARET, our fast and portable parallel
+WMDS tool that combines algorithmic concepts adapted and
+extended from the stochastic force-based MDS (SF-MDS)
+and Glimmer. To further improve CLARET’s performance
+for real-time data analysis, we propose a preprocessing step
+that computes approximate weighted Euclidean distances by
+combining a novel data mapping called stretching and Johnson
+Lindestrauss’ lemma in O(log d) time in place of the original
+O(d) time. This preprocessing step reduces the complexity of
+WMDS from O(f(n)d) to O( f (n) log d), which for large d is a
+significant computational gain. Finally, we present a case study
+of CLARET by integrating it into an interactive visualization
+tool called V2PI to facilitate real-time analytics. To ensure
+the quality of the projections, we propose a geometric shape
+matching-based alignment process and a quality metric.
+

@@ -1,0 +1,20 @@
+
+We present a scalable distributed memory
+library for generating and computations involving structured dense matrices, such as those produced by boundary
+integral equation formulations. Such matrices are dense,
+but have special structure that can be exploited to obtain
+efficient storage and matrix-vector product evaluations and
+consequently the fast solution of linear systems. At the core
+of the methods we use is the observation that off-diagonal
+matrix blocks of such matrices have a low numerical rank,
+and that this property can be exploited in a multi-level
+fashion. In this work we focus on the Hierarchically SemiSeparable (HSS) representation. We present algorithms for
+building and using HSS representations that are parallelized using MPI and CUDA to leverage state-of-the-art
+heterogeneous clusters. The efficiency of our methods and
+implementation is demonstrated on large dense matrices
+obtained from a boundary integral equation formulation of
+the Laplace equation with Dirichlet boundary conditions.
+We demonstrate excellent (linear) scalability on up to 128
+GPUs on 128 nodes. Our codes will lay the foundation for
+fast direct solvers for elliptic problems.
+

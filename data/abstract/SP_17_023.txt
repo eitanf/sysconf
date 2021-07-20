@@ -1,0 +1,48 @@
+
+The record layer is the main bridge between TLS
+applications and internal sub-protocols. Its core functionality
+is an elaborate form of authenticated encryption: streams
+of messages for each sub-protocol (handshake, alert, and
+application data) are fragmented, multiplexed, and encrypted
+with optional padding to hide their lengths. Conversely, the subprotocols may provide fresh keys or signal stream termination
+to the record layer.
+
+Compared to prior versions, TLS 1.3 discards obsolete
+schemes in favor of a common construction for Authenticated
+Encryption with Associated Data (AEAD), instantiated with
+algorithms such as AES-GCM and ChaCha20-Poly1305. It
+differs from TLS 1.2 in its use of padding, associated data
+and nonces. It also encrypts the content-type used to multiplex
+between sub-protocols. New protocol features such as early
+application data (0-RTT and 0.5-RTT) and late handshake
+messages require additional keys and a more general model
+of stateful encryption.
+
+We build and verify a reference implementation of the
+TLS record layer and its cryptographic algorithms in F*,
+a dependently typed language where security and functional
+guarantees can be specified as pre- and post-conditions. We
+reduce the high-level security of the record layer to cryptographic assumptions on its ciphers. Each step in the reduction
+is verified by typing an F* module; for each step that involves
+a cryptographic assumption, this module precisely captures the
+corresponding game.
+
+We first verify the functional correctness and injectivity
+properties of our implementations of one-time MAC algorithms
+(Poly1305 and GHASH) and provide a generic proof of their
+security given these two properties. We show the security of
+a generic AEAD construction built from any secure one-time
+MAC and PRE. We extend AEAD, first to stream encryption,
+then to length-hiding, multiplexed encryption. Finally, we build
+a security model of the record layer against an adversary
+that controls the TLS sub-protocols. We compute concrete
+security bounds for the AES_128 GCM, AES_256_GCM,
+and CHACHA20_POLY1305 ciphersuites, and derive recommended limits on sent data before re-keying.
+
+We plug our implementation of the record layer into the
+miTLS library, confirm that they interoperate with Chrome
+and Firefox, and report initial performance results. Combining
+our functional correctness, security, and experimental results,
+we conclude that the new TLS record layer (as described in
+RFCs and cryptographic standards) is provably secure, and
+we provide its first verified implementation.

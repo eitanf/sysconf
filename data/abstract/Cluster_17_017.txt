@@ -1,0 +1,23 @@
+
+A heterogeneous memory system (HMS) consists of
+multiple memory components with different properties. GPU is a
+representative architecture with HMS. It is challenging to decide
+optimal placement of data objects on HMS because of the large
+exploration space and complicated memory hierarchy on HMS.
+In this paper, we introduce performance modeling techniques
+to predict performance of various data placements on GPU. In
+essence, our models quantify and capture implicit performance
+correlation between different data placements. Given the memory
+access information and performance of a sample data placement,
+our models predict performance for other data placements based
+on the quantified correlation. We reveal critical performance
+factors that cause performance variation across data placements.
+Those factors include instruction replay, addressing mode, hardware queuing delay of memory requests, off-chip memory access
+latency, and caching effects. Those factors, which are often not
+sufficiently considered in the existing performance models, can
+significantly impact modeling accuracy. We introduce a series
+of techniques to model those factors. We extensively evaluate
+our models with a variety of benchmarks with various data
+placements. Our models are able to quantitatively predict the
+benefit or performance loss of data placements.
+

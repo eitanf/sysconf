@@ -1,0 +1,26 @@
+
+
+Cloud Infrastructure as a Service (IaaS) providers continually seek
+higher resource utilization to better amortize capital costs. Higher
+utilization not only can enable higher profit for IaaS providers but
+also provides a mechanism to raise energy efficiency; therefore
+creating greener cloud services. Unfortunately, achieving high utilization is difficult mainly due to infrastructure providers needing
+to maintain spare capacity to service demand fluctuations.
+Graceful degradation is a self-adaptation technique originally
+designed for constructing robust services that survive resource
+shortages. Previous work has shown that graceful degradation can
+also be used to improve resource utilization in the cloud by absorbing demand fluctuations and reducing spare capacity. In this work,
+we build a system and pricing model that enables infrastructure
+providers to incentivize their tenants to use graceful degradation.
+By using graceful degradation with an appropriate pricing model,
+the infrastructure provider can realize higher resource utilization
+while simultaneously, its tenants can increase their profit. Our proposed solution is based on a hybrid model which guarantees both
+reserved and peak on-demand capacities over flexible periods. It
+also includes a global dynamic price pair for capacity which remains
+uniform during each tenant’s Service Level Agreement (SLA) term.
+We evaluate our scheme using simulations based on real-world
+traces and also implement a prototype using RUBiS on the Xen
+hypervisor as an end-to-end demonstration. Our analysis shows
+that the proposed scheme never hurts a tenant’s net profit, but can
+improve it by as much as 93%. Simultaneously, it can also improve
+the effective utilization of contracts from 42% to as high as 99%.

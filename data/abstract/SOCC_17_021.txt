@@ -1,0 +1,15 @@
+
+
+To maximize the effectiveness of modern virtualization systems,
+resources must be allocated fairly and efficiently amongst virtual
+machines (VMs). However, current policies for allocating memory
+are relatively static. As a result, system-wide memory utilization
+is often sub-optimal, leading to unnecessary paging and performance degradation. To better utilize the large-scale memory resources of modern machines, the virtualization system must allow
+virtual machines to expand beyond their initial memory reservations, while still fairly supporting concurrent virtual machines.
+This paper presents a system for dynamically allocating memory
+amongst virtual machines at runtime, as well as an evaluation of
+six allocation policies implemented within the system. The system
+allows guest VMs to expand and contract according to their changing demands by uniquely improving and integrating mechanisms
+such as memory ballooning, memory hotplug, and hypervisor paging. Furthermore, the system provides fairness by guaranteeing
+each guest a minimum reservation, charging for rentals beyond
+this minimum, and enforcing timely reclamation of memory.

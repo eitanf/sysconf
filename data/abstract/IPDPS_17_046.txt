@@ -1,0 +1,18 @@
+
+Data have been generated and collected at an
+accelerating pace. Hadoop has made analyzing large scale
+data much simpler to developers/analysts using commodity
+hardware. Interestingly, it has been shown that most Hadoop
+jobs have small input size and do not run for long time. For
+example, higher level query languages, such as Hive and Pig,
+would handle a complex query by breaking it into smaller adhoc ones. Although Hadoop is designed for handling complex
+queries with large data sets, we found that it is highly inefficient
+to operate at small scale data, despite a new Uber mode was
+introduced specifically to handle jobs with small input size.
+
+In this paper, we propose an optimized Hadoop extension
+called MRapid, which significantly speeds up the execution of
+short jobs. It is completely backward compatible to Hadoop,
+and imposes negligible overhead. Our experiments on Microsoft
+Azure public cloud show that MRapid can improve performance by up to 88% compared to the original Hadoop.
+

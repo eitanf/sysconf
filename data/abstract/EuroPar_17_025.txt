@@ -1,0 +1,14 @@
+
+. Kronecker algebra is a matrix calculus which allows the generation of thread interleavings from the source-code of a program. Thread
+interleavings have been shown effective for proving the absence of deadlocks. Because the number of interleavings grows exponentially in the
+number of threads, deadlock analysis is still a challenging problem.
+
+To make the computation of thread interleavings tractable, we propose
+a lazy, parallel evaluation method for Kronecker algebra. Our method
+incorporates the constraints induced by synchronization constructs. To
+reduce problem size, only interleavings legal under the locking behavior of a program are considered. We leverage the data-parallelism of
+Kronecker sum- and product-operations for multicores and GPUs. Proposed algebraic transformations further improve performance. For one
+synthetic and two real-world benchmarks, our GPU implementation is
+up to 5453x faster than our multi-threaded version. Lazy evaluation significantly reduces memory consumption compared to both the sequential
+and the multicore versions of the SPIN model-checker.
+

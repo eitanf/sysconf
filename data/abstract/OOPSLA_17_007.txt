@@ -1,0 +1,14 @@
+
+The emergence of energy harvesting devices creates the potential for batteryless sensing and computing
+devices. Such devices operate only intermittently, as energy is available, presenting a number of challenges for
+software developers. Programmers face a complex design space requiring reasoning about energy, memory
+consistency, and forward progress. This paper introduces Alpaca, a low-overhead programming model for
+intermittent computing on energy-harvesting devices. Alpaca programs are composed of a sequence of userdefined tasks. The Alpaca runtime preserves execution progress at the granularity of a task. The key insight
+in Alpaca is the privatization of data shared between tasks. Shared values written in a task are detected using
+idempotence analysis and copied into a buffer private to the task. At the end of the task, modified values from
+the private buffer are atomically committed to main memory, ensuring that data remain consistent despite
+power failures. Alpaca provides a familiar programming interface, a highly efficient runtime model, and places
+few restrictions on a target device’s hardware. We implemented a prototype of Alpaca as an extension to C with
+an LLVM compiler pass. We evaluated Alpaca, and directly compared to two systems from prior work. Alpaca
+eliminates checkpoints, which improves performance up to 15x, and Alpaca avoids static multi-versioning,
+which improves memory consumption by up to 5.5x.

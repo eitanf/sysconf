@@ -1,0 +1,33 @@
+
+
+This paper presents a storage system that can hide the presence of hidden data alongside a larger volume of public data.
+Encryption allows a user to hide the contents of data, but not
+the fact that sensitive data is present. Under duress, the owner
+of high-value data can be coerced by a powerful adversary to
+disclose decryption keys. Thus, private users and corporations
+have an interest in hiding the very presence of some sensitive
+data, alongside a larger body of less sensitive data (e.g., the
+operating system and other benign files); this property is called
+plausible deniability. Existing plausible deniability systems do
+not fulfill all of the following requirements: (1) resistance to
+multiple snapshot attacks where an attacker compares the state
+of the device over time; (2) ensuring that hidden data won’t
+be destroyed when the public volume is modified by a user
+unaware of the hidden data; and (3) disguising writes to secret
+data as normal system operations on public data.
+
+We explain why existing solutions do not meet all these
+requirements and present the Ever-Changing Disk (ECD), a
+generic scheme for plausible deniability storage systems that
+meets all of these requirements. An ECD stores hidden data
+inside a large volume of pseudorandom data. Portions of this
+volume are periodically migrated in a log-structured manner.
+Hidden writes can then be interchanged with normal firmware
+operations. The expected access patterns and time until hidden
+data is overwritten are completely predictable, and insensitive
+to whether data is hidden. Users control the rate of internal
+data migration (R), trading write bandwidth to hidden data for
+longevity of the hidden data. For a typical 2TB disk and setting
+of R, a user preserves hidden data by entering her secret key
+every few days or weeks.
+

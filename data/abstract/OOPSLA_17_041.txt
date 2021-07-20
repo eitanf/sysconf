@@ -1,0 +1,14 @@
+
+This paper describes an extensible language framework, ableC, that allows programmers to import new,
+domain-specific, independently-developed language features into their programming language, in this case
+C. Most importantly, this framework ensures that the language extensions will automatically compose to
+form a working translator that does not terminate abnormally. This is possible due to two modular analyses
+that extension developers can apply to their language extension to check its composability. Specifically, these
+ensure that the composed concrete syntax specification is non-ambiguous and the composed attribute grammar
+specifying the semantics is well-defined. This assurance and the expressiveness of the supported extensions is
+a distinguishing characteristic of the approach.
+The paper describes a number of techniques for specifying a host language, in this case C at the C11 standard,
+to make it more amenable to language extension. These include techniques that make additional extensions
+pass these modular analyses, refactorings of the host language to support a wider range of extensions, and
+the addition of semantic extension points to support, for example, operator overloading and non-local code
+transformations.

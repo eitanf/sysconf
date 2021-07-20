@@ -1,0 +1,24 @@
+
+In situ workflows contain tasks that exchange messages composed of several data fields. However, a consumer task
+may not necessarily need all the data fields from its producer.
+For example, a molecular dynamics simulation can produce atom
+positions, velocities, and forces; but some analyses require only
+atom positions. The user should decide whether to specialize
+the output of a producer task for a particular consumer and
+get better performance or to send more data than required by
+the consumer. The first option limits task portability, while the
+second wastes resources. In this paper, we introduce contracts
+for in situ tasks. A contract specifies for a producer each data
+field available for output and for a consumer the data fields
+needed as input. Comparing a producer and consumer contract
+allows automatic selection of the data fields a producer has to
+send for that consumer. We integrated our contracts mechanism
+within Decaf, a middleware for building and executing in situ
+workflows. Contracts enable to automatically extract at the
+producer the data the consumer needs. We evaluate the cost and
+performance of message extraction at runtime with both synthetic
+examples and a real scientific workflow coupling a molecular
+dynamics simulation with three different data analytics codes.
+Our contract-based automatic data extraction removes the need
+to specialize producers while entailing small overheads.
+

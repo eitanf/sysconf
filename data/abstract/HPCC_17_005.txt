@@ -1,0 +1,31 @@
+
+A typical application normally includes the main
+program and some shared libraries. The main program can
+arbitrarily execute the code of those shared libraries due to
+the coexistence in the same memory space. This feature can be
+used by attackers to carry out code-reuse attacks. Meanwhile,
+the shared libraries are shared across multiple applications,
+which can help attackers to simplify the process of code-reuse
+attacks. Isolating shared library into a separate execution environment and restricting the access to this library is a promising
+countermeasure, while the existing isolation approaches need to
+either modify the main program, or break the shared feature of
+the library. In this paper, we present Libsec, an efficient and
+transparent approach to isolate shared libraries, without the
+need of source code of the main program or shared libraries.
+Libsec adopts commodity hardware virtualization extension to
+isolate shared libraries from the main program. Meanwhile,
+Libsec relies on static instrumentation and dynamic processing
+to provide interfaces for legitimate cross-domain invocations. By
+this way, Libsec can guarantee that the main program and
+shared libraries are executed in the corresponding execution
+environment respectively, while cross-domain invocation is only
+allowed via specific interfaces, thus preventing the main program
+from jumping directly to the shared library. We implement a
+prototype of Libsec in KVM. To demonstrate its effectiveness,
+we deploy it to some real-world applications and libraries, such
+as Nginx and OpenSSL libraries. Security evaluation shows that
+Libsec can prevent the attacker from utilizing the functions or
+instruction sequences of the shared library for code-reuse attack.
+Performance evaluation shows that the performance and space
+overhead caused by Libsec are appropriate.
+

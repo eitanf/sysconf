@@ -1,0 +1,20 @@
+
+In this paper, we present an efficient type-agnostic
+approach for finding sub-sequences in data, such as text documents or GPS trajectories. Our approach relies on data
+deduplication for creating an inverted index. In contrast with
+existing data deduplication techniques that chunk raw sequences
+of characters arbitrarily, our approach preserves the semantics
+of the original sequence via the notion of token and can be used
+to index normalized data. When compared to indexing methods
+that preserve the semantics and operate on normalized data, our
+method increases the relevance of the inverted index, reduces its
+size and improves its performances. Since data normalization
+is generally not used beyond the scope of textual data, we
+introduce a framework that helps identify the extent to which
+data should be normalized regardless of its type. On this basis,
+we demonstrate with a dataset made of GPS trajectories that
+our method can be used agnostically: it can be used to index
+and query data of a completely different type. Finally, we show
+that the resulting spatial index is characterized by a better
+discrimination than classical spatial indexing approaches.
+

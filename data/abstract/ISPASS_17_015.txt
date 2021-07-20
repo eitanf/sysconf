@@ -1,0 +1,22 @@
+
+Web developers generally prefer coding in dynamically compiled or scripting languages, such as Java and
+JavaScript, because those languages allow them to deploy
+applications quickly to deliver new features and bug fixes in
+a timely manner. In this paper, we compared the Go language,
+a popular statically compiled language, with two dynamically
+compiled languages, JavaScript and Java. We evaluated the
+Acme Air benchmark for three implementations - one in each
+language. Our experimental results have shown that the Go implementation achieved a 3.8x and 2.4x higher throughput than
+the JavaScript and Java implementations respectively, after a
+simple tuning in the server configuration. Our detailed analysis
+indicated that this is primarily because Go suffers less from
+polymorphism due to static typing than JavaScript, and because
+the Web framework for Go causes less overhead to process
+RESTful Web service requests than that for Java. We argue that
+statically compiled languages will play more significant roles for
+Web applications because of their performance advantages and
+also because of emerging continuous integration and deployment
+methodologies which eliminate some of the shortcomings in
+statically compiled languages over dynamically compiled and
+scripting languages.
+

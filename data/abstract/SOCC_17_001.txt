@@ -1,0 +1,19 @@
+
+
+Myriad of parameter estimation algorithms can be performed by an
+Expectation-Maximization (EM) approach. Traditional synchronous
+frameworks can parallelize these EM algorithms on the cloud to
+accelerate computation while guaranteeing the convergence. However, expensive synchronization costs pose great challenges for efficiency. Asynchronous solutions have been recently designed to
+bypass high-cost synchronous barriers but at expense of potentially
+losing convergence guarantee.
+
+This paper first proposes a flexible synchronous parallel framework (FSP) that provides the capability of synchronous EM algorithms implementations, as well as significantly reduces the barrier
+cost. Under FSP, every distributed worker can immediately suspend.
+local computation when necessary, to quickly synchronize with each
+other. That maximizes the time fast workers spend doing useful work,
+instead of waiting for slow, straggling workers. We then formally
+prove the algorithm convergence. Further, we analyze how to automatically identify a proper barrier interval to strike a nice balance
+between reduced synchronization costs and the convergence speed.
+Empirical results demonstrate that on a broad spectrum of real-world
+and synthetic datasets, FSP achieves as much as 3x speedup over the
+up-to-date synchronous solution.

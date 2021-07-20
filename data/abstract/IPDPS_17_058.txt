@@ -1,0 +1,18 @@
+
+Today’s rapid development of supercomputers has
+caused I/O performance to become a major performance bottleneck for many scientific applications. Trace analysis tools have
+thus become vital for diagnosing root causes of I/O problems. This
+work contributes an I/O tracing framework with (a) techniques
+to gather a set of lossless, elastic I/O trace files for small number
+of nodes, (b) a mathematical model to analyze trace data and
+extrapolate it to larger number of nodes, and (c) a replay engine
+for the extrapolated trace file to verify its accuracy. The traces
+can in principle be extrapolated even beyond the scale of presentday systems and provide a test if applications scale in terms
+of I/O. We conducted our experiments on three platforms: a
+commodity Linux cluster, an IBM BG/Q system, and a discrete
+event simulation of an IBM BG/P system. We investigate a
+combination of synthetic benchmarks on all platforms as well
+as a production scientific application on the BG/Q system. The
+extrapolated I/O trace replays closely resemble the I/O behavior
+of equivalent applications in all cases.
+

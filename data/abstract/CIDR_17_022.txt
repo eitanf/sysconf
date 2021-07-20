@@ -1,0 +1,14 @@
+
+Use of transactional multicore main-memory databases is
+growing due to dramatic increases in memory size and CPU
+cores available for a single machine. To leverage these resources, recent concurrency control protocols have been proposed for main-memory databases, but are largely optimized
+for specific workloads. Due to shifting and unknown access
+patterns, workloads may change and one specific algorithm
+cannot dynamically fit all varied workloads. Thus, it is desirable to choose the right concurrency control protocol for
+a given workload. To address this issue we present adaptive concurrency control (ACC), that dynamically clusters
+data and chooses the optimal concurrency control protocol
+for each cluster. ACC addresses three key challenges: i) how
+to cluster data to minimize cross-cluster access and maintain load-balancing, ii) how to model workloads and perform
+protocol selection accordingly, and iii) how to support mixed
+concurrency control protocols running simultaneously. In
+this paper, we outline these challenges and present preliminary results

@@ -1,0 +1,30 @@
+
+Network analysis software relies on graph layout
+algorithms to enable users to visually explore network data.
+Nowadays, networks easily consist of millions of nodes and
+edges, resulting in hours of computation time to obtain a
+readable graph layout on a typical workstation. Although these
+machines usually do not have a very large number of CPU
+cores, they can easily be equipped with Graphics Processing
+Units (GPUs), opening up the possibility of exploiting hundreds
+or even thousands of cores to counter the aforementioned
+computational challenges. In this paper we introduce a novel
+GPU framework for visualizing large real-world network data.
+The main focus is on a GPU implementation of force-directed
+graph layout algorithms, which are known to create high quality network visualizations. The proposed framework is used
+to parallelize the well-known ForceAtlas2 algorithm, which
+is widely used in many popular network analysis packages
+and toolkits. The different procedures and data structures of
+the algorithm are adjusted to the CUDA GPU architecture’s
+specifics in terms of memory coalescing, shared memory usage
+and thread workload balance. To evaluate its performance, the
+GPU implementation is tested using a diverse set of 38 different
+large-scale real-world networks. This allows for a thorough
+characterization of the parallelizable components of both forcedirected layout algorithms in general as well as the proposed
+GPU framework as a whole. Experiments demonstrate how
+the approach can efficiently process very large real-world
+networks, showing overall speedup factors between 40x and
+123 compared to existing CPU implementations. In practice,
+this means that a network with 4 million nodes and 120 million
+edges can be visualized in 14 minutes rather than 9 hours.
+

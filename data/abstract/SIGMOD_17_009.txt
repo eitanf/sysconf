@@ -1,0 +1,24 @@
+
+
+Answering reachability queries is one of the fundamental graph operations. The existing approaches build indexes and answer reachability
+queries on a directed acyclic graph (DAG) G,, which is constructed by
+coalescing each strongly connected component of the given directed
+graph G into a node of G. Considering that G can still be large to be
+processed efficiently, there are studies to further reduce G' to a smaller
+graph. However, these approaches suffer from either inefficiency in
+answering reachability queries, or cannot scale to large graphs.
+
+In this paper, we study DAG reduction to accelerate reachability
+query processing, which reduces the size of G by computing transitive
+reduction (TR) followed by computing equivalence reduction (ER).
+For TR, we propose a bottom-up algorithm, namely buTR, which
+removes from G all redundant edges to get the unique smallest DAG
+G" satisfying that G* has the same transitive closure as that of G. For
+ER, we propose a divide-and-conquer algorithm, namely linear-ER.
+Given the result G* of TR, linear-ER gets a smaller DAG G* in linear
+time based on equivalence relationship between nodes in G.. Our DAG
+reduction approaches (TR and ER) significantly improve the cost of
+time and space, and can be scaled to large graphs. We confirm the
+efficiency of our approaches by extensive experimental studies for TR,
+ER, and reachability query processing using 20 real datasets.
+

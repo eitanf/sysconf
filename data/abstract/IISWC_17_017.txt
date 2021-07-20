@@ -1,0 +1,20 @@
+
+Programming Micron’s Automata Processor (AP)
+requires expertise in both automata theory and the AP architecture, as programmers have to manually manipulate state
+transition elements (STEs) and their transitions with a lowlevel Automata Network Markup Language (ANML). When the
+required STEs of an application exceed the hardware capacity,
+multiple reconfigurations are needed. However, most previous
+AP-based designs limit the dataset size to fit into a single AP
+board and simply neglect the costly overhead of reconfiguration.
+This results in unfair performance comparisons between the AP
+and other processors.
+To address this issue, we propose a framework for the fast and
+fair evaluation of AP devices. Our framework provides a hierarchical approach that automatically generates automata for large
+datasets through user-defined paradigms and allows the use of
+cascadable macros to achieve highly optimized reconfigurations.
+We highlight the importance of counting the configuration time
+in the overall AP performance, which in turn, can provide better
+insight into identifying essential hardware features, specifically
+for large-scale problem sizes. Our framework shows that the AP
+can achieve up to 461x overall speedup fairly compared to CPU
+counterparts.

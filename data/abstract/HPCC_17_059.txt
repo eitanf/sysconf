@@ -1,0 +1,26 @@
+
+Finite Element Analysis (FEA) is a numerical
+method for solving engineering problem. Implementations of FEA
+are common high performance computing (HPC) applications.
+As a typical application of FEA, surface reconstruction of large
+model, proves to be a computationally expensive task as well.
+Poisson Surface Reconstruction, a cutting-edge surface reconstruction algorithm, is a commonly used method for efficiently
+solving linear systems and it creates watertight surfaces from
+oriented point sets. Poisson Surface Reconstruction leverages
+an octree-based Marching Cubes (MC) method for isosurface
+extraction. Hierarchical octree structure avoids unnecessary cells
+visiting and prevents cracks arising. In this paper, we integrate
+several quality improved methods with MC and coordinate unrelated components, obtaining a better quality mesh implementation. We improve mesh quality based on an extended lookup table
+and modify the connectivity of some fundamental patterns in MC,
+which effectively remove the reconstruction holes, thus improving
+overall surface quality. As for the relative value between each
+vertex and the average isovalue, the extended table explicitly
+differentiates between “strictly larger” and “equal to”. Newly
+introduced patterns in MC statistically prevent poor quality
+triangles production. Moreover, a decision making algorithm is
+proposed to eliminate ambiguity problems. We adapt SnapMC
+algorithm to avoid non manifold triangles to a certain extent.
+Comparisons with traditional Poisson algorithm and Smooth
+Signed Distance (SSD) highlight the capability in quality mesh
+generation and efficacy in handling high computational demand.
+

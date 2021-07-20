@@ -1,0 +1,16 @@
+
+Future systems will be omni-programmable: alongside CPUs, GPUs
+and FPGAs, they will execute user code near-storage, near-network,
+near-memory, or on other Near-X accelerator Units, NXUs. This paper explores the design space of OS support for omni-programmable
+systems, aiming to simplify the development of efficient applications that span multiple heterogeneous processors and near-data
+accelerators. OmmniX is an accelerator-centric OS architecture that
+extends standard OS abstractions, such as task execution and I/O,
+into NXUs while maintaining a coherent view of the system among
+all the processors. OmniX enables NXUs to directly invoke tasks
+and access I/O services among themselves, excluding the CPU from
+the performance-critical control plane operations. The host CPU
+serves as a controller — for protection, device configuration and
+monitoring. We discuss the hardware trends that motivate our work,
+outline OmniX design principles, and sketch the core implementation ideas while highlighting missing hardware features, in the
+hope of motivating hardware vendors to implement them soon.
+

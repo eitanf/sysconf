@@ -1,0 +1,14 @@
+
+The Tucker decomposition expresses a given tensor as the product of a small core tensor and a set of factor
+matrices. Our objective is to develop an efficient distributed
+implementation for the case of dense tensors. The implementation is based on the HOOI (Higher Order Orthogonal Iterator)
+procedure, wherein the tensor-times-matrix product forms the
+core routine. Prior work have proposed heuristics for reducing
+the computational load and communication volume incurred
+by the routine. We study the two metrics in a formal and
+systematic manner, and design strategies that are optimal under
+the two fundamental metrics. Our experimental evaluation on
+a large benchmark of tensors shows that the optimal strategies
+provide significant reduction in load and volume compared to
+prior heuristics, and provide up to 7x speed-up in the overall
+running time.

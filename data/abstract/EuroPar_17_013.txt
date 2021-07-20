@@ -1,0 +1,14 @@
+
+. Processor speed is improving at a faster rate than the speed
+of main memory, which makes memory accesses increasingly expensive.
+One way to solve this problem is to reduce miss ratio of the processor’s
+last level cache by improving its replacement policy. We approach the
+problem by co-designing the runtime system and hardware and exploiting the semantics of the applications written in data-flow task-based
+programming models to provide hardware with information about the
+task types and task data-dependencies. We propose the Task-Type aware
+Insertion Policy, TTIP, which uses the runtime system to dynamically
+determine the best probability per task type for bimodal insertion in
+the recency stack and the static Dependency-Type aware Insertion Policy, DTIP, that inserts cache lines in the optimal position taking into
+account the dependency types of the current task. TTIP and DTIP perform similarly or better than state-of-the-art replacement policies, while
+requiring less hardware.
+

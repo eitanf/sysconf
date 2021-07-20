@@ -1,0 +1,25 @@
+
+High-radix routers with low latency and high
+bandwidth play an increasingly important role in the design of
+large-scale interconnection networks such as those used in supercomputers and datacenters. The tile-based crossbar approach
+partitions a single large crossbar into many small tiles and can
+considerably reduce the complexity of arbitration while providing
+throughput higher than the conventional switch implementation.
+However, it is not scalable due to power consumption, placement,
+and routing problems. In this paper, we propose a truly scalable
+router microarchitecture called Multiport Binding Tile-based
+Router (MBTR). By aggregating multiple physical ports into a
+single tile a high-radix router can be flexibly organized into a
+different array of tiles, thus the number of tiles and hardware
+overhead can be considerably reduced. Compared with a
+hierarchical crossbar, MBTR achieves up to 50%~75% reduction
+in memory consumption as well as wire area. Simulation results
+demonstrate MBTR is indistinguishable from the YARC router in
+terms of throughput and delay, and can even outperform it by
+reducing potential contention for output ports. We have fabricated
+an ASIC MBTR chip with 28nm technology. Internally, it runs at
+700MHz and 30ns latency without any speedup. We also discuss
+how the microarchitecture parameters of MBTR can be adjusted
+based on the power, area, and design complexity constraints of the
+arbitration logic.
+

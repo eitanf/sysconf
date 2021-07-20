@@ -1,0 +1,24 @@
+
+Cloud-based services are increasingly popular for
+big data analytics due to the flexibility, scalability, and costeffectiveness of provisioning elastic resources on-demand. However, data analytics-as-a-service suffers from the overheads of
+data movement between compute and storage clusters, due to
+their decoupled architecture in existing cloud infrastructure. In
+this work, we propose a novel approach of in-situ big data
+processing on cloud storage by dynamically offloading dataintensive jobs from compute cluster to storage cluster, and
+improve job throughput. However, it is challenging to achieve this
+goal since introducing additional workload on the storage cluster
+can significantly impact interactive web requests that fetch cloud
+storage data, with strict SLA (service-level agreement) for tail
+latency. In this work, we present MPLEX, a system that augments
+data analytics-as-a-service by efficiently multiplexing compute
+and storage cluster to improve job throughput without violating
+the SLA of cloud storage service in terms of tail response time.
+It applies an SLA-aware opportunistic job scheduling technique
+supported by a machine learning based prediction model to
+exploit the dynamic workload conditions in the compute, and
+storage cluster. Performance evaluations on an OpenStack Swift
+cluster, and an OpenStack based virtual cluster of Hadoop VMs
+built atop NSFCloud’s Chameleon testbed show that MPLEX
+improves the Hadoop job throughput by up to 1.7X, while
+maintaining the SLA for cloud storage service requests.
+

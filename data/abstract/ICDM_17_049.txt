@@ -1,0 +1,21 @@
+
+We consider the problem of modeling data matrices
+with locally low rank (LLR) structure, a generalization of the
+popular low rank structure widely used in a variety of real
+world application domains ranging from medical imaging to
+recommendation systems. While LLR modeling has been found to
+be promising in real world application domains, limited progress
+has been made on the design of scalable algorithms for such
+structures. In this paper, we consider a convex relaxation of
+LLR structure, and propose an efficient algorithm based on
+dual projected gradient descent (D-PGD) for computing the
+proximal operator. While the original problem is non-smooth,
+so that primal (sub)gradient algorithms will be slow, we show
+that the proposed D-PGD algorithm has geometrical convergence
+rate. We present several practical ways to further speed up
+the computations, including acceleration and approximate SVD
+computations. With experiments on both synthetic and real data
+from MRI (magnetic resonance imaging) denoising, we illustrate
+the superior performance of the proposed D-PGD algorithm
+compared to several baselines.
+

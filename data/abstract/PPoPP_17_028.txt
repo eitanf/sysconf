@@ -1,0 +1,18 @@
+
+Task-based programming offers an elegant way to express
+units of computation and the dependencies among them,
+making it easier to distribute the computational load evenly
+across multiple cores. However, this separation of problem
+decomposition and parallelism requires a sufficiently large
+input problem to achieve satisfactory efficiency on a given
+number of cores. Unfortunately, finding a good match between input size and core count usually requires significant
+experimentation, which is expensive and sometimes even
+impractical. In this paper, we propose an automated empirical method for finding the isoefficiency function of a taskbased program, binding efficiency, core count, and the input
+size in one analytical expression. This allows the latter two
+to be adjusted according to given (realistic) efficiency objectives. Moreover, we not only find (i) the actual isoefficiency
+function but also (ii) the function one would yield if the program execution was free of resource contention and (iii) an
+upper bound that could only be reached if the program was
+able to maintain its average parallelism throughout its execution. The difference between the three helps to explain
+low efficiency, and in particular, it helps to differentiate between resource contention and structural conflicts related to
+task dependencies or scheduling. The insights gained can be
+used to co-design programs and shared system resources.

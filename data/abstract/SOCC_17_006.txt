@@ -1,0 +1,24 @@
+
+
+The growing pressure on cloud application scalability has
+accentuated storage performance as a critical bottleneck. Although cache replacement algorithms have been extensively
+studied, cache prefetching — reducing latency by retrieving
+items before they are actually requested — remains an underexplored area. Existing approaches to history-based prefetching,
+in particular, provide too few benefits for real systems for the
+resources they cost.
+
+We propose MITHRIL, a prefetching layer that efficiently
+
+Reza Karimi
+Emory University
+rkarimi @emory.edu
+
+exploits historical patterns in cache request associations. MITHRIL
+
+is inspired by sporadic association rule mining and only relies on the timestamps of requests. Through evaluation of
+135 block-storage traces, we show that MITHRIL is effective,
+giving an average of a 55% hit ratio increase over LRU and
+PROBABILITY GRAPH, and a 36% hit ratio gain over AMP
+at reasonable cost. Finally, we demonstrate the improvement
+comes from MITHRIL being able to capture mid-frequency
+blocks.

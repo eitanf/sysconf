@@ -1,0 +1,21 @@
+
+
+Since the dawn of computing, memory capacity has been a primary
+limitation in system design. Forthcoming memory technology such
+as Intel and Micron’s 3D XPoint memory and other technologies
+may provide far larger memory capacity than ever before. Furthermore, these new memory technologies are inherently persistent
+and save data across system crashes or power failures.
+
+We conjecture that current operating systems are ill-equipped
+for an environment where there is ample memory. For example,
+operating systems do substantial work for every page allocated,
+which adds unnecessary overhead when dealing with terabytes of
+memory.
+
+We suggest that now is the time for a complete rethinking of
+memory management for both operating systems and language
+runtimes considering excess memory capacity. We propose a new
+guiding principle: Order(1) operation, so that memory operations
+have low constant time independent of size. We describe a concrete proposal of this principle with the idea of file-only memory,
+in which most dynamic memory allocation is managed with filesystem mechanisms rather than common virtual memory mechanisms.
+

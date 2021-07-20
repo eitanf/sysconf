@@ -1,0 +1,17 @@
+
+Event processing applications from financial fraud detection
+to health care analytics continuously execute event queries
+with Kleene closure to extract event sequences of arbitrary,
+statically unknown length, called Complete Event Trends
+(CETs). Due to common event sub-sequences in CETs, either the responsiveness is delayed by repeated computations
+or an exorbitant amount of memory is required to store
+partial results. To overcome these limitations, we define
+the CET graph to compactly encode all CETs matched by
+a query. Based on the graph, we define the spectrum of
+CET detection algorithms from CPU-optimal to memoryoptimal. We find the middle ground between these two extremes by partitioning the graph into time-centric graphlets
+and caching partial CETs per graphlet to enable effective
+reuse of these intermediate results. We reveal cost monotonicity properties of the search space of graph partitioning plans. Our CET optimizer leverages these properties to
+prune significant portions of the search to produce a partitioning plan with minimal CPU costs yet within the given
+memory limit. Our experimental study demonstrates that
+our CET detection solution achieves up to 42–fold speedup even under rigid memory constraints compared to the
+state-of-the-art techniques in diverse scenarios.

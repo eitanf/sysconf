@@ -1,0 +1,14 @@
+
+
+This paper presents Tebaldi, a distributed key-value store that explores
+new ways to harness the performance opportunity of combining
+different specialized concurrency control mechanisms (CCs) within
+the same database. Tebaldi partitions conflicts at a fine granularity and
+matches them to specialized CCs within a hierarchical framework
+that is modular, extensible, and able to support a wide variety of
+concurrency control techniques, from single-version to multiversion
+and from lock-based to timestamp-based. When running the TPC-C
+benchmark, Tebaldi yields more than 20 x the throughput of the basic
+two-phase locking protocol, and over 3.7 x the throughput of Callas,
+arecent system that, like Tebaldi, aims to combine different CCs.
+

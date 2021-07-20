@@ -1,0 +1,34 @@
+
+Today’s GPUs continue to increase the number of
+compute resources with each new generation. Many data-parallel
+applications have been re-engineered to leverage the thousands
+of cores on the GPU. But not every kernel can fully utilize
+all the resources available. Many applications contain multiple
+kernels that could potentially be run concurrently. To better
+utilize the massive resources on the GPU, device vendors have
+started to support Concurrent Kernel Execution (CKE). However,
+the application throughput provided by CKE is subject to a
+number of factors, including the kernel configuration attributes,
+the dynamic behavior of each kernel (e.g., compute-intentive
+vs. memory-intensive), the kernel launch order and inter-kernel
+dependencies. Minor changes in any of theses factors can have a
+large impact on the effectiveness of CKE.
+In this paper, we present Moka, an empirical model for tuning
+concurrent kernel performance. Moka allows us to accurately
+predict the resulting performance and scalability of multi-kernel
+applications when using CKE. We consider both static and
+dynamic workload characteristics that impact the utility of CKE,
+and leverage these metrics to drive kernel scheduling decisions
+on NVIDIA GPUs. The underlying data transfer pattern and
+GPU resource contention are analyzed in detail. Our model is
+able to accurately predict the performance ceiling of concurrent
+kernel execution. We validate our model using several real-world
+applications that have multiple kernels that can run concurrently,
+and evaluate CKE performance on a NVIDIA Maxwell GPU. Our
+model is able to predict the performance of CKE applications
+accurately, providing estimates that differ by less than 12% as
+compared to actual runtime performance. Using our estimates,
+we can quickly find the best CKE strategy for our applications
+to achieve improved application throughput. We believe we
+have developed a useful tool to aid application programmers to
+accelerate their applications using CKE.

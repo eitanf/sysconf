@@ -1,0 +1,18 @@
+
+Modern concurrent copying garbage collection (GC), in particular, real-time GC, uses fine-grained synchronizations with a mutator, which is the application program that mutates memory, when it moves objects in its
+copy phase. It resolves a data race using a concurrent copying protocol, which is implemented as interactions
+between the collector threads and the read and write barriers that the mutator threads execute. The behavioral
+effects of the concurrent copying protocol rely on the memory model of the CPUs and the programming
+languages in which the GC is implemented. It is difficult, however, to formally investigate the behavioral
+properties of concurrent copying protocols against various memory models.
+To address this problem, we studied the feasibility of the bounded model checking of concurrent copying
+protocols with memory models. We investigated a correctness-related behavioral property of copying protocols
+of various concurrent copying GC algorithms, including real-time GC Stopless, Clover, Chicken, Staccato, and
+Schism against six memory models, total store ordering (TSO), partial store ordering (PSO), relaxed memory
+ordering (RMO), and their variants, in addition to sequential consistency (SC) using bounded model checking.
+For each combination of a protocol and memory model, we conducted model checking with a model of a
+mutator. In this wide range of case studies, we found faults in two GC algorithms, one of which is relevant
+to the memory model. We fixed these faults with the great help of counterexamples. We also modified some
+protocols so that they work under some memory models weaker than those for which the original protocols
+were designed, and checked them using model checking. We believe that bounded model checking is a feasible
+approach to investigate behavioral properties of concurrent copying protocols under weak memory models.

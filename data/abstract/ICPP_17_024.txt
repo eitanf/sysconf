@@ -1,0 +1,20 @@
+
+Modern distributed storage systems often store
+redundant data in multiple replications or erasure coding
+according to their access frequencies. Multiple replications
+scheme is well-performance for hot data while erasure coding
+scheme is storage-efficient for warm and cold data. When hot
+data turn cold, an encoding procedure starts to do the conversion. However, due to sequential striping, current conversion
+methods do not perform well for different data layouts, and
+cause risky blocks and expensive network consumption.
+
+In this paper, we propose Sice, a new encoder which deploys
+non-sequential striping. It constructs non-sequential stripes
+according to the data layout, performs conversion quickly with
+low overheads and ends to no reduction of system reliability.
+The results of both simulation and evaluation show that
+Sice gains almost the same good performance for different
+data layouts and has a great scalability. Sice helps HDFSRAID reduce network consumption by about 65% and reduce
+influence on concurrent I/O-intensive applications by about
+60%.
+

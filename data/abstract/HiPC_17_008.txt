@@ -1,0 +1,27 @@
+
+The ever-increasing energy demands of modern High
+Performance Computing (HPC) platforms is undeniably one of
+the most critical aspects for the future design and evolution
+of such systems. The capability of managing their energy
+consumption not only allows for significant reduction in electricity costs but is also a step forward on the road towards
+the exascale. Powercapping is a widely studied technique that
+contributes to address this challenge by instantaneously setting
+and maintaining a predefined power threshold (power cap)
+that cannot be exceeded. However, the lack of a centralized
+mechanism responsible for efficiently allocating the available
+power among resources and jobs may ultimately yield to fragmentation, low system utilization and increased user waiting
+times. Additionally, power cap violations can lead to high
+risk scenarios and/or increase operational costs. This paper
+proposes to prevent such issues with the introduction of the
+Enhanced Power Adaptive Scheduling (E-PAS) algorithm. The
+E-PAS algorithm combines scheduling and resource management mechanisms, correlating estimated and real power
+consumption data in order to optimize the resource utilization
+of the platform under a predefined power cap. The algorithm
+has been implemented in the widely used open-source resource
+and job management system SLURM and is planned to be
+pushed in a future mainstream version. Its effectiveness has
+been evaluated through real-scale experiments respectively on
+an ARM- and an Intel-based cluster of comparable size. All
+experiments have been performed using synthetic workloads
+from a set of mini-applications.
+

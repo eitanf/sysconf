@@ -1,0 +1,15 @@
+
+We present ZipG, a distributed memory-efficient graph store for
+serving interactive graph queries. ZipG achieves memory efficiency by storing the input graph data using a compressed representation. What differentiates ZipG from other graph stores is
+its ability to execute a wide range of graph queries directly on
+this compressed representation. ZipG can thus execute a larger
+fraction of queries in main memory, achieving query interactivity.
+ZipG exposes a minimal API that is functionally rich enough
+to implement published functionalities from several industrial
+graph stores. We demonstrate this by implementing and evaluating graph queries from Facebook TAO, LinkBench, Graph Search
+and several other workloads on top of ZipG. On a single server
+with 244GB memory, ZipG executes tens of thousands of queries
+from these workloads for raw graph data over half a TB; this
+leads to an order of magnitude (sometimes as much as 23×)
+higher throughput than Neo4j and Titan. We get similar gains in
+distributed settings compared to Titan.

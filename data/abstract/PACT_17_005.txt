@@ -1,0 +1,25 @@
+
+Recent studies showed that DRAM restore time
+degrades as technology scales, which imposes large performance
+and energy overheads. This problem, prolonged restore time
+(PRT), has been identified by the DRAM industry as one of
+three major scaling challenges.
+
+This paper proposes DrMP, a novel fine-grained precisionaware DRAM restore scheduling approach, to mitigate PRT. The
+approach exploits process variations (PVs) within and across
+DRAM rows to save data with mixed precision. The paper
+describes three variants of the approach: DrMP-A, DrMP-P,
+and DrMP-U. DrMP-A supports approximate computing by
+mapping important data bits to fast row segments to reduce
+restore time for improved performance at a low application error
+rate. DrMP-P pairs memory rows together to reduce the average
+restore time for precise computing. DrMP-U combines DrMP-A
+and DrMP-P to better trade performance, energy consumption,
+and computation precision. Our experimental results show that,
+on average, DrMP achieves 20% performance improvement
+and 15% energy reduction over a precision-oblivious baseline.
+Further, DrMP achieves an error rate less than 1% at the
+application level for a suite of benchmarks, including applications
+that exhibit unacceptable error rates under simple approximation
+that does not differentiate the importance of different bits.
+

@@ -1,0 +1,25 @@
+
+High-performance analysis of big data demands
+more computing resources, forcing similar growth in computation
+cost. So, the challenge to the HPC system designers is not providing high performance only but providing high performance at
+lower cost. With this motivation, We propose a theoretical model
+augmenting Amdahls second law for balanced system to optimize
+cost/performance. We express the optimal balance among CPUspeed, I/O-bandwidth and DRAM-size (i.e., Amdahls I/O- and
+memory-number) in terms of application characteristics and
+hardware cost. Considering Xeon processor and recent hardware
+prices, we showed that a system needs almost 0.17GBPS I/Obandwidth and 3GB DRAM per GHz CPU-speed to minimize the
+cost/performance for data- and compute-intensive applications.
+
+To substantiate our claim, we evaluate three different cluster
+architectures: 1) SupermikelI, a traditional HPC cluster, 2)
+SwatIII, a regular datacenter, and 3) CeresII, a MicroBrickbased novel hyperscale system. CeresII with 6-Xeon-D1541 cores
+(2GHz/core), 1-NVMe SSD (2GBPS I/O-bandwidth) and 64GB
+DRAM per node, closely resembles the optimum produced by
+our model. Consequently, in terms of cost/performance CeresII
+outperformed both Supermikell (by 65-85%) and SwatIII (by
+40-50%) for data- and compute-intensive Hadoop benchmarks
+(TeraSort and WordCount) and our own benchmark genome
+assembler based on Hadoop and Giraph.
+
+Index Terms—component; formatting; style; styling;
+

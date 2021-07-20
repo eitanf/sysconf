@@ -1,0 +1,21 @@
+
+In Machine Learning, the parent set identification
+problem is to find a set of random variables that best explain
+selected variable given the data and some predefined scoring
+function. This problem is a critical component to structure
+learning of Bayesian networks and Markov blankets discovery,
+and thus has many practical applications, ranging from fraud
+detection to clinical decision support.
+
+In this paper, we introduce a new distributed memory
+approach to the exact parent sets assignment problem. To
+achieve scalability, we derive theoretical bounds to constraint
+the search space when MDL scoring function is used, and we
+reorganize the underlying dynamic programming such that the
+computational density is increased and fine-grain synchronization is eliminated. We then design efficient realization of our
+approach in the Apache Spark platform. Through experimental
+results, we demonstrate that the method maintains strong
+scalability on a 500-core standalone Spark cluster, and it can
+be used to efficiently process data sets with 70 variables, far
+beyond the reach of the currently available solutions.
+

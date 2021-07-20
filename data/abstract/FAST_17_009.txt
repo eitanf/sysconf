@@ -1,0 +1,23 @@
+
+Shingled Magnetic Recording (SMR) is a new technique
+for increasing areal data density in hard drives. Drivemanaged SMR (DM-SMR) drives employ a shingled
+translation layer to mask internal data management and
+support block interface to the host software. Two major challenges of designing an efficient shingled translation layer for DM-SMR drives are metadata overhead
+and garbage collection overhead.
+
+In this paper we introduce SMaRT, an approach to
+Shingled Magnetic Recording Translation which adapts
+its data management scheme as the drive utilization
+changes. SMaRT uses a hybrid update strategy which
+performs in-place update for the qualified tracks and outof-place updates for the unqualified tracks. Background
+Garbage Collection (GC) operations and on-demand GC
+operations are used when the free space becomes too
+fragmented. SMaRT also has a specially crafted space
+allocation and track migration scheme that supports automatic cold data progression to minimize GC overhead
+in the long term.
+
+We implement SMaRT and compare it with a regular Hard Disk Drive (HDD) and a simulated Seagate
+DM-SMR drive. The experiments with several block
+I/O traces demonstrate that SMaRT performs better than
+the Seagate drive and even provides comparable performance as regular HDDs when drive space usage is below
+a certain threshold.

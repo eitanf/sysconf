@@ -1,0 +1,15 @@
+
+
+Many large-scale scientific computations require eigenvalue solvers
+in a scaling regime where efficiency is limited by data movement.
+We introduce a parallel algorithm for computing the eigenvalues
+of a dense symmetric matrix, which performs asymptotically less
+communication than previously known approaches. We provide
+analysis in the Bulk Synchronous Parallel (BSP) model with additional consideration for communication between a local memory and cache. Given sufficient memory to store c copies of the
+symmetric matrix, our algorithm requires @(-c) less interprocessor communication than previously known algorithms, for any
+c < p'/3 when using p processors. The algorithm first reduces the
+dense symmetric matrix to a banded matrix with the same eigenvalues. Subsequently, the algorithm employs successive reduction to
+O(log p) thinner banded matrices. We employ two new parallel algorithms that achieve lower communication costs for the full-to-band
+and band-to-band reductions. Both of these algorithms leverage a
+novel OR factorization algorithm for rectangular matrices.
+

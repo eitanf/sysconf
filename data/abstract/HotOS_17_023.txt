@@ -1,0 +1,14 @@
+
+It is time to reconsider memory protection. The emergence of large non-volatile main memories, scalable
+interconnects, and rack-scale computers running large
+numbers of small “micro services” creates significant
+challenges for memory protection based solely on MMU
+mechanisms. Central to this is a tension between protection and translation: optimizing for translation performance often comes with a cost in protection flexibility.
+We argue that a key-based memory protection scheme,
+complementary to but separate from regular page-level
+translation, is a better match for this new world. We
+present MaKC, a new architecture which combines two
+levels of capability-based protection to scale fine-grained
+memory protection at both user and kernel level to large
+numbers of protection domains without compromising
+efficiency at scale or ease of revocation.

@@ -1,0 +1,21 @@
+
+
+In sensitive applications, machines need to be periodically calibrated to ensure that they run to high standards. Creating an efficient schedule on these machines requires attention to two metrics:
+ensuring good throughput of the jobs, and ensuring that not too
+much cost is spent on machine calibration.
+
+In this paper we examine flow time as a metric for scheduling
+with calibrations. While previous papers guaranteed that jobs would
+meet a certain deadline, we relax that constraint to a tradeoff: we
+want to balance how long the average job waits with how many
+costly calibrations we need to perform.
+
+One advantage of this metric is that it allows for online schedules
+(where an algorithm is unaware of a job until it arrives). Thus we
+give two types of results. We give an efficient offline algorithm
+which gives the optimal schedule on a single machine for a set
+of jobs which are known ahead of time. We also give online algorithms which adapt to jobs as they come. Our online algorithms
+are constant competitive for unweighted jobs on single or multiple
+machines, and constant-competitive for weighted jobs on a single
+machine.
+

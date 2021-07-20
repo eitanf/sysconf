@@ -1,0 +1,33 @@
+
+In this paper, we study the fundamental problem
+of leader election in the mobile telephone model: a recently
+introduced variation of the classical telephone model modified
+to better describe the local peer-to-peer communication services
+implemented in many popular smartphone operating systems.
+In more detail, the mobile telephone model differs from the
+classical telephone model in three ways: (1) each device can
+participate in at most one connection per round; (2) the
+network topology can undergo a parameterized rate of change;
+and (3) devices can advertise a parameterized number of bits
+to their neighbors in each round before connection attempts
+are initiated. We begin by describing and analyzing a new
+leader election algorithm in this model that works under the
+harshest possible parameter assumptions: maximum rate of
+topology changes and no advertising bits. We then apply this
+result to resolve an open question from [1] on the efficiency of
+PUSH-PULL rumor spreading under these conditions. We then
+turn our attention to the slightly easier case where devices can
+advertise a single bit in each round. We demonstrate a large
+gap in time complexity between these zero bit and one bit cases.
+In more detail, we describe and analyze a new algorithm that
+solves leader election with a time complexity that includes the
+parameter bounding topology changes. For all values of this
+parameter, this algorithm is faster than the previous result,
+with a gap that grows quickly as the parameter increases
+(indicating lower rates of change). We conclude by describing
+and analyzing a modified version of this algorithm that does
+not require the assumption that all devices start during the
+same round. This new version has a similar time complexity
+(the rounds required differ only by a polylogarithmic factor),
+but now requires slightly larger advertisement tags.
+

@@ -1,0 +1,20 @@
+
+In state-of-the-art Software Transactional Memory (STM) systems, threads carry out the execution of transactions as non-interruptible tasks. Hence, a thread can react
+to the injection of a higher priority transactional task and
+take care of its processing only at the end of the currently
+executed transaction. In this article we pursue a paradigm
+shift where the execution of an in-memory transaction is
+carried out as a preemptable task, so that a thread can start
+processing a higher priority transactional task before finalizing
+its current transaction. We achieve this goal in an applicationtransparent manner, by only relying on Operating System
+facilities we include in our preemptive STM architecture. With
+our approach we are able to re-evaluate CPU assignment
+across transactions along a same thread every few tens of
+microseconds. This is mandatory for an effective priority-aware
+architecture given the typically finer-grain nature of in-memory
+transactions compared to their counterpart in database systems. We integrated our preemptive STM architecture with
+the TinySTM package, and released it as open source. We
+also provide the results of an experimental assessment of our
+proposal based on running a port of the TPC-C benchmark to
+the STM environment.
+

@@ -1,0 +1,29 @@
+
+
+Computational scientists are typically not expert programmers, and thus work in easy to use dynamic languages.
+However, they have very high performance requirements,
+due to their large datasets and experimental setups. Thus,
+the performance required for computational science must be
+extracted from dynamic languages in a manner that is transparent to the programmer. Current approaches to optimize and
+parallelize dynamic languages, such as just-in-time compilation
+and highly optimized interpreters, require a huge amount
+of implementation effort and are typically only effective for
+a single language. However, scientists in different fields use
+different languages, depending upon their needs.
+
+This paper presents techniques to enable automatic extraction of parallelism within scripts that are universally applicable
+across multiple different dynamic scripting languages. The
+key insight is that combining a script with its interpreter,
+through program specialization techniques, will embed any
+parallelism within the script into the combined program that
+can then be extracted via automatic parallelization techniques.
+Additionally, this paper presents several enhancements to
+existing speculative automatic parallelization techniques to
+handle the dependence patterns created by the specialization
+process. A prototype of the proposed technique, called Partial
+Evaluation with Parallelization (PEP), is evaluated against two
+Open-source script interpreters with 6 input linear algebra
+kernal scripts each. The resulting geomean speedup of 5.10
+on a 24-core machine shows the potential of the generalized
+approach in automatic extraction of parallelism in dynamic
+scripting languages.

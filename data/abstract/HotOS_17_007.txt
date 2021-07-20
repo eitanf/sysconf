@@ -1,0 +1,16 @@
+
+
+Many modern distributed storage systems emphasize availability
+and partition tolerance over consistency, leading to many systems
+that provide weak data consistency. However, weak data consistency is difficult for both system designers and users to reason
+about. Formal specifications offer precise descriptions of consistency behavior, but they require expertise and specialized tools
+to apply to real software systems. In this paper, we propose and
+describe consistency oracles, an alternative way of specifying the
+consistency model of a system that provides interactive answers,
+making them easier and more flexible to use in a variety of ways.
+A consistency oracle mimics the interface of a distributed storage
+system, but returns all possible values that may be returned under
+a given consistency model. This allows consistency oracles to be
+directly applied in the testing and verification of both distributed
+storage systems and the client software that uses those systems.
+

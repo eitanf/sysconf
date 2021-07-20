@@ -1,0 +1,21 @@
+
+Many smartphone apps can consume an unnecessarily high amount of energy, shortening battery life. Although
+users can easily notice the undesired fast battery drain, it is
+almost impossible for them to precisely remember how the
+abnormal battery drain (ABD) is triggered, making it difficult for
+developers to fix the problem. Therefore, app developers are in an
+urgent need for a tool that can provide them helpful information.
+
+In this paper, we propose eDelta, a framework that assists
+developers in pinpointing the APIs with high energy deviation,
+which usually have a high probability of being relevant to the nondeterministic ABD. Specifically, eDelta performs comparative
+trace analysis to identify APIs that have significant energy consumption deviation in different user traces. With the information
+provided by eDelta, developers can substantially reduce the
+time they spend searching for the ABD root causes. We have
+prototyped eDelta in Android 4.4 and evaluated it with twenty
+real-world apps. Our results show that eDelta can effectively
+pinpoint the APIs with high energy deviation and those APIs
+indeed cause ABD. Specifically, it reduces, on average, 94.6% of
+the amount of code that the developers would need to search for
+ABD root causes.
+

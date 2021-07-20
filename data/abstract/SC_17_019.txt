@@ -1,0 +1,16 @@
+
+We present an in-depth analysis of transient faults effects on HPC
+applications in Intel Xeon Phi processors based on radiation experiments and high-level fault injection. Besides measuring the realistic
+error rates of Xeon Phi, we quantify Silent Data Corruption (SDCs)
+by correlating the distribution of corrupted elements in the output to the application’s characteristics. We evaluate the benefits
+of imprecise computing for reducing the programs’ error rate. For
+example, for HotSpot a 0.5% tolerance in the output value reduces
+the error rate by 85%.
+
+We inject different fault models to analyze the sensitivity of
+given applications. We show that portions of applications can be
+graded by different criticalities. For example, faults occurring in
+the middle of LUD execution, or in the Sort and Tree portions of
+CLAMR, are more critical than the remaining portions. Mitigation
+techniques can then be relaxed or hardened based on the criticality
+of the particular portions.

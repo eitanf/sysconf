@@ -1,0 +1,19 @@
+
+. The Sparse Matrix-Vector Multiplication (SpMV) is an
+important building block in High Performance Computing. Performance
+improvements for the SpMV are often gained by the development of new
+optimized sparse matrix formats either by utilizing special sparsity patterns of a matrix or by taking bottlenecks of a hardware architecture
+into account. In this work a requirements analysis is done for sparse
+matrix formats with an emphasis on the parallel SpMV for large general
+sparse matrices. Based on these requirements, three new sparse matrix
+formats were developed, each combining several optimization techniques
+and addressing different optimization goals/hardware architectures. The
+CSR5 Bit Compressed (CSR5BC) format is an extension to the existing
+CSR5 format and optimized for GPUs. The other two formats, Hybrid
+Compressed Slice Storage (HCSS) and Local Group Compressed Sparse
+Row (LGCSR), are new formats optimized for multi-core/-processor
+architectures including the Xeon Phi Knights Landing. Results show
+that all three storage formats deliver good parallel SpMV performance
+on their target architectures over a large set of test matrices compared
+to other well performing formats in vendor and research libraries.
+

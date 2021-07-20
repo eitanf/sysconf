@@ -1,0 +1,23 @@
+
+The vast attack surface of clouds presents a challenge in deploying scalable and effective defenses. Traditional
+security mechanisms, which work from inside the VM fail to
+provide strong protection as attackers can bypass them easily.
+The only available option is to provide security from the layer
+below the VM i.e., the hypervisor. Previous works that attempt
+to secure VMs from “outside” either incur substantial space
+or compute overheads making them slow and impractical or
+require modifications to the OS or the application codebase. To
+address these issues, we propose an anomaly detection fabric
+for clouds based on system call monitoring, which compresses
+the stream of system calls at their source making the system
+scalable and near real-time. Our system requires no modifications
+to the guest OS or the application making it ideal for the data
+center setting. Additionally, for robust and early detection of
+threats, we leverage the notion of VM/container communities that
+share information about attacks in their early stages to provide
+immunity to the entire deployment. We make certain aspects
+of the system flexible so that vendors can tune metrics to offer
+customized protection to clients based on their workload types.
+Detailed evaluation on a prototype implementation on KVM
+substantiates our claims.
+

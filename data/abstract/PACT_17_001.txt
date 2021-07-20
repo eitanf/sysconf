@@ -1,0 +1,24 @@
+
+In this paper we introduce RCU-HTM, a technique
+that combines Read-Copy-Update (RCU) with Hardware Transactional Memory (HTM) to implement highly efficient concurrent
+Binary Search Trees (BSTs). Similarly to RCU-based algorithms,
+we perform the modifications of the tree structure in private
+copies of the affected parts of the tree rather than in-place.
+This allows threads that traverse the tree to proceed without
+any synchronization and without being affected by concurrent
+modifications. The novelty of RCU-HTM lies at leveraging HTM
+to permit multiple updating threads to execute concurrently.
+After appropriately modifying the private copy, we execute an
+HTM transaction, which atomically validates that all the affected
+parts of the tree have remained unchanged since they’ve been
+read and, only if this validation is successful, installs the copy in
+the tree structure.
+We apply RCU-HTM on AVL and Red-Black balanced BSTs
+and compare their performance to state-of-the-art lock-based,
+non-blocking, RCU- and HTM-based BSTs. Our experimental evaluation reveals that BSTs implemented with RCU-HTM
+achieve high performance, not only for read-only operations,
+but also for update operations. More specifically, our evaluation
+includes a diverse range of tree sizes and operation workloads
+and reveals that BSTs based on RCU-HTM outperform other
+alternatives by more than 18%, on average, on a multi-core server
+with 44 hardware threads

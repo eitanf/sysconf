@@ -1,0 +1,23 @@
+
+We describe the Auto-Tuning Framework (ATF) — function and a specification of the tuning parameters (i.e.,
+
+a novel generic approach for automatic program optimization heir names and the ranges of possible values), OpenTuner
+by choosing the most suitable values of program parameters, automatically generates a search space and explores it in
+
+such as number of parallel threads, tile sizes, etc. Our frame- f dsliaed shisative b ; ‘itil d
+work combines four advantages over the state-of-the-art auto- terms of a user-defined objective by using pre-implemente:
+
+tuning: i) it is generic regarding the programming language, Search techniques. However, OpenTuner does not provide
+application domain, tuning objective (e.g., high performance mechanisms for expressing dependencies between parameters.
+
+and/or low energy consumption), and search technique; ii) it For example, the important routine GEMM (GEneral Matrix
+can auto-tune a broader class of applications by allowing tuning Multiplication) [13] when implemented in OpenCL has various
+
+parameters to be interdependent, e.g., when one parameter is ; ‘le si k ; hich h
+divisible by another parameter; iii) it allows tuning parameters tuning parameters (tile size, work-group size, etc.) which have
+
+with substantially larger ranges by implementing an optimized dependencies between them, e.g., some parameter must be disearch space generation process; and iv) its interface is arguably visible by another parameter [15]. Due to these dependencies,
+simpler than the interfaces of current auto-tuning frameworks. QpenTuner is not capable of tuning GEMM. The OpenTuner
+We demonstrate ATF’s efficacy by comparing it to the state-of- community has offered workarounds, e.g., re-designing the
+the-art auto-tuning approaches OpenTuner and CLTune, showing : . .
+better tuning results with less programmer’s effort. user program so that its tuning parameters become independent [9], or setting a penalty value for configurations where the

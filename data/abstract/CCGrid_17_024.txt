@@ -1,0 +1,28 @@
+
+In virtualized datacenters (vDCs), dynamic consolidation of virtual machines (VMs) is used as one of the most
+common techniques to achieve both energy- and resource- utilization efficiency. Live migrations of VMs are used for dynamic
+consolidation but due to dynamic resource demand variation
+of VMs may lead to frequent and non-optimal migrations.
+Assuming deterministic workload of the VMs may ensure the
+most energy/resource-efficient VM allocations but eventually may
+lead to significant resource contention or under-utilization if
+the workload varies significantly over time. On the other hand,
+adopting a conservative approach by allocating VMs depending
+on their peak demand may lead to low utilization, if the peak
+occurs infrequently or for a short period of time. Therefore,
+in this work we design a robust VM migration scheme that
+strikes a balance between protection for resource contention and
+additional energy costs due to powering on more servers while
+considering uncertainties on VMs resource demands. We use the
+theory of I robustness and derive a robust Mixed Integer Linear
+programming (MILP) formulation. Due to the complexity, the
+problem is hard to solve for online optimization and we propose
+a novel heuristic based on Tabu search. Using several scenarios,
+we show that that the proposed heuristic can achieve near optimal
+solution qualities in a short time and scales well with the instance
+sizes. Moreover, we quantitatively analyze the trade-off between
+energy cost versus protection level and robustness.
+
+Keywords—Virtualized datacenters; VM Consolidation; VM Migration; Energy Efficiency; Tabu Search; Robust Optimization;
+Resource Allocation.
+

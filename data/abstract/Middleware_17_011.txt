@@ -1,0 +1,14 @@
+
+Disaster Recovery (DR) is a crucial feature to ensure availability
+and data protection in modern information systems. A common DR
+approach requires the replication of services in a set of virtual machines running in the cloud as backups. This leads to considerable
+monetary costs and managing efforts to keep such cloud VMs. We
+present GINJA, a DR solution for transactional database management systems (DBMS) that uses only cloud storage services such
+as Amazon S3. GINJA works at file-system level to efficiently capture and replicate data updates to a remote cloud storage service,
+achieving three important goals: (1) reduces the costs for maintaining a cloud-based DR to less than one dollar per month for relevant
+databases’ sizes and workloads (up to 222 x less than the traditional
+approach of having a DBMS replica in a cloud VM); (2) allows a
+precise control of the operational costs, durability and performance
+trade-offs; and (3) introduces a small performance overhead to the
+DBMS (e.g., less than 5% overhead for the TPC-C workload with ~
+10 seconds of data loss in case of disasters).

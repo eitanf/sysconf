@@ -1,0 +1,14 @@
+
+. The Tucker decomposition is a higher-order analogue of the
+singular value decomposition and is a popular method of performing
+analysis on multi-way data (tensors). Computing the Tucker decomposition of a sparse tensor is demanding in terms of both memory and computational resources. The primary kernel of the factorization is a chain of
+tensor-matrix multiplications (TTMc). State-of-the-art algorithms accelerate the underlying computations by trading off memory to memoize the
+intermediate results of TTMc in order to reuse them across iterations.
+We present an algorithm based on a compressed data structure for sparse
+tensors and show that many computational redundancies during TTMc
+can be identified and pruned without the memory overheads of memoization. In addition, our algorithm can further reduce the number of
+operations by exploiting an additional amount of user-specified memory.
+We evaluate our algorithm on a collection of real-world and synthetic
+datasets and demonstrate up to 20.7x speedup while using 28.5x less
+memory than the state-of-the-art parallel algorithm.
+

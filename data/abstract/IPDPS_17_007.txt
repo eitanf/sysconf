@@ -1,0 +1,23 @@
+
+Finding regions of local similarity between biological sequences is a fundamental task in computational biology.
+BLAST is the most widely-used tool for this purpose, but
+it suffers from irregularities due to its heuristic nature. To
+achieve fast search, recent approaches construct the index from
+the database instead of the input query. However, database
+indexing introduces more challenges in the design of index
+structure and algorithm, especially for data access through the
+memory hierarchy on modern multicore processors.
+
+In this paper, based on existing heuristic algorithms, we
+design and develop a database indexed BLAST with the identical sensitivity as query indexed BLAST (i.e., NCBI-BLAST).
+Then, we identify that existing heuristic algorithms of BLAST
+can result in serious irregularities in database indexed search.
+To eliminate irregularities in BLAST algorithm, we propose
+muBLASTP, that uses multiple optimizations to improve data
+locality and parallel efficiency for multicore architectures and
+multi-node systems. Experiments on a single node demonstrate
+up to a 5.1-fold speedup over the multi-threaded NCBI BLAST.
+For the inter-node parallelism, we achieve nearly linear scaling
+on up to 128 nodes and gain up to 8.9-fold speedup over
+mpiBLAST.
+

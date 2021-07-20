@@ -1,0 +1,19 @@
+
+Graphics processing units (GPUs) provide high performance at low power consumption as long as resources are
+well utilized. Thread block size is one factor in determining
+a kernel’s occupancy, which is a metric for measuring GPU
+utilization. A general guideline is to find the block size that leads
+to the highest occupancy. However, many combinations of block
+and grid sizes can provide highest occupancy, but performance
+can vary significantly between different configurations. This is
+because variation in thread structure yields different utilization
+of hardware resources. Thus, optimizing for occupancy alone is
+insufficient and thread structure must also be considered. It is
+the programmer’s responsibility to set block size, but selecting
+the right size is not always intuitive. In this paper, we propose
+using machine learning to automatically select profitable block
+sizes. Additionally, we show that machine learning techniques
+coupled with performance counters can provide insight into the
+underlying reasons for performance variance between different
+configurations.
+

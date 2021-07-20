@@ -1,0 +1,15 @@
+
+Extensible languages enable the convenient construction of
+many kinds of domain-specific languages (DSLs) by mapping
+domain-specific surface syntax into the host language’s core
+forms in a layered and composable way. The host language’s
+debugger, however, reports evaluation and data details in
+ways that reflect the host language, instead of the DSL in its
+own terms, and closing the gap may require more than correlating host evaluation steps to the original DSL source. In
+this paper, we describe an approach to DSL construction with
+macros that pairs the mapping of DSL terms to host terms
+with a mapping to convert primitive events back to domainspecific concepts. Domain-specific events are then suitable
+for presenting to a user or wiring into a domain-specific visualization. We present a core model of evaluation and events,
+and we present a language designÐanalogous to patternbased notations for macros, but in the other directionÐfor
+describing how events in a DSL’s expansion are mapped to
+events at the DSL’s level.

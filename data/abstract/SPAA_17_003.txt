@@ -1,0 +1,21 @@
+
+In Web applications served by datacenter nowadays, the incast
+congestion at the front-end server seriously degrades the data request latency performance due to the vast data transmissions from
+a large number data servers for a data request in a short time.
+Previous incast congestion control methods usually consider the
+direct data transmissions from data servers to the front-end server,
+which makes it difficult to control the sending speed or adjust workloads due to the transient transmission of only a few data objects
+from each data server. In this paper, we propose a Swarm-based
+Incast Congestion Control (SICC) system. SICC forms all target
+data servers of one request in the same rack into a swarm. In each
+swarm, a data server (called hub) is selected to forward all data
+objects to the front-end server, so that the number of data servers
+concurrently connected to the front-end server is reduced, which
+avoids the incast congestion. Also, the continuous data transmission
+from hubs to the front-end server facilitates the development of
+other strategies to further control the incast congestion. To fully utilize the bandwidth, SICC uses a two-level data transmission speed
+control method to adjust the data transmission speeds of hubs. A
+query redirection method further reduces the request latency by
+balancing the transmission remaining times between hubs. Our experiments in simulation and on a real cluster demonstrate that SICC
+outperforms other incast control methods in improving throughput
+and reducing the data request latency.

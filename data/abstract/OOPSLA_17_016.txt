@@ -1,0 +1,9 @@
+
+We propose an interactive approach to resolve static analysis alarms. Our approach synergistically combines a
+sound but imprecise analysis with precise but unsound heuristics, through user interaction. In each iteration, it
+solves an optimization problem to find a set of questions for the user such that the expected payoff is maximized.
+We have implemented our approach in a tool, Ursa, that enables interactive alarm resolution for any analysis
+specified in the declarative logic programming language Datalog. We demonstrate the effectiveness of Ursa
+on a state-of-the-art static datarace analysis using a suite of 8 Java programs comprising 41-194 KLOC each.
+Ursa is able to eliminate 74% of the false alarms per benchmark with an average payoff of 12× per question.
+Moreover, Ursa prioritizes user effort effectively by posing questions that yield high payoffs earlier.

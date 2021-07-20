@@ -1,0 +1,20 @@
+
+Energy-use is a key concern when migrating current
+deep learning applications onto low power heterogeneous devices
+such as a mobile device. This is because deep neural networks
+are typically designed and trained on high-end GPUs or servers
+and require additional processing steps to deploy them on
+low power devices. Such steps include the use of compression
+techniques to scale down the network size or the provision of
+efficient device-specific software implementations. Migration is
+further aggravated by the lack of tools and the inability to
+measure power and performance accurately and consistently
+across devices. We present a novel evaluation framework for
+measuring energy and performance for deep neural networks
+using ARMs Streamline Performance Analyser integrated with
+standard deep learning frameworks such as Caffe and CuDNNv5.
+We apply the framework to study the execution behaviour of
+SqueezeNet on the Maxwell GPU of the NVidia Jetson TX1,
+on an image classification task (also known as inference) and
+demonstrate the ability to measure energy of specific layers of
+the neural network.

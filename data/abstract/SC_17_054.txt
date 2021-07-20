@@ -1,0 +1,13 @@
+
+Many applications, such as PDE based simulations and machine
+learning, apply BLAS/LAPACK routines to large groups of small matrices, While existing batched Bias APIs provide meaningful speedup
+for this problem type, a non-canonical data layout enabling crossmatrix vectorization may provide further significant speedup. In
+this paper, we propose a new compact data layout that interleaves
+matrices in blocks according to the SIMD vector length. We combine
+this compact data layout with a new interface to BLAS/LAPACK routines that can be used within a hierarchical parallel application. Our
+layout provides up to 14x, 45x, and 27x speedup against OpenMP
+loops around optimized DGEMM, DTRSM and DGETRF kernels, respectively, on the Intel Knights Landing architecture. We discuss the
+compact batched BLAS/LAPACK implementations in two libraries,
+KokkosKernels and Intel® Math Kernel Library. We demonstrate
+the APIs in a line solver for coupled PDEs. Finally, we present
+detailed performance analysis of our kernels.

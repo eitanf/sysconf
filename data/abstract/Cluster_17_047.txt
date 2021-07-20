@@ -1,0 +1,29 @@
+
+Failure tolerant data encoding and storage is of
+paramount importance for data centers, supercomputers, data
+transfers, and many aspects of information technology. ReedSolomon failure erasure codes and their variants are the basis
+for many applications in this field. Efficient implementation of
+these codes is challenging because they require computations in
+Galois fields, which are not supported by processors natively.
+Improved variants such as the Cauchy-Reed-Solomon code enable
+a better mapping of the required calculations to computer
+instructions. However, this works best when the source code of
+the application is tuned for fixed encoding parameters which
+deteriorates the flexibility. We present an approach to overcoming
+these limitations by just in time compiling optimized code for
+arbitrary encoding settings. Our open source library is optimized
+for x86 processors using SSE and AVX extensions and we present
+prototypes for GPUs and FPGAs as well. For a significant range
+of encoding parameters, our implementation encodes at the maximum bandwidth the processor can read the data from memory.
+In more complicated settings with additional redundancy data to
+compensate the failure of multiple data stores, the algorithm
+becomes compute limited. The optimized JIT code leverages
+the full potential of modern processors reaching an instruction
+throughput of more than three SIMD-instructions per compute
+cycle, and encodes up to 19 gigabytes of data per second on a
+Skylake system.
+
+Keywords-Failure Erasure Coding; Red Solomon Code; GPU;
+FPGA; Just In Time Compilation; Assembler; Vectorization;
+High Performance Computing;
+

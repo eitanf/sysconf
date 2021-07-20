@@ -1,0 +1,23 @@
+
+Parallel and distributed processing is employed to
+accelerate training for many deep-learning applications with
+large models and inputs. As it reduces synchronization and
+communication overhead by tolerating stale gradient updates,
+asynchronous stochastic gradient descent (ASGD), derived from
+stochastic gradient descent (SGD), is widely used. Recent theoretical analyses show ASGD converges with linear asymptotic
+speedup over SGD.
+
+Oftentimes glossed over in theoretical analysis are communication overhead and practical learning rates that are critical
+to the performance of ASGD. After analyzing the communication performance and convergence behavior of ASGD using
+the Downpour algorithm as an example, we demonstrate the
+challenges for ASGD to achieve good practical speedup over
+SGD. We propose a distributed, bulk-synchronous stochastic
+gradient descent algorithm that allows for sparse gradient
+aggregation from individual learners. The communication cost
+is amortized explicitly by a gradient aggregation interval, and
+global reductions are used instead of a parameter server for
+gradient aggregation. We prove its convergence and show that
+it has superior communication performance and convergence
+behavior over popular ASGD implementations such as Downpour
+and EAMSGD for deep-learning applications.
+

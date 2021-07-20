@@ -1,0 +1,68 @@
+
+
+We introduce the mobile server problem, inspired by current trends
+to move computational tasks from cloud structures to multiple
+devices close to the end user. An example for this are embedded systems in autonomous cars that communicate in order to coordinate
+their actions.
+
+Our model is a variant of the classical Page Migration Problem.
+More formally, we consider a mobile server holding a data page. The
+server can move in the Euclidean space (of arbitrary dimension).
+In every round, requests for data items from the page pop up at
+arbitrary points in the space. The requests are served, each at a cost
+of the distance from the requesting point and the server, and the
+mobile server may move, at a cost D times the distance traveled for
+some constant D. We assume a maximum distance m the server is
+allowed to move per round.
+
+We show that no online algorithm can achieve a competitive
+ratio independent of the length of the input sequence in this setting.
+Hence we augment the maximum movement distance of the online
+algorithms to (1 + 6) times the maximum distance of the offline
+solution. We provide a deterministic algorithm which is simple
+to describe and works for multiple variants of our problem. The
+algorithm achieves almost tight competitive ratios independent of
+the length of the input sequence.
+
+KEYWORDS
+
+page migration; online algorithms; competitive analysis; resource
+augmentation
+
+ACM Reference format:
+
+Bjérn Feldkord and Friedhelm Meyer auf der Heide. 2017. The Mobile Server
+Problem. In Proceedings of SPAA °17, Washington, DC, USA, July 24-26, 2017,
+7 pages.
+
+https://doi.org/10.1145/3087556.3087575
+
+*This work was partially supported by the German Research Foundation (DFG) within
+the Collaborative Research Centre “On-The-Fly Computing” (SFB 901).
+
+ 
+
+Permission to make digital or hard copies of all or part of this work for personal or
+classroom use is granted without fee provided that copies are not made or distributed
+for profit or commercial advantage and that copies bear this notice and the full citation
+on the first page. Copyrights for components of this work owned by others than ACM
+must be honored. Abstracting with credit is permitted. To copy otherwise, or republish,
+to post on servers or to redistribute to lists, requires prior specific permission and/or a
+fee. Request permissions from permissions@acm.org.
+
+SPAA 717, July 24-26, 2017, Washington, DC, USA
+
+© 2017 Association for Computing Machinery.
+
+ACM ISBN 978-1-4503-4593-4/17/07. ..$15.00
+https://doiorg/10.1145/3087556.3087575
+
+313
+
+Friedhelm Meyer auf der Heide
+Heinz Nixdorf Institut & Computer Science Dept.,
+Paderborn University
+Furstenallee 11
+Paderborn, Germany
+fmadh@upb.de
+

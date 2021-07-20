@@ -1,0 +1,25 @@
+
+In parallel computing, a valid graph coloring
+yields a lock-free processing of the colored tasks, data points,
+etc., without expensive synchronization mechanisms. However,
+coloring is not free and the overhead can be significant. In
+particular, for the bipartite-graph partial coloring (BGPC)
+and distance-2 graph coloring (D2GC) problems, which have
+various use-cases within the scientific computing and numerical
+optimization domains, the coloring overhead can be in the
+order of minutes with a single thread for many real-life graphs.
+
+In this work, we propose parallel algorithms for bipartitegraph partial coloring on shared-memory architectures. Compared to the existing shared-memory BGPC algorithms, the
+proposed ones employ greedier and more optimistic techniques
+that yield a better parallel coloring performance. In particular,
+on 16 cores, the proposed algorithms are more than 4x faster
+than their counterparts in the ColPack library which is, to
+the best of our knowledge, the only publicly-available coloring
+library for multicore architectures. In addition to BGPC, the
+proposed techniques are employed to devise parallel distance-2
+graph coloring algorithms and similar performance improvements have been observed. Finally, we propose two costless
+balancing heuristics for BGPC that can reduce the skewness
+and imbalance on the cardinality of color sets (almost) for free.
+The heuristics can also be used for the D2GC problem and in
+general, they will probably yield a better color-based parallelization performance especially on many-core architectures.
+

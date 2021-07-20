@@ -1,0 +1,25 @@
+
+Future main memory will likely include NonVolatile Memory. Non-Volatile Main Memory (NVMM) provides an opportunity to rethink checkpointing strategies for
+providing failure safety to applications. While there are many
+checkpointing and logging schemes in literature, their use must
+be revisited as they incur high execution time overheads as well
+as a large number of additional writes to NVMM, which may
+significantly impact write endurance.
+
+In this paper, we propose a novel recompute-based failure
+safety approach, and demonstrate its applicability to loopbased code. Rather than keeping a fully consistent logging
+state, we only log enough state to enable recomputation. Upon
+a failure, our approach recovers to a consistent state by determining which parts of the computation were not completed
+and recomputing them. Effectively, our approach removes the
+need to keep checkpoints or logs, thus reducing execution
+time overheads and improving NVMM write endurance, at
+the expense of more complex recovery. We compare our new
+approach against logging and checkpointing on five scientific
+workloads, including tiled matrix multiplication, on a computer
+system model that was built on gem5 and supports Intel
+PMEM instruction extensions. For tiled matrix multiplication,
+our recompute approach incurs an execution time overhead
+of only 5%, in contrast to 8% overhead with logging and
+207% overhead with checkpointing. Furthermore, recompute
+only adds 7% additional NVMM writes, compared to 111%
+with logging and 330% with checkpointing.

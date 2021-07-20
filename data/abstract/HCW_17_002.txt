@@ -1,0 +1,20 @@
+
+Heterogeneous chip-multiprocessors with integrated CPU and GPU cores on the same die allow sharing
+of critical memory system resources among the applications
+executing on the two types of cores. In this paper, we explore memory system management driven by the quality of
+service (QoS) requirement of the GPU applications executing
+simultaneously with CPU applications in such heterogeneous
+platforms. Our proposal dynamically estimates the level of
+QoS (e.g., frame rate in 3D scene rendering) of the GPU
+application. Unlike the prior proposals, our algorithm does not
+require any profile information and does not assume tile-based
+deferred rendering. If the estimated quality of service meets the
+minimum acceptable QoS level, our proposal employs a lightweight mechanism to dynamically adjust the GPU memory
+access rate so that the GPU is able to just meet the required
+QoS level. This frees up memory system resources which
+can be shifted to the co-running CPU applications. Detailed
+simulations done on a heterogeneous chip-multiprocessor with
+one GPU and four CPU cores running heterogeneous mixes
+of DirectX, OpenGL, and CPU applications show that our
+proposal improves the CPU performance by 18% on average.
+

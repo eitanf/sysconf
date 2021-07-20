@@ -1,0 +1,19 @@
+
+In the reliable message transmission problem
+(RMTP) processors communicate by exchanging messages, but
+the channel that connects two processors is subject to message
+loss, duplication, and reordering. Previous work focused on
+proposing protocols in asynchronous systems, where message
+size is finite and sequence numbers are bounded. However,
+if the channel can duplicate messages—but not lose them-—and
+arbitrarily reorder the messages, the problem is unsolvable.
+We consider a strengthening of the asynchronous model in
+which reordering of messages is bounded. In this model, we
+develop an efficient protocol to solve the RMTP when messages
+may be duplicated but not lost. This result is in contrast
+to the impossibility of such an algorithm when reordering
+is unbounded. Our protocol has the pleasing property that
+no messages need to be sent from the receiver to the sender
+and it works when message loss is allowed with some minimal
+modifications.
+

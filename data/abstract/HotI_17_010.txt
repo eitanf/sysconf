@@ -1,0 +1,43 @@
+
+High Performance Computing(HPC) applications
+are highly optimized to maximize allocated resources for the
+job such as compute resources, memory and storage. Optimal
+performance for MPI applications requires the best possible
+affinity across all the allocated resources. Typically, setting
+process affinity to compute resources is well defined, ice MPI
+processes on a compute node have processor affinity set for one to
+one mapping between MPI processes and the physical processing
+cores. Several well defined methods exist to efficiently map MPI
+processes to a compute node. With the growing complexity of
+HPC systems, platforms are designed with complex compute
+and I/O subsystems. Capacity of I/O devices attached to a node
+are expanded with PCle switches resulting in large numbers of
+PCle endpoint devices. With a lot of heterogeneity in systems,
+applications programmers are forced to think harder about
+affinitizing processes as it affects performance based on not only
+compute but also NUMA placement of IO devices. Mapping of
+process to processor cores and the closest IO device(s) is not
+straightforward. While operating systems do a reasonable job
+of trying to keep a process physically located near the processor
+core(s) and memory, they lack the application developer’s knowledge of process workflow and optimal IO resource allocation
+when more than one IO device is connected to the compute node.
+
+In this paper we look at ways to assuage the problems of
+affinity choices by abstracting the device selection algorithm
+from MPI application layer. MPI continues to be the dominant
+programming model for HPC and hence our focus in this paper
+is limited to providing a solution for MPI based applications. Our
+solution can be extended to other HPC programming models such
+as Partitioned Global Address Space(PGAS) or a hybrid MPI and
+PGAS based applications. We propose a solution to solve NUMA
+effects at the MPI runtime level independent of MPI applications.
+Our experiments are conducted on a two node system where
+each node consists of two socket Intel®) Xeon®) servers, attached
+with up to four Intel®) Omni-Path fabric devices connected over
+PCle. The performance benefits seen by MPI applications by
+affinitizing MPI processes with best possible network device is
+evident from the results where we notice up to 40% improvement
+in uni-directional bandwidth, 48% bi-directional bandwidth, 32%
+improvement in latency measurements and finally up to 40%
+improvement in message rate.
+

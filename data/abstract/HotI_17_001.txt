@@ -1,0 +1,24 @@
+
+Interconnection networks must meet the communication demands of current High-Performance Computing systems. In order to interconnect efficiently the end nodes of these
+systems with a good performance-to-cost ratio, new network
+topologies have been proposed in the last years which leverage
+high-radix switches, such as Slim Fly. Adversarial-like traffic
+patterns, however, may reduce severely the performance of Slim
+Fly networks when using only minimal-path routing. In order to
+mitigate the performance degradation in these scenarios, Slim
+Fly networks should configure an oblivious or adaptive nonminimal routing. The non-minimal routing algorithms proposed
+for Slim Fly usually rely on Valiant’s algorithm to select the paths,
+at the cost of doubling the average path-length, as well as the
+number of Virtual Channels (VCs) required to prevent deadlocks.
+Moreover, Valiant may introduce additional inefficiencies when
+applied to Slim Fly networks, such as the “turn-around problem”
+that we analyze in this work. With the aim of overcoming these
+drawbacks, we propose in this paper two variants of the Valiant’s
+algorithm that improve the non-minimal path selection in Slim
+Fly networks. They are designed to be combined with adaptive
+routing algorithms that rely on Valiant to select non-minimal
+paths, such as UGAL or PAR, which we have adapted to the Slim
+Fly topology. Through the results from simulation experiments,
+we show that our proposals improve the network performance
+and/or reduce the number of required VCs to prevent deadlocks,
+even in scenarios with adversarial-like traffic.

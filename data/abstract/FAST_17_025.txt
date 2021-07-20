@@ -1,0 +1,9 @@
+
+As Solid-State Drives (SSDs) become commonplace in
+data-centers and storage arrays, there is a growing demand for predictable latency. Traditional SSDs, serving block I/Os, fail to meet this demand. They offer a
+high-level of abstraction at the cost of unpredictable performance and suboptimal resource utilization. We propose that SSD management trade-offs should be handled
+through Open-Channel SSDs, a new class of SSDs, that
+give hosts control over their internals. We present our
+experience building LightNVM, the Linux Open-Channel
+SSD subsystem. We introduce a new Physical Page Address I/O interface that exposes SSD parallelism and storage media characteristics. LightNVM integrates into traditional storage stacks, while also enabling storage engines to take advantage of the new I/O interface. Our experimental results demonstrate that LightNVM has modest host overhead, that it can be tuned to limit read latency variability and that it can be customized to achieve
+predictable I/O latencies.

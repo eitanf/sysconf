@@ -1,0 +1,17 @@
+
+In this paper, we predict the rise of Dependency-Driven Analytics
+(DDA), a new class of data analytics designed to cope with growing
+volumes of unstructured data. DDA drastically reduces the cognitive burden of data analysis by systematically leveraging a compact
+dependency graph derived from the raw data. The computational
+cost associated with the analysis is also reduced substantially, as
+the graph acts as an index for commonly accessed data items. We
+built a system supporting DDA using off-the-shelf Big Data and
+graph DB technologies, and deployed it in production at Microsoft
+to support the analysis of the exhaust of our Big Data infrastructure
+producing petabytes of system logs daily. The dependency graph in
+this setting captures lineage information among jobs and files and
+is used to guide the analysis of telemetry data. We qualitatively discuss the improvement over the brute-force analytics our users used
+to perform by considering a series of practical applications, including: job auditing and compliance, automated SLO extraction of
+recurring tasks, and global job ranking. We conclude by discussing
+the shortcomings of our current implementation and by presenting
+some of the open research challenges for Dependency-Driven Analytics that we plan to tackle next.

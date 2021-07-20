@@ -1,0 +1,13 @@
+
+Stencil computations represent a very common class of nested loops
+in scientific and engineering applications. The exhaustively studied
+tiling is one of the most powerful transformation techniques to
+explore the data locality and parallelism. Unlike previous work,
+which mostly blocks the iteration space of a stencil directly, this
+paper proposes a novel two-level tessellation scheme. A set of blocks
+are designed to tessellate the spatial space in various ways. The
+blocks can be processed in parallel without redundant computation.
+This corresponds to extending them along the time dimension and
+can form a tessellation of the iteration space. Experimental results
+show that our code performs up to 12% better than the existing
+highly concurrent schemes for the 3d27p stencil.

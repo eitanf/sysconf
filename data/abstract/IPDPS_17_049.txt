@@ -1,0 +1,39 @@
+
+The LOOK-COMPUTE-MOVE model for a set of
+autonomous robots has been thoroughly studied for over two
+decades. Each robot repeatedly LOOKS at its surroundings and
+obtains a snapshot containing the positions of all robots; based
+on this information, the robot COMPUTES a destination and
+then MOVES to it. Previous work assumed all robots are present
+at the beginning of the computation. What would be the effect
+of robots appearing asynchronously? This paper studies this
+question, for problems of bringing the robots close together, and
+exposes an intimate connection with combinatorial topology.
+
+A central problem in the mobile robots area is the gathering
+problem. In its discrete version, the robots start at vertices in
+some graph G known to them, move towards the same vertex
+and stop. The paper shows that if robots are asynchronous
+and may crash, then gathering is impossible for any graph G
+with at least two vertices, even if robots can have unique IDs,
+remember the past, know the same names for the vertices of
+G and use an arbitrary number of lights to communicate with
+each other.
+
+Next, the paper studies two weaker variants of gathering:
+edge gathering and 1-gathering. For both problems we present
+possibility and impossibility results. The solvability of edge
+gathering is fully characterized: it is solvable for three or more
+robots on a given graph if and only if the graph is acyclic.
+
+Finally, general robot tasks in a graph are considered. A
+combinatorial topology characterization for the solvable tasks
+is presented, by a reduction of the asynchronous fault-tolerant
+LOOK-COMPUTE-MOVE model to a wait-free read/write
+shared-memory computing model, bringing together two areas
+that have been independently studied for a long time into a
+common theoretical foundation.
+
+Keywords: Mobile Robots, Multiple and Distributed Robots,
+Convergence, Gathering, Rendezvous, Fault Tolerance.
+

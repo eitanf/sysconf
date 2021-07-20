@@ -1,0 +1,23 @@
+
+Graphics Processing Units (GPUs) are increasingly
+used to accelerate portions of general-purpose applications.
+Higher level language extensions have been proposed to help nonexperts bridge the gap between a host and the GPU’s threading
+model. Recent updates to the OpenMP standard allow a user
+to parallelize code on a GPU using the well known fork-join
+programming model for CPUs.
+
+Mapping this model to the architecturally visible threading
+model of typical GPUs has been challenging. In this work
+we propose a novel approach using the technique of Warp
+Specialization. We show how to specialize one warp (a unit of 32
+GPU threads) to handle sequential code on a GPU. When this
+master warp reaches a user-specified parallel region, it awakens
+unused GPU warps to collectively execute the parallel code. Based
+on this method, we have implemented a Clang-based, OpenMP
+4.5 compliant, open source compiler for GPUs.
+
+Our work achieves a 3.6x (and up to 32x) performance
+improvement over a baseline that does not exploit fork-join parallelism on an NVIDIA k40m GPU across a set of 25 kernels. Compared to state-of-the-art compilers (Clang-ykt, GCC-OpenMP,
+GCC-OpenACC) our work is 2.1 - 7.6x faster. Our proposed
+technique is simpler to implement, robust, and performant.
+

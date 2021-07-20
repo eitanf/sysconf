@@ -1,0 +1,29 @@
+
+The complete Voronoi map of a binary image with
+black and white pixels is a matrix of the same size such that each
+element is the closest black pixel of the corresponding pixel. The
+complete Voronoi map visualizes the influence region of each
+black pixel. However, each region may not be connected due
+to exclave pixels. The connected Voronoi map is a modification
+of the complete Voronoi map so that all regions are connected.
+The Euclidean distance map of a binary image is a matrix, in
+which each element is the distance to the closest black pixel.
+It has many applications of image processing such as dilation,
+erosion, deblurring effects, skeletonizing and matching. The main
+contribution of this paper is to present simple and fast parallel
+algorithms for computing the complete/connected Voronoi maps
+and the Euclidean distance map and implement them in the
+GPU. Our parallel algorithm first computes the mixed Voronoi
+map, which is a mixture of the complete and connected Voronoi
+maps, and then converts it into the complete/connected Voronoi
+by exposing/hiding all exclave pixels. After that, the complete
+Voronoi map is converted into the Euclidean distance map by
+computing the distance to the closest black pixel for every pixel in
+an obvious way. The experimental results on GeForce GTX 1080
+GPU show that the computing time for these conversions is
+relatively small. The throughput of our GPU implementation
+for computing the Euclidean distance maps of 2K x 2.K binary
+images is up to 2.08 times larger than the previously published
+best GPU implementation, and up to 172 times larger than CPU
+implementation using Intel Core i7-4790.
+

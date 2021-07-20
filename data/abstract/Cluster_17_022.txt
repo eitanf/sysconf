@@ -1,0 +1,21 @@
+
+Data reduction through compression is emerging
+as a promising approach to ease I/O costs for simulation codes
+on supercomputers. Typically, this compression is achieved by
+techniques that operate on individual time slices. However, as
+simulation codes advance in time, outputting multiple time
+slices as they go, the opportunity for compression incorporating
+the time dimension has not been extensively explored. Moreover, recent supercomputers are increasingly equipped with
+deeper memory hierarchies, including solid state drives and
+burst buffers, which creates the opportunity to temporarily
+store multiple time slices and then apply compression to
+them all at once, i.e., spatiotemporal compression. This paper
+explores the benefits of incorporating the time dimension into
+existing wavelet compression, including studying its key parameters and demonstrating its benefits in three axes: storage,
+accuracy, and temporal resolution. Our results demonstrate
+that temporal compression can improve each of these axes,
+and that the impact on performance for real systems, including
+tradeoffs in memory usage and execution time, is acceptable.
+We also demonstrate the benefits of spatiotemporal wavelet
+compression with real-world visualization use cases and tailored evaluation metrics.
+

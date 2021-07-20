@@ -1,0 +1,16 @@
+
+While gradual typing has proven itself attractive to programmers, many systems have avoided sound gradual
+typing due to the run time overhead of enforcement. In the context of sound gradual typing, both anecdotal
+and systematic evidence has suggested that run time costs are quite high, and often unacceptable, casting
+doubt on the viability of soundness as an approach.
+We show that these overheads are not fundamental, and that with appropriate improvements, just-intime compilers can greatly reduce the overhead of sound gradual typing. Our study takes benchmarks
+published in a recent paper on gradual typing performance in Typed Racket (Takikawa et al., POPL 2016) and
+evaluates them using an experimental tracing JIT compiler for Racket, called Pycket. On typical benchmarks,
+Pycket is able to eliminate more than 90% of the gradual typing overhead. While our current results are not
+the final word in optimizing gradual typing, we show that the situation is not dire, and where more work is
+needed.
+Pycket’s performance comes from several sources, which we detail and measure individually. First, we apply a sophisticated tracing JIT compiler and optimizer, automatically generated in Pycket using the RPython
+framework originally created for PyPy. Second, we focus our optimization efforts on the challenges posed
+by run time checks, implemented in Racket by chaperones and impersonators. We introduce representation
+improvements, including a novel use of hidden classes to optimize these data structures, and measure the
+performance implications of each optimization.

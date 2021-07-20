@@ -1,0 +1,14 @@
+
+TypeScript applications often use untyped JavaScript libraries. To support static type checking of such
+applications, the typed APIs of the libraries are expressed as separate declaration files. This raises the challenge
+of checking that the declaration files are correct with respect to the library implementations. Previous work
+has shown that mismatches are frequent and cause TypeScript’s type checker to misguide the programmers
+by rejecting correct applications and accepting incorrect ones.
+This paper shows how feedback-directed random testing, which is an automated testing technique that has
+mostly been used for testing Java libraries, can be adapted to effectively detect such type mismatches. Given a
+JavaScript library with a TypeScript declaration file, our tool TStest generates a type test script, which is an
+application that interacts with the library and tests that it behaves according to the type declarations. Compared
+to alternative solutions that involve static analysis, this approach finds significantly more mismatches in
+a large collection of real-world JavaScript libraries with TypeScript declaration files, and with fewer false
+positives. It also has the advantage that reported mismatches are easily reproducible with concrete executions,
+which aids diagnosis and debugging.

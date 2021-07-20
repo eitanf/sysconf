@@ -1,0 +1,13 @@
+
+Apache Spark is a framework for distributed
+computing that supports the map-reduce programming model.
+The SQL module of Spark contains Datasets, i.e., distributed
+collections of records stored in a serialized low-level format
+in a manually managed chunk of memory. However, the
+functions users provide to the map-reduce computations expect
+Java objects. Datasets perform an additional deserialization
+step beforehand to support the user-provided function, which
+increases the overhead. We tackled this problem by replacing
+map functions with their counterparts that accepted the serialized data. This allowed us to skip the unnecessary part of
+deserialization and achieve faster data processing speeds.
+

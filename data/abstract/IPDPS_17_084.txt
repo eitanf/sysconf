@@ -1,0 +1,31 @@
+
+Accelerators, such as GPUs, have proven to be
+highly successful in reducing execution time and power consumption of compute-intensive applications. Even though they
+are already used pervasively, they are typically supervised
+by general-purpose CPUs, which results in frequent control
+flow switches and data transfers as CPUs are handling all
+communication tasks. However, we observe that accelerators
+are recently being augmented with peer-to-peer communication
+capabilities that allow for autonomous traffic sourcing and
+sinking. While appropriate hardware support is becoming
+available, it seems that the right communication semantics
+are yet to be identified. Maintaining the semantics of existing
+communication models, such as the Message Passing Interface
+(MPD), seems problematic as they have been designed for the
+CPU’s execution model, which inherently differs from such
+specialized processors.
+
+In this paper, we analyze the compatibility of traditional
+message passing with massively parallel Single Instruction Multiple Thread (SIMT) architectures, as represented by GPUs,
+and focus on the message matching problem. We begin with
+a fully MPI-compliant set of guarantees, including tag and
+source wildcards and message ordering. Based on an analysis of
+exascale proxy applications, we start relaxing these guarantees
+to adapt message passing to the GPU’s execution model. We
+present suitable algorithms for message matching on GPUs
+that can yield matching rates of 60M and 500M matches/s,
+depending on the constraints that are being relaxed. We discuss
+our experiments and create an understanding of the mismatch
+of current message passing protocols and the architecture and
+execution model of SIMT processors.
+

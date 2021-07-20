@@ -1,0 +1,37 @@
+
+The tasking model of OpenMP 4.0 supports both
+nesting and the definition of dependences between sibling tasks. A
+natural way to parallelize many codes with tasks is to first taskify
+the high-level functions and then to further refine these tasks with
+additional subtasks. However, this top-down approach has some
+drawbacks since combining nesting with dependencies usually
+requires additional measures to enforce the correct coordination
+of dependencies across nesting levels. For instance, most non-leaf
+tasks need to include a taskwait at the end of their code. While
+these measures enforce the correct order of execution, as a side
+effect, they also limit the discovery of parallelism.
+
+In this paper we extend the OpenMP tasking model to improve
+the integration of nesting and dependencies. Our proposal builds
+on both formulas, nesting and dependencies, and benefits from
+their individual strengths. On one hand, it encourages a top-down
+approach to parallelizing codes that also enables the parallel
+instantiation of tasks. On the other hand, it allows the runtime
+to control dependencies at a fine grain that until now was only
+possible using a single domain of dependencies.
+
+Our proposal is realized through additions to the OpenMP task
+directive that ensure backward compatibility with current codes.
+We have implemented a new runtime with these extensions and
+used it to evaluate the impact on several benchmarks. Our initial
+findings show that our extensions improve performance in three
+areas. First, they expose more parallelism. Second, they uncover
+dependencies across nesting levels, which allows the runtime
+to make better scheduling decisions. And third, they allow the
+parallel instantiation of tasks with dependencies between them.
+
+Index Terms—computer languages; runtime library; OpenMP;
+task nesting; task dependencies; weak dependencies; weakwait;
+taskwait; single dependency domain; top-down programming;
+task decomposition;
+

@@ -1,0 +1,26 @@
+
+Data movement is increasingly becoming the bottleneck of both performance and energy efficiency in modern
+computation. Until recently, it was the case that there is
+limited freedom for communication optimization on GPUs,
+as conventional GPUs only provide two types of methods for
+inter-thread communication: using shared memory or global
+memory. However, a new warp shuffle instruction has been
+introduced since the Kepler architecture on Nvidia GPUs,
+which enables threads within the same warp to directly
+exchange data in registers. This brought new performance
+optimization opportunities for algorithms with intensive interthread communication. In this work, we deploy register shuffle
+in the application domain of sequence alignment (or similarly,
+string matching), and conduct a quantitative analysis of the
+opportunities and limitations of using register shuffle. We
+select two sequence alignment algorithms, Smith-Waterman
+(SW) and Pairwise-Hidden-Markov-Model (PairHMM), from
+the widely used Genome Analysis Toolkit (GATK) as case
+studies. Compared to implementations using shared memory,
+we obtain a significant speed-up of 1.2x and 2.1x by using
+shuffle instructions for SW and PairHMM. Furthermore,
+we develop a performance model for analyzing the kernel
+performance based on the measured shuffle latency from a suite
+of microbenchmarks. Our model provides valuable insights for
+CUDA programmers into how to best use shuffle instructions
+for performance optimization.
+

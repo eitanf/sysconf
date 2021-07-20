@@ -1,0 +1,18 @@
+
+
+We propose a logical framework, based on Datalog, to study
+the foundations of querying JSON data. The main feature
+of our approach, which we call J-Logic, is the emphasis on
+paths. Paths are sequences of keys and are used to access
+the tree structure of nested JSON objects. J-Logic also features “packing” as a means to generate a new key from a
+path or subpath. J-Logic with recursion is computationally complete, but many queries can be expressed without
+recursion, such as deep equality. We give a necessary condition for queries to be expressible without recursion. Most
+of our results focus on the deterministic nature of JSON objects as partial functions from keys to values. Predicates
+defined by J-Logic programs may not properly describe objects, however. Nevertheless we show that every object-toobject transformation in J-Logic can be defined using only
+objects in intermediate results. Moreover we show that it is
+decidable whether a positive, nonrecursive J-Logic program
+always returns an object when given objects as inputs. Regarding packing, we show that packing is unnecessary if the
+output does not require new keys. Finally, we show the
+decidability of query containment for positive, nonrecursive
+J-Logic programs.
+

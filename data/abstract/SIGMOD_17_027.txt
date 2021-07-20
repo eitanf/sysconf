@@ -1,0 +1,19 @@
+
+
+Differential privacy has emerged as a preferred standard for
+ensuring privacy in analysis tasks on sensitive datasets. Recent algorithms have allowed for significantly lower error by
+adapting to properties of the input data. These so-called
+data-dependent algorithms have different error rates for dif
+ferent inputs. There is now a complex and growing landscape of algorithms without a clear winner that can offer
+low error over all datasets. As a result, the best possible
+error rates are not attainable in practice, because the data
+curator cannot know which algorithm to select prior to actually running the algorithm.
+
+We address this challenge by proposing a novel metaalgorithm designed to relieve the data curator of the burden of algorithm selection. It works by learning (from nonsensitive data} the association between dataset properties
+and the best-performing algorithm. The meta-algorithm is
+deployed by first testing the input for low-sensitivity properties and then using the results to select a good algorithm.
+The result is an end-to-end differentially private system:
+Pythia, which we show offers improvements over using any
+single algorithm alone. We empirically demonstrate the benefit of Pythia for the tasks of releasing histograms, answering
+1- and 2-dimensional range queries, as well as for constructing private Naive Bayes classifiers.
+

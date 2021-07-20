@@ -1,0 +1,17 @@
+
+. Thread-Level Speculation (TLS) is a hardware/software
+technique that enables the execution of multiple loop iterations in parallel, even in the presence of some loop-carried dependences. TLS requires
+hardware mechanisms to support conflict detection, speculative storage,
+in-order commit of transactions, and transaction roll-back. There is no
+off-the-shelf processor that provides direct support for TLS. Speculative
+execution is supported, however, in the form of Hardware Transactional
+Memory (HTM)—available in recent processors such as the Intel Core
+and the IBM POWERS. Earlier work has demonstrated that, in the
+absence of specific TLS support in commodity processors, HTM support
+can be used to implement TLS. This paper presents a careful evaluation
+of the implementation of TLS on the HTM extensions available in such
+machines. This evaluation provides evidence to support several important claims about the performance of TLS over HTM in the Intel Core
+and the IBM POWERS8 architectures. Experimental results reveal that
+by implementing TLS on top of HTM, speed-ups of up to 3.8x can be
+obtained for some loops.
+

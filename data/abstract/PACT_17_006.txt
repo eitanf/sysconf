@@ -1,0 +1,20 @@
+
+This work studies the interplay between multithreaded cores and speculative parallelism (e.g., transactional
+memory or thread-level speculation). These techniques are often
+used together, yet they have been developed independently. This
+disconnect causes major performance pathologies: increasing the
+number of threads per core adds conflicts and wasted work,
+and puts pressure on speculative execution resources. These
+pathologies often squander the benefits of multithreading.
+
+We present speculation-aware multithreading (SAM), a simple policy that addresses these pathologies. By coordinating
+instruction dispatch and conflict resolution priorities, SAM focuses execution resources on work that is more likely to commit,
+avoiding aborts and using speculation resources more efficiently.
+We design SAM variants for in-order and out-of-order cores.
+SAM is cheap to implement and makes multithreaded cores
+much more beneficial on speculative parallel programs.
+
+We evaluate SAM on systems with up to 64 SMT cores.
+With SAM, 8-threaded cores outperform single-threaded cores
+by 2.33x on average, while a speculation-oblivious policy yields
+a 1.85x speedup. SAM also reduces wasted work by 52%.

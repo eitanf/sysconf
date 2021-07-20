@@ -1,0 +1,11 @@
+
+Taking advantage of recently released hybrid multicore architectures, such as the Intel Xeon+FPGA machine, where the FPGA
+has coherent access to the main memory through the QPI bus, we
+explore the benefits of specializing operators to hardware. We focus on two commonly used SQL operators for strings: LIKE, and
+REGEXP_LIKE, and provide a novel and efficient implementation of these operators in reconfigurable hardware. We integrate
+the hardware accelerator into MonetDB, a main-memory column
+store, and demonstrate a significant improvement in response time
+and throughput. Our Hardware User Defined Function (HUDF)
+can speed up complex pattern matching by an order of magnitude
+in comparison to the database running on a 10-core CPU. The insights gained from integrating hardware based string operators into
+MonetDB should also be useful for future designs combining hardware specialization and databases.

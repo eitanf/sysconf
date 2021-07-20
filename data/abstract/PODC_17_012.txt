@@ -1,0 +1,28 @@
+
+The local computation of Linial [FOCS’87] and Naor and Stockmeyer [STOC’93] concerns with the question of whether a locally
+definable distributed computing problem can be solved locally: more
+specifically, for a given local CSP (Constraint Satisfaction Problem)
+whether a CSP solution can be constructed by a distributed algorithm using local information. In this paper, we consider the
+problem of sampling a uniform CSP solution by distributed algorithms, and ask whether a locally definable joint distribution can
+be sampled from locally. More broadly, we consider sampling from
+Gibbs distributions induced by weighted local CSPs, especially the
+Markov random fields (MRFs), in the LOCAL model.
+
+We give two Markov chain based distributed algorithms which
+we believe to represent two fundamental approaches for sampling
+from Gibbs distributions via distributed algorithms. The first algorithm generically parallelizes the single-site sequential Markov
+chain by updating in each step the variables from a random independent set in parallel, and achieves an O(A log n) time upper
+bound in the LOCAL model, where A is the maximum degree, when
+the Dobrushin’s condition for the Gibbs distribution is satisfied.
+The second algorithm is a novel parallel Markov chain which proposes to update all variables simultaneously yet still guarantees to
+converge correctly with no bias. It surprisingly parallelizes an intrinsically sequential process: stabilizing to a joint distribution with
+massive local dependencies, and may achieve an optimal O(log n)
+time upper bound independent of the maximum degree A under a
+stronger mixing condition.
+
+We also show a strong Q(diam) lower bound for sampling: in
+particular for sampling independent set in graphs with maximum
+degree A > 6. Independent sets are trivial to construct locally and
+the sampling lower bound holds even when every node is aware of
+the entire graph. This gives a strong separation between sampling
+and constructing locally checkable labelings.

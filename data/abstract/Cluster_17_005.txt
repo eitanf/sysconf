@@ -1,0 +1,18 @@
+
+Sparse tensors appear in many large-scale applications with multidimensional and sparse data. While multidimensional sparse data often need to be processed on manycore
+processors, attempts to develop highly-optimized GPU-based implementations of sparse tensor operations are rare. The irregular
+computation patterns and sparsity structures as well as the
+large memory footprints of sparse tensor operations make such
+implementations challenging. We leverage the fact that sparse
+tensor operations share similar computation patterns to propose
+a unified tensor representation called F-COO. Combined with
+GPU-specific optimizations, F-COO provides highly-optimized
+implementations of sparse tensor computations on GPUs. The
+performance of the proposed unified approach is demonstrated
+for tensor-based kernels such as the Sparse Matricized TensorTimes-Khatri-Rao Product (SpMTTKRP) and the Sparse TensorTimes-Matrix Multiply (SpTTM) that are used in tensor decomposition algorithms. Compared to state-of-the-art work we
+improve the performance of SpTTM and SpMTTKRP up to
+3.7 and 30.6 times respectively on NVIDIA Titan-X GPUs. We
+implement the CANDECOMP/PARAFAC (CP) decomposition
+and achieve up to 14.9 times speedup using the unified method
+over state-of-the-art libraries on NVIDIA Titan-X GPUs.
+

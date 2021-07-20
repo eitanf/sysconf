@@ -1,0 +1,28 @@
+
+Many services used in large scale web applications
+should be able to tolerate faults without impacting their performance. State machine replication is a well-known approach to
+implementing fault-tolerant services, providing high availability
+and strong consistency. To boost the performance of state
+machine replication, recent proposals have introduced parallel
+execution of commands. In parallel state machine replication,
+incoming commands may or may not depend on other commands
+that are waiting for execution. Although dependent commands
+must be processed in the same relative order at every replica to
+avoid inconsistencies, independent commands can be executed
+in parallel and benefit from multi-core architectures. Since
+many application workloads are mostly composed of independent commands, these parallel models promise high throughput
+without sacrificing strong consistency. The efficient execution
+of commands in such environments, however, requires effective
+scheduling strategies. Existing approaches rely on dependency
+tracking based on pairwise comparison between commands,
+which introduces scheduling contention. In this paper, we propose
+a new and highly efficient scheduler for parallel state machine
+replication. Our scheduler considers batches of commands, instead of commands individually. Moreover, each batch of commands is augmented with a compact data structure that encodes
+commands information needed to the dependency analysis. We
+show, by means of experimental evaluation, that our technique
+outperforms schedulers for parallel state machine replication by
+a fairly large margin.
+
+Keywords-parallel state machine replication; fault tolerance;
+high throughput; deterministic scheduling
+

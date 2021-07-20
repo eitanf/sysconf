@@ -1,0 +1,13 @@
+
+Static analyses aspire to explore all possible executions in order to achieve soundness. Yet, in practice, they
+fail to capture common dynamic behavior. Enhancing static analyses with dynamic information is a common
+pattern, with tools such as Tamiflex. Past approaches, however, miss significant portions of dynamic behavior,
+due to native code, unsupported features (e.g., invokedynamic or lambdas in Java), and more. We present
+techniques that substantially counteract the unsoundness of a static analysis, with virtually no intrusion
+to the analysis logic. Our approach is reified in the HeapDL toolchain and consists in taking whole-heap
+snapshots during program execution, that are further enriched to capture significant aspects of dynamic
+behavior, regardless of the causes of such behavior. The snapshots are then used as extra inputs to the static
+analysis. The approach exhibits both portability and significantly increased coverage. Heap information
+under one set of dynamic inputs allows a static analysis to cover many more behaviors under other inputs.
+A HeapDL-enhanced static analysis of the DaCapo benchmarks computes 99.5% (median) of the call-graph
+edges of unseen dynamic executions (vs. 76.9% for the Tamiflex tool).

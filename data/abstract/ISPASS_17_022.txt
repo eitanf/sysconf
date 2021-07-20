@@ -1,0 +1,30 @@
+
+With increasing memory footprints and working set
+sizes of emerging workloads, system designers need to evaluate
+new memory hierarchies with large last level caches (LLCs),
+DRAM caches, large DRAMs, etc. to optimize performance
+gains. This requires a deep understanding of the memory access
+behavior of the target workloads. It is important to have accurate
+mechanisms to generate address streams to study memory access
+behavior at and beyond LLCs. Prior memory trace generation
+proposals such as WEST and STM utilize LRU stack distance to
+capture temporal locality in the data access streams. In addition,
+STM also captures spatial locality information by modeling
+stride-based access patterns. However, a key drawback of prior
+models is that the metadata that they store to capture locality is
+significantly high.
+
+In this paper, we propose an efficient, light-weight methodology to generate accurate traces for modeling address Streams
+for LLC And Beyond (SLAB). SLAB leverages the key insight
+that memory access patterns can be efficiently characterized
+by combining locality and reuse statistics captured from both
+instruction and address streams. Compared to prior studies,
+which capture patterns solely based on data addresses, using the
+additional instruction stream localized information significantly
+reduces the space complexity. For programs where dominant
+instruction-localized patterns do not exist, SLAB exploits multigranularity data reuse distances. We evaluate SLAB using SPEC
+CPU2006 and Cloudsuite benchmarks. With meta-data sizes of
+less than 7% of the original LLC traces, SLAB demonstrates over
+91% accuracy in replicating original application behavior across
+~9000 different cache, prefetcher and memory configurations.
+

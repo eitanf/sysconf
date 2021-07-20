@@ -1,0 +1,30 @@
+
+In cloud-based stream processing services, the
+maximum sustainable throughput (MST) is defined as the
+maximum throughput that a system composed of a fixed
+number of virtual machines (VMs) can ingest indefinitely. If
+the incoming data rate exceeds the system’s MST, unprocessed
+data accumulates, eventually making the system inoperable.
+Thus, it is important for the service provider to keep the
+MST always larger than the incoming data rate by dynamically
+changing the number of VMs used by the system. In this paper,
+we identify a common data processing environment used by
+modern data stream processing systems, and we propose MST
+prediction models for this environment. We train the models
+using linear regression with samples obtained from a few VMs
+and predict MST for a larger number of VMs. To minimize
+the time and cost for model training, we statistically determine
+a set of training samples using Intel’s Storm benchmarks with
+representative resource usage patterns. Using typical use-case
+benchmarks on Amazon’s EC2 public cloud, our experiments
+show that, training with up to 8 VMs, we can predict MST for
+streaming applications with less than 4% average prediction
+error for 12 VMs, 9% for 16 VMs, and 32% for 24 VMs.
+Further, we evaluate our prediction models with simulationbased elastic VM scheduling on a realistic workload. These
+simulation results show that with 10% over-provisioning, our
+proposed models’ cost efficiency is on par with the cost of
+an optimal scaling policy without incurring any service level
+agreement violations.
+
+Keywords-cloud computing; performance prediction; resource management; auto-scaling
+

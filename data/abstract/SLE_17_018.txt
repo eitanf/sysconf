@@ -1,0 +1,12 @@
+
+Reference Attribute Grammars (RAGs) is a declarative executable formalism used for constructing compilers and related tools. Existing implementations support concurrent
+evaluation only with global evaluation locks. This may lead
+to long latencies in interactive tools, where interactive and
+background threads query attributes concurrently.
+We present lock-free algorithms for concurrent attribute
+evaluation, enabling low latency in interactive tools. Our algorithms support important extensions to RAGs like circular
+(fixed-point) attributes and higher-order attributes.
+We have implemented our algorithms in Java, for the JastAdd metacompiler. We evaluate the implementation on a
+JastAdd-specified compiler for the Java language, demonstrating very low latencies for interactive attribute queries,
+on the order of milliseconds. Furthermore, initial experiments show a speedup of about a factor 2 when using four
+parallel compilation threads.

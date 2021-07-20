@@ -1,0 +1,26 @@
+
+Non-volatile memory express (NVMe) based SSDs
+and the NUMA platform are widely adopted in servers to
+achieve faster storage speed and more powerful processing
+capability. As of now, very little research has been conducted
+to investigate the performance and energy efficiency of the stateof-the-art NUMA architecture integrated with NVMe SSDs, an
+emerging technology used to host parallel I/O threads. As this
+technology continues to be widely developed and adopted, we
+need to understand the runtime behaviors of such systems in
+order to design software runtime systems that deliver optimal
+performance while consuming only the necessary amount of
+
+energy.
+
+This paper characterizes the runtime behaviors of a Linuxbased NUMA system employing multiple NVMe SSDs. Our
+comprehensive performance and energy-efficiency study using
+massive numbers of parallel I/O threads shows that the penalty
+due to CPU contention is much smaller than that due to remote
+access of NVMe SSDs. Based on this insight, we develop a
+dynamic “lesser evil’ algorithm called ESN, to minimize the
+impact of these two types of penalties. ESN is an energyefficient profiling-based I/O thread scheduler for managing I/O
+threads accessing NVMe SSDs on NUMA systems. Our empirical
+evaluation shows that ESN can achieve optimal I/O throughput
+and latency while consuming up to 50% less energy and using
+fewer CPUs.
+

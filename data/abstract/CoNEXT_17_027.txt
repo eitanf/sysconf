@@ -1,0 +1,18 @@
+
+
+A common practice to increase the reliability of a cloud application
+is to deploy redundant instances. Unfortunately, such redundancy
+efforts can be undermined if the application’s instances share common dependencies. This paper presents RECLOUD, a novel system
+that can efficiently find a reliable deployment plan for cloud applications. RECLOUD considers and avoids common dependencies shared
+across application instances that may lead to correlated failures, and
+works with applications that even have complex internal structures.
+RECLOUD utilizes various pieces of available dependency information (e.g., hardware, software and/or network dependencies) about
+the cloud infrastructure to quantitatively assess the reliability of
+the application’s deployment plan with rigorous error bounds. This
+assessment further enables RECLOuD to find a deployment plan that
+balances between reliability and other criteria such as application
+performance and resource utilization. We implemented a fully functional system. The experimental results show that, even in a large
+cloud environment with more than 27K hosts, RECLoUD needs only
+30 seconds to find a deployment plan that is one order of magnitude
+more reliable than the common practice.
+

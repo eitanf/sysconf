@@ -1,0 +1,30 @@
+
+Interest has recently grown in efficiently analyzing
+unstructured data such as social network graphs and protein
+structures. A fundamental graph algorithm for doing such task
+is the Breadth-First Search (BFS) algorithm, the foundation for
+many other important graph algorithms such as calculating the
+shortest path or finding the maximum flow in graphs.
+
+In this paper, we share our experience of designing and
+implementing the BFS algorithm on Sunway TaihuLight, a
+newly released machine with 40,960 nodes and 10.6 million
+accelerator cores. It tops the Top500 list of June 2016 with a
+93.01 petaflops Linpack performance [1].
+
+Designed for extremely large-scale computation and power
+efficiency, processors on Sunway TaihuLight employ a unique
+heterogeneous many-core architecture and memory hierarchy.
+With its extremely large size, the machine provides both opportunities and challenges for implementing high-performance
+irregular algorithms, such as BFS.
+
+We propose several techniques, including pipelined module
+mapping, contention-free data shuffling, and group-based message batching, to address the challenges of efficiently utilizing
+the features of this large scale heterogeneous machine. We
+ultimately achieved 23755.7 giga-traversed edges per second
+(GTEPS), which is the best among heterogeneous machines
+and the second overall in the Graph500s June 2016 list [2].
+
+Index Terms—Breadth-First Search; heterogeneous; parallel
+algorithm; micro-architecture;
+

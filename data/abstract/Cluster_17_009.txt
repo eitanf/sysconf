@@ -1,0 +1,26 @@
+
+Burst Buffer is an effective solution for reducing
+the data transfer time and the I/O interference in HPC systems.
+Extending Burst Buffers (BBs) to handle Big Data applications is
+challenging because BBs must account for the large data inputs
+of Big Data applications and the performance guarantees of HPC
+applications - which are considered as first-class citizens in HPC
+systems. Existing BBs focus on only intermediate data of Big
+Data applications and incur a high performance degradation
+of both Big Data and HPC applications. We present Eley, a
+burst buffer solution that helps to accelerate the performance
+of Big Data applications while guaranteeing the performance
+of HPC applications. In order to improve the performance of
+Big Data applications, Eley employs a prefetching technique that
+fetches the input data of these applications to be stored close to
+computing nodes thus reducing the latency of reading data inputs.
+Moreover, Eley is equipped with a full delay operator to guarantee
+the performance of HPC applications - as they are running
+independently on a HPC system. The experimental results show
+the effectiveness of Eley in obtaining shorter execution time of
+Big Data applications (shorter map phase) while guaranteeing
+the performance of HPC applications.
+
+Keywords—HPC, MapReduce, Big Data, Parallel File Systems,
+Burst Buffers, Interference, Prefetch.
+

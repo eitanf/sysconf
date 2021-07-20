@@ -1,0 +1,21 @@
+
+Many applications have irregular behavior — e.g.,
+input-dependent solvers, irregular memory accesses, or unbiased
+branches — that cannot be captured using today’s automated
+performance modeling techniques. We describe new hierarchical
+critical path analyses for the Palm model generation tool. To
+obtain a good tradeoff between model accuracy, generality,
+and generation cost, we combine static and dynamic analysis.
+To create a model’s outer structure, we capture tasks along
+representative MPI critical paths. We create a histogram of
+critical tasks with parameterized task arguments and instance
+counts. To model each task, we identify hot instruction-level
+paths and model each path based on data flow, data locality, and
+microarchitectural constraints. We describe application models
+that generate accurate predictions for strong scaling when
+varying CPU speed, cache and memory speed, microarchitecture,
+and (with supervision) input data class. Our models’ errors are
+usually below 8%; and always below 13%.
+
+Index Terms—analytical performance models, model generation, critical path analysis, Palm
+

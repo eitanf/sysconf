@@ -1,0 +1,11 @@
+
+Heterogeneous architectures characterize today hardware ranging from super-computers to smartphones.
+However, in spite of this importance, programming such systems is still challenging. In particular, it is
+challenging to map computations to the different processors of a heterogeneous device. In this paper, we
+provide a static analysis that mitigates this problem. Our contributions are two-fold: first, we provide a semicontext-sensitive algorithm, which analyzes the program’s call graph to determine the best processor for each
+calling context. This algorithm is parameterized by a cost model, which takes into consideration processor’s
+characteristics and data transfer time. Second, we show how to use simulated annealing to calibrate this cost
+model for a given heterogeneous architecture. We have used our ideas to build Etino, a tool that annotates C
+programs with OpenACC or OpenMP 4.0 directives. Etino generates code for a CPU-GPU architecture without
+user intervention. Experiments on classic benchmarks reveal speedups of up to 75x. Moreover, our calibration
+process lets Etino avoid slowdowns of up to 720x which trivial parallelization approaches would yield.

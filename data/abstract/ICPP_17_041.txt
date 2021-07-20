@@ -1,0 +1,24 @@
+
+Parity declustering is widely deployed in erasure
+coded storage systems so as to provide fast recovery and high
+data availability. However, to perform scaling on such RAIDs,
+it is necessary to preserve the parity declustered data layout
+so as to guarantee the RAID performance after scaling. Unfortunately, existing scaling algorithms fail to achieve this goal so
+they can not be applied for scaling RAIDs which have deployed
+parity declustering. To address this challenge, we develop
+an efficient scaling algorithm called PDS (Parity Declustering
+Scaling). In particular, we first employ an auxiliary Balanced
+Incomplete Block Design (BIBD) to define the data migrations
+during scaling so as to preserve parity declustered data layout,
+and then define the addressing algorithm in the scaled system
+based on the migrations. We provide theoretical proofs to show
+that PDS preserves the parity declustered data layout, which
+is the basis for scaling RAIDs with parity declustering, and
+also theoretically prove that PDS achieves the even distribution
+of data/parity blocks after scaling and requires only the
+minimal data migrations. To show the performance of PDS, we
+implement it in MD in Linux Kernel, and conduct experiments
+with real-world traces. Results show PDS can reduce 89.70% of
+data migration time and 24.44% of user response time during
+scaling on average, compared with the round-robin scheme.
+

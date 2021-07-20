@@ -1,0 +1,22 @@
+
+
+We consider packet forwarding in acyclic networks with bounded
+adversarial packet injections. We focus on the model of adversarial
+queuing theory, where each packet is injected into the network
+with a prescribed path to its destination, and both the long-range
+average rate and the short-range burst size are bounded. Each edge
+has an associated buffer that stores packets while they wait to cross
+the edge. Our goal is to minimize the buffer space required to avoid
+overflows.
+
+Previous results for local forwarding protocols required buffers
+of size Q(n). In the case of single destination trees, it is known that
+for centralized protocols, buffers of size O(1) are sufficient. We show
+that for local protocols, buffers of size @(log n) are necessary and
+sufficient for single destination trees. The upper bound is achieved
+by a novel protocol which we call Odd-Even Downhill forwarding
+(OED). We also show that even slightly more general networks—
+such as path graphs with multiple destinations, or DAGs with a
+single destination—require buffers of size Q(n) to avoid overflows,
+even if forwarding is done by centralized, offline protocols.
+

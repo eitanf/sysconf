@@ -1,0 +1,30 @@
+
+Previous attacks that link the sender and receiver of
+trafﬁc in the Tor network (“correlation attacks”) have generally
+relied on analyzing trafﬁc from TCP connections. The TCP
+connections of a typical client application, however, are often
+accompanied by DNS requests and responses. This additional
+trafﬁc presents more opportunities for correlation attacks. This
+paper quantiﬁes how DNS trafﬁc can make Tor users more vul-
+nerable to correlation attacks. We investigate how incorporating
+DNS trafﬁc can make existing correlation attacks more powerful
+and how DNS lookups can leak information to third parties
+about anonymous communication. We (i) develop a method to
+identify the DNS resolvers of Tor exit relays; (ii) develop a new
+set of correlation attacks (DefecTor attacks) that incorporate DNS
+trafﬁc to improve precision; (iii) analyze the Internet-scale effects
+of these new attacks on Tor users; and (iv) develop improved
+methods to evaluate correlation attacks. First, we ﬁnd that there
+exist adversaries that can mount DefecTor attacks: for example,
+Google’s DNS resolver observes almost 40% of all DNS requests
+exiting the Tor network. We also ﬁnd that DNS requests often
+traverse ASes that the corresponding TCP connections do not
+transit, enabling additional ASes to gain information about Tor
+users’ trafﬁc. We then show that an adversary that can mount a
+DefecTor attack can often determine the website that a Tor user
+is visiting with perfect precision, particularly for less popular
+websites where the set of DNS names associated with that website
+may be unique to the site. We also use the Tor Path Simulator
+(TorPS) in combination with traceroute data from vantage points
+co-located with Tor exit relays to estimate the power of AS-level
+adversaries that might mount DefecTor attacks in practice.

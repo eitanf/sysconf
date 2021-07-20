@@ -1,0 +1,31 @@
+
+Redundant computations appear during the execution of real programs. Multiple factors contribute to these
+unnecessary computations, such as repetitive inputs and patterns, calling functions with the same parameters or bad
+programming habits. Compilers minimize non useful code
+with static analysis. However, redundant execution might be
+dynamic and there are no current approaches to reduce these
+inefficiencies. Additionally, many algorithms can be computed
+with different levels of accuracy. Approximate computing
+exploits this fact to reduce execution time at the cost of slightly
+less accurate results. In this case, expert developers determine
+the desired tradeoff between performance and accuracy for
+each application.
+
+In this paper, we present Approximate Task Memoization
+(ATM), a novel approach in the runtime system that transparently exploits both dynamic redundancy and approximation
+at the task granularity of a parallel application. Memoization
+of previous task executions allows predicting the results of
+future tasks without having to execute them and without losing
+accuracy. To further increase performance improvements, the
+runtime system can memoize similar tasks, which leads to
+task approximate computing. By defining how to measure task
+similarity and correctness, we present an adaptive algorithm
+in the runtime system that automatically decides if task
+approximation is beneficial or not. When evaluated on a real
+8-core processor with applications from different domains
+(financial analysis, stencil-computation, machine-learning and
+linear-algebra), ATM achieves a 1.4x average speedup when
+only applying memoization techniques. When adding task
+approximation, ATM achieves a 2.5x average speedup with an
+average 0.7% accuracy loss (maximum of 3.2%).
+

@@ -1,0 +1,20 @@
+
+. The Parallel Research Kernels (PRK) are a tool to study
+parallel architectures and runtime systems from an application perspective. They provide paper and pencil specifications and reference implementations of elementary operations covering a broad range of parallel
+application patterns. Most of the current PRK are trivially statically
+load-balanced. In a prior study we described a novel PRK that requires
+dynamic load balancing, and demonstrated its effectiveness to assess
+automatic dynamic load balancing capabilities of runtimes. While useful,
+it did not fully represent the problem of greatest interest to researchers
+of extreme scale computing systems, namely the occurrence of localized, discrete, transient disturbances (system noise). For that purpose we
+introduce a new PRK, inspired by Adaptive Mesh Refinement (AMR)
+applications, which provides a proxy for the most detrimental property
+of noise, namely abrupt and discrete change of local system load. We
+give a detailed specification of the new PRK, highlighting the challenges
+and corresponding design choices that make it compact, arbitrarily scalable and self-verifying. We also present an implementation of the AMR
+PRK in MPI, with application-specific load balancing, as well as one in
+Adaptive MPI that leverages the MPI version, but adds runtime orchestrated dynamic load balancing, along with a set of performance results.
+These show that for applications that can be load balanced statically,
+but experience occasional local changes in computational load, automatic
+dynamic load balancing typically does not offer an advantage.
+

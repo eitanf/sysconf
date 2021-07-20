@@ -1,0 +1,9 @@
+
+We present MemEC, an erasure-coding-based in-memory
+key-value (KV) store that achieves high availability and fast
+recovery while keeping low data redundancy across storage
+servers. MemEC is specifically designed for workloads dominated by small objects. By encoding objects in entirety,
+MemEC is shown to incur 60% less storage redundancy for
+small objects than existing replication- and erasure-codingbased approaches. It also supports graceful transitions between decentralized requests in normal mode (i.e., no failures) and coordinated requests in degraded mode (i.e., with
+failures). We evaluate our MemEC prototype via testbed experiments under read-heavy and update-heavy YCSB workloads. We show that MemEC achieves high throughput and
+low latency in both normal and degraded modes, and supports fast transitions between the two modes.

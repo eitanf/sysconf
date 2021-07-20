@@ -1,0 +1,19 @@
+
+Processor manufacturers have adopted SIMD for
+decades because of its superior performance and power efficiency. The configurations of SIMD registers (i.e., the number
+and width) have evolved and diverged rapidly through various
+ISA extensions on different architectures. However, migrating
+legacy or proprietary applications optimized for one guest ISA
+to another host ISA that has fewer but longer SIMD registers through binary translation raises the issues of asymmetric
+SIMD register configurations. To date, these issues have been
+overlooked. As a result, only a small fraction of the potential
+performance gain is realized due to underutilization of the
+host’s SIMD parallelism and register capacity.
+
+In this paper, we present a novel dynamic binary translation technique called spill-aware SLP (saSLP), which combines
+short ARMv8 NEON instructions and registers in the guest
+binary loops to fully utilize the x86 AVX host’s parallelism as
+well as minimize register spilling. Our experiment results show
+that saSLP improves the performance by 1.6X (2.3X) across
+a number of benchmarks, and reduces spilling by 97% (99%)
+for ARMv8 NEON to x86 AVX2 (AVX-512) translation.

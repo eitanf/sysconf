@@ -1,0 +1,15 @@
+
+Amazon EC2 and Google Compute Engine (GCE) have recently introduced a new class of virtual machines called “burstable”
+instances that are cheaper than even the smallest traditional/regular instances. These lower prices come with reduced average
+capacity and increased variance. Using measurements from both EC2 and GCE, we identify key idiosyncrasies of resource
+capacity dynamism for burstable instances that set them apart from other instance types. Most importantly, certain resources
+for these instances appear to be regulated by deterministic token bucket like mechanisms. We find widely different types of
+disclosures by providers of the parameters governing these regulation mechanisms: full disclosure (e.g., CPU capacity for
+EC2 t2 instances), partial disclosure (e.g., CPU capacity and remote disk IO bandwidth for GCE shared-core instances), or no
+disclosure (network bandwidth for EC2 t2 instances). A tenant modeling these variations as random phenomena (as some
+recent work suggests) might make sub-optimal procurement and operation decisions. We present modeling techniques for a
+tenant to infer the properties of these regulation mechanisms via simple offline measurements. We also present two case studies
+of how certain memcached workloads might benefit from our modeling when operating on EC2 by: (i) augmenting cheap but
+low availability in-memory storage offered by spot instances with backup of popular content on burstable instances, and (ii)
+temporal multiplexing of multiple burstable instances to achieve the CPU or network bandwidth (and thereby throughput)
+equivalent of a more expensive regular EC2 instance.

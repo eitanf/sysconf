@@ -1,0 +1,26 @@
+
+Achieving system fairness is a major design concern in current multicore processors. Unfairness arises due to
+contention in the shared resources of the system, such as the
+LLC and main memory. To address this problem, many research
+works have proposed novel cache partitioning policies aimed
+at addressing system fairness without harming performance.
+Unfortunately, existing proposals targeting fairness require extra
+hardware which makes them impractical in commercial processors.
+
+Recent Intel Xeon processors feature Cache Allocation Technology (CAT), a hardware cache partitioning mechanism that can
+be controlled from userspace software and that allows to create
+partitions in the LLC and assign different groups of applications
+to them.
+
+In this paper we propose a family of clustering-based cache
+partitioning policies to address fairness in systems that feature
+Intel’s CAT. The proposal acts at two levels: applications showing
+similar amount of core stalls due to LLC accesses are first
+grouped into clusters, after which each cluster is given a number
+of ways using a simple mathematical model. To the best of our
+knowledge, this is the first attempt to address system fairness
+using the cache partitioning hardware in a real product. Results
+show that our best performing policy reduces system unfairness
+by up to 80% (39% on average) for 8-application workloads and
+by up to 45% (25% on average) for 12-application workloads
+compared to a non-partitioning approach.

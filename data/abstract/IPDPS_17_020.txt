@@ -1,0 +1,19 @@
+
+We consider the following balls-into-bins process
+with n bins and m balls: Each ball is equipped with a mutually
+independent exponential clock of rate 1. Whenever a ball’s
+clock rings, the ball samples a random bin and moves there if
+the number of balls in the sampled bin is smaller than in its
+current bin.
+
+This simple process models a typical load balancing problem where users (balls) seek a selfish improvement of their
+assignment to resources (bins). From a game theoretic perspective, this is a randomized approach to the well-known KPmodel [1], while it is known as Randomized Local Search
+(RLS) in load balancing literature [2], [3]. Up to now, the
+best bound on the expected time to reach perfect balance was
+O((Inn)? + In(n) - n?/m) due to [3]. We improve this to
+an asymptotically tight O(In(n) + n?/m). Our analysis is
+based on the crucial observation that performing destructive
+moves (reversals of RLS moves) cannot decrease the balancing
+time. This allows us to simplify problem instances and to ignore
+“inconvenient moves” in the analysis.
+

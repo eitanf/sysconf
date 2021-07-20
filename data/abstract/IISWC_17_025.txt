@@ -1,0 +1,18 @@
+
+Current handhelds incorporate a variety of accelerators/IPs for improving their performance and energy efficiency.
+While these IPs are extremely useful for accelerating parts of a
+computation, the CPU still expends a significant amount of time
+and energy in the overall execution. Coarse grain customized
+hardware of Android APIs and methods, though widely useful,
+is also not an option due to the high hardware costs. Instead,
+we propose a fine-grain sequence of instructions, called a Loadto-Store (LOST) sequence, for hardware customization. A LOST
+sequence starts with a load and ends with a store, including
+dependent instructions in between. Unlike prior approaches to
+customization, a LOST sequence is defined based on a sequence
+of opcodes rather than a sequence of PC addresses or operands.
+We identify such commonly occurring LOST sequences within
+and across several popular apps and propose a design to integrate
+these customized hardware sequences as macro functional units
+into the CPU data-path. Detailed evaluation shows that such
+customized LOST sequences can provide an average of 25%
+CPU speedup, or 12% speedup for the entire system.

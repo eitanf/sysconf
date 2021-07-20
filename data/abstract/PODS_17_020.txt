@@ -1,0 +1,35 @@
+
+
+This paper investigates the problem of reverse engineering,
+i.e., learning, select-project-join (SPJ) queries from a userprovided example set, containing positive and negative tuples.
+The goal is then to determine whether there exists a query
+returning all the positive tuples, but none of the negative tuples, and furthermore, to find such a query, if it exists. These
+are called the satisfiability and learning problems, respectively. The ability to solve these problems is an important
+step in simplifying the querying process for non-expert users.
+
+This paper thoroughly investigates the satisfiability and
+learning problems in a variety of settings. In particular,
+we consider several classes of queries, which allow different
+combinations of the operators select, project and join. In
+addition, we compare the complexity of satisfiability and
+learning, when the query is, or is not, of bounded size. We
+note that bounded-size queries are of particular interest, as
+they can be used to avoid over-fitting (i.e., tailoring a query
+precisely to only the seen examples).
+
+In order to fully understand the underlying factors which
+make satisfiability and learning (in)tractable, we consider
+different components of the problem, namely, the size of a
+query to be learned, the size of the schema and the number
+of examples. We study the complexity of our problems, when
+considering these as part of the input, as constants or as
+parameters (i.e., as in parameterized complexity analysis).
+Depending on the setting, the complexity of satisfiability
+and learning can vary significantly. Among other results, our
+analysis also provides new problems that are complete for
+W|3], for which few natural problems are known. Finally, by
+considering a variety of settings, we derive insight on how
+the different facets of our problem interplay with the size of
+the database, thereby providing the theoretical foundations
+necessary for a future implementation of query learning from
+examples.

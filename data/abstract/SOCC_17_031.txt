@@ -1,0 +1,28 @@
+
+
+Many popular big data analytics systems today make liberal use of
+user-defined functions (UDFs) in their programming interface and
+are written in languages based on the Java Virtual Machine (JVM).
+This combination creates a barrier when we want to integrate
+processing engines written in a language that compiles down to
+machine code with a JVM-based big data analytics ecosystem.
+
+In this paper, we investigate efficient ways of executing UDFs
+written in Java inside a data processing engine written in C++.
+While it is possible to call Java code from machine code via the Java
+Native Interface (JNI), a naive implementation that applies the UDF
+one row at a time incurs a significant overhead, up to an order of
+magnitude.
+
+Instead, we can significantly reduce the costs of JNI calls and
+data copies between Java and machine code, if we execute UDFs
+on batches of rows, and reuse input/output buffers when possible.
+Our evaluation of these techniques using different scalar UDFs,
+in a prototype system that combines Spark and a columnar data
+processing engine written in C++, shows that such a combination
+does not slow down the execution of SparkSQL queries containing
+such UDFs. In fact, we find that the execution of Java UDFs inside
+an embedded JVM in our C++ engine is 1.12x to 1.53x faster than
+executing in Spark alone. Our analysis also shows that compiling
+Java UDFs directly into machine code is not always beneficial over
+strided execution in the JVM.

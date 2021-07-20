@@ -1,0 +1,21 @@
+
+Chapel is an emerging PGAS (Partitioned Global
+Address Space) language whose design goal is to make parallel
+programming more productive and generally accessible. To
+date, the implementation effort has focused primarily on
+correctness over performance. We present a performance
+Measurement technique for Chapel and the idea is also
+applicable to other PGAS models. The unique feature of our
+tool is that it associates the performance statistics not to the
+code regions (functions), but to the variables (including the
+heap allocated, static, and local variables) in the source code.
+Unlike code-centric methods, this data-centric analysis
+capability exposes new optimization opportunities that are
+useful in resolving data locality problems. This paper
+introduces our idea and implementations of the approach with
+three benchmarks. We also include a case study optimizing
+benchmarks based on the information from our tool. The
+optimized versions improved the performance by a factor of
+1.4x for LULESH, 2.3x for MiniMD, and 2.1x for CLOMP
+with simple modifications to the source code.
+

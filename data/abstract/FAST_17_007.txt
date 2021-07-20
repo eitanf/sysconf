@@ -1,0 +1,16 @@
+
+Recent improvements in both the performance and
+scalability of shared-nothing, transactional, in-memory
+NewSQL databases have reopened the research question
+of whether distributed metadata for hierarchical file systems can be managed using commodity databases. In this
+paper, we introduce HopsFS, a next generation distribution of the Hadoop Distributed File System (HDFS) that
+replaces HDFS’ single node in-memory metadata service,
+with a distributed metadata service built on a NewSQL
+database. By removing the metadata bottleneck, HopsFS
+enables an order of magnitude larger and higher throughput clusters compared to HDFS. Metadata capacity has
+been increased to at least 37 times HDFS’ capacity, and
+in experiments based on a workload trace from Spotify,
+we show that HopsFS supports 16 to 37 times the throughput of Apache HDFS. HopsFS also has lower latency for
+many concurrent clients, and no downtime during failover.
+Finally, as metadata is now stored in a commodity database, it can be safely extended and easily exported to
+external systems for online analysis and free-text search.

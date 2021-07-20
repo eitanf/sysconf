@@ -1,0 +1,19 @@
+
+Big Data comes with huge challenges. Its volume and velocity
+makes handling, curating, and analytical processing a costly affair.
+Even to simply “look at” the data within an a priori defined budget
+and with a guaranteed interactive response time might be impossible to achieve. Commonly applied scale-out approaches will hit the
+technology and monetary wall soon, if not done so already. Likewise, blindly rejecting data when the channels are full, or reducing
+the data resolution at the source, might lead to loss of valuable observations.
+
+An army of well-educated database administrators or full software stack architects might deal with these challenges albeit at
+substantial cost. This calls for a mostly knobless DBMS with a
+fundamental change in database management.
+
+Data rotting has been proposed as a direction to find a solution [10, 11]. For the sake of storage management and responsiveness, it lets the DBMS semi-autonomously rot away data. Rotting
+is based on the systems own unwillingness to keep old data as easily accessible as fresh data. This paper sheds more light on the
+opportunities and potential impacts of this radical departure in data
+management. Specifically, we study the case where a DBMS selectively forgets tuples (by marking them inactive) under various amnesia scenarios and with different implementation strategies. Our
+ultimate goal is to use the findings of this study to morph an existing data management engine to serve demanding big data scientific
+applications with well-chosen built-in data amnesia algorithms.
+

@@ -1,0 +1,21 @@
+
+
+How can we measure similarity between nodes quickly and
+
+accurately on large graphs? Random walk with restart (RWR)
+
+provides a good measure, and has been used in various data
+mining applications including ranking, recommendation, link
+prediction and community detection. However, existing meth
+ods for computing RWR do not scale to large graphs containing billions of edges; iterative methods are slow in query
+time, and preprocessing methods require too much memory.
+
+In this paper, we propose BEPI, a fast, memory-efficient,
+and scalable method for computing RWR on billion-scale
+graphs. BEPI exploits the best properties from both preprocessing methods and iterative methods. BEPI uses a block
+elimination approach, which is a preprocessing method, to
+enable fast query time. Also, BEPI uses a preconditioned
+iterative method to decrease memory requirement. The performance of BEPI is further improved by decreasing nonzeros of the matrix for the iterative method. Through extensive experiments, we show that BEPI processes 100x larger
+graphs, and requires up to 130x less memory space than
+other preprocessing methods. In the query phase, BEPI
+computes RWR scores up to 9x faster than existing methods.

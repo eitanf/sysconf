@@ -1,0 +1,15 @@
+
+
+While virtualization helps to enable multi-tenancy in data centers,
+it introduces new challenges to the resource management in traditional OSes. We find that one important design in an OS, prioritizing
+interactive and I/O-bound workloads, can become ineffective in a
+virtualized OS. Resource multiplexing between multiple tenants
+breaks the assumption of continuous CPU availability in physical
+systems and causes two types of priority inversions in virtualized
+OSes. In this paper, we present xBALLoon , a lightweight approach
+to preserving I/O prioritization. It uses a balloon process in the
+virtualized OS to avoid priority inversion in both short-term and
+long-term scheduling. Experiments in a local Xen environment and
+Amazon EC2 show that xBatLoon improves I/O performance in a
+recent Linux kernel by as much as 136% on network throughput,
+95% on disk throughput, and 125x on network tail latency.

@@ -1,0 +1,17 @@
+
+T U X 2 is a new distributed graph engine that bridges
+graph computation and distributed machine learning.
+T U X 2 inherits the benefits of an elegant graph computation model, efficient graph layout, and balanced parallelism to scale to billion-edge graphs; we extend and
+optimize it for distributed machine learning to support
+heterogeneity, a Stale Synchronous Parallel model, and
+a new MEGA (Mini-batch, Exchange, GlobalSync, and
+Apply) model.
+We have developed a set of representative distributed
+machine learning algorithms in T U X 2 , covering both supervised and unsupervised learning. Compared to implementations on distributed machine learning platforms,
+writing these algorithms in T U X 2 takes only about 25%
+of the code: Our graph computation model hides the detailed management of data layout, partitioning, and parallelism from developers. Our extensive evaluation of
+T U X 2 , using large data sets with up to 64 billion edges,
+shows that T U X 2 outperforms state-of-the-art distributed
+graph engines PowerGraph and PowerLyra by an order of
+magnitude, while beating two state-of-the-art distributed
+machine learning systems by at least 48%.

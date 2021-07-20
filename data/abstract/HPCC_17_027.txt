@@ -1,0 +1,23 @@
+
+The MPI two-sided communication model has been
+widely used in scientific applications for decades. The nonblocking version of the two-sided routines allows the application to
+potentially improve performance on many systems by overlapping communication and computation. In practice, unfortunately,
+the overlap is hard to achieve because of the limitations of the
+MPI internal progress engine and the underlying network. The
+traditional approach to resolving this issue is to implement an
+asynchronous progress engine based on either additional threads
+or hardware interrupts; however, such approaches may result in
+reduced computing power or expensive overheads.
+
+In this paper, we present a portable process-based asynchronous progress approach for two-sided communication in the
+PMPI-based Casper framework. It allows the user to specify
+an arbitrary number of cores on a multicore or many-core
+architecture and offload the point-to-point communication to
+these cores, thus ensuring asynchronous progress with low
+overhead. Unlike our previous work that supports asynchronous
+progress for the MPI one-sided model, a completely new design
+is needed for the message-matching-based two-sided model in
+order to ensure comprehensive semantics correctness as defined
+in the MPI standard. We present a detailed design of this twosided model and compare it with the traditional thread-based
+approach on both a multicore Intel Xeon cluster and a manycore Knights Landing cluster.
+

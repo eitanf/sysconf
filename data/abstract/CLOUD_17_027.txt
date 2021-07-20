@@ -1,0 +1,24 @@
+
+The efficiency of datacenters is important
+consideration for cloud service providers to make their
+datacenters always ready for fulfilling the increasing demand for
+computing resources. Container-based virtualization is one
+approach to improving efficiency by reducing the overhead of
+virtualization. Resource overcommitment is another approach,
+but cloud providers tend to make conservative allocations of
+resources because there is no good understanding of the
+relationship between physical resource overcommitment and its
+impact on performance. This paper presents a quantitative study
+of performance degradation of containerized workloads due to
+memory overcommitment and a technique to mitigate it. We
+focused on physical memory overcommitment, where the sum of
+the working set memory is larger than the physical memory. We
+drove a small fraction of Docker containers at a high load level
+and the rest of them at a very low load level to emulate a common
+usage pattern of cloud datacenters. Detailed measurements
+revealed it is difficult to predict how many additional containers
+can be launched before thrashing hurts performance. We show
+that tuning the per-container swappiness of heavily loaded
+containers is effective for launching a larger number of
+containers and that it achieves an overcommitment of about
+three times.

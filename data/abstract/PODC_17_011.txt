@@ -1,0 +1,26 @@
+
+ tester might ask whether a given edge is in the graph, or what
+
+In this paper we initiate the study of property testing in multi-party
+communication complexity, focusing on testing triangle-freeness
+in graphs. We consider the coordinator model, where we have k
+players receiving private inputs, and a coordinator who receives
+no input; the coordinator can communicate with all the players,
+but the players cannot communicate with each other. In this model,
+we ask: if an input graph is divided between the players, with each
+player receiving some of the edges, how many bits do the players
+and the coordinator need to exchange to determine if the graph is
+triangle-free, or far from triangle-free? We are especially interested
+in simultaneous communication protocols, where there is only one
+communication round.
+
+For general communication protocols, we show that O(k(nd)!/ 44
+k’) bits are sufficient to test triangle-freeness in graphs of size n
+with average degree d. We also give a simultaneous protocol using
+O(k-n) bits when d = O(-yn) and O(k(nd)!/3) when d = Q(n). We
+show that for average degree d = O(1), our simultaneous protocol
+is asymptotically optimal up to logarithmic factors. For higher
+degrees, we are not able to give lower bounds on testing trianglefreeness, but we give evidence that the problem is hard by showing
+that finding an edge that participates in a triangle is hard, even
+when promised that the graph is far from triangle-free.
+

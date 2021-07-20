@@ -1,0 +1,29 @@
+
+We consider the problem of scheduling packets
+of different lengths via k directed parallel communication
+links. The links are prone to simultaneous errors — if an
+error occurs, all links are affected. Dynamic packet arrivals
+and errors are modelled by a worst-case adversary. The goal
+is to optimize competitive throughput of online scheduling
+algorithms. Two types of failures are considered: jamming,
+when currently scheduled packets are simply not delivered,
+and crashes, when additionally the channel scheduler crashes
+losing its current state. For the former, milder type of failures,
+we prove an upper bound on competitive throughput of
+3/4—1/(4k) for odd values of k, and 3/4—1/(4k+-4) for even
+values of k. On constructive side, we design an online algorithm
+that, for packets of two different lengths, matches the upper
+bound on competitive throughput. To compare, scheduling on
+independent channels, that is, when adversary could cause
+errors on each channel independently, reaches throughput of
+1/2. This shows that scheduling under simultaneous jamming
+is provably more efficient than scheduling under channelindependent jamming. In the setting with crash failures we
+prove a general upper bound for competitive throughput of
+(./5—1)/2 and design an algorithm achieving it for packets of
+two different lengths. This result has two interesting implications. First, simultaneous crashes are significantly stronger than
+simultaneous jamming. Second, due to the above mentioned
+upper bound of 1/2 on throughput under channel-independent
+errors, scheduling under simultaneous crashes is significantly
+stronger than channel-independent crashes, similarly as in the
+case of jamming errors.
+

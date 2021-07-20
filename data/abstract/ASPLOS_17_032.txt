@@ -1,0 +1,30 @@
+
+With exploding traffic is stuffing existing network infrastructure, today’s telecommunication and cloud service
+providers resort to Network Function Virtualization (NFV)
+for greater agility and economics. Pioneer service provider
+such as AT&T proposes to adopt container in NFV to
+achieve shorter Virtualized Network Function (VNF) provisioning time and better runtime performance. However,
+we characterize typical NFV workloads on the containers
+and find that the performance is unsatisfactory. We observe
+that the shared host OS network stack is the main bottleneck, where the traffic flow processing involves a large
+amount of intermediate memory buffers and results in significant last level cache pollution. Existing OS memory
+allocation policies fail to exploit the locality and data sharing information among buffers.
+
+In this paper, we propose NetContainer, a software
+framework that achieves fine-grained hardware resource
+management for containerized NF'V platform. NetContainer
+employs a cache access overheads guided page coloring
+scheme to coordinately address the inter-flow cache access
+overheads and intra-flow cache access overheads. It maps
+the memory buffer pages that manifest low cache access
+overheads (across a flow or among the flows) to the same
+last level cache partition. NetContainer exploits a footprint
+theory based method to estimate the cache access overheads and a Min-Cost Max-Flow model to guide the
+memory buffer mappings. We implement the NetContainer
+in Linux kernel and extensively evaluate it with real NFV
+workloads. Experimental results show that NetContainer
+outperforms conventional page coloring-based memory
+allocator by 48% in terms of successful call rate.
+
+Keywords NFV; Container; Networking; Page Coloring;
+Session Initiation Protocol;

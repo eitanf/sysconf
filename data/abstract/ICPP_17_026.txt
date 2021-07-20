@@ -1,0 +1,19 @@
+
+Data staging has been shown to be very
+effective for supporting data intensive in-situ workflows
+and coupling of applications. Experimental sciences
+are increasingly becoming collaborative among geographically distributed teams, and include experimental instruments and HPC facilities. This new way of
+doing science poses new challenges due to data sizes,
+complexity of computation, and the use of wide area
+networks between couplings. In this paper, we explore
+how the staging abstraction can be extended to support
+such workflows. Specifically, we develop a NUMA-like
+abstraction that orchestrates multiple distributed localarea staging abstractions, and provides asynchronous
+data put/get semantics to enable data sharing across
+them. To mask data movement overhead and provide
+in-time data access, we propose the use of predictive
+prefetching approaches that leverage the iterative nature of the coupling. We evaluate our prototype implementation using a fusion workflow and show that our
+design can effectively and transparently support widearea coupled workflows. Additionally, results show that
+the use of prefetching techniques leads to significant
+gains in data access times of data that needs to be
+moved over the wide area network.

@@ -1,0 +1,15 @@
+
+While many algorithm-based fault tolerance (ABFT) schemes have
+been proposed to detect soft errors offline in the fast Fourier transform (FFT) after computation finishes, none of the existing ABFT
+schemes detect soft errors online before the computation finishes.
+This paper presents an online ABFT scheme for FFT so that soft
+errors can be detected online and the corrupted computation can
+be terminated in a much more timely manner. We also extend our
+scheme to tolerate both arithmetic errors and memory errors, develop strategies to reduce its fault tolerance overhead and improve
+its numerical stability and fault coverage, and finally incorporate
+it into the widely used FFTW library - one of the today’s fastest
+FFT software implementations. Experimental results demonstrate
+that: (1) the proposed online ABFT scheme introduces much lower
+overhead than the existing offline ABFT schemes; (2) it detects
+errors in a much more timely manner; and (3) it also has higher
+numerical stability and better fault coverage.

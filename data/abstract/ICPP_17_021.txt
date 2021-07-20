@@ -1,0 +1,22 @@
+
+To overcome scalability and performance issues for
+process queries over a web-scale RDF data, various studies have
+proposed RDF SPARQL query processing algorithm using
+parallel processing manners. However, it is hard to resolve the
+scalability and performance issues together because the
+problem of communication overhead between nodes is closely
+related to the data distribution for parallel processing. For
+efficient RDF query parallel processing, it is essential to
+distribute and process data evenly while reducing
+communication overhead. In this paper, we propose RDF query
+parallel processing algorithms with RDF data partitioning
+technique to guarantee evenly distributed data over the cluster.
+We also propose our in-memory RDF query processing system
+as a form of Bulk Synchronization Parallel system to reduce
+network overhead. Our empirical evaluation results show that
+the proposed system outperforms a popular RDF-3X on LUBM
+benchmark and UniProt queries from 2.20 to 43.08 times.
+Especially, the effectiveness of the system improves significantly
+when the SPARQL queries are complex with high input and
+select.
+

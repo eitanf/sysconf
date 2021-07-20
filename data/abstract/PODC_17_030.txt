@@ -1,0 +1,29 @@
+
+
+We study consensus processes on the complete graph of n nodes.
+Initially, each node supports one up to n different opinions. Nodes
+randomly and in parallel sample the opinions of constantly many
+nodes. Based on these samples, they use an update rule to change
+their own opinion. The goal is to reach consensus, a configuration
+where all nodes support the same opinion.
+
+We compare two well-known update rules: 2-CHoIcEs and 3Mayortty. In the former, each node samples two nodes and adopts
+their opinion if they agree. In the latter, each node samples three
+nodes: If an opinion is supported by at least two samples the node
+adopts it, otherwise it randomly adopts one of the sampled opinions.
+Known results for these update rules focus on initial configurations
+
+with a limited number of colors (say ni ), or typically assume a bias,
+where one opinion has a much larger support than any other. For
+such biased configurations, the time to reach consensus is roughly
+the same for 2-CHOICEs and 3-MajorITy.
+
+Interestingly, we prove that this is no longer true for configurations with a large number of initial colors. In particular, we
+show that 3-Majority reaches consensus with high probability
+in O(n3/4 - log’/® n) rounds, while 2-Cuotces can need Q(n/log n)
+rounds. We thus get the first unconditional sublinear bound for
+3-Mayjorirty and the first result separating the consensus time of
+these processes. Along the way, we develop a framework that allows
+a fine-grained comparison between consensus processes from a
+specific class. We believe that this framework might help to classify
+the performance of more consensus processes.

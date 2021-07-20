@@ -1,0 +1,17 @@
+
+This paper explores how fork-join parallelism, as supported
+by concurrency platforms such as Cilk and OpenMP, can
+be embedded into a compiler’s intermediate representation (IR). Mainstream compilers typically treat parallel linguistic constructs as syntactic sugar for function calls into
+a parallel runtime. These calls prevent the compiler from
+performing optimizations across parallel control constructs.
+Remedying this situation is generally thought to require an
+extensive reworking of compiler analyses and code transformations to handle parallel semantics.
+Tapir is a compiler IR that represents logically parallel
+tasks asymmetrically in the program’s control flow graph.
+Tapir allows the compiler to optimize across parallel control constructs with only minor changes to its existing analyses and code transformations. To prototype Tapir in the
+LLVM compiler, for example, we added or modified about
+6000 lines of LLVM’s 4-million-line codebase. Tapir enables LLVM’s existing compiler optimizations for serial
+code — including loop-invariant-code motion, commonsubexpression elimination, and tail-recursion elimination —
+to work with parallel control constructs such as spawning
+and parallel loops. Tapir also supports parallel optimizations
+such as loop scheduling

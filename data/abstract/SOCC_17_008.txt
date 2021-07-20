@@ -1,0 +1,23 @@
+
+ 1 INTRODUCTION
+
+State machine replication (SMR) uses Paxos to enforce the same
+inputs for a program (e.g., Redis) replicated on a number of hosts,
+tolerating various types of failures. Unfortunately, traditional Paxos
+protocols incur prohibitive performance overhead on server programs due to their high consensus latency on TCP/IP. Worse, the
+consensus latency of extant Paxos protocols increases drastically
+when more concurrent client connections or hosts are added. This
+paper presents APUS, the first RDMA-based Paxos protocol that
+aims to be fast and scalable to client connections and hosts. APUS
+intercepts inbound socket calls of an unmodified server program,
+assigns a total order for all input requests, and uses fast ROMA
+primitives to replicate these requests concurrently.
+
+We evaluated APUS on nine widely-used server programs (e.g.,
+Redis and MySQL). APUS incurred a mean overhead of 4.3% in
+response time and 4.2% in throughput. We integrated APUS with an
+SMR system Calvin. Our Calvin-APUS integration was 8.2X faster
+than the extant Calvin-ZooKeeper integration. The consensus
+latency of APUS outperformed an RDMA-based consensus protocol
+by 4.9X. APUS source code and raw results are released on github.
+com/hku-systems/apus.

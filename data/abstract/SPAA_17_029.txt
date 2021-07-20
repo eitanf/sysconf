@@ -1,0 +1,38 @@
+
+Maximum coverage and minimum set cover problems—here collec-
+tively called coverage problems—have been studied extensively in
+streaming models. However, previous research not only achieves
+suboptimal approximation factors and space complexities but also
+study a restricted set-arrival model which makes an explicit or
+implicit assumption on oracle access to the sets, ignoring the com-
+plexity of reading and storing the whole set at once. In this paper,
+we address the above shortcomings and present algorithms with
+improved approximation factor and improved space complexity,
+and prove that our results are almost tight. Moreover, unlike most of
+the previous work, our results hold in a more general edge-arrival
+model.
+
+More specifically, consider an instance with n sets, together
+covering m elements. Information arrives in the form of “edges”
+from sets to elements (denoting membership) in arbitrary order.
+
+(1) We present (almost) optimal approximation algorithms for
+maximum coverage and minimum set cover problems in the
+streaming model with an (almost) optimal space complexity
+of ˜O(n); i.e., the space is independent of the size of the sets or
+the size of the ground set of elements. These results not only
+improve the best known algorithms for the set-arrival model,
+but also are the first such algorithms for the more powerful
+edge-arrival model.
+
+(2) In order to achieve the above results, we introduce a new
+general sketching technique for coverage functions: One can
+apply this sketching scheme to convert an α-approximation
+algorithm for a coverage problem to a (1−ε)α-approximation
+algorithm for the same problem in streaming model.
+(3) We show the significance of our sketching technique by
+ruling out the possibility of solving coverage problems via
+accessing (as a black box) a (1±ε)-approximate oracle (e.g., a
+sketch function) that estimates the coverage function on any
+subfamily of the sets. Finally, we show that our streaming
+algorithms achieve an almost optimal space complexity.

@@ -1,0 +1,33 @@
+
+DRAM cells need periodic refresh to maintain data integrity.
+With high capacity DRAMs, DRAM refresh poses a significant performance bottleneck as the number of rows to be
+refreshed (and hence the refresh cycle time, tRFC) for each
+refresh command increases. Modern day DRAMs perform
+refresh at a rank-level, while LPDDRs used in mobile environments support refresh at a per-bank level. Rank-level
+refresh degrades the performance significantly since none of
+the banks in a rank can serve the on-demand requests. Perbank refresh alleviates some of the performance bottlenecks
+as the other banks in a rank are available for on-demand requests. Typical DRAM retention time is in the order of several milliseconds, viz, 64msec for environments operating in
+temperatures below 85 deg C and 32msec for environments
+operating above 85 deg C.
+
+With systems moving towards increased consolidation
+(e.g., virtualized environments), DRAM refresh becomes
+a significant bottleneck as it reduces the available overall DRAM bandwidth per task. In this work, we propose
+a hardware-software co-design to mitigate DRAM refresh
+overheads by exposing the hardware address-mapping and
+DRAM refresh schedule to the operating system (OS). In
+our co-design, we propose a novel per-bank refresh schedule in the hardware which augments memory partitioning
+in the OS. Supported by the novel per-bank refresh schedule and memory-partitioning, we propose a refresh-aware
+process scheduling algorithm in the OS which schedules applications on cores such that none of the on-demand requests
+from the applications are stalled by refreshes. The evaluation
+of our proposed co-design using multi-programmed workloads from the SPEC CPU2006, STREAM and NAS suites
+
+show significant performance improvements compared to
+the previously proposed hardware-only approaches.
+
+CCS Concepts eComputer systems organization —>
+General-Hardware/software interfaces; e Hardware >
+DRAM Memory; ¢Software — Operating Systems
+
+Keywords DRAM tefresh, Operating Systems, Task Scheduling, Hardware-software co-design.
+

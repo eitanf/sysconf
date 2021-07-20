@@ -1,0 +1,22 @@
+
+
+This paper presents an empirical approach to measuring and
+modeling the energy consumption of multicore processors.
+The modeling approach allows us to find a breakdown of the
+energy consumption among a set of key hardware components, also called HW nodes. We explicitly model the frontend and the back-end in terms of the number of instructions
+executed. We also model the L1, L2 and L3 caches. Furthermore, we explicitly model the static and dynamic energy
+consumed by the the uncore and core components. From a
+software perspective, our methodology allows us to correlate
+energy to the executed code, which helps find opportunities
+for code optimization and tuning.
+We use binary analysis and hardware counters for performance characterization. Although, we use the on-chip
+counters (RAPL) for energy measurement, our methodology
+does not rely on a specific method for energy measurement.
+Thus, it is portable and easy to deploy in various computing
+environments. We validate our energy model using two Intel
+processors with a set of HPC codelets, where data sizes are
+varied to come from the L1, L2 and L3 caches and show 3%
+average modeling error. We present a comprehensive analysis and show energy consumption differences between kernels
+and relate those differences to the algorithms that are implemented. Finally, we discuss how vectorization leads to
+energy savings compared to non-vectorized codes.
+

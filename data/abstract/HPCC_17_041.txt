@@ -1,0 +1,20 @@
+
+With the vigorous development of network applications, typical SDN (Software Defined Networks) such as data
+centers are gradually carrying more and more complex network
+traffic. This poses a great challenge for network monitoring —
+how to realize real-time, high-accuracy capture of traffic changes
+at low cost. In this paper, we propose a trigger-based monitoring
+approach called EffiView. This approach provides three ways to
+monitor flow statistics, including flow-stat triggering, FlowRemoved parsing and active polling. The flow-stat triggering can
+occur on all multiples of the presupposed flow-stat threshold
+for each flow entry. The latter two ways are complementary to
+the flow-stat triggering. FlowRemoved parsing is used to acquire
+flow statistics from FlowRemoved messages and active polling
+is conditionally carried out by the controller at the expiration
+of monitoring period. EffiView achieves low-cost monitoring
+by combining the three ways efficiently, while ensuring high
+accuracy and fine granularity. Based on the NetMagic platform,
+We implement EffiView and evaluate its monitoring performance.
+The experimental results show that EffiView can reach great
+advantages over traditional monitoring approaches.
+

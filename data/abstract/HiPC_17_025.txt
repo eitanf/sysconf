@@ -1,0 +1,25 @@
+
+Sparse graph processing generates highly irregular
+Memory Access Patterns (MAP) which lack locality and result in
+poor cache performance. In this paper, we propose a novel graph
+ordering algorithm that addresses this problem. We observe that
+existing reordering algorithms primarily try to improve cache
+line utilization by enhancing spatial locality. They are oblivious
+to cache data reuse which reflects the temporal locality that
+MAP can possess. Our premise is that peak efficiency can be
+achieved by a graph order for which the resulting MAP exhibit
+both spatial and temporal locality. Therefore, we first introduce
+a new metric Profit, that quantifies cache data reuse leading to a
+heuristic pH that enhances temporal locality in the MAP of graph
+algorithms. Then we define a notion of dynamically matching
+MAP with cache contents in a way that jointly maximizes both
+cache data reuse and cache line utilization. To perform this joint
+optimization, we develop a Block Reordering algorithm which
+utilizes pH to rearrange blocks of consecutive nodes with high
+spatial locality. We evaluate our algorithm using 8 real world
+datasets and 4 representative graph algorithms. Experimental
+results show that graphs obtained by Block Reordering can
+achieve upto 2.3x speedup over the original graph order and
+consistently outperform the existing state of the art reordering
+technique by 20% to 25% reduction in cache misses.
+

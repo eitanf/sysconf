@@ -1,0 +1,27 @@
+
+Modern task parallel programming models provide sophisticated runtime task schedulers for handling the
+scheduling of logical tasks on a large and varying number of
+hardware parallel resources at runtime. The performance of
+these programming models increasingly rely on how fast their
+runtime schedulers do their job. The more delay a scheduler
+incurs in matching a ready task to a free processor core at
+any point in time, the more impact it causes to the program’s
+parallel execution. We have developed a tool that is able to
+detect these delayed intervals caused by the scheduler in a
+parallel execution, and spot them specifically on two kinds
+of visualizations: the logical task graph captured at runtime
+(DAG visualizations) and time-series visualizations of threads
+(timelines). By further analyzing positions of these delays on
+those visualizations the tool could identify possible scheduling
+issues in the scheduler that causes these delays, yielding
+improvement insights for the development of task parallel
+programming models. From an application programmer’s perspective, our tool is useful by being able to contrast differences
+of various task parallel programming models executing the
+same program, helping users choose the right model for their
+application. We demonstrate that usefulness by using the tool
+to analyze 10 applications in BOTS benchmark suite in our
+case studies.
+
+Keywords-task parallel; runtime scheduler; scheduling delay;
+performance analysis; scalability factors;
+

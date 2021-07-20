@@ -1,0 +1,25 @@
+
+
+Most datacenters still use Equal Cost Multi-Path (ECMP), which
+performs congestion-oblivious hashing of flows over multiple paths,
+leading to an uneven distribution of traffic. Alternatives to ECMP
+come with deployment challenges, as they require either changing
+the tenant VM network stacks (e.g., MPTCP) or replacing all of
+the switches (e.g., CONGA). We argue that the hypervisor provides
+a unique point for implementing load-balancing algorithms that
+are easy to deploy, while still reacting quickly to congestion. We
+propose Clove, a scalable load-balancer that (i) runs entirely in the
+hypervisor, requiring no modifications to tenant VM networking
+stacks or physical switches, and (ii) works on any topology and
+adapts quickly to topology changes and traffic shifts. Clove relies
+on standard ECMP in physical switches, discovers paths using a
+novel traceroute mechanism, uses software-based flowlet-switching,
+and continuously learns congestion (or path utilization) state using
+standard switch features. It then manipulates packet-header fields
+in the hypervisor switch to direct traffic over less congested paths.
+Clove achieves 1.5 to 7 times smaller flow-completion times at 70%
+network load than other load-balancing algorithms that work with
+existing hardware. Clove also captures some 80% of the performance
+gain of best-of-breed hardware-based load-balancing algorithms like
+CONGA that require new equipment.
+

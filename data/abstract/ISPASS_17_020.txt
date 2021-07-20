@@ -1,0 +1,20 @@
+
+ Graphics-as-a-service (GaaS) is gaining popularity
+in cloud computing community. There is an emerging trend of
+running GaaS workload using virtualized GPU in current data
+center deployment. This paper provides a _ detailed
+characterization of GaaS workload under virtualized GPU
+NUMA environment, and found that: (1) GaaS workloads exhibit
+different behavior with GPGPU workloads by having more
+frequent real-time data exchange between CPU and GPU; (2)
+GaaS workloads have no NUMA overhead, whether considering
+the influence of remote memory access or the resource contention
+of CPU uncore. We also test the performance and power tradeoff
+among the frequency scaling of CPU clock, GPU core clock, and
+GPU memory clock. Characterization results show that (1)
+ondemand CPU frequency scaling achieves the best balance
+between performance and power consumption; (2) GaaS
+workloads are GPU-computation intensive. GPU memory
+frequency can be set lower to save energy with little performance
+sacrifice.
+

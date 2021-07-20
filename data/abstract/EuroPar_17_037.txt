@@ -1,0 +1,15 @@
+
+. In parallel database systems, data is partitioned and replicated across multiple independent nodes to improve system performance
+and increase robustness. In current practice of database partitioning
+design, all replicas are uniformly partitioned, however, different statements may prefer contradictory partitioning plans, so a single plan cannot achieve the overall optimal performance for the workload.
+
+In this paper, we propose a novel approach of replica-aware data partitioning design to address the contradictions. According to the access
+graph of SQL statements, we use the k-medoids algorithm to classify
+workload into statement clusters, then we use the branch-and-bound
+algorithm to search for the optimal partitioning plan for each cluster.
+Finally, we organize replicas with these plans, and route statements to
+their preferred replicas. We use TPC-E, TPC-H and National College
+and University Enrollment System (NACUES) to evaluate our approach.
+The evaluation results demonstrate that our approach improves system
+performance by up to 4x over the current practice of partitioning design.
+

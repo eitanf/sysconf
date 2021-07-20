@@ -1,0 +1,17 @@
+
+In this paper, we propose PGIS, a parallelism and
+garbage collection aware I/O Scheduler, which identifies the hot
+data based on trace characteristics to exploit the channel level
+internal parallelism of flash-based storage systems. PGIS not
+only fully exploits abundant channel resource in the SSD, but
+also it introduces a hot data identification mechanism to reduce
+the garbage collection overhead. By dispatching hot read data
+to different channel, the channel level internal parallelism is
+fully exploited. By dispatching hot write data to the same
+physical block, the garbage collection overhead has been
+alleviated. The experiment results show that compared with
+existing I/O schedulers, PGIS improves the response time and
+garbage collection performance significantly. Consequently,
+PGIS reduces the garbage collection overhead up to 30.9%,
+while exploiting channel level internal parallelism.
+

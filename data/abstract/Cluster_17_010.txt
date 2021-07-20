@@ -1,0 +1,30 @@
+
+Monitoring and assessing the energy efficiency of
+supercomputers and data centers is crucial in order to limit
+and reduce their energy consumption. Applications from the
+domain of High Performance Computing (HPC), such as MPI
+applications, account for a significant fraction of the overall
+energy consumed by HPC centers. Simulation is a popular
+approach for studying the behavior of these applications in
+a variety of scenarios, and it is therefore advantageous to
+be able to study their energy consumption in a cost-efficient,
+controllable, and also reproducible simulation environment. Alas,
+simulators supporting HPC applications commonly lack the
+capability of predicting the energy consumption, particularly
+when target platforms consist of multi-core nodes. In this work,
+we aim to accurately predict the energy consumption of MPI
+applications via simulation. Firstly, we introduce the models
+required for meaningful simulations: The computation model,
+the communication model, and the energy model of the target
+platform. Secondly, we demonstrate that by carefully calibrating
+these models on a single node, the predicted energy consumption
+of HPC applications at a larger scale is very close (within a
+few percents) to real experiments. We further show how to
+integrate such models into the SimGrid simulation toolkit. In
+order to obtain good execution time predictions on multi-core
+architectures, we also establish that it is vital to correctly account
+for memory effects in simulation. The proposed simulator is
+validated through an extensive set of experiments with wellknown HPC benchmarks. Lastly, we show the simulator can
+be used to study applications at scale, which allows researchers
+to save both time and resources compared to real experiments.
+

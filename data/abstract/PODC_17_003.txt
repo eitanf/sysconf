@@ -1,0 +1,27 @@
+
+
+Cognitive radio networks are a new type of multi-channel wireless
+network in which different nodes can have access to different sets
+of channels. By providing multiple channels, they improve the
+efficiency and reliability of wireless communication. However, the
+heterogeneous nature of cognitive radio networks also brings new
+challenges to the design and analysis of distributed algorithms.
+
+In this paper, we focus on two fundamental problems in cognitive radio networks: neighbor discovery, and global broadcast.
+We consider a synchronous network containing n nodes, each of
+which has access to c channels. We assume the network has diameter D, and each pair of neighbors have at least k > 1, and at
+most Kkmax < c, shared channels. We also assume each node has at
+most A neighbors. For the neighbor discovery problem, we design
+a randomized algorithm called CSEEK which has time complexity
+O((c?/k) + (kKmax /k)- A). CSEEK is flexible and robust, which allows
+us to use it as a generic “filter” to find “well-connected” neighbors
+with an even shorter running time. We then move on to the global
+broadcast problem, and propose CGCastT, a randomized algorithm
+which takes O((c?/k) + (kmax/k)- A + D- A) time. CGCast uses
+CSEEK to achieve communication among neighbors, and uses edge
+coloring to establish an efficient deterministic schedule for fast
+message dissemination.
+
+Towards the end of the paper, we give lower bounds for solving
+the two problems. These lower bounds demonstrate that in many
+cases CSEEK and CGCasT are near optimal.

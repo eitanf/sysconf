@@ -1,0 +1,15 @@
+
+We present an automated technique for finding defects in compilers for graphics shading languages. A key
+challenge in compiler testing is the lack of an oracle that classifies an output as correct or incorrect; this is
+particularly pertinent in graphics shader compilers where the output is a rendered image that is typically underspecified. Our method builds on recent successful techniques for compiler validation based on metamorphic
+testing, and leverages existing high-value graphics shaders to create sets of transformed shaders that should
+be semantically equivalent. Rendering mismatches are then indicative of shader compilation bugs. Deviant
+shaders are automatically minimized to identify, in each case, a minimal change to an original high-value
+shader that induces a shader compiler bug. We have implemented the approach as a tool, GLFuzz, targeting the
+OpenGL shading language, GLSL. Our experiments over a set of 17 GPU and driver configurations, spanning
+the main 7 GPU designers, have led to us finding and reporting more than 60 distinct bugs, covering all tested
+configurations. As well as defective rendering, these issues identify security-critical vulnerabilities that affect
+WebGL, including a significant remote information leak security bug where a malicious web page can capture
+the contents of other browser tabs, and a bug whereby visiting a malicious web page can lead to a “blue
+screen of death” under Windows 10. Our findings show that shader compiler defects are prevalent, and that
+metamorphic testing provides an effective means for detecting them automatically.

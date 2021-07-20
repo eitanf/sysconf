@@ -1,0 +1,15 @@
+
+HPC file systems today work in a best-effort manner where individual applications can flood the file system with requests, effectively
+leading to a denial of service for all other tasks. This paper presents
+a classful Token Bucket Filter (TBF) policy for the Lustre file system.
+The TBF enforces Remote Procedure Call (RPC) rate limitations
+based on (potentially complex) Quality of Service (QoS) rules. The
+QoS rules are enforced in Lustre’s Object Storage Servers, where
+each request is assigned to an automatically created QoS class.
+The proposed QoS implementation for Lustre enables various
+features for each class including the support for high-priority and
+real-time requests even under heavy load and the utilization of spare
+bandwidth by less important tasks under light load. The framework
+also enables dependent rules to change a job’s RPC rate even at very
+small timescales. Furthermore, we propose a Global Rate Limiting
+(GRL) algorithm to enforce system-wide RPC rate limitations.

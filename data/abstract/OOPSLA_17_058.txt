@@ -1,0 +1,19 @@
+
+Series of traversals of tree structures arise in numerous contexts: abstract syntax tree traversals in compiler
+passes, rendering traversals of the DOM in web browsers, kd-tree traversals in computational simulation codes.
+In each of these settings, a tree is traversed multiple times to compute various values and modify various
+portions of the tree. While it is relatively easy to write these traversals as separate small updates to the tree,
+for efficiency reasons, traversals are often manually fused to reduce the number of times that each portion of
+the tree is traversed: by performing multiple operations on the tree simultaneously, each node of the tree can
+be visited fewer times, increasing opportunities for optimization and decreasing cache pressure and other
+overheads. This fusion process is often done manually, requiring careful understanding of how each of the
+traversals of on tree interact.
+
+This paper presents an automatic approach to traversal fusion: tree traversals can be written independently,
+and then our framework analyzes the dependences between the traversals to determine how they can be
+fused to reduce the number of visits to each node in the tree. A critical aspect of our framework is that it
+exploits two opportunities to increase the amount of fusion: i) it automatically integrates code motion, and ii)
+it supports partial fusion, where portions of one traversal can be fused with another, allowing for a reduction
+in node visits without requiring that two traversals be fully fused. We implement our framework as Clang
+tool, and show across several case studies that we can successfully fuse complex tree traversals, reducing the
+overall number of traversals and substantially improving locality and performance.

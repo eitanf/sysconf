@@ -1,0 +1,20 @@
+
+Multi-path TCP has recently shown great potential to take advantage of the rich path diversity in data center
+networks (DCN) to increase transmission throughput. However,
+the small flows, which take a large fraction of data center
+traffic, will easily get a timeout when split onto multiple paths.
+Moreover, the dynamic congestions and node failures in DCN
+will exacerbate the reorder problem of parallel multi-path
+transmissions for large flows. In this paper, we propose DC?MTCP (Data Center Coded Multi-path TCP), which employs
+a fast and light-weight coding method to address the above
+challenges while maintaining the benefit of parallel multi-path
+transmissions. To meet the high flow performance in DCN, we
+insert a very low ratio of coded packets with a careful selection
+of the packets to be coded. We further present a progressive
+decoding algorithm to decode the packets online with a low
+time complexity. Extensive ns2-based simulations show that
+with two orders of magnitude lower coding delay, DC?-MTCP
+can reduce on average 40% flow completion time for small flows
+and increase 30% flow throughput for large flows compared
+to the peer schemes in varying network conditions.
+

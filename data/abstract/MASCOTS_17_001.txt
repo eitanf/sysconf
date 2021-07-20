@@ -1,0 +1,24 @@
+
+Graphics processing units (GPUs) are increasingly
+applied to accelerate tasks such as graph problems and discreteevent simulation that are characterized by irregularity, i.e., a
+strong dependence of the control flow and memory accesses on the
+input. The core data structure in many of these irregular tasks are
+priority queues that guide the progress of the computations and
+which can easily become the bottleneck of an application. To our
+knowledge, currently no systematic comparison of priority queue
+implementations on GPUs exists in the literature. We close this
+gap by a performance evaluation of GPU-based priority queue
+implementations for two applications: discrete-event simulation
+and parallel A* path searches on grids. We focus on scenarios
+requiring large numbers of priority queues holding up to a few
+thousand items each. We present performance measurements
+covering linear queue designs, implicit binary heaps, splay
+trees, and a GPU-specific proposal from the literature. The
+measurement results show that up to about 500 items per
+queue, circular buffers frequently outperform tree-based queues
+for the considered applications, particularly under a simple
+parallelization of individual item enqueue operations. We analyze
+profiling metrics to explore classical queue designs in light of the
+importance of high hardware utilization as well as homogeneous
+computations and memory accesses across GPU threads.
+

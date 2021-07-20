@@ -1,0 +1,20 @@
+
+Futures are an elegant approach to expressing parallelism in functional programs. However, combining
+futures with imperative programming (as in C++ or in Java) can lead to pernicious bugs in the form of data
+races and deadlocks, as a consequence of uncontrolled data flow through mutable shared memory.
+
+In this paper we introduce the Known Joins (KJ) property for parallel programs with futures, and relate it to
+the Deadlock Freedom (DF) and the Data-Race Freedom (DRF) properties. Our paper offers two key theoretical
+results: 1) DRF implies KJ, and 2) KJ implies DF. These results show that data-race freedom is sufficient to
+guarantee deadlock freedom in programs with futures that only manipulate unsynchronized shared variables.
+To the best of our knowledge, these are the first theoretical results to establish sufficient conditions for deadlock
+freedom in imperative parallel programs with futures, and to characterize the subset of data races that can
+trigger deadlocks (those that violate the KJ property).
+
+From result 2), we developed a tool that avoids deadlocks in linear time and space when KJ holds, i.e., when
+there are no data races among references to futures. When KJ fails, the tool reports the data race and optionally
+falls back to a standard deadlock avoidance algorithm by cycle detection. Our tool verified a dataset of ~2,300
+student’s homework solutions and found one deadlocked program. The performance results obtained from
+our tool are very encouraging: a maximum slowdown of 1.06x on a 16-core machine, always outperforming
+deadlock avoidance via cycle-detection. Proofs of the two main results were formalized using the Coq proof
+assistant.

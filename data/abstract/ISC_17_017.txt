@@ -1,0 +1,19 @@
+
+. Nowadays parallel file systems have been widely used in
+many supercomputers. Lustre is one of the most used parallel file systems, and its enhanced file system named FEFS (Fujitsu Exabyte File
+System) has been used at K computer. The K computer has adopted twolayered file system consisting of a local file system and a shared global
+file system with data staging scheme in order to guarantee sufficient I/O
+throughput on the local file system during computation. However, huge
+data staging on the shared file system sometimes has led to big I/O
+interference in light-weight file accesses which have taken place at the
+same time. Alleviation of such I/O interference on shared file systems
+is an important issue in managing a big scale of parallel file systems in
+shared use. In this paper, we focus on I/O interference alleviation by
+using workload-aware striping and load-balancing. Appropriate striping
+configuration with effective load-balancing in service thread allocation
+for incoming I/O requests has improved performance of light-weight file
+accesses against huge data accesses without excessive sacrifice to data
+staging performance at the K computer. It is expected that the proposed
+optimization can be used as a system-wide I/O interference mitigation
+approach.
+

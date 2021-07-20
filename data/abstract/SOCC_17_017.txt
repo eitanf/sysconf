@@ -1,0 +1,21 @@
+
+Data partitioning is crucial to improving query performance and
+several workload-based partitioning techniques have been proposed
+in database literature. However, many modern analytic applications
+involve ad-hoc or exploratory analysis where users do not have a
+representative query workload a priori. Static workload-based data
+partitioning techniques are therefore not suitable for such settings.
+In this paper, we propose Amoeba, a distributed storage system
+that uses adaptive multi-attribute data partitioning to efficiently
+support ad-hoc as well as recurring queries. Amoeba requires zero
+set-up and tuning effort, allowing analysts to get the benefits of
+partitioning without requiring an upfront query workload. The key
+idea is to build and maintain a partitioning tree on top of the dataset.
+The partitioning tree allows us to answer queries with predicates by
+reading a subset of the data. The initial partitioning tree is created
+without requiring an upfront query workload and Amoeba adapts
+it over time by incrementally modifying subtrees based on user
+queries using repartitioning. A prototype of Amoeba running on
+top of Apache Spark improves query performance by up to 7x over
+full scans and up to 2x over range-based partitioning techniques
+on TPC-H as well as a real-world workload.

@@ -1,0 +1,33 @@
+
+To reduce energy consumption and carbon emission, many data centers have deployed (or anticipate to build)
+their own renewable-energy power plants. However, the renewable energy (such as wind, tide, and solar energy) has the serious
+issues of intermittency and variability that prevent the green
+energy from being utilized effectively in practice. To cope with
+the issues, new power-supply management policies and workload
+scheduling algorithms have been designed. However, most existing
+work focuses on power optimization on computation only. In
+this paper, we introduce a novel scheme called OptiMatch to
+optimize the match between the power supply and the userworkload demand for massive storage systems that are mostly
+powered by renewable energy sources. OptiMatch has a hierarchical architecture, which consists of a number of heterogeneous storage devices. OptiMatch systematically utilizes the
+performance disparities between heterogeneous storage devices
+(i.e., performance per watt, IOPS/watt) to split the process for
+every write request into two stages: an on-line stage and a
+deferred off-line stage. The deferred off-line requests are used
+to match the green energy supplies. To maximize green energy
+utilization and minimize power budget without sacrificing quality
+of service, the fundamental methodology is to make the aggregate
+power supplies be proportional to the I/O workload demand
+at any time. To this end, our OptiMatch employs novel codesign optimizations. (1) We propose a dual-drive power control
+approach that makes the number of active nodes proportional to
+the workload demand when the green power supply is insufficient,
+meanwhile be proportional to the green power supply when
+green power is sufficient. (2) During periods of insufficient
+green supplies, we exploit virtualization consolidation schemes
+which enable a fine-grained power control to minimize the grid
+budgets. (3) During the periods of sufficient green supplies, we
+design an intelligent workload scheduling scheme which enables a
+near-optimal off-line requests assignment to maximize the green
+utilization. The experimental results demonstrate that the new
+OptiMatch framework can achieve high green utilization (up to
+94.9%) with a minor performance degradation (less than 9.8%).
+

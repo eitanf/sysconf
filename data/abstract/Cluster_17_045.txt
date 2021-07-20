@@ -1,0 +1,19 @@
+
+Accelerated clusters, which are distributed memory systems equipped with accelerators, have been used in
+various fields. For accelerated clusters, programmers often implement their applications by a combination of MPI and CUDA
+(MPI+CUDA). However, the approach faces programming
+complexity issues. This paper introduces the XcalableACC
+(XACC) language, which is a hybrid model of XcalableMP
+CXMP) and OpenACC. While XMP is a directive-based language for distributed memory systems, OpenACC is also
+a directive-based language for accelerators. XACC enables
+programmers to develop applications on accelerated clusters
+with ease. To evaluate XACC performance and productivity
+levels, we implemented a lattice quantum chromodynamics
+(Lattice QCD) application using XACC on 64 compute nodes
+and 256 GPUs and found its performance was almost the
+same as that of MPI+CUDA. Moreover, we found that XACC
+requires much less change from the serial Lattice QCD code
+than MPI+CUDA to implement the parallel Lattice QCD code.
+
+Keywords-Accelerated cluster; Parallel language; Compiler;
+

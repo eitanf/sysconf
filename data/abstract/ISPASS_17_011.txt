@@ -1,0 +1,19 @@
+
+As GPUs become more pervasive in both scalable
+high-performance computing systems and safety-critical embedded systems, evaluating and analyzing their resilience to
+soft errors caused by high-energy particle strikes will grow
+increasingly important. GPU designers must develop tools
+and techniques to understand the effect of these soft errors
+on applications. This paper presents an error injection-based
+methodology and tool called SASSIFI to study the soft error
+resilience of massively parallel applications running on stateof-the-art NVIDIA GPUs. Our approach uses a low-level
+assembly-language instrumentation tool called SASSI to profile
+and inject errors. SASSI provides efficiency by allowing instrumentation code to execute entirely on the GPU and provides
+the ability to inject into different architecture-visible state.
+For example, SASSIFI can inject errors in general-purpose
+registers, GPU memory, condition code registers, and predicate
+registers. SASSIFI can also inject errors into addresses and
+register indices. In this paper, we describe the SASSIFI tool,
+its capabilities, and present experiments to illustrate some of
+the analyses SASSIFI can be used to perform.
+

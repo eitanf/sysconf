@@ -1,0 +1,26 @@
+
+Manycore processors such as Intel Knights Landing (KNL), the second generation Xeon Phi manycore processor
+from Intel comes equipped with up to 288 threads and 16
+gigabytes of high-bandwidth on-chip multi-channel DRAM
+(MCDRAM) that bear the potential to significantly improve
+the performance of both compute-bound and memory-bound
+applications. For this potential to be realized, it is imperative
+to exploit KNL’s highly threaded environment and careful use
+of the limited MCDRAM resource. In this work, we focus on
+achieving effective utilization of KNL’s resources through the
+design of a kernel-based communication engine that makes use
+of multiple kernel threads and generic work request abstraction
+scheme to accelerate MPI data movement operations. Being
+a kernel-based approach, our designs are application-pattern
+agnostic and aim to have minimal contention with the application’s compute and memory requirements. We have compared
+our proposed designs with other prevalent schemes employed
+by modern MPI libraries. The experimental evaluation shows
+that the proposed designs provide up to 2.5X improvement
+at the microbenchmark-level and improve the total execution
+time of the MPI+OpenMP version of HPCG by up to 15%
+when compared with other approaches. Furthermore, using the
+CNTK Deep Learning framework, we demonstrate a significant
+improvement over existing approaches in the total training time
+(execution time) with the Multi-level perceptron (MLP) model
+and MNIST image recognition dataset.
+

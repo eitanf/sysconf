@@ -1,0 +1,14 @@
+
+We present SIBIA (Scalable Integrated Biophysics-based Image
+Analysis), a framework for coupling biophysical models with medical image analysis. It provides solvers for an image-driven inverse
+brain tumor growth model and an image registration problem, the
+combination of which can eventually help in diagnosis and prognosis of brain tumors. The two main computational kernels of SIBIA
+are a Fast Fourier Transformation (FFT) implemented in the library
+AccFFT to discretize differential operators, and a cubic interpolation
+kernel for semi-Lagrangian based advection. We present efficiency
+and scalability results for the computational kernels, the inverse
+tumor solver and image registration on two x86 systems, Lonestar 5 at the Texas Advanced Computing Center and Hazel Hen at
+the Stuttgart High Performance Computing Center. We showcase
+results that demonstrate that our solver can be used to solve registration problems of unprecedented scale, 4096? resulting in ~ 200
+billion unknowns—a problem size that is 64x larger than the stateof-the-art. For problem sizes of clinical interest, SIBIA is about 8x
+faster than the state-of-the-art.

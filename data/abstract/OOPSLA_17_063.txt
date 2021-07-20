@@ -1,0 +1,16 @@
+
+Arrays computations are at the core of numerical modelling and computational science applications. However,
+low-level manipulation of array indices is a source of program error. Many practitioners are aware of the need
+to ensure program correctness, yet very few of the techniques from the programming research community
+are applied by scientists. We aim to change that by providing targetted lightweight verification techniques for
+scientific code. We focus on the all too common mistake of array offset errors as a generalisation of off-by-one
+errors. Firstly, we report on a code analysis study on eleven real-world computational science code base,
+identifying common idioms of array usage and their spatial properties. This provides much needed data on
+array programming idioms common in scientific code. From this data, we designed a lightweight declarative
+specification language capturing the majority of array access patterns via a small set of combinators. We detail
+a semantic model, and the design and implementation of a verification tool for our specification language,
+which both checks and infers specifications. We evaluate our tool on our corpus of scientific code. Using the
+inference mode, we found roughly 87,000 targets for specification across roughly 1.1 million lines of code,
+showing that the vast majority of array computations read from arrays in a pattern with a simple, regular,
+static shape. We also studied the commit logs of one of our corpus packages, finding past bug fixes for which
+our specification system distinguishes the change and thus could have been applied to detect such bugs.

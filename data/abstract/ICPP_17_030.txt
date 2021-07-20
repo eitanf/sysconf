@@ -1,0 +1,21 @@
+
+This paper presents a low-overhead optimizer for
+the ubiquitous sparse matrix-vector multiplication (SpMV) kernel. Architectural diversity among different processors together
+with structural diversity among different sparse matrices lead
+to bottleneck diversity. This justifies an SpMV optimizer that
+is both matrix- and architecture-adaptive through runtime specialization. To this direction, we present an approach that first
+identifies the performance bottlenecks of SpMV for a given
+sparse matrix on the target platform either through profiling
+or by matrix property inspection, and then selects suitable
+optimizations to tackle those bottlenecks. Our optimization pool is
+based on the widely used Compressed Sparse Row (CSR) sparse
+matrix storage format and has low preprocessing overheads,
+making our overall approach practical even in cases where
+fast decision making and optimization setup is required. We
+evaluate our optimizer on three x86-based computing platforms
+and demonstrate that it is able to distinguish and appropriately
+optimize SpMV for the majority of matrices in a representative
+test suite, leading to significant speedups over the CSR and
+Inspector-Executor CSR SpMV kernels available in the latest
+release of the Intel MKL library.
+

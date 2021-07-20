@@ -1,0 +1,19 @@
+
+This paper investigates how to improve the memory
+locality of graph-structured analytics on large-scale shared memory systems. We demonstrate that a graph partitioning where all
+in-edges for a vertex are placed in the same partition improves
+memory locality. However, realising performance improvement
+through such graph partitioning poses several challenges and
+requires rethinking the classification of graph algorithms and
+preferred data structures. We introduce the notion of mediumdense frontiers, a type of frontier that is sufficiently dense for a
+bitmap representation, yet benefits from an indexed graph layout.
+Using three types of frontiers, and three graph layout schemes
+optimized to each frontier type, we design an edge traversal
+algorithm that autonomously decides which type to use. The
+distinction of forward vs. backward graph traversal folds into
+this decision and need no longer be specified by the programmer.
+
+We have implemented our techniques in a NUMA-aware graph
+analytics framework derived from Ligra and demonstrate a
+speedup of up to 4.34x over Ligra and up to 2.93 over Polymer.
+

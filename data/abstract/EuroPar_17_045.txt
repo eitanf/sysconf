@@ -1,0 +1,16 @@
+
+. In recent years, several lightweight thread (LWT) libraries
+have emerged to tackle exascale challenges. These offer programming
+models (PMs) based on user-level threads and incorporate their own
+lightweight mechanisms. However, each library proposes its own PM,
+exposing different semantics and hindering portability.
+
+To address this drawback, we have designed Generic Lightweight
+Thread (GLT), an application programming interface that frames the
+functionality of the most popular LWT libraries for high-performance
+computing under a single PM. We implement GLT on top of Argobots,
+MassiveThreads, and Qthreads. We provide GLT as a dynamic library,
+as well as in the form of a static version based on macro preprocessing
+resolution to reduce overhead. This paper discusses the GLT PM and
+demonstrates its minimal performance impact.
+

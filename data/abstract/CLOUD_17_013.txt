@@ -1,0 +1,26 @@
+
+Cloud computing resources that are equipped with
+GPU devices are widely used for applications that require
+extensive parallelism, such as deep learning. When the demand
+of cloud computing instance is low, the surplus of resources is
+provided at a lower price in the form of spot instance by AWS
+EC2. This paper proposes DeepSpotCloud that utilizes GPUequipped spot instances to run deep learning tasks in a cost
+efficient and fault-tolerant way. Thorough analysis about spot
+instance price history logs reveals that GPU spot instances show
+more dynamic price change pattern than other general types of
+cloud computing resources. To deal with the price dynamicity
+of the GPU spot instance, DeepSpotCloud utilizes instances in
+different regions across continents as a single resource pool.
+This paper also proposes a task migration heuristic by utilizing
+a checkpointing mechanism of existing deep learning analysis
+platform to conduct fast task migration when a running spot
+instance is interrupted. Extensive experiments using real AWS
+services prove that the proposed task migration method is
+effective even in a WAN environment with limited network
+bandwidth. Comprehensive simulations by replaying AWS EC2
+price history logs reveal that DeepSpotCloud can achieve 13%
+more cost gain than a state-of-the-art interrupt-driven scheduling
+policy. The prototype of DeepSpotCloud is implemented using
+various cloud computing services provided by AWS to serve real
+deep learning tasks.
+

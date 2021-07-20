@@ -1,0 +1,28 @@
+
+Nowadays, the vulnerability of cloud environment
+exposed in security places Virtual Machine Introspection(V MI)
+at risk: once attackers subvert any layers of cloud environment,
+such as host, virtual machine manager(VMM) or qemu, VMI
+will be exposed undoubtedly to those attackers too. Nearly all
+existing VMI techniques implicitly assume that both VMM by
+which VMI accesses specific VM data and host which VMI is
+running on, are nonmalicious and immutable. Unfortunately,
+this assumption can be potentially violated with the growing
+shortage of security in cloud environment. Once VMM or
+host is exploited, attackers can tamper the code or hijack the
+data of VMI, then, falsify VM information and certifications
+to Cloud system’s administrators who try to make sure the
+security of specific VM in certain compute node. This paper
+proposes a new trusted VMI monitor frame: T-VMI, which can
+avoid the malicious subversion of the routine of VMI. T-VMI
+guarantees the integrity of VMI code using isolation and the
+correctness of VMI data using high privilege level instruction
+and appropriate trap mechanism. This model is evaluated on a
+simulation environment by using ARM Foundation Model 8.0
+and has been presented on a real development ARMv8 JUNOr0 board. We finished the comprehensive experiments including
+effectiveness and performance, and the result and analysis show
+T-VMI has achieved the aim of expected effectiveness with
+acceptable performance cost.
+
+Keywords-Trusted VMI; TrustZone; Semantic Gap
+

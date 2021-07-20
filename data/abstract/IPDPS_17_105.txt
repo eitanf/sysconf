@@ -1,0 +1,20 @@
+
+We consider load balancing in a network of caching
+servers delivering contents to end users. Randomized load
+balancing via the so-called power of two choices is a wellknown approach in parallel and distributed systems that reduces
+network imbalance. In this paper, we propose a randomized
+load balancing scheme which simultaneously considers cache size
+limitation and proximity in the server redirection process.
+
+Since the memory limitation and the proximity constraint
+cause correlation in the server selection process, we may not
+benefit from the power of two choices in general. However, we
+prove that in certain regimes, in terms of memory limitation
+and proximity constraint, our scheme results in the maximum
+load of order O(log log 7) (here n is the number of servers and
+requests), and at the same time, leads to a low communication
+cost. This is an exponential improvement in the maximum load
+compared to the scheme which assigns each request to the nearest
+available replica. Finally, we investigate our scheme performance
+by extensive simulations.
+

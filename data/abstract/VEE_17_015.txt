@@ -1,0 +1,17 @@
+
+Once compromising the hypervisor, remote or local adversaries can easily access other customers’ sensitive data in
+the memory and context of guest virtual machines (VMs).
+VM isolation is an efficient mechanism for protecting the
+memory of guest VMs from unauthorized access. However, previous VM isolation systems either modify hardware
+architecture or introduce a software module without being
+protected, and most of them focus on the x86 architecture.
+
+This paper proposes HA-VMSI, a lightweight hardwareassisted VM isolation approach for ARM, to provide runtime protection of guest VMs, even with a compromised hypervisor. In the ARM TrustZone secure world, a thin security monitor is introduced as HA-VMSI’s entire TCB. Hence,
+the security monitor is much less vulnerable and safe from
+attacks that can compromise the hypervisor. The key of HAVMSI is decoupling the functions of memory isolation among VMs from the hypervisor into the security monitor.
+As a result, the hypervisor can only update the Stage-2 page
+tables of VMs via the security monitor, which inspects and
+approves each new mapping. It is worth noting that HAVMSI is more secure and effective than current software approaches, and more flexible and compatible than hardware
+approaches. We have implemented a prototype for KVM hypervisor with multiple Linux as guest OSes on Juno board.
+The security assessment and performance evaluation show
+that HA-VMSLI is effective, efficient and practical.

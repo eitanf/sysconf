@@ -1,0 +1,23 @@
+
+ In real-time distributed transaction processing,
+deadlocks must be detected and resolved. Timeouts are not a
+viable option because they lead to lost work and missed deadlines.
+We have proposed a suite of deadlock detection protocols and a
+resolution protocol which carry a varying degree of (generally low)
+overhead. The protocols behave differently under varying load
+conditions and transaction characteristics. Further, the invocation
+period of these protocols can be controlled to improve
+performance when the overhead tends to become large. The
+performance of these protocols has been demonstrated using a
+distributed real-time transaction processing simulator which
+provides an interactive interface to set parameters, and also has
+provisions to select from a variety of concurrency control, priority
+assignment, workload distribution and other protocols. The
+impact of transaction workload, underlying system configuration,
+resource availability, detection rates, and congestion on each of the
+proposed protocols is observed and presented. In general, the
+multi-cycle detection protocol demonstrated the most superior
+performance over a broad range of parameters. The results
+presented in this paper were obtained from over 147,000
+simulations.
+

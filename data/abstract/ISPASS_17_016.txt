@@ -1,0 +1,29 @@
+
+Understanding the reasons why multi-threaded applications do not achieve perfect scaling on modern multicore
+hardware is challenging. Furthermore, more and more modern
+programs are written in managed languages, which have extra
+service threads (e.g., to perform memory management), which
+may retard scalability and complicate performance analysis. In
+this paper, we extend speedup stacks, a previously-presented
+visualization tool to analyze multi-threaded program scalability,
+to managed applications. Speedup stacks are comprehensive bar
+graphs that break down an application’s execution to explain the
+main causes of sublinear speedup, i.e., when some threads are
+not allowing the application to progress, and thus increasing the
+execution time.
+We not only expand speedup stacks to analyze how the
+managed language’s service threads affect overall scalability, but
+also implement speedup stacks while running on native hardware.
+We monitor the application and service threads’ scheduling
+behavior using light-weight OS kernel modules, incurring under
+1% overhead running unmodified Java benchmarks. We add two
+performance delimiters targeting managed applications: garbage
+collection and main initialization activities. We analyze the scalability limitations of these benchmarks and the impact of using
+both a stop-the-world and a concurrent garbage collector with
+speedup stacks. Our visualization tool facilitates the identification
+of scalability bottlenecks both between application threads and
+of service threads, pointing developers to whether optimization
+should be focused on the language runtime or the application.
+Speedup stacks provide better program understanding for both
+program and system designers, which can help optimize multicore
+processor performance.

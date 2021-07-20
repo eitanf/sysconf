@@ -1,0 +1,11 @@
+
+Modern OpenMP threading techniques are used to convert the
+MPI-only Hartree-Fock code in the GAMESS program to a hybrid
+MPI/OpenMP algorithm. Two separate implementations that differ
+by the sharing or replication of key data structures among threads
+are considered, density and Fock matrices. All implementations are
+benchmarked on a super-computer of 3,000 Intel® Xeon Phi™ processors. With 64 cores per processor, scaling numbers are reported
+on up to 192,000 cores. The hybrid MPI/OpenMP implementation
+reduces the memory footprint by approximately 200 times compared to the legacy code. The MPI/OpenMP code was shown to
+run up to six times faster than the original for a range of molecular
+system sizes.

@@ -1,0 +1,20 @@
+
+Since main memory system contributes to a large
+and increasing fraction of server/datacenter energy consumption,
+there have been several efforts to reduce its power and energy
+consumption. DVFS schemes have been used to reduce the
+memory power, but they come with a performance penalty. In
+this work, we propose DEMM, an OS-based, high performance
+DVFS mechanism that reduces memory power by dynamically
+scaling individual memory channel frequencies/voltages. Our
+strategy also involves clustering the running applications based
+on their sensitivities to memory latency, and assigning memory
+channels to the application clusters. We introduce a new metric
+called Discrete Misses per Kilo Cycle (DMPKC) to capture the
+performance sensitivities of the applications to memory frequency
+modulation. DEMM allows us to save power in the memory
+system with negligible impact on performance. We demonstrate
+around 25% savings in the memory system energy and 10%
+savings in the total system energy, with only a 4% loss in
+workload performance.
+

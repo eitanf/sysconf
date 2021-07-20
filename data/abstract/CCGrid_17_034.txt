@@ -1,0 +1,23 @@
+
+ Security and privacy in cloud computing are
+critical components for various organizations that depend on
+the cloud in their daily operations. Customers’ data and the
+organizations’ proprietary information have been subject to
+various attacks in the past. In this paper, we develop a set
+of Moving Target Defense (MTD) strategies that randomize
+the location of the Virtual Machines (VMs) to harden the
+cloud against a class of Multi-Armed Bandit (MAB) policybased attacks. These attack policies capture the behavior of
+adversaries that seek to explore the allocation of VMs in the
+cloud and exploit the ones that provide the highest rewards
+(e.g., access to critical datasets, ability to observe credit card
+transactions, etc). We assess through simulation experiments
+the performance of our MTD strategies, showing that they
+can make MAB policy-based attacks no more effective than
+random attack policies. Additionally, we show the effects of
+critical parameters — such as discount factors, the time between
+randomizing the locations of the VMs and variance in the
+rewards obtained - on the performance of our defenses. We
+validate our results through simulations and a real OpenStack
+system implementation in our lab to assess migration times and
+down times under different system loads.
+

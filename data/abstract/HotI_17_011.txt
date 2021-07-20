@@ -1,0 +1,26 @@
+
+Deep Learning over Big Data (DLoBD) is becoming
+one of the most important research paradigms to mine value
+from the massive amount of gathered data. Many emerging deep
+learning frameworks start running over Big Data stacks, such
+as Hadoop and Spark. With the convergence of HPC, Big Data,
+and Deep Learning, these DLoBD stacks are taking advantage
+of RDMA and multi-/many-core based CPUs/GPUs. Even though
+a lot of activities are happening in the field, there is a lack of
+systematic studies on analyzing the impact of RDMA-capable
+networks and CPU/GPU on DLoBD stacks. To fill this gap, we
+propose a systematical characterization methodology and conduct extensive performance evaluations on three representative
+DLoBD stacks (i.e., CaffeOnSpark, TensorFlowOnSpark, and
+BigDL) to expose the interesting trends regarding performance,
+scalability, accuracy, and resource utilization. Our observations
+show that RDMA-based design for DLoBD stacks can achieve
+up to 2.7x speedup compared to the IPoIB based scheme. The
+RDMA scheme can also scale better and utilize resources more
+efficiently than the IPoIB scheme over InfiniBand clusters. For
+most cases, GPU-based deep learning can outperform CPU-based
+designs, but not always. We see that for LeNet on MNIST, CPU
++ MKL can achieve better performance than GPU and GPU +
+cuDNN on 16 nodes. Through our evaluation, we see that there
+are large rooms to improve the designs of current generation
+DLoBD stacks further.
+

@@ -1,0 +1,26 @@
+
+Processing In Memory (PIM), the concept of integrating
+processing directly with memory, has been attracting a
+lot of attention since PIM can assist in overcoming the
+throughput limitation caused by data movement between
+CPU and memory. The challenge, however, is that it requires
+the programmers to have a deep understanding of the PIM
+architecture to maximize the benefits such as data locality
+and parallel thread execution on multiple PIM devices.
+In this study, we present AnalyzeThat, a programmable
+shared-memory system for parallel data processing with
+PIM devices. Thematic to AnalyzeThat is a rich PIMAware Data Structure (PADS), which is an encapsulation
+that integrally ties together the data, the analysis tasks
+and the runtime needed to interface with the PIM device
+array. The PADS abstraction provides (i) a key-value data
+container that allows programmers to easily store data on
+multiple PIMs, (ii) a suite of parallel operations with which
+users can easily implement data analysis applications, and
+(iii) a runtime, hidden to programmers, which provides the
+mechanisms needed to overlay both the data and the tasks
+on the PIM device array in an intelligent fashion, based
+on PIM-specific information collected from the hardware.
+We have developed a PIM emulation framework called AnalyzeThat. Our experimental evaluation with representative
+data analytics applications suggests that the proposed system
+can significantly reduce the PIM programming effort without
+losing its technology benefits.

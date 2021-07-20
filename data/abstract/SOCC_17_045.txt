@@ -1,0 +1,14 @@
+
+Multi-tenant distributed systems composed of small services, such
+as Service-oriented Architectures (SOAs) and Micro-services, raise
+new challenges in attaining high performance and efficient resource
+utilization. In these systems, a request execution spans tens to thousands of processes, and the execution paths and resource demands on
+different services are generally not known when a request first enters
+the system. In this paper, we highlight the fundamental challenges of
+regulating load and scheduling in SOAs while meeting end-to-end
+performance objectives on metrics of concern to both tenants and
+operators. We design Wisp, a framework for building SOAs that
+transparently adapts rate limiters and request schedulers systemwide according to operator policies to satisfy end-to-end goals while
+responding to changing system conditions. In evaluations against production as well as synthetic workloads, Wisp successfully enforces
+a range of end-to-end performance objectives, such as reducing average latencies, meeting deadlines, providing fairness and isolation,
+and avoiding system overload.

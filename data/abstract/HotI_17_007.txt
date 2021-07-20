@@ -1,0 +1,33 @@
+
+Because of their performance characteristics, highperformance fabrics like Infiniband or OmniPath are interesting
+technologies for many local area network applications, including
+data acquisition systems for high-energy physics experiments like
+the ATLAS experiment at CERN. This paper analyzes existing
+APIs for high-performance fabrics and evaluates their suitability
+for data acquisition systems in terms of performance and domain
+applicability.
+
+The study finds that existing software APIs for highperformance interconnects are focused on applications in highperformance computing with specific workloads and are not
+compatible with the requirements of data acquisition systems.
+To evaluate the use of high-performance interconnects in data
+acquisition systems, a custom library called NetIO has been
+developed and is compared against existing technologies.
+
+NetIO has a message queue-like interface which matches the
+ATLAS use case better than traditional HPC APIs like MPI. The
+architecture of NetIO is based on an interchangeable back-end
+system which supports different interconnects. A libfabric-based
+back-end supports a wide range of fabric technologies including
+Infiniband. On the front-end side, NetIO supports several highlevel communication patterns that are found in typical data
+acquisition applications like client/server and publish/subscribe.
+Unlike other frameworks, NetIO distinguishes between highthroughput and low-latency communication, which is essential
+for applications with heterogeneous traffic patterns. This feature
+of NetIO allows experiments like ATLAS to use a single network
+for different traffic types like physics data or detector control.
+
+Benchmarks of NetIO in comparison with the message queue
+implementation @MQ are presented. NetIO reaches up to 2x
+higher throughput on Ethernet and up to 3x higher throughput
+on FDR Infiniband compared to @MQ on Ethernet. The latencies
+measured with NetIO are comparable to @MQ latencies.
+

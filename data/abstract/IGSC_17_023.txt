@@ -1,0 +1,21 @@
+
+Cloud computing has largely replaced dedicated and
+physical computing systems by providing critical features such
+as elasticity and on-demand access to resources. However,
+despite its many benefits, the cloud does have its limitations,
+such as limited or no control over the hardware and limited
+customization options. Users who deploy applications on the
+cloud only have control over software tuning and optimizations
+since the infrastructure is managed by the provider.
+
+In this paper, we analyze cloud-deployed Web applications
+that are multi-tiered and employ Memcached as the object
+caching layer. Memcached is a high performance memory
+caching system and, if there are no other bottlenecks in the
+system, the overall application performance should be dictated
+by Memcached. However, we show that other components of
+the system such as web servers, load balancers, and some
+underlying system configurations, severely impact application performance. We analyze these components and provide
+guidelines on their implementation and parameter tuning to
+minimize resource waste in the cloud.
+

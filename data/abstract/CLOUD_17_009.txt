@@ -1,0 +1,20 @@
+
+Cloud storage providers can reduce storage costs by
+detecting identical files and storing only one instance of them.
+While appealing to the storage providers, this deduplication
+set-up raises various privacy concerns among clients. Various
+techniques to retrofit content confidentiality in deduplication have
+been studied in the literature. Nevertheless, data encryption alone
+is insufficient to protect users’ privacy, for the ownership and
+equality information of the outsourced data left unprotected may
+have serious privacy implications. In this paper, we investigate a
+three-tier architecture that saves bandwidth otherwise incurred
+by server-side deduplication solutions, yet does not admit the
+client-side deduplication’s leakage on file existence. Leveraging
+trusted SGX-enabled processors, we construct the first privacypreserving data deduplication protocol that protects not only the
+confidentiality, but also the ownership and equality information
+of the outsourced data, offering better privacy guarantees in
+comparison with existing works on secure data deduplication.
+Our experiments show that the proposed protocol incurs low
+performance overhead over conventional solutions that provide
+weaker level of privacy protection.

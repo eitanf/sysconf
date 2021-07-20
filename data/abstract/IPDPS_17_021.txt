@@ -1,0 +1,18 @@
+
+We are now developing a manycore-aware implementation of multiprocessed PIC (particle-in-cell) simulation
+code with automatic load balancing. A key issue of the
+implementation is how to exploit the wide SIMD mechanism
+of manycore processors such as Intel Xeon Phi. Our solution is
+particle binning to rank all particles in a cell (voxel) in a chunk
+of SOA (structure-of-arrays) type one-dimensional arrays so
+that particle-push and current-scatter operations on them are
+efficiently SIMD-vectorized by our compiler. In addition, our
+sophisticated binning mechanism performs sorting of particles
+according to their positions on-the-fly, efficiently coping with
+occasional bin overflow in a fully multithreaded manner. Our
+performance evaluation with up to 64 nodes of Cray XC30
+and XC40 supercomputers, equipped with Xeon Phi 5120D
+(Knights Corner) and 7250 (Knights Landing) respectively, not
+only exhibited good parallel performance, but also proved the
+effectiveness of our binning mechanism.
+

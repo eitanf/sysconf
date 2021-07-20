@@ -1,0 +1,24 @@
+
+Full-system simulators are increasingly finding their
+way into the consumer space for the purposes of backwards
+compatibility and hardware emulation (e.g. for games consoles).
+For such compute-intensive applications simulation performance
+is paramount. In this paper we argue that existing benchmark
+suites such as SPEC CPU2006, originally designed for architecture and compiler performance evaluation, are not well suited
+for the identification of performance bottlenecks in full-system
+simulators. While their large, complex workloads provide an
+indication as to the performance of the simulator on ‘real-world’
+workloads, this does not give any indication of why a particular
+simulator might run an application faster or slower than another.
+In this paper we present SimBench, an extensive suite of
+targeted micro-benchmarks designed to run bare-metal on a fullsystem simulator. SimBench exercises dynamic binary translation
+(BT) performance, interrupt and exception handling, memory
+access performance, I/O and other performance-sensitive areas.
+SimBench is cross-platform benchmarking framework and can
+be retargeted to new architectures with minimal effort. For
+several simulators, including QEMU, Gem5 and SimIt-ARM, and
+targeting ARM and Intel x86 architectures, we demonstrate that
+SimBench is capable of accurately pinpointing and explaining
+real-world performance anomalies, which are largely obfuscated
+by existing application-oriented benchmarks.
+

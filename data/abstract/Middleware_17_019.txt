@@ -1,0 +1,18 @@
+
+Developers use Machine Learning (ML) platforms to train ML models and then deploy these ML models as web services for inference
+(prediction). A key challenge for platform providers is to guarantee
+response-time Service Level Agreements (SLAs) for inference workloads while maximizing resource efficiency. Swayam is a fully distributed autoscaling framework that exploits characteristics of production ML inference workloads to deliver on the dual challenge of
+resource efficiency and SLA compliance. Our key contributions are
+(1) model-based autoscaling that takes into account SLAs and ML
+inference workload characteristics, (2) a distributed protocol that
+uses partial load information and prediction at frontends to provision new service instances, and (3) a backend self-decommissioning
+protocol for service instances. We evaluate Swayam on 15 popular
+services that were hosted on a production ML-as-a-service platform,
+for the following service-specific SLAs: for each service, at least
+99% of requests must complete within the response-time threshold.
+Compared to a clairvoyant autoscaler that always satisfies the SLAs
+(Le., even if there is a burst in the request rates), Swayam decreases
+resource utilization by up to 27%, while meeting the service-specific
+SLAs over 96% of the time during a three hour window. Microsoft
+Azure’s Swayam-based framework was deployed in 2016 and has
+hosted over 100,000 services.

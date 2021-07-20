@@ -1,0 +1,34 @@
+
+Die-stacked DRAM (a.k.a., on-chip DRAM) provides much higher bandwidth and lower latency than off-chip
+DRAM. It is a promising technology to break the “memory
+wall’. Die-stacked DRAM can be used either as a cache (i.e.,
+DRAM cache) or as a part of memory (PoM). A DRAM cache
+design would suffer from more page faults than a PoM design
+as the DRAM cache cannot contribute towards capacity of main
+memory. At the same time, obtaining high performance requires
+PoM systems to swap requested data to the die-stacked DRAM.
+Existing PoM designs fall into two categories — line-based
+and page-based. The former ensures low off-chip bandwidth
+utilization but suffers from a low hit ratio of on-chip memory
+due to limited temporal locality. In contrast, page-based designs
+achieve a high hit ratio of on-chip memory albeit at the cost
+of moving large amounts of data between on-chip and off-chip
+memories, leading to increased off-chip bandwidth utilization and
+significant system performance degradation.
+
+To achieve a similar high hit ratio of on-chip memory as pagebased designs, and eliminate excessive off-chip traffic involved,
+we propose SELF, a high performance and bandwidth efficient
+approach. The key idea is to SElectively swap Lines in a requested
+page that are likely to be accessed according to page Footprint,
+instead of blindly swapping an entire page. In doing so, SELF
+allows incoming requests to be serviced from the on-chip memory
+as much as possible, while avoiding swapping unused lines to
+reduce memory bandwidth consumption. We evaluate a memory
+system which consists of 4GB on-chip DRAM and 12GB offchip DRAM. Compared to a baseline system that has the same
+total capacity of 16GB off-chip DRAM, SELF improves the
+performance in terms of instructions per cycle by 26.9%, and
+reduces the energy consumption per memory access by 47.9% on
+average. In contrast, state-of-the-art line-based and page-based
+PoM designs can only improve the performance by 9.5% and
+9.9%, respectively, against the same baseline system.
+

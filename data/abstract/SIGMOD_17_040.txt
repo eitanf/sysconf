@@ -1,0 +1,24 @@
+
+
+Under update intensive workloads (TPC, LinkBench) small
+updates dominate the write behavior, e.g. 70% of all updates
+change less than 10 bytes across all TPC OLTP workloads.
+These are typically performed as in-place updates and result
+in random writes in page-granularity, causing major writeoverhead on Flash storage, a write amplification of several
+hundred times and lower device longevity.
+
+In this paper we propose an approach that transforms
+those small in-place updates into small update deltas that
+are appended to the original page. We utilize the commonly
+ignored fact that modern Flash memories (SLC, MLC, 3D
+NAND) can handle appends to already programmed physical pages by using various low-level techniques such as ISPP
+to avoid expensive erases and page migrations. Furthermore, we extend the traditional NSM page-layout with a
+delta-record area that can absorb those small updates. We
+propose a scheme to control the write behavior as well as
+the space allocation and sizing of database pages.
+
+The proposed approach has been implemented under ShoreMT and evaluated on real Flash hardware (OpenSSD) and
+a Flash emulator. Compared to In-Page Logging [21] it performs up to 62% less reads and writes and up to 74% less
+erases on a range of workloads. The experimental evaluation
+indicates: (i) significant reduction of erase operations resulting in twice the longevity of Flash devices under updateintensive workloads; (ii) 15%-60% lower read/write I/O latencies; (iii) up to 45% higher transactional throughput; (iv)
+2x to 3x reduction in overall write amplification.

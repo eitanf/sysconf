@@ -1,0 +1,16 @@
+
+. The scalability of sparse matrix-vector multiplication
+(SpMV) on distributed memory systems depends on multiple factors
+that involve different communication cost metrics. The irregular sparsity
+pattern of the coefficient matrix manifests itself as high bandwidth (total
+and/or maximum volume) and/or high latency (total and/or maximum
+message count) overhead. In this work, we propose a hypergraph partitioning model which combines two earlier models for one-dimensional
+partitioning, one addressing total and maximum volume, and the other
+one addressing total volume and total message count. Our model relies
+on the recursive bipartitioning paradigm and simultaneously addresses
+three cost metrics in a single partitioning phase in order to reduce volume
+and latency overheads. We demonstrate the validity of our model on a
+large dataset that contains more than 300 matrices. The results indicate
+that compared to the earlier models, our model significantly improves
+the scalability of SpMV.
+

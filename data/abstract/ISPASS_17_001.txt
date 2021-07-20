@@ -1,0 +1,33 @@
+
+Managed applications, written in programming languages such as Java, C# and others, represent a significant
+share of workloads in the mobile, desktop, and server domains.
+Microarchitectural timing simulation of such workloads is useful
+for characterization and performance analysis, of both hardware
+and software, as well as for research and development of novel
+hardware extensions.
+
+This paper introduces MaxSim, a simulation platform based
+on the Maxine VM, the ZSim simulator, and the McPAT modeling
+framework. MaxSim is able to simulate fast and accurately
+managed workloads running on top of Maxine VM and its
+capabilities are showcased with novel simulation techniques for:
+1) low-intrusive microarchitectural profiling via pointer tagging
+on the x86-64 platforms, 2) modeling of hardware extensions
+related, but not limited to, tagged pointers, and 3) modeling of
+complex software changes via address-space morphing.
+
+Low-intrusive microarchitectural profiling is achieved by utilizing tagged pointers to collect type- and allocation-site- related
+hardware events. Furthermore, MaxSim allows, through a novel
+technique called address space morphing, the easy modeling of
+complex object layout transformations. Finally, through the codesigned capabilities of MaxSim, novel hardware extensions can
+be implemented and evaluated.
+
+We showcase MaxSim’s capabilities by simulating the whole
+set of the DaCapo-9.12-bach benchmarks in less than a day
+while performing an up-to-date microarchitectural power and
+performance characterization. Furthermore, we demonstrate a
+hardware/software co-designed optimization that performs dynamic load elimination for array length retrieval achieving up to
+14% L1 data cache loads reduction and up to 4% dynamic energy
+reduction. MaxSim is available at https://github.com/arodchen/
+MaxSim released as free software.
+

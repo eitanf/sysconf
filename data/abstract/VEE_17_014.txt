@@ -1,0 +1,32 @@
+
+Current computer architectures — ARM, MIPS, PowerPC,
+SPARC, x86 — have evolved from a 32-bit architecture to
+a 64-bit one. Computer architects often consider whether it
+could be possible to eliminate hardware support for a subset
+of the instruction set as to reduce hardware complexity,
+which could improve performance, reduce power usage and
+accelerate processor development. This paper considers the
+scenario where we want to eliminate 32-bit hardware support
+from the ARMV8 architecture.
+
+Dynamic binary translation can be used for this purpose
+and generally comes in one of two forms: application-level
+translators that translate a single user mode process on top of
+a native operating system, and system-level translators that
+translate an entire operating system and all its processes.
+
+Application-level translators can have good performance
+but is not totally transparent; system-level translators may be
+100% compatible but performance suffers. HyperMAMBOX64 uses a new approach that gets the best of both worlds,
+being able to mn the translator as an application under the
+hypervisor but still react to the behavior of guest operating
+systems. It works with complete transparency with regards
+to the virtualized system whilst delivering performance close
+to that provided by hardware execution.
+
+A key factor in the low overhead of HyperMAMBO-X64
+is its deep integration with the virtualization and memory
+management features of ARMV8. These are exploited to support caching of translations across multiple address spaces
+while ensuring that translated code remains consistent with
+the source instructions it is based on. We show how these attributes are achieved without sacrificing either performance
+or accuracy.

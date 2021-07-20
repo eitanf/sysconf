@@ -1,0 +1,21 @@
+
+
+Extensible language frameworks aim to allow independentlydeveloped language extensions to be easily added to a host
+programming language. It should not require being a compiler expert, and the resulting compiler should “just work” as
+expected. Previous work has shown how specifications for
+parsing (based on context free grammars) and for semantic
+analysis (based on attribute grammars) can be automatically
+and reliably composed, ensuring that the resulting compiler
+does not terminate abnormally.
+
+However, this work does not ensure that a property proven
+to hold for a language (or extended language) still holds when
+another extension is added, a problem we call interference. We
+present a solution to this problem using of a logical notion of
+coherence. We show that a useful class of language extensions,
+implemented as attribute grammars, preserve all coherent
+properties. If we also restrict extensions to only making use
+of coherent properties in establishing their correctness, then
+the correctness properties of each extension will hold when
+composed with other extensions. As a result, there can be
+no interference: each extension behaves as specified.

@@ -1,0 +1,21 @@
+
+
+Algorithms that use hardware transactional memory (HTM) must
+provide a software-only fallback path to guarantee progress. The
+design of the fallback path can have a profound impact on performance. If the fallback path is allowed to run concurrently with hardware transactions, then hardware transactions must be instrumented,
+adding significant overhead. Otherwise, hardware transactions must
+wait for any processes on the fallback path, causing concurrency
+bottlenecks, or move to the fallback path. We introduce an approach
+that combines the best of both worlds. The key idea is to use three
+execution paths: an HTM fast path, an HTM middle path, and a softwate fallback path, such that the middle path can run concurrently
+with each of the other two. The fast path and fallback path do not
+run concurrently, so the fast path incurs no instrumentation overhead.
+Furthermore, fast path transactions can move to the middle path
+instead of waiting or moving to the software path. We demonstrate
+our approach by producing an accelerated version of the tree update template of Brown et al., which can be used to implement fast
+lock-free data structures based on down-trees. We used the accelerated template to implement two lock-free trees: a binary search tree
+(BST), and an (a, b)-tree (a generalization of a B-tree). Experiments
+show that, with 72 concurrent processes, our accelerated (a, b)-tree
+performs between 4.0x and 4.2x as many operations per second as
+an implementation obtained using the original tree update template.
+

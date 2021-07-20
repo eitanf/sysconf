@@ -1,0 +1,14 @@
+
+. Container-based infrastructures have surged in popularity,
+offering advantages in agility and scaling, while also presenting new challenges in resource utilization due to unnecessary library duplication. In
+this paper, we consider sharing libraries across containers, and study the
+impact of such a strategy on overall resource requirements, scheduling,
+and utilization. Our analysis and simulations suggest significant benefits
+arising from library sharing. Furthermore, a small fraction of libraries
+shared between any two containers, on average, is enough to reap most
+of the benefits, and even naive schedulers, such as a First Fit scheduler,
+succeed at doing so. We also propose a score maximization, mixed-integer
+linear-programming scheduler for handling bulk request arrivals (such as
+large jobs composed of many smaller tasks), which compares favorably
+against state-of-the-art schedulers in these scenarios.
+

@@ -1,0 +1,19 @@
+
+
+We introduce new dynamic set intersection data structures,
+which we call 2-3 cuckoo filters and hash tables. These
+structures differ from the standard cuckoo hash tables and
+cuckoo filters in that they choose two out of three locations
+to store each item, instead of one out of two, ensuring
+that any item in an intersection of two structures will
+have at least one common location in both structures. We
+demonstrate the utility of these structures by using them
+in improved algorithms for listing triangles and answering
+set intersection queries in internal or external memory. For
+a graph G of n vertices and m edges, our internal-memory
+triangle listing algorithm runs in O(m[(a(G) log w)/w] + &)
+expected time, where a(G) is the arboricity of G, w is
+the number of bits in a machine word, and & is the number of output triangles. Our external-memory algorithm
+uses O(sort(n a(G)) + sort(m[(a(G) log w)/w]) + sort(k))
+expected number of I/Os.
+

@@ -1,0 +1,19 @@
+
+The ability to quickly set up and tear down a virtual machine
+is critical for today’s cloud elasticity, as well as in numerous other scenarios: guest migration/consolidation, event-driven invocation of micro-services, dynamically adaptive
+unikernel-based applications, micro-reboots for security or
+stability, etc.
+
+In this paper, we focus on the process of setting up/freeing the hypervisor and host control layer data structures at
+boot/destruction time, showing that it does not scale in current virtualization solutions. In addition to the direct overhead of long VM set-up/destruction times, we demonstrate
+by experimentation the indirect costs on real world auto scaling systems. Focusing on the popular Xen hypervisor, we
+identify three critical issues hindering the scalability of the
+boot and destruction processes: serialized boot, unscalable
+interactions with the Xenstore at guest creation time, and
+remote NUMA memory scrubbing at destruction time. For
+each of these issues we present the design and implementation of a solution in the Xen infrastructure: parallel boot with
+fine-grained locking, caching of Xenstore data, and local
+NUMA scrubbing. We evaluate these solutions using microbenchmarks, macro-benchmarks, and real world datacenter
+traces. Results show that our work improves the current Xen
+implementation by a significant factor, for example macrobenchmarks indicate a speedup of more than 4X in high-load
+scenarios.

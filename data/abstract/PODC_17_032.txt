@@ -1,0 +1,27 @@
+
+
+The algorithmic small-world phenomenon, empirically established
+by Milgram’s letter forwarding experiments from the 60s [60], was
+theoretically explained by Kleinberg in 2000 [47]. However, from
+today’s perspective his model has several severe shortcomings that
+limit the applicability to real-world networks. In order to give a
+more convincing explanation of the algorithmic small-world phenomenon, we study decentralized greedy routing in a more flexible
+random graph model (geometric inhomogeneous random graphs)
+which overcomes all previous shortcomings. Apart from exhibiting good properties in theory, it has also been extensively experimentally validated that this model reasonably captures real-world
+networks.
+
+In this model, the greedy routing protocol is purely distributed
+as each vertex only needs to know information about its direct
+neighbors. We prove that it succeeds with constant probability, and
+in case of success almost surely finds an almost shortest path of
+length O(log log n), where our bound is tight including the leading
+constant. Moreover, we study natural local patching methods which
+augment greedy routing by backtracking and which do not require
+any global knowledge. We show that such methods can ensure
+success probability 1 in an asymptotically tight number of steps.
+
+These results also address the question of Krioukov et al. [52]
+whether there are efficient local routing protocols for the internet
+graph. There were promising experimental studies, but the question
+remained unsolved theoretically. Our results give for the first time
+a rigorous and analytical affirmative answer.

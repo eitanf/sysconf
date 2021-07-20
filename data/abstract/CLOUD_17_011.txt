@@ -1,0 +1,20 @@
+
+Data analytics is undergoing a revolution in many
+scientific domains, demanding cost-effective parallel data analysis techniques. Traditional Java-based Big Data processing
+tools like Hadoop MapReduce are designed for commodity
+CPUs. In contrast, emerging manycore processors like Xeon
+Phi has an order of magnitude of computation power and
+memory bandwidth. To harness the computing capabilities, we
+propose a Harp-DAAL framework. We show that enhanced
+versions of MapReduce can be replaced by Harp, a Hadoop
+plug-in, that offers useful data abstractions for both of highperformance iterative computation and MPI-quality communication, and it can drive Intel’s native library DAAL. We select
+a subset of three machine learning algorithms and implement
+them within Harp-DAAL. Our scalability benchmarks run on
+Knights Landing (KNL) clusters and achieve up to 2.5 times
+speedup of performance to the HPC solution in NOMAD and
+15 to 40 times faster than Java-based solutions in Spark. We
+further quantify the workloads on single node KNL with a
+performance breakdown at micro-architecture level.
+
+Keywords-HPC, Xeon Phi, BigData
+

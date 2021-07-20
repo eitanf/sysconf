@@ -1,0 +1,18 @@
+
+
+Training machine learning (ML) models with large
+datasets can incur significant resource contention on
+shared clusters. This training typically involves many
+iterations that continually improve the quality of the
+model. Yet in exploratory settings, better models can be
+obtained faster by directing resources to jobs with the
+most potential for improvement. We describe SLAQ, a
+cluster scheduling system for approximate ML training
+jobs that aims to maximize the overall job quality.
+
+When allocating cluster resources, SLAQ explores the
+quality-runtime trade-offs across multiple jobs to maximize system-wide quality improvement. To do so,
+SLAQ leverages the iterative nature of ML training algorithms, by collecting quality and resource usage information from concurrent jobs, and then generating highlytailored quality-improvement predictions for future iterations. Experiments show that SLAQ achieves an average
+quality improvement of up to 73% and an average delay
+reduction of up to 44% on a large set of ML training jobs,
+compared to resource fairness schedulers.

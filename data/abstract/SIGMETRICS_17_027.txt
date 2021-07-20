@@ -1,0 +1,14 @@
+
+Several optimizations have been proposed to improve the performance of the mobile Web. However, these optimizations often
+overlook an important factor, energy. Given the importance of battery life for mobile users, we argue that such optimizations
+should be evaluated for their impact on energy consumption. Unfortunately, teasing out the effect of an optimization on
+the energy consumption of the page load process is difficult, even with the help of power monitors. This is because of the
+complexity of the page loads, the high variance in page load times, and the relatively short-lived page load process.
+
+In this paper, we present RECON, a modeling approach that predicts the energy consumption of any Web page load. Our
+key intuition is to model page load times using low-level information about the page load process. RECON combines the
+low-level page load information with coarse-grained resource monitoring to build a power model. Experiments across 50 Web
+pages and under four different optimizations show that RECON can predict energy consumption for a Web page load with an
+error of less than 5%. By leveraging low-level page load information, RECON can not only identify when a given optimization
+negatively affects energy, but can also reveal why. Importantly, RECON allows us to quickly evaluate various optimization
+choices with respect to both performance and energy.

@@ -1,0 +1,26 @@
+
+
+Driven by the rising popularity of cloud storage, the costs
+associated with implementing reliable storage services from
+a collection of fault-prone servers have recently become an
+actively studied question. The well-known ABD result shows
+that an f-tolerant register can be emulated using a collection
+of 2f +1 fault-prone servers each storing a single read-modifywrite object, which is known to be optimal. In this paper
+we generalize this bound: we investigate the inherent space
+complexity of emulating reliable multi-writer registers as
+a function of the type of the base objects exposed by the
+underlying servers, the number of writers to the emulated
+register, the number of available servers, and the failure
+threshold.
+
+We establish a sharp separation between registers, and both
+max-registers (the base object type assumed by ABD) and
+CAS in terms of the resources (i.e., the number of base objects
+of the respective types) required to support the emulation;
+we show that no such separation exists between max-registers
+and CAS. Our main technical contribution is lower and upper
+bounds on the resources required in case the underlying base
+objects are fault-prone read/write registers. We show that the
+number of required registers is directly proportional to the
+number of writers and inversely proportional to the number
+of servers.

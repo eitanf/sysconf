@@ -1,0 +1,17 @@
+
+
+Network Function Virtualization has been touted as the silver bullet
+for tackling a number of operator problems, including vendor lockin, fast deployment of new functionality, converged management,
+and lower expenditure since packet processing runs on inexpensive
+commodity servers. The reality, however, is that, in practice, it has
+proved hard to achieve the stable, predictable performance provided by hardware middleboxes, and so operators have essentially
+resorted to throwing money at the problem, deploying highly underutilized servers (e.g., one NF per CPU core) in order to guarantee
+high performance during peak periods and meet SLAs.
+
+In this work we introduce HyperNF, a high performance NFV
+framework aimed at maximizing server performance when concurrently running large numbers of NFs. To achieve this, HyperNF
+implements hypercall-based virtual I/O, placing packet forwarding
+logic inside the hypervisor to significantly reduce I/O synchronization overheads. HyperNF improves throughput by 10%-73%
+depending on the NF, is able to closely match resource allocation
+specifications (with deviations of only 3.5%), and to efficiently cope
+with changing traffic loads.

@@ -1,0 +1,25 @@
+
+This paper proposes a new SSD cache architecture,
+DEFT-cache, Delayed Erasing and Fast Taping, that maximizes
+I/O performance and reliability of RAID storage. First of all,
+DEFT-Cache exploits the inherent physical properties of flash
+memory SSD by making use of old data that have been overwritten but still in existence in SSD to minimize small write penalty of
+RAID5/6. As data pages being overwritten in SSD, old data pages
+are invalidated and become candidates for erasure and garbage
+collections. Our idea is to selectively delay the erasure of the
+pages and let these otherwise useless old data in SSD contribute
+to I/O performance for parity computations upon write I/Os.
+Secondly, DEFT-Cache provides inexpensive redundancy to the
+SSD cache by having one physical SSD and one virtual SSD
+as a mirror cache. The virtual SSD is implemented on HDD
+but using log-structured data layout, i.e. write data are quickly
+logged to HDD using sequential write. The dual and redundant
+caches provide a cost-effective and highly reliable write-back
+SSD cache. We have implemented DEFT-Cache on Linux system.
+Extensive experiments have been carried out to evaluate the
+potential benefits of our new techniques. Experimental results on
+SPC and Microsoft traces have shown that DEFT-Cache improves
+I/O performance by 26.81% to 56.26% in terms of average user
+response time. The virtual SSD mirror cache can absorb write
+I/Os as fast as physical SSD providing the same reliability as two
+physical SSD caches without noticeable performance loss.

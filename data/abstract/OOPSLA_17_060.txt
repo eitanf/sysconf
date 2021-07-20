@@ -1,0 +1,21 @@
+
+Java 8 retrofitted lambda expressions, a core feature of functional programming, into a mainstream objectoriented language with an imperative paradigm. However, we do not know how Java developers have adapted
+to the functional style of thinking, and more importantly, what are the reasons that motivate Java developers to
+adopt functional programming. Without such knowledge, researchers miss opportunities to improve the state
+of the art, tool builders use unrealistic assumptions, language designers fail to improve upon their designs,
+and developers are unable to explore efficient and effective use of lambdas.
+We present the first large-scale, quantitative and qualitative empirical study to shed light on how imperative
+programmers use lambda expressions as a gateway into functional thinking. Particularly, we statically scrutinize
+the source code of 241 open-source projects with 19,770 contributors, to study the characteristics of 100,540
+lambda expressions. Moreover, we investigate the historical trends and adoption rates of lambdas in the
+studied projects. To get a complementary perspective, we seek the underlying reasons on why developers
+introduce lambda expressions, by surveying 97 developers who are introducing lambdas in their projects,
+using the firehouse interview method.
+Among others, our findings revealed an increasing trend in the adoption of lambdas in Java: in 2016, the
+ratio of lambdas introduced per added line of code increased by two-fold compared to 2015. Lambdas are
+used for various reasons, including but not limited to (i) making existing code more succinct and readable,
+(ii) avoiding code duplication, and (iii) simulating lazy evaluation of functions. Interestingly, we found out
+that developers are using Java’s built-in functional interfaces inefficiently, i.e., they prefer to use generic
+functional interfaces over the specialized ones, overlooking the performance overheads that might be imposed.
+Furthermore, developers are not adopting techniques from functional programming, e.g., currying. Finally, we
+present the implications of our findings for researchers, tool builders, language designers, and developers.

@@ -1,0 +1,12 @@
+
+We present a multi-word atomic (1,N) register
+for multi-core machines exploiting Read-Modify-Write (RMW)
+instructions to coordinate the writer and the readers in a waitfree manner. Our proposal, called Anonymous Readers Counting (ARC), enables large-scale data sharing by admitting up
+to 2°? — 2 concurrent readers on off-the-shelf 64-bit machines,
+as opposed to the most advanced RMW-based approach which
+is limited to 58 readers. Further, ARC avoids multiple copies
+of the register content while accessing it—this affects classical
+register’s algorithms based on atomic read/write operations
+on single words. Thus, ARC allows for higher scalability with
+respect to the register size.
+

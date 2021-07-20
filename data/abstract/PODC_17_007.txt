@@ -1,0 +1,29 @@
+
+
+Motivated by emerging applications to the edge computing paradigm, we introduce a two-layer erasure-coded fault-tolerant distributed storage system offering atomic access for read and write
+operations. In edge computing, clients interact with an edge-layer
+of servers that is geographically near; the edge-layer in turn interacts with a back-end layer of servers. The edge-layer provides
+low latency access and temporary storage for client operations,
+and uses the back-end layer for persistent storage. Our algorithm,
+termed Layered Data Storage (LDS) algorithm, offers several features suitable for edge-computing systems, works under asynchronous message-passing environments, supports multiple readers
+and writers, and can tolerate fj < m,/2 and f2 < n2/3 crash
+failures in the two layers having n; and ng servers, respectively.
+We use a class of erasure codes known as regenerating codes for
+storage of data in the back-end layer. The choice of regenerating codes, instead of popular choices like Reed-Solomon codes,
+not only optimizes the cost of back-end storage, but also helps
+in optimizing communication cost of read operations, when the
+value needs to be recreated all the way from the back-end. The
+two-layer architecture permits a modular implementation of atomicity and erasure-code protocols; the implementation of erasurecodes is mostly limited to interaction between the two layers. We
+prove liveness and atomicity of LDS, and also compute performance
+costs associated with read and write operations. In a system with
+ny = O(n2), fi = O(n1), fo = O(nz2), the write and read costs are
+respectively given by O(n,) and @(1) + m1£(6 > 0). Here 6 is a
+parameter closely related to the number of write operations that
+are concurrent with the read operation, and J(6 > 0) is 1 if 6 > 0,
+and 0 if 5 = 0. The cost of persistent storage in the back-end layer is
+©(1). The impact of temporary storage is minimally felt in a multiobject system running N independent instances of LDS, where only
+a small fraction of the objects undergo concurrent accesses at any
+point during the execution. For the multi-object system, we identify
+a condition on the rate of concurrent writes in the system such that
+the overall storage cost is dominated by that of persistent storage
+in the back-end layer, and is given by O(N).

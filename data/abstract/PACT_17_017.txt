@@ -1,0 +1,14 @@
+
+We propose a design for a fine-grained lockbased skiplist optimized for Graphics Processing Units (GPUs).
+While GPUs are often used to accelerate streaming parallel
+computations, it remains a significant challenge to efficiently
+offload concurrent computations with more complicated datairregular access and fine-grained synchronization. Natural
+building blocks for such computations would be concurrent
+data structures, such as skiplists, which are widely used in
+general purpose computations. Our design utilizes array-based
+nodes which are accessed and updated by warp-cooperative
+functions, thus taking advantage of the fact that GPUs are
+most efficient when memory accesses are coalesced and execution divergence is minimized. The proposed design has
+been implemented, and measurements demonstrate improved
+performance of up to 11.6x over skiplist designs for the GPU
+existing today.

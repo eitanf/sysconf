@@ -1,0 +1,31 @@
+
+Thread schedulers are designed to dynamically
+map parallel programs to processors to optimize performance
+
+ 
+
+function Quicksort (A)
+if (#A < 2) then A
+
+aes : . : lse let pivot = A[#A/2];
+metrics including memory footprint, number of cache misses at ee “8 is = {6 tA B| 6 < pLvEE);
+each cache level, and load balance, so as to minimize the total eq = {e in Al e == pivot};
+running time of the program. Programs with dynamic memory gr = ie an] e f panokd i , n
+- . ret = {Quicksort(v):v in s,gr]};
+allocation pose particular challenges for thread schedulers, and in ret[0] ++ eq ++ ret[1];
+
+indeed prior schedulers that are provably cache- and timeefficient on multi-level cache hierarchies require static memory
+allocation. Not only do many thread schedulers fail to reuse
+memory effectively, but there is often an inherent tradeoff
+between parallelism and memory use in algorithms.
+
+In this paper, we present the first runtime thread scheduler
+for multi-level cache hierarchies, called the space-bounded
+recursive-PDF scheduler, that is provably space-, cache-, and
+time-efficient for parallel programs that dynamically allocate
+memory. Our bounds hold for nested parallel programs with
+good regularity as measured by the effective cache complexity—
+a program-centric metric. The cache and time bounds are
+asymptotically optimal, while the space bound is asymptotically
+optimal for highly parallel and regular programs.
+

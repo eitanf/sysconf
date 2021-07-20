@@ -1,0 +1,23 @@
+
+In many organizations, it is often challenging for users to find relevant data for specific tasks, since the data is usually scattered across
+the enterprise and often inconsistent. In fact, data scientists routinely
+report that the majority of their effort is spent finding, cleaning, integrating, and accessing data of interest to a task at hand. In order
+to decrease the “grunt work” needed to facilitate the analysis of
+data “in the wild”, we present DATA CIVILIZER, an end-to-end big
+data management system. DATA CIVILIZER has a linkage graph
+computation module to build a linkage graph for the data and a data
+discovery module which utilizes the linkage graph to help identify
+data that is relevant to user tasks. It also uses the linkage graph
+to discover possible join paths that can then be used in a query.
+For the actual query execution, we use a polystore DBMS, which
+federates query processing across disparate systems. In addition,
+DATA CIVILIZER integrates data cleaning operations into query pro-
+cessing. Because different users need to invoke the above tasks in
+different orders, DATA CIVILIZER embeds a workflow engine which
+enables the arbitrary composition of different modules, as well as
+the handling of data updates. We have deployed our preliminary
+DATA CIVILIZER system in two institutions, MIT and Merck and
+describe initial positive experiences that show the system shortens
+the time and effort required to find, prepare, and analyze data.
+
+

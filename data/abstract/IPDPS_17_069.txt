@@ -1,0 +1,28 @@
+
+The power consumed by memory system in GPUs
+is a significant fraction of the total chip power. As thread level
+parallelism increases, GPUs are likely to stress cache and memory
+bandwidth even more, thereby exacerbating power consumption.
+We observe that neighboring concurrent thread arrays (CTAs)
+within GPU applications share considerable amount of data.
+However, the default GPU scheduling policy spreads these CTAs
+to different streaming multiprocessor cores (SM) in a roundrobin fashion. Since each SM has a private L1 cache, the shared
+data among CTAs are replicated across L1 caches of different
+SMs. Data replication reduces the effective L1 cache size which
+in turn increases the data movement and power consumption.
+
+The goal of this paper is to reduce data movement and
+increase effective cache space in GPUs. We propose a sharingaware CTA scheduler that attempts to assign CTAs with data
+sharing to the same SM to reduce redundant storage of data in
+private L1 caches across SMs. We further enhance the scheduler
+with a sharing-aware cache allocation and replacement policy.
+The sharing-aware cache management approach dynamically
+classifies private and shared data. Private blocks are given higher
+priority to stay longer in L1 cache, and shared blocks are
+given higher priority to stay longer in L2 cache. Essentially,
+this approach increases the lifetime of shared blocks and private
+blocks in different cache levels. The experimental results show
+that the proposed scheme reduces the off-chip traffic by 19%
+which translates to an average DRAM power reduction of 10%
+and performance improvement of 7%.
+

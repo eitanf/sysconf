@@ -1,0 +1,22 @@
+
+
+SDN controllers demand tight performance guarantees over the
+control plane actions performed by switches. For example, traffic
+engineering techniques that frequently reconfigure the network
+require guarantees on the speed of reconfiguring the network. Initial experiments show that poor performance of Ternary ContentAddressable Memory (TCAM) control actions (e.g., rule insertion)
+can inflate application performance by a factor of 2x! Yet, modern
+switches provide no guarantees for these important control plane
+actions — inserting, modifying, or deleting rules.
+
+In this paper, we present the design and evaluation of Hermes,
+a practical and immediately deployable framework that offers a
+novel method for partitioning and optimizing switch TCAM to
+enable performance guarantees. Hermes builds on recent studies
+on switch performance and provides guarantees by trading-off a
+nominal amount of TCAM space for assured performance. We evaluated Hermes using large-scale simulations. Our evaluations show
+that with less than 5% overheads, Hermes provides 5ms insertion
+guarantees that translates into an improvement of application level
+metrics by up to 80%. Hermes is more than 50% better than existing
+state of the art techniques and provides significant improvement
+for traditional networks running BGP.
+

@@ -1,0 +1,27 @@
+
+
+Modern cryptocurrency systems, such as Ethereum, permit complex
+financial transactions through scripts called smart contracts. These
+smart contracts are executed many, many times, always without
+real concurrency. First, all smart contracts are serially executed
+by miners before appending them to the blockchain. Later, those
+contracts are serially re-executed by validators to verify that the
+smart contracts were executed correctly by miners.
+
+Serial execution limits system throughput and fails to exploit today’s concurrent multicore and cluster architectures. Nevertheless,
+serial execution appears to be required: contracts share state, and
+contract programming languages have a serial semantics.
+
+This paper presents a novel way to permit miners and validators
+to execute smart contracts in parallel, based on techniques adapted
+from software transactional memory. Miners execute smart contracts speculatively in parallel, allowing non-conflicting contracts
+to proceed concurrently, and “discovering” a serializable concurrent
+schedule for a block’s transactions, This schedule is captured and
+encoded as a deterministic fork-join program used by validators
+to re-execute the miner’s parallel schedule deterministically but
+concurrently.
+
+Smart contract benchmarks run on a JVM with ScalaSTM show
+that a speedup of 1.33x can be obtained for miners and 1.69x for
+validators with just three concurrent threads.
+

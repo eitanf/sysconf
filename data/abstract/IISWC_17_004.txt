@@ -1,0 +1,32 @@
+
+Porting sequential applications to heterogeneous
+HPC systems requires extensive software and hardware expertise
+to estimate the potential speedup and to efficiently use the
+available compute resources in such systems. To streamline this
+daunting process, researchers have proposed several “black-box”
+performance prediction approaches that rely on the performance
+of a training set of parallel applications. However, due to the lack
+of a diverse set of applications along with their optimized parallel
+implementations for each architecture type, the predicted speedup
+by these approaches is not the speedup upper-bound, and even
+worse it can be misleading, if the reference parallel implementations are not equally-optimized for every target architecture.
+
+This paper presents AutoMatch, an automated framework for
+matching of compute kernels to heterogeneous HPC architectures.
+AutoMatch uses hybrid (static and dynamic) analysis to find the
+best dependency-preserving parallel schedule of a given sequential
+code. The resulting operations schedule serves as a basis to
+construct a cost function of the optimized parallel execution of
+the sequential code on heterogeneous HPC nodes. Since such
+a cost function informs the user and runtime system about
+the relative execution cost across the different hardware devices
+within HPC nodes, AutoMatch enables efficient runtime workload
+distribution that simultaneously utilizes all the available devices
+in performance-proportional way. For a set of open-source HPC
+applications with different characteristics, AutoMatch turns out
+to be very effective, identifying the speedup upper-bound of
+sequential applications and how close the parallel implementation
+is to the best parallel performance across five different HPC
+architectures. Furthermore, AutoMatch’s workload distribution
+scheme achieves approximately 90% of the performance of a
+profiling-driven oracle.

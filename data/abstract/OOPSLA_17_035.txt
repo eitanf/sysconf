@@ -1,0 +1,8 @@
+
+Orca is a concurrent and parallel garbage collector for actor programs, which does not require any stop-theworld steps, or synchronisation mechanisms, and which has been designed to support zero-copy message
+passing and sharing of mutable data. Orca is part of the runtime of the actor-based language Pony. Pony’s
+runtime was co-designed with the Pony language. This co-design allowed us to exploit certain language
+properties in order to optimise performance of garbage collection. Namely, Orca relies on the absence of race
+conditions in order to avoid read/write barriers, and it leverages actor message passing for synchronisation
+among actors. This paper describes Pony, its type system, and the Orca garbage collection algorithm. An
+evaluation of the performance of Orca suggests that it is fast and scalable for idiomatic workloads.

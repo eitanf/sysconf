@@ -1,0 +1,24 @@
+
+Factorizing sparse matrices using direct multifrontal methods generates directed tree-shaped task graphs,
+where edges represent data dependency between tasks. This
+paper revisits the execution of tree-shaped task graphs using
+multiple processors that share a bounded memory. A task can
+only be executed if all its input and output data can fit into the
+memory. The key difficulty is to manage the order of the task
+executions so that we can achieve high parallelism while staying
+below the memory bound. In particular, because input data of
+unprocessed tasks must be kept in memory, a bad scheduling
+strategy might compromise the termination of the algorithm.
+In the single processor case, solutions that are guaranteed to be
+below a memory bound are known. The multi-processor case
+(when one tries to minimize the total completion time) has been
+shown to be NP-complete. We present in this paper a novel
+heuristic solution that has a low complexity and is guaranteed
+to complete the tree within a given memory bound. We compare
+our algorithm to state of the art strategies, and observe that
+on both actual execution trees and synthetic trees, we always
+perform better than these solutions, with average speedups
+between 1.25 and 1.45 on actual assembly trees. Moreover, we
+show that the overhead of our algorithm is negligible even on
+deep trees (10°), and would allow its runtime execution.
+

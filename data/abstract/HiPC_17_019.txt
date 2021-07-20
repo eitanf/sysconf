@@ -1,0 +1,31 @@
+
+Modern high-performance communication runtime
+systems have taken advantage of advanced features on highperformance networks (e.g. InfiniBand) to deliver optimal performance. High-performance communication over InfiniBand
+typically requires the communication buffers to be registered first.
+However, buffer registration and deregistration are costly operations, which leads to performance degradation if they happen
+frequently. To hide this overhead, many existing communication
+runtime choose to design a high-performance registration cache
+to reduce the number of buffer registrations, but such type
+of designs still need some amount of buffers to be registered
+and cached, which leads to multiple issues such as performance
+overhead, high memory consumption for bookkeeping, and code
+complexity for maintaining the registration cache. To solve these
+issues, a recently introduced feature for InfiniBand called Implicit
+On-Demand Paging (ODP) is getting momentum. This feature
+enables one process to register its complete memory address
+space for I/O accesses. To fully take advantage of Implicit-ODP,
+it is critical to fully understand the behavior and benefits of
+Implicit-ODP on InfiniBand and performance/memory tradeoffs it presents. This paper first presents an analysis of the
+Implicit-ODP feature and studies its basic performance with
+InfiniBand verbs-level micro-benchmarks. Then, we describe the
+design tradeoffs with Implicit-ODP and the various optimizations
+at MPI runtime. We propose and design communication protocols
+that can leverage the Implicit-ODP feature at the MPI level.
+The experimental results at the micro-benchmark level and
+application level show that our proposed design can deliver
+comparable performance to the existing pin-down scheme, while
+it does not need registration cache in the MPI runtime. To the
+best of our knowledge, this is the first work to study and analyze
+the Implicit-ODP feature and design a registration caching free
+MPI library with it.
+

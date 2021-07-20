@@ -1,0 +1,21 @@
+
+
+Achieving data-rates of multiple Gbps in 60 GHz millimeter-wave
+(mm-wave) communication systems requires efficient beam-steering
+algorithms. To find the optimal steering direction on IEEE 802.11ad
+compatible devices, state-of-the-art approaches sweep through all
+predefined antenna sectors. Recently, much more efficient alternatives, such as compressive path tracking, have been proposed,
+which scale well even with arrays with thousands of antenna elements. However, such have not yet been integrated into consumer
+devices. In this work, we adapt compressive path tracking for sector selection in off-the-shelf IEEE 802.11ad devices. In contrast to
+existing solutions, our compressive sector selection tolerates the
+imperfections of low-cost hardware, tracks beam directions in 3D
+and does not rely on pseudo-random beams. We implement our
+protocol on a commodity router, the TP-Link Talon AD7200, by
+modifying the sector sweep algorithm in the IEEE 802.11ad chip’s
+firmware. In particular, we modify the firmware to obtain the signal
+strength of received frames and to select custom sectors. Using
+this extension, we precisely measure the device’s sector patterns.
+We then select the best sector based on the measured patterns and
+sweep only through a subset of probing sectors. Our results demonstrate, that our protocol outperforms the existing sector sweep,
+increases stability, and speeds up the sector selection by factor 2.3.
+

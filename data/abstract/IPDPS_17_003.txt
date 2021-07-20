@@ -1,0 +1,18 @@
+
+Ordering vertices of a graph is key to minimize
+fill-in and data structure size in sparse direct solvers, maximize
+locality in iterative solvers, and improve performance in graph
+algorithms. Except for naturally parallelizable ordering methods
+such as nested dissection, many important ordering methods have
+not been efficiently mapped to distributed-memory architectures.
+In this paper, we present the first-ever distributed-memory
+implementation of the reverse Cuthill-McKee (RCM) algorithm
+for reducing the profile of a sparse matrix. Our parallelization
+uses a two-dimensional sparse matrix decomposition. We achieve
+high performance by decomposing the problem into a small
+number of primitives and utilizing optimized implementations of
+these primitives. Our implementation attains up to 38x speedup
+on matrices from various applications on 1024 cores of a Cray
+XC30 supercomputer and shows strong scaling up to 4096 cores
+for larger matrices.
+

@@ -1,0 +1,27 @@
+
+Job runtime estimates provided by users are widely
+acknowledged to be overestimated and runtime overestimation
+can greatly degrade job scheduling performance. Previous studies
+focus on improving accuracy of job runtime estimates by reducing
+runtime overestimation, but fail to address the underestimation
+problem (i.e., the underestimation of job runtimes). Using an
+underestimated runtime is catastrophic to a job as the job will
+be killed by the scheduler before completion. We argue that
+both the improvement of runtime accuracy and the reduction
+of underestimation rate are equally important. To address this
+problem, we propose an online runtime adjustment framework
+called TRIP. TRIP explores the data censoring capability of the
+Tobit model to improve prediction accuracy while keeping a low
+underestimation rate of job runtimes. TRIP can be used as a
+plugin to job scheduler for improving job runtime estimates and
+hence boosting job scheduling performance. Preliminary results
+demonstrate that TRIP is capable of achieving high accuracy of
+80% and low underestimation rate of 5%. This is significant
+as compared to other well-known machine learning methods
+such as SVM, Random Forest, and Last-2 which result in a
+high underestimation rate (20%-50%). Our experiments further
+quantify the amount of scheduling performance gain achieved by
+the use of TRIP.
+
+Keywords-job scheduling; runtime prediction; Blue Gene systems
+

@@ -1,0 +1,17 @@
+
+Building self-healing SSDs is proven feasible by recent studies. When the stress of a block becomes critical, it can be
+healed to remove part of the stress. However, with wear
+leveling, all blocks are evenly worn and have similar stress,
+and all blocks could undergo the healing process within a
+short period of time. The intensive heal operations, called
+heal storms, cause highly unpredictable I/O performance
+and storage reliability. Inspired by the even distribution
+of erase counts under wear leveling, we propose to operate
+wear leveling on virtual erase counts instead of real erase
+counts. When the balance among virtual erase counts is
+achieved through wear leveling, all real erase counts become
+evenly dispersed in a controlled interval. In this way, blocks
+will undergo healing at different times. Virtual erase counts
+are progressively adjusted such that all blocks reach their
+endurance limit when the SSD permanently retires. Our results show that our approach successfully resolved the heal
+storm problem without impacting on the SSD lifespan.

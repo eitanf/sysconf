@@ -1,0 +1,16 @@
+
+Distributed storage systems such as Hadoop File System or Google File System (GFS) ensure data availability and durability
+using replication. Persistence is achieved by replicating the same data block on several nodes, and ensuring that a minimum
+number of copies are available on the system at any time. Whenever the contents of a node are lost, for instance due to a hard
+disk crash, the system regenerates the data blocks stored before the failure by transferring them from the remaining replicas.
+This paper is focused on the analysis of the efficiency of replication mechanism that determines the location of the copies of a
+given file at some server. The variability of the loads of the nodes of the network is investigated for several policies. Three
+replication mechanisms are tested against simulations in the context of a real implementation of a such a system: Random,
+Least Loaded and Power of Choice.
+
+The simulations show that some of these policies may lead to quite unbalanced situations: if B is the average number of
+copies per node it turns out that, at equilibrium, the load of the nodes may exhibit a high variability. It is shown in this paper
+that a simple variant of a power of choice type algorithm has a striking effect on the loads of the nodes: at equilibrium, the
+distribution of the load of a node has a bounded support, most of nodes have a load less than 28 which is an interesting
+property for the design of the storage space of these systems. Stochastic models are introduced and investigated to explain
+this interesting phenomenon.

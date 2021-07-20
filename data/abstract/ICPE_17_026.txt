@@ -1,0 +1,16 @@
+
+
+The process of performance tuning is time consuming and
+costly even if it is carried out automatically. It is crucial to
+learn from the experience of experts. Our long-term goal is
+to construct a database of facts extracted from specific performance tuning histories of computation-intensive applications such that we can search the database for promising
+optimization patterns that fit a given kernel.
+
+In this study, as a significant step toward our goal, we
+explored a thousand computation-intensive applications in
+terms of the distribution of kernel classes, each of which is related to expected efficiency and specific tuning patterns. To
+statistically estimate the distribution of the kernel classes,
+100 loops were randomly sampled and then manually classified by experienced performance engineers. The result indicates that 50-70% of the kernels are memory-bound and
+hence difficult to run efficiently on modern scalar processors. In addition, based on the classification results, we
+constructed experimental classifiers for identifying loop kernels and for predicting kernel classes, which achieved crossvalidated classification accuracy of 81% and 65%, respectively.
+

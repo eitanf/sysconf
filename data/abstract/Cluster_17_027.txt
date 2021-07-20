@@ -1,0 +1,28 @@
+
+A proliferation of data from vast networks of remote
+sensing platforms (satellites, unmanned aircraft systems (UAS),
+airborne etc.), observational facilities (meteorological, eddy covariance etc.), state-of-the-art sensors, and simulation models
+offer unprecedented opportunities for scientific discovery. Unsupervised classification is a widely applied data mining approach
+to derive insights from such data. However, classification of very
+large data sets is a complex computational problem that requires
+efficient numerical algorithms and implementations on high performance computing (HPC) platforms. Additionally, increasing
+power, space, cooling and efficiency requirements has led to the
+deployment of hybrid supercomputing platforms with complex
+architectures and memory hierarchies like the Titan system at
+Oak Ridge National Laboratory. The advent of such accelerated
+computing architectures offers new challenges and opportunities
+for big data analytics in general and specifically, large scale
+cluster analysis in our case. Although there is an existing body
+of work on parallel cluster analysis, those approaches do not
+fully meet the needs imposed by the nature and size of our large
+data sets. Moreover, they had scaling limitations and were mostly
+limited to traditional distributed memory computing platforms.
+We present a parallel Multivariate Spatio-Temporal Clustering
+(MSTC) technique based on k-means cluster analysis that can
+target hybrid supercomputers like Titan. We developed a hybrid
+MPI, CUDA and OpenACC implementation that can utilize both
+CPU and GPU resources on computational nodes. We describe
+performance results on Titan that demonstrate the scalability
+and efficacy of our approach in processing large ecological data
+sets.
+

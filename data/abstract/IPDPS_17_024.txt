@@ -1,0 +1,27 @@
+
+The Ab Initio Molecular Dynamics (AIMD) method
+allows scientists to treat the dynamics of molecular and condensed
+phase systems while retaining a first-principles-based description
+of their interactions. This extremely important method has
+tremendous computational requirements, because the electronic
+Schrédinger equation, approximated using Kohn-Sham Density
+Functional Theory (DFT), is solved at every time step.
+
+With the advent of manycore architectures, application developers have a significant amount of processing power within
+each compute node that can only be exploited through massive
+parallelism. A compute intensive application such as AIMD forms
+a good candidate to leverage this processing power.
+
+In this paper, we focus on adding thread level parallelism
+to the plane wave DFT methodology implemented in NWChem.
+Through a careful optimization of tall-skinny matrix products,
+which are at the heart of the Lagrange multiplier and nonlocal pseudopotential kernels, as well as 3D FFTs, our OpenMP
+implementation delivers excellent strong scaling on the latest Intel
+Knights Landing (KNL) processor. We assess the efficiency of
+our Lagrange multiplier kernels by building a Roofline model
+of the platform, and verify that our implementation is close to
+the roofline for various problem sizes. Finally, we present strong
+scaling results on the complete AIMD simulation for a 64 water
+molecules test case, that scales up to all 68 cores of the Knights
+Landing processor.
+

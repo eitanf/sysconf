@@ -1,0 +1,23 @@
+
+Increasingly complex memory systems and onchip interconnects are developed to mitigate the data movement
+bottlenecks in manycore processors. One example of such a
+complex system is the Xeon Phi KNL CPU with three different
+types of memory, fifteen memory configuration options, and
+a complex on-chip mesh network connecting up to 72 cores.
+Users require a detailed understanding of the performance
+characteristics of the different options to utilize the system efficiently. Unfortunately, peak performance is rarely achievable
+and achievable performance is hardly documented. We address
+this with capability models of the memory subsystem, derived
+by systematic measurements, to guide users to navigate the
+complex optimization space. As a case study, we provide an
+extensive model of all memory configuration options for Xeon
+Phi KNL. We demonstrate how our capability model can be
+used to automatically derive new close-to-optimal algorithms
+for various communication functions yielding improvements 5x
+and 24x over Intel’s tuned OpenMP and MPI implementations,
+respectively. Furthermore, we demonstrate how to use the
+models to assess how efficiently a bitonic sort application
+utilizes the memory resources. Interestingly, our capability
+models predict and explain that the high bandwidth MCDRAM
+does not improve the bitonic sort performance over DRAM.
+

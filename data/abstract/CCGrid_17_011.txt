@@ -1,0 +1,27 @@
+
+Workflows are a widely used abstraction for
+describing large scientific applications and running them on
+distributed systems. However, most workflow systems have been
+silent on the question of what execution environment each task
+in the workflow is expected to run in. Consequently, a workflow
+may run successfully in the environment it was created, but
+fail on other platforms due to the differences in execution
+environment. Container-based schedulers have recently arisen
+as a potential solution to this problem, adopting containers
+to distribute computing resources and deliver well-defined
+execution environments to applications. In this paper, we consider how to connect workflow system to container schedulers
+with minimal performance loss and higher system efficiency.
+As an example of current technology, we use Makeflow and
+Mesos. We present five design challenges, and address them by
+using four configurations that connecting workflow system to
+container scheduler from different level of the infrastructure.
+In order to take full advantage of the resource sharing schema
+of Mesos, we enable the resource monitor of Makeflow to
+dynamically update the task resource requirement. We explore
+the performance of a large bioinformatics workflow, and
+observe that using Makeflow, Work Queue and the Resource
+monitor together not only increase the transfer throughput but
+also achieves highest resource usage rate.
+
+Keywords-Workflow; Container; Scheduling
+

@@ -1,0 +1,21 @@
+
+Studying the interaction among applications, MPI
+runtimes, and the fabric they run on is critical to understanding
+application performance. There exists no high-performance and
+scalable tool that enables understanding this interplay on modern
+multi-petaflop systems. Designing such a tool is non-trivial and
+involves multiple components including 1) data profiling/collection from network/MPI library, 2) storing and, 3) rendering
+the data. Furthermore, achieving this with minimal overhead
+and scalability is a challenging task. We take up this challenge
+and propose a high-performance and scalable network-based
+performance analysis tool for MPI libraries operating on modern
+networks like InfiniBand and Omni-Path. Our designs facilitate
+caching and pre-rendering, allowing a cluster with 6,541 nodes,
+764 switches and, 16,893 network links renders in just 30 seconds
+— a 44X speed up over non-prerendered solutions. The proposed
+lock-free and optimized memory-backed storage design enables
+the tool to handle over a quarter million inserts into the database
+every 45 seconds (data from 27,504 switch ports and 104,656 MPI
+processes). The tool has been successfully deployed and validated
+on HPC systems at OSC and on Comet at SDSC.
+

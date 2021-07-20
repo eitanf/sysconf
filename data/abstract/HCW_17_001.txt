@@ -1,0 +1,27 @@
+
+The increased use of application-specific computational devices turns even low-power chips into high-performance
+computers. Not only additional accelerators (e.g., GPU, DSP,
+or even FPGA), but also heterogeneous CPU clusters form
+modern computer systems. Programming these chips is however
+challenging, due to management overhead, data transfer delays,
+and a missing unification of the programming flow. Moreover,
+most accelerators require device specific optimizations. Thus, for
+application developers, fulfilling software’s initial intention to
+serve high portability is one of the most ambitious objectives.
+In this work, we present a software abstraction layer unifying
+the programming flow for parallel and heterogeneous platforms.
+Therefore, we offer a generic C++ API for parallelizing on heterogeneous CPU clusters and offloading to accelerators, specifically
+addressing applications with strict real-time constraints. At a free
+configurable choice of parallelization- and offloading-frameworks
+(e.g., TBB, OpenCL) without affecting the portability, we also
+include automatic profiling methods. While offering high configurability of the architecture mapping, these methods ease the
+development of optimum scheduling strategies — e.g., in terms
+of power, throughput, or latency. To demonstrate the use of the
+proposed methods, we present heterogeneous implementations of
+the Semi-Global Matching and Histograms of Oriented Gradients
+algorithms as exemplary advanced driver-assistance algorithms.
+We provide an in-depth discussion of scheduling strategies for
+execution on a Samsung Exynos 5422 MPSoC, an Intel Xeon
+Phi manycore, and a general-purpose processor equipped with a
+Nallatech PClIe-385N FPGA accelerator card.
+

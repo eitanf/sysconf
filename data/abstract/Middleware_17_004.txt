@@ -1,0 +1,13 @@
+
+Web applications hosted on the cloud are exposed to cyberattacks and can be compromised by HTTP requests that exploit
+vulnerabilities. Platform as a Service (PaaS) offerings often
+provide a backup service that allows restoring application
+state after a serious attack, but all valid state changes since
+the last backup are lost. We propose Rectify, a new approach
+to recover from intrusions on applications running in a PaaS.
+Rectify is a service designed to be deployed alongside the application in a PaaS container. It does not require modifications
+to the software and the recovery can be performed by a system administrator. Machine learning techniques are used to
+associate the requests received by the application to the statements issued to the database. Rectify was evaluated using
+three widely used web applications — Wordpress, LimeSurvey
+and MediaWiki — and the results show that the effects of malicious requests can be removed whilst preserving the valid
+application data.

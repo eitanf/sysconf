@@ -1,0 +1,17 @@
+
+
+Parallel join algorithms have received much attention in recent years, due to the rapid development of massively parallel systems such as MapReduce and Spark. In the database
+theory community, most efforts have been focused on studying worst-optimal algorithms. However, the worst-case optimality of these join algorithms relies on the hard instances
+having very large output sizes. In the case of a two-relation
+join, the hard instance is just a Cartesian product, with an
+output size that is quadratic in the input size.
+
+In practice, however, the output size is usually much smaller.
+
+One recent parallel join algorithm by Beame et al. [8] has
+achieved output-optimality, i.e., its cost is optimal in terms
+of both the input size and the output size, but their algorithm only works for a 2-relation equi-join, and has some
+imperfections. In this paper, we first improve their algorithm to true optimality. Then we design output-optimal
+algorithms for a large class of similarity joins. Finally, we
+present a lower bound, which essentially eliminates the possibility of having output-optimal algorithms for any join on
+more than two relations.

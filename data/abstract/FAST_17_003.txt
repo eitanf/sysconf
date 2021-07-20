@@ -1,0 +1,14 @@
+
+Most storage systems that write in a log-structured manner need a mechanism for garbage collection (GC), reclaiming and consolidating space by identifying unused
+areas on disk. In a deduplicating storage system, GC is
+complicated by the possibility of numerous references to
+the same underlying data. We describe two variants of
+garbage collection in a commercial deduplicating storage
+system, a logical GC that operates on the files containing
+deduplicated data and a physical GC that performs sequential I/O on the underlying data. The need for the second approach arises from a shift in the underlying workloads, in which exceptionally high duplication ratios or
+the existence of millions of individual small files result in
+unacceptably slow GC using the file-level approach. Under such workloads, determining the liveness of chunks
+becomes a slow phase of logical GC. We find that physical GC decreases the execution time of this phase by up
+to two orders of magnitude in the case of extreme workloads and improves it by approximately 10-60% in the
+common case, but only after additional optimizations to
+compensate for its higher initialization overheads.

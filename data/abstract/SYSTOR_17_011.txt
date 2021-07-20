@@ -1,0 +1,22 @@
+
+The exponential growth of data produced, the ever faster
+and ubiquitous connectivity, and the collaborative processing tools lead to a clear shift of data stores from local
+servers to the cloud. This migration occurring across different application domains and types of users—individual
+or corporate—raises two immediate challenges. First, outsourcing data introduces security risks, hence protection
+mechanisms must be put in place to provide guarantees such
+as privacy, confidentiality and integrity. Second, there is no
+“one-size-fits-all” solution that would provide the right level
+of safety or performance for all applications and users, and
+it is therefore necessary to provide mechanisms that can be
+tailored to the various deployment scenarios.
+
+In this paper, we address both challenges by introducing
+SAFEFS, a modular architecture based on software-defined
+storage principles featuring stackable building blocks that
+can be combined to construct a secure distributed file system. SAFEFS allows users to specialize their data store to
+their specific needs by choosing the combination of blocks
+that provide the best safety and performance tradeoffs. The
+file system is implemented in user space using FUSE and can
+access remote data stores. The provided building blocks notably include mechanisms based on encryption, replication,
+and coding. We implemented SAFEF'S and performed indepth evaluation across a range of workloads. Results reveal
+that while each layer has a cost, one can build safe yet efficient storage architectures. Furthermore, the different combinations of blocks sometimes yield surprising tradeoffs.

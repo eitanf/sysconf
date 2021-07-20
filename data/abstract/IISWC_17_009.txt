@@ -1,0 +1,24 @@
+
+Block traces are widely used for system studies, model
+verifications, and design analyses in both industry and academia.
+While such traces include detailed block access patterns, existing
+trace-driven research unfortunately often fails to find truenorth due to a lack of runtime contexts such as user idle
+periods and system delays, which are fundamentally linked to
+the characteristics of target storage hardware. In this work, we
+propose TraceTracker, a novel hardware/software co-evaluation
+method that allows users to reuse a broad range of the existing
+block traces by keeping most their execution contexts and user
+scenarios while adjusting them with new system information.
+Specifically, our TraceTracker’s software evaluation model can
+infer CPU burst times and user idle periods from old storage
+traces, whereas its hardware evaluation method remasters the
+storage traces by interoperating the inferred time information,
+and updates all inter-arrival times by making them aware of
+the target storage system. We apply the proposed co-evaluation
+model to 577 traces, which were collected by servers from
+different institutions and locations a decade ago, and revive
+the traces on a high-performance flash-based storage array.
+The evaluation results reveal that the accuracy of the execution
+contexts reconstructed by TraceTracker is on average 99% and
+96% with regard to the frequency of idle operations and the total
+idle periods, respectively.

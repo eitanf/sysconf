@@ -1,0 +1,20 @@
+
+Web applications, such as collaborative editors that allow
+multiple clients to concurrently interact on a shared resource,
+are difficult to implement correctly. Existing techniques for
+analyzing concurrent software do not scale to such complex
+systems or do not consider multiple interacting clients. This
+paper presents Simian, the first fully automated technique
+for systematically analyzing multi-client web applications.
+Naively exploring all possible interactions between a
+set of clients of such applications is practically infeasible.
+Simian scales to real-world applications by using a twophase black-box approach. The first phase systematically
+explores the application with a single client to infer potential conflicts between client events. The second phase
+synthesizes multi-client interactions targeted at triggering
+misbehavior that may result from the potential conflicts, and
+reports an inconsistency if the clients do not converge to a
+consistent state.
+We evaluate the analysis on three widely used systems,
+Google Docs, Firepad, and ownCloud Documents, where it
+reports a variety of inconsistencies, such as incorrect formatting and misplaced text fragments. Moreover, we find that
+the two-phase approach runs 10x faster than exhaustive exploration, making systematic analysis feasible.

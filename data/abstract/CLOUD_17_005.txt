@@ -1,0 +1,28 @@
+
+In large-scale data stream management systems,
+sampling rate of different sensors can change quickly in response
+to changed execution environment. However, such changes can
+cause significant load imbalance on the back-end servers, leading
+towards performance degradation and data loss. To address this
+challenge, in this paper, we present a model-driven middleware
+service (i.e., Arion) that uses a two-step approach to minimize
+data loss. Specifically, Arion constructs models and algorithms for
+overload prediction for heterogeneous systems (where different
+streams can have different sampling rates and message sizes)
+leveraging limited execution traces from homogeneous systems
+(where each stream has the same sampling rate and message
+size). Subsequently, when an overload condition is predicted
+(or detected), Arion first leverages the a priori constructed
+models to identify the streams (if any) that can be split into
+multiple substreams to scale up the performance and minimize
+data loss without allocating additional servers. If the software
+based solution turns out to be inadequate, in the second stage,
+the system allocates additional servers and redirects streams to
+stabilize the system leveraging the models. Extensive evaluation
+on a 6 node cluster using Apache Cassandra for various scenarios
+shows that our approach can predict the potential overload
+condition with high accuracy (81.9%) while minimizing data loss
+and the number of additional servers significantly.
+
+Keywords-Cassandra; Data Stream Management; Middleware
+

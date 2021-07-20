@@ -1,0 +1,18 @@
+
+We investigate the use of content-based publish/subscribe for data
+dissemination in large-scale applications with expressive filtering
+requirements. In particular, we focus on top-k subscription filtering, where a publication is delivered only to the k best ranked subscribers, as ordered using expressive semantics such as relevance,
+fairness, and diversity. The naive approach to perform filtering
+early at the publisher edge works only if complete knowledge of
+the subscriptions is available, which is not compatible with the
+well-established covering optimization in scalable content-based
+publish/subscribe systems. We propose an efficient rank-cover technique to reconcile top-k subscription filtering with covering. We
+extend the covering model to support top-k and describe a novel
+algorithm for forwarding subscriptions to publishers while maintaining correctness. We also establish a framework for supporting
+different types of ranking semantics and propose an implementation
+to support fairness. Finally, we compare our solutions to a baseline
+covering system and perform sensitivity analysis to demonstrate
+that our optimized rank-cover algorithm retains both covering and
+fairness while achieving properties advantageous to our targeted
+workloads. In a typical setting, our optimized solution is scalable,
+selects fairly, and provides over 81% of the covering benefit.

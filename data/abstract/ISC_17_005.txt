@@ -1,0 +1,14 @@
+
+. Reduction of communication and efficient partitioning are
+key issues for achieving scalability in hierarchical N-Body algorithms
+like Fast Multipole Method (FMM). In the present work, we propose three
+independent strategies to improve partitioning and reduce communication. First, we show that the conventional wisdom of using space-filling
+curve partitioning may not work well for boundary integral problems,
+which constitute a significant portion of FMM’s application user base. We
+propose an alternative method that modifies orthogonal recursive bisection to relieve the cell-partition misalignment that has kept it from scaling previously. Secondly, we optimize the granularity of communication
+to find the optimal balance between a bulk-synchronous collective communication of the local essential tree and an RDMA per task per cell.
+Finally, we take the dynamic sparse data exchange proposed by Hoefler
+et al. [1] and extend it to a hierarchical sparse data exchange, which is
+demonstrated at scale to be faster than the MPI library’s MPI_Alltoallv
+that is commonly used.
+

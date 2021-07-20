@@ -1,0 +1,24 @@
+
+Computer architects use a variety of workloads to
+measure system performance. For many workloads, the workload
+configuration determines the stress applied to the system and
+the corresponding performance behavior. Therefore, architects
+must make great efforts to explore and find the correct workload
+configuration before performing detailed analysis.
+
+However, such explorations become impossible for indevelopment systems which exist only as a software model. The
+existing system modeling platforms are either accurate but too
+slow, or fast but inaccurate to get workload-reported performance
+metrics (e.g., latency and throughput) which are necessary for
+configuring workloads.
+
+In this paper, we propose SéressRight, a method to quickly
+model the first-order performance of full-system workloads and
+reconstruct the workload-reported performance metrics. StressRight allows to explore how the workload configurations affect
+the stress and performance. The key idea is to execute workloads
+on a fast but timing-agnostic platform (e.g. emulators), and efficiently reconstruct the timing/performance details by analyzing
+only the unique code blocks. Our evaluation using memcached
+and PARSEC shows that StressRight achieves 8~45x speedup
+compared to a cycle-level simulator while maintaining good
+accuracy.
+

@@ -1,0 +1,20 @@
+
+
+Complex queries for massive data analysis jobs have become
+increasingly commonplace. Many such queries contain common subexpressions, either within a single query or among
+multiple queries submitted as a batch. Conventional query
+optimizers do not exploit these subexpressions and produce
+sub-optimal plans. The problem of multi-query optimization (MQO) is to generate an optimal combined evaluation
+plan by computing common subexpressions once and reusing
+them. Exhaustive algorithms for MQO explore an O(n”)
+search space. Thus, this problem has primarily been tackled
+using various heuristic algorithms, without providing any
+theoretical guarantees on the quality of their solution.
+
+In this paper, instead of the conventional cost minimization problem, we treat the problem as maximizing a linear
+transformation of the cost function. We propose a greedy
+algorithm for this transformed formulation of the problem,
+which under weak, intuitive assumptions, provides an approximation factor guarantee for this formulation. We go
+on to show that this factor is optimal, unless P = NP. Another noteworthy point about our algorithm is that it can be
+easily incorporated into existing transformation-based optimizers. We finally propose optimizations which can be used
+to improve the efficiency of our algorithm.

@@ -1,0 +1,32 @@
+
+Oblivious Transfer (OT) is one of the most fundamental cryptographic primitives with wide-spread application in
+general secure multi-party computation (MPC) as well as in a
+number of tailored and special-purpose problems of interest such
+as private set intersection (PSI), private information retrieval
+(PIR), contract signing to name a few. Often the instantiations
+of OT require prohibitive communication and computation complexity. OT extension protocols are introduced to compute a very
+large number of OTs referred as extended OTs at the cost of a
+small number of OTs referred as seed OTs.
+
+We present a fast OT extension protocol for small secrets
+in active setting. Our protocol when used to produce 1-out-ofn OTs outperforms all the known actively secure OT extensions.
+Our protocol is built on the semi-honest secure extension protocol
+of Kolesnikov and Kumaresan of CRYPTO’13 (referred as KK13
+protocol henceforth) which is the best known OT extension
+for short secrets. At the heart of our protocol lies an efficient
+consistency checking mechanism that relies on the linearity of
+Walsh-Hadamard (WH) codes. Asymptotically, our protocol adds
+a communication overhead of O(log «) bits over KK13 protocol
+irrespective of the number of extended OTs, where « and yj refer
+to computational and statistical security parameter respectively.
+Concretely, our protocol when used to generate a large enough
+number of OTs adds only 0.011-0.028% communication overhead
+and 4-6% runtime overhead both in LAN and WAN over KK13
+extension. The runtime overheads drop below 2% when in
+addition the number of inputs of the sender in the extended
+OTs is large enough.
+
+As an application of our proposed extension protocol, we show
+that it can be used to obtain the most efficient PSI protocol secure
+against a malicious receiver and a semi-honest sender.
+

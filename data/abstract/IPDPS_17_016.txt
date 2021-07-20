@@ -1,0 +1,33 @@
+
+Exascale systems are expected to feature hundreds of
+thousands of compute nodes with hundreds of hardware threads
+and complex memory hierarchies with a mix of on-package and
+persistent memory modules.
+
+In this context, the Argo project is developing a new operating
+system for exascale machines. Targeting production workloads
+using workflows or coupled codes, we improve the Linux kernel
+on several fronts. We extend the memory management of Linux
+to be able to subdivide NUMA memory nodes, allowing better
+resource partitioning among processes running on the same node.
+We also add support for memory-mapped access to node-local,
+PCle-attached NVRAM devices and introduce a new scheduling
+class targeted at parallel runtimes supporting user-level load
+balancing. These features are unified into compute containers,
+a containerization approach focused on providing modern HPC
+applications with dynamic control over a wide range of kernel
+interfaces. To keep our approach compatible with industrial
+containerization products, we also identify contentions points for
+the adoption of containers in HPC settings.
+
+Each NodeOS feature is evaluated by using a set of parallel
+benchmarks, miniapps, and coupled applications consisting of
+simulation and data analysis components, running on a modern
+NUMA platform. We observe out-of-the-box performance improvements easily matching, and often exceeding, those observed
+with expert-optimized configurations on standard OS kernels.
+Our lightweight approach to resource management retains the
+many benefits of a full OS kernel that application programmers
+have learned to depend on, at the same time providing a set of
+extensions that can be freely mixed and matched to best benefit
+particular application components.
+

@@ -1,0 +1,22 @@
+
+Resource usage data, collected using tools such as
+TACC_Stats, capture the resource utilization by nodes within
+a high performance computing system. We present methods
+to analyze the resource usage data to understand the system
+performance and identify performance anomalies. The core idea
+is to model the data as a three-way tensor corresponding to the
+compute nodes, usage metrics, and time. Using the reconstruction
+error between the original tensor and the tensor reconstructed
+from a low rank tensor decomposition, as a scalar performance
+metric, enables us to monitor the performance of the system in
+an online fashion. This error statistic is then used for anomaly
+detection that relies on the assumption that the normal/routine
+behavior of the system can be captured using a low rank approximation of the original tensor. We evaluate the performance of
+the algorithm using information gathered from system logs and
+show that the performance anomalies identified by the proposed
+method correlates with critical errors reported in the system logs.
+Results are shown for data collected for 2013 from the Lonestar4
+system at the Texas Advanced Computing Center (TACC).
+
+Index Terms—Tensor Analysis, Feature Extraction, HPC, performance monitoring, anomaly detection
+

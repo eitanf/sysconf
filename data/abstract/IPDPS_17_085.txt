@@ -1,0 +1,25 @@
+
+The massive parallelism and high memory bandwidth of GPU’s are particularly well matched with the exigencies of Big Data analytics applications, for which many
+independent computations and high data throughput are prevalent. These applications often produce (intermediary or final)
+results in the form of key-value (KV) pairs, and hash tables are
+particularly well-suited for storing these KV pairs in memory.
+How such hash tables are implemented on GPUs, however,
+has a large impact on performance. Unfortunately, all hash
+table solutions designed for GPUs to date have limitations that
+prevent acceleration for Big Data analytics applications.
+
+In this paper, we present the design and implementation of
+a GPU-based hash table for efficiently storing the KV pairs of
+Big Data analytics applications. The hash table is able to grow
+beyond the size of available GPU memory without excessive
+performance penalties. Central to our hash table design is the
+SEPO model of computation, where the processing of individual
+tasks is selectively postponed when processing is expected to be
+inefficient. A performance evaluation on seven GPU-based Big
+Data analytics applications, each processing several Gigabytes
+of input data, shows that our hash table allows the applications
+to achieve, on average, a speedup of 3.5 over their CPU-based
+multi-threaded implementations. This gain is realized despite
+having hash tables that grow up to four times larger than the
+size of available GPU memory.
+

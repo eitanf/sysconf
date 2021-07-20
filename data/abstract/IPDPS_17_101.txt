@@ -1,0 +1,44 @@
+
+Neural networks have been traditionally considered robust in the sense that their precision degrades gracefully
+with the failure of neurons and can be compensated by
+additional learning phases. Nevertheless, critical applications
+for which neural networks are now appealing solutions, cannot
+afford any additional learning at run-time.
+
+In this paper, we view a multilayer neural network as a
+distributed system of which neurons can fail independently,
+and we evaluate its robustness in the absence of any (recovery)
+learning phase. We give tight bounds on the number of neurons
+that can fail without harming the result of a computation.
+To determine our bounds, we leverage the fact that neural
+activation functions are Lipschitz-continuous. Our bound is on
+a quantity, we call the Forward Error Propagation, capturing
+how much error is propagated by a neural network when a
+given number of components is failing, computing this quantity
+only requires looking at the topology of the network, while
+experimentally assessing the robustness of a network requires
+the costly experiment of looking at all the possible inputs and
+testing all the possible configurations of the network corresponding to different failure situations, facing a discouraging
+combinatorial explosion.
+
+We distinguish the case of neurons that can fail and stop
+their activity (crashed neurons) from the case of neurons that
+can fail by transmitting arbitrary values (Byzantine neurons).
+In the crash case, our bound involves the number of neurons
+per layer, the Lipschitz constant of the neural activation
+function, the number of failing neurons, the synaptic weights
+and the depth of the layer where the failure occurred. In the
+case of Byzantine failures, our bound involves, in addition, the
+synaptic transmission capacity. Interestingly, as we show in
+the paper, our bound can easily be extended to the case where
+synapses can fail.
+
+We present three applications of our results. The first is a
+quantification of the effect of memory cost reduction on the
+accuracy of a neural network. The second is a quantification of
+the amount of information any neuron needs from its preceding
+layer, enabling thereby a boosting scheme that prevents neurons
+from waiting for unnecessary signals. Our third application
+is a quantification of the trade-off between neural networks
+robustness and learning cost.
+

@@ -1,0 +1,16 @@
+
+
+Developing Big Data Analytics workloads often involves trial and
+error debugging, due to the unclean nature of datasets or wrong
+assumptions made about data. When errors (e.g., program crash,
+outlier results, etc.) arise, developers are often interested in identifying a subset of the input data that is able to reproduce the problem.
+BIGSIFT is a new faulty data localization approach that combines
+insights from automated fault isolation in software engineering and.
+data provenance in database systems to find a minimum set of failureinducing inputs. BIGSIFT redefines data provenance for the purpose
+of debugging using a test oracle function and implements several
+unique optimizations, specifically geared towards the iterative nature
+of automated debugging workloads. BIGSIFT improves the accuracy of fault localizability by several orders-of-magnitude (~ 107
+to 107x) compared to Titian data provenance, and improves performance by up to 66x compared to Delta Debugging, an automated
+fault-isolation technique. For each faulty output, BIGSIFT is able to
+localize fault-inducing data within 62% of the original job running
+time.

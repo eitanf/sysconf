@@ -1,0 +1,20 @@
+
+The problem of task scheduling with communication
+delays is NP-hard. State-space search algorithms such as A*
+have been shown to be a promising approach to solving this
+problem optimally. A recently proposed state-space model for
+task scheduling, known as Allocation-Ordering (AQ), allows
+state-space search methods to be applied to the problem of
+optimal task scheduling without the need for duplicate avoidance mechanisms. This paper examines the performance of two
+parallel search algorithms when applied to both the AO model
+and the older ELS state-space model. This suggests that its use
+may provide an advantage with many different variations on
+state-space search. This paper explores the application of AO
+to some of these variants, namely depth-first branch-and-bound
+(DFBnB) and parallel search. We also present an update to
+the formulation of AO that prevents invalid states from being
+considered during a search. An evaluation shows that AO gives
+a clear advantage to DFBnB and allows greater scalability for
+parallel search algorithms. The update to AO’s formulation has
+no significant impact on performance either way.
+

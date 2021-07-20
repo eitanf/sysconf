@@ -1,0 +1,30 @@
+
+High-speed interconnects (e.g. InfiniBand) have
+been widely deployed on modern HPC clusters. With the
+emergence of HPC in the cloud, high-speed interconnects
+have paved their way into the cloud with recently introduced
+Single Root I/O Virtualization (SR-IOV) technology, which is
+able to provide efficient sharing of high-speed interconnect
+resources and achieve near-native I/O performance. However,
+recent studies have shown that SR-IOV-based virtual networks
+prevent virtual machine migration, which is an essential virtualization capability towards high availability and resource
+provisioning. Although several initial solutions have been proposed in the literature to solve this problem, our investigations
+show that there are still many restrictions on these proposed
+approaches, such as depending on specific network adapters
+and/or hypervisors, which will limit the usage scope of these
+solutions on HPC environments. In this paper, we propose a
+high-performance virtual machine migration framework for
+MPI applications on SR-IOV enabled InfiniBand clusters.
+Our proposed method does not need any modification to
+the hypervisor and InfiniBand drivers and it can efficiently
+handle virtual machine (VM) migration with SR-IOV IB device.
+Our evaluation results indicate that the proposed design is
+able to not only achieve fast VM migration speed but also
+guarantee the high performance for MPI applications during
+the migration in the HPC cloud. At the application level, for
+NPB LU benchmark running inside VM, our proposed design
+is able to completely hide the migration overhead through
+the computation and migration overlapping. Furthermore, our
+proposed design shows good scaling when migrating multiple
+VMs.
+

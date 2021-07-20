@@ -1,0 +1,19 @@
+Task mapping is an important problem in parallel
+and distributed computing. The goal in task mapping is to find an
+optimal layout of the processes of an application (or a task) onto a
+given network topology. We target this problem in the context of
+staging applications. A staging application consists of two or more
+parallel applications (also referred to as staging tasks) which run
+concurrently and exchange data over the course of computation.
+Task mapping becomes a more challenging problem in staging
+applications, because not only data is exchanged between the
+staging tasks, but also the processes of a staging task may
+exchange data with each other. We propose a novel method, called
+Task Graph Embedding (TGE), that harnesses the observable
+graph structures of parallel applications and network topologies.
+TGE employs a machine learning based algorithm to find the
+best representation of a graph, called an embedding, onto a
+space in which the task-to-processor mapping problem can be
+solved. We evaluate and demonstrate the effectiveness of TGE
+experimentally with the communication patterns extracted from
+runs of XGC, a large-scale fusion simulation code, on Titan.

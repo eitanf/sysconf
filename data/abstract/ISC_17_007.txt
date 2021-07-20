@@ -1,0 +1,14 @@
+
+. Support vector machines (SVMs) are conventionally batch
+trained. Such implementations can be very inefficient for online streaming applications demanding real-time guarantees, as the inclusion of each
+new data point requires retraining of the model from scratch. This paper
+focuses on the high-performance implementation of an accurate incremental SVM algorithm on Intel® Xeon Phi™ processors that efficiently
+updates the trained SVM model with streaming data. We propose a
+novel cycle break heuristic to fix an inherent drawback of the algorithm
+that leads to a deadlock scenario which is not acceptable in real-world
+applications. We further employ intelligent caching of dynamically changing data as well as other programming optimization ideas to speed up
+the incremental SVM algorithm. Experiments on a number of real-world
+datasets show that our implementation achieves high performance on
+Intel® Xeon Phi™ processors (1.1 — 2.1x faster than Intel® Xeon®
+processors) and is up to 2.1x faster than existing high-performance incremental algorithms while achieving comparable accuracy.
+

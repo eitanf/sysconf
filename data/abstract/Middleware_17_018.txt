@@ -1,0 +1,24 @@
+
+Derivative clouds, light weight application containers provisioned
+in virtual machines, are becoming viable and cost-effective options
+for infrastructure and software-based services. Ubiquitous dynamic
+memory management techniques in virtualized systems are centralized at the hypervisor and are ineffective in nested derivative
+cloud setups. In this paper, we highlight the challenges in management of memory resources in derivative cloud systems. Hypervisor
+caching, an enabler of centralized disk cache management, provides flexible memory or non-volatile memory management at the
+hypervisor to improve the resource usage efficiency and performance of applications. Existing hypervisor caching solutions have
+limited effectiveness in nested setups due to their nesting agnostic
+design, centralized management model and lack of holistic view of
+memory management. We propose DoubleDecker, a decentralized
+disk caching framework, realized through guest OS and hypervisor
+cooperation, with support for efficient memory management in derivative clouds. The DoubleDecker hypervisor caching framework,
+an integral part of our proposed solution, provides interfaces for
+differentiated cache partitioning and management in nested setups
+and is equipped to handle both memory and SSD based caching
+stores. We demonstrate the flexibility of DoubleDecker to handle
+dynamic and changing memory provisioning requirements and
+its capability to simultaneously provision memory across multiple levels. Such multi-level configurations cannot be explored by
+centralized designs and are a key feature of DoubleDecker. Our
+experimentation with DoubleDecker demonstrates that application
+performance can be consistently improved due to the flexible policy
+framework for disk caching. With our setup, we report an average
+performance improvement of 4x and a maximum of 11x.

@@ -1,0 +1,27 @@
+
+Availability of large data sets like ImageNet and massively
+parallel computation support in modern HPC devices like
+NVIDIA GPUs have fueled a renewed interest in Deep
+Learning (DL) algorithms. This has triggered the development of DL frameworks like Caffe, Torch, TensorFlow, and
+CNTK. However, most DL frameworks have been limited to
+a single node. In order to scale out DL frameworks and bring
+HPC capabilities to the DL arena, we propose, S-Caffe; a
+scalable and distributed Caffe adaptation for modern multiGPU clusters. With an in-depth analysis of new requirements
+brought forward by the DL frameworks and limitations of
+current communication runtimes, we present a co-design of
+the Caffe framework and the MVAPICH2-GDR MPI runtime. Using the co-design methodology, we modify Caffe’s
+workflow to maximize the overlap of computation and communication with multi-stage data propagation and gradient
+aggregation schemes. We bring DL-Awareness to the MPI
+runtime by proposing a hierarchical reduction design that
+benefits from CUDA-Aware features and provides up to a
+massive 133x speedup over OpenMPI and 2.6x speedup over
+MVAPICH2 for 160 GPUs. S-Caffe successfully scales up to
+160 K-80 GPUs for GoogLeNet (ImageNet) with a speedup
+of 2.5x over 32 GPUs. To the best of our knowledge, this is
+the first framework that scales up to 160 GPUs. Furthermore,
+even for single node training, S-Caffe shows an improve
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee
+provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and
+the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires
+prior specific permission and/or a fee. Request permissions from permissions@acm.org.

@@ -1,0 +1,24 @@
+
+The memory model for RISC-V, a newly developed
+open source ISA, has not been finalized yet and thus, offers an
+opportunity to evaluate existing memory models. We believe
+RISC-V should not adopt the memory models of POWER or
+ARM, because their axiomatic and operational definitions are
+too complicated. We propose two new weak memory models:
+WMM and WMM.-S, which balance definitional simplicity and
+implementation flexibility differently. Both allow all instruction
+reorderings except overtaking of loads by a store. We show
+that this restriction has little impact on performance and it
+considerably simplifies operational definitions. It also rules
+out the out-of-thin-air problem that plagues many definitions.
+WMM is simple (it is similar to the Alpha memory model),
+but it disallows behaviors arising due to shared store buffers
+and shared write-through caches (which are seen in POWER
+processors). WMM-S, on the other hand, is more complex and
+allows these behaviors. We give the operational definitions of
+both models using Instantaneous Instruction Execution (7E),
+which has been used in the definitions of SC and TSO. We also
+show how both models can be implemented using conventional
+cache-coherent memory systems and out-of-order processors,
+and encompasses the behaviors of most known optimizations.
+

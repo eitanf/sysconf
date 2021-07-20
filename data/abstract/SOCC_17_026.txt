@@ -1,0 +1,18 @@
+
+
+Live migration is one of the key technologies to improve data center
+utilization, power efficiency, and maintenance. Various live migration algorithms have been proposed; each exhibiting distinct characteristics in terms of completion time, amount of data transferred,
+virtual machine (VM) downtime, and VM performance degradation. To make matters worse, not only the migration algorithm but
+also the applications running inside the migrated VM affect the
+different performance metrics. With service-level agreements and
+operational constraints in place, choosing the optimal live migration technique has so far been an open question. In this work, we
+propose an adaptive machine learning-based model that is able to
+predict with high accuracy the key characteristics of live migration
+in dependence of the migration algorithm and the workload running inside the VM. We discuss the important input parameters for
+accurately modeling the target metrics, and describe how to profile
+them with little overhead. Compared to existing work, we are not
+only able to model all commonly used migration algorithms but also
+predict important metrics that have not been considered so far such
+as the performance degradation of the VM. In a comparison with
+the state-of-the-art, we show that the proposed model outperforms
+existing work by a factor 2 to 5.

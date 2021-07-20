@@ -1,0 +1,27 @@
+
+Researches affirm that coflow scheduling/routing
+substantially shortens the average application inner communication time in data center networks(DCNs). The commonly
+desirable critical features of existing coflow scheduling/routing
+framework includes (1) coflow scheduling, (2) coflow routing,
+and (3) per-flow rate-limiting. However, to provide the 3 features,
+existing frameworks require customized computing frameworks,
+customized operating systems, or specific external commercial
+monitoring frameworks on software-defined networking(SDN)
+switches. These requirements defer or even prohibit the deployment of coflow scheduling/routing in production DCNs. In this
+paper, we design a coflow scheduling and routing framework,
+MinCOF which has minimal requirements on hosts and switches
+for cloud storage area networks(SANs) based on OpenFlow SDN.
+MinCOF accommodates all critical features of coflow scheduling/routing from previous works. The deployability in production
+environment is especially taken into consideration. The OpenFlow architecture is capable of processing the traffic load in a
+cloud SAN. Not necessary requirements for hosts from existing
+frameworks are migrated to the mature commodity OpenFlow
+1.3 Switch and our coflow scheduler. Transfer applications on
+hosts only need slight enhancements on their existing connection
+establishment and progress reporting functions. Evaluations reveal that MinCOF decreases the average coflow completion time
+(CCT) by 12.94% compared to the latest OpenFlow-based coflow
+scheduling and routing framework.
+
+Index Terms—Application-aware Networks; Data Center
+Networks; Software-defined Networking; OpenFlow; Coflow
+Scheduling; Storage Area Networks; Cloud Computing
+

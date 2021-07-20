@@ -1,0 +1,15 @@
+
+We present and evaluate a new GPU algorithm
+based on the Louvain method for community detection. Our
+algorithm is the first for this problem that parallelizes the access
+to individual edges. In this way we can fine tune the load balance
+when processing networks with nodes of highly varying degrees.
+This is achieved by scaling the number of threads assigned to
+each node according to its degree. Extensive experiments show
+that we obtain speedups up to a factor of 270 compared to
+the sequential algorithm. The algorithm consistently outperforms
+other recent shared memory implementations and is only one
+order of magnitude slower than the current fastest parallel
+Louvain method running on a Blue Gene/Q supercomputer using
+more than 500K threads.
+

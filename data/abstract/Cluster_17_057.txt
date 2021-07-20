@@ -1,0 +1,28 @@
+
+High performance computing systems will need to
+operate with certain power budgets while maximizing performance in the exascale era. Such systems are built with power
+aware components, whose collective peak power may exceed the
+specified power budget. Cluster level power bounded computing
+addresses this power challenge by coordinating power among
+components within compute nodes and further adjusting the
+number of participating nodes. It offers more space to increase
+system performance by utilizing the available power budget more
+efficiently within and across the nodes.
+
+In this paper, we present the design of a hierarchical multidimensional power aware allocation framework, CLIP, for power
+bounded parallel computing on multicore-based computer clusters. The framework satisfies the specified power bound by
+managing the power distribution among nodes at the cluster
+level, and among sockets, cores and NUMA memory modules
+at the node level. The power allocation is enforced with multiple complementary power management techniques, including
+memory power level setting, thread concurrency throttling, and
+core-thread affinity. We present an application characterization
+method based on applications’ scalability and an associated
+performance model, which can accurately determine the optimal
+number of participating compute nodes and components, and
+their power distribution for given applications. Experimental
+results on a Haswell-based computer cluster show that the
+proposed scheduler outperforms compared methods by over 20%
+on average for various power budgets.
+
+Index Terms—Power-bounded computing, resource coordination, performance analysis, multicore computing, cluster.
+

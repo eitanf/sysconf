@@ -1,0 +1,24 @@
+
+
+The increasing interest in the Internet-of-Things (IoT) suggests that
+a new source of big data is imminent—the machines and sensors
+in the IoT ecosystem. The fundamental characteristic of the data
+produced by these sources is that they are inherently geospatial in
+nature. In addition, they exhibit unprecedented and unpredictable
+skews. Thus, big data systems designed for IoT applications must
+be able to efficiently ingest, index and query spatial data having
+heavy and unpredictable skews. Spatial indexing is well explored
+area of research in literature, but little attention has been given to
+the topic of efficient distributed spatial indexing.
+
+In this paper, we propose SIFT, a distributed spatial index and
+its implementation. Unlike systems that depend on load balancing
+mechanisms that kick-in post ingestion, S1FrT tries to distribute the
+incoming data along the distributed structure at indexing time and
+thus incurs minimal rebalancing overhead. Sirt depends only on
+an underlying key-value store, hence is implementable in many
+existing big data stores. Our evaluations of SirT on a popular open
+source data store show promising results—SirT achieves up to 8x
+reduction in indexing overhead while simultaneously reducing the
+query latency and index size by over 2x and 3x respectively, in a
+distributed environment compared to the state-of-the-art.

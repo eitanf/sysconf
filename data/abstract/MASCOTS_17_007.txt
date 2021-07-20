@@ -1,0 +1,26 @@
+
+Most load balancing techniques implemented in
+current data centers tend to rely on a mapping from packets
+to server IP addresses through a hash value calculated from
+the flow five-tuple. The hash calculation allows extremely fast
+packet forwarding and provides flow ‘stickiness’, meaning that
+all packets belonging to the same flow get dispatched to the
+same server. Unfortunately, such static hashing may not yield
+an optimal degree of load balancing, e.g. due to variations in
+server processing speeds or traffic patterns. On the other hand,
+dynamic schemes, such as the Join-the-Shortest-Queue (JSQ)
+scheme, provide a natural way to mitigate load imbalances, but
+at the expense of stickiness violation.
+
+In the present paper we examine the fundamental trade-off
+between stickiness violation and packet-level latency performance
+in large-scale data centers. We establish that stringent flow
+stickiness carries a significant performance penalty in terms of
+packet-level delay. Moreover, relaxing the stickiness requirement
+by a minuscule amount is highly effective in clipping the tail
+of the latency distribution. We further propose a bin-based load
+balancing scheme that achieves a good balance among scalability,
+stickiness violation and packet-level delay performance. Extensive
+simulation experiments corroborate the analytical results and
+validate the effectiveness of the bin-based load balancing scheme.
+

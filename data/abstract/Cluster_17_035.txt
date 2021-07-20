@@ -1,0 +1,25 @@
+
+Various extensions of TCP/IP have been proposed
+to reduce network latency; examples include Explicit Congestion
+Notification CECN), Data Center TCP (DCTCP) and several
+proposals for Active Queue Management (AQM). Combining
+these techniques requires adjusting various parameters, and
+recent studies have found that it is difficult to do so while obtaining both high performance and low latency. This is especially
+true for mixed use data centres that host both latency-sensitive
+applications and high-throughput workloads such as Hadoop.
+
+This paper studies the difficulty in configuration, and characterises the problem as related to ACK packets. Such packets cannot be set as ECN Capable Transport (ECT), with
+the consequence that a disproportionate number of them are
+dropped. We explain how this behavior decreases throughput,
+and propose a small change to the way that non-ECT-capable
+packets are handled in the network switches. We demonstrate
+robust performance for modified AQMs on a Hadoop cluster,
+maintaining full throughput while reducing latency by 85%. We
+also demonstrate that commodity switches with shallow buffers
+are able to reach the same throughput as deeper buffer switches.
+Finally, we explain how both TCP-ECN and DCTCP can achieve
+the best performance using a simple marking scheme, in constrast
+to the current preference for relying on AQMs to mark packets.
+
+Keywords-Hadoop, ECN, DCTCP, Throughput, Latency
+

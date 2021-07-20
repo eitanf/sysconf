@@ -1,0 +1,21 @@
+
+
+Existing network policy abstractions handle basic group
+based reachability and access control list based security policies. However, QoS policies as well as dynamic policies are
+also important and not representing them in the high level
+policy abstraction poses serious limitations. At the same
+time, efficiently configuring and composing group based QoS
+and dynamic policies present significant technical challenges,
+such as (a) maintaining group granularity during configuration, (b) dealing with network-bandwidth contention among
+policies from distinct writers and (c) dealing with multiple
+path changes corresponding to dynamically changing policies,
+group membership and end-point mobility. In this paper we
+propose JANUS, a system which makes two major contributions. First, we extend the prior policy graph abstraction
+model to represent complex QoS and dynamic stateful/temporal policies. Second, we convert the policy configuration
+problem into an optimization problem with the goal of mazimizing the number of satisfied and configured policies, and
+minimizing the number of path changes under dynamic environments. To solve this, JANUS presents several novel heuristic
+algorithms. We evaluate our system using a diverse set of
+bandwidth policies and network topologies. Our experiments
+demonstrate that JANUS can achieve near-optimal solutions
+in a reasonable amount of time.
+

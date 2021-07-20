@@ -1,0 +1,14 @@
+
+. Graphics Processing Units (GPUs) have become the accelerator of choice for data-parallel applications, enabling the execution of
+thousands of threads in a Single Instruction - Multiple Thread (SIMT)
+fashion. Using OpenCL terminology, GPUs offer a global memory space
+shared by all the threads in the GPU, as well as a low-latency local
+memory space shared by a subset of the threads. The latter is used as a
+scratchpad to improve the performance of the applications.
+
+We propose GPU-LocalTM, a hardware transactional memory (TM),
+as an alternative to data locking mechanisms in local memory. GPULocalTM allocates transactional metadata in the existing memory
+resources, minimizing the storage requirements for TM support. In addition, it ensures forward progress through an automatic serialization
+mechanism. In our experiments, GPU-LocalTM provides up to 100X
+speedup over serialized execution.
+

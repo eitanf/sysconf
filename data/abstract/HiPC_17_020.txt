@@ -1,0 +1,27 @@
+
+The maximal independent set (MIS) graph problem
+arises in many applications such as computer vision, information
+theory, molecular biology, and process scheduling. The growing
+scale of graph data suggests the use of distributed memory
+hardware as a cost-effective approach to providing necessary
+compute and memory resources. Existing distributed memory
+parallel MIS algorithms rely on synchronous communication and
+use techniques such as subgraph computations. In this paper,
+we present an asynchronous distributed-memory parallel graph
+algorithm that relies on a virtual directed acyclic graph (DAG)
+that is created during the algorithm execution. We introduce
+two additional algorithms that save computations by ordering
+generated work. The first algorithm applies ordering globally to
+reduce computations, and the second algorithm applies ordering
+locally at the level of threads to minimize the synchronization
+overhead. We use two different implementations of Luby’s
+algorithm variants as baseline to compare the performance
+of the presented algorithms: (1) vertex-centric Luby A and
+Luby B implementations, and (2) the CombBLAS linear-algebra
+Luby A implementation. Results show that proposed algorithms
+outperform both implementations of Luby algorithms, especially
+in distributed execution. Furthermore, we show that for lowdiameter graphs the algorithm that applies global ordering scales
+better than other algorithms and for high diameter graphs
+the original asynchronous algorithm and thread-level ordering
+algorithm show better performance.
+

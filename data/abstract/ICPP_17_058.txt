@@ -1,0 +1,16 @@
+
+Apache Storm is a fault-tolerant, distributed inmemory computation system for processing large volumes of
+high-velocity data in real-time. As an integral part of the faulttolerance mechanism, Storm’s state management is achieved by
+a checkpointing framework, which commits states regularly and
+recovers lost states from the latest checkpoint. However, this
+method involves a remote data store for state preservation and
+access, resulting in significant overheads to the performance of
+error-free execution.
+
+In this paper, we propose E-Storm, a replication-based state
+management system that actively maintains multiple state backups on different worker nodes. We build a prototype on top of
+Storm by extending it with monitoring and recovery modules to
+support inter-task state transfer whenever needed. The experiments carried out on synthetic and real-world streaming applications confirm that E-Storm outperforms the existing checkpointing method in terms of the resulting application performance,
+obtaining as much as 9.44 times throughput improvement while
+reducing the application latency down to 9.8%.
+

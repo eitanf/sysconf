@@ -1,0 +1,29 @@
+
+Concurrent multithreaded access to the Message
+Passing Interface (MPI) is gaining importance to support
+emerging hybrid MPI applications. The interoperability between
+threads and MPI, however, is complex and renders efficient
+implementations nontrivial. Prior studies showed that threads
+waiting for communication progress (waiting threads) often
+interfere with others (active threads) and degrade their progress.
+This situation occurs when both classes of threads compete for
+the same MPI resource and ownership passing to waiting threads
+does not guarantee communication to advance. The best-known
+practical solution prioritizes active threads and adapts first-infirst-out arbitration within each class. This approach, however,
+suffers from residual wasted resource acquisitions (waste) and
+ignores data locality, thus resulting in poor scalability.
+
+In this work, we propose thread synchronization improvements
+to eliminate waste while preserving data locality in a production
+MPI implementation. First, we leverage MPI knowledge and a
+fast synchronization method to eliminate waste and accelerate
+progress. Second, we rely on a cooperative progress model that
+dynamically elects and restricts a single waiting thread to drive
+a communication context for improved data locality. Third, we
+prioritize active threads and synchronize them with a localitypreserving lock that is hierarchical and exploits unbounded bias
+for high throughput. Results show significant improvement in
+synthetic microbenchmarks and two MPI+OpenMP applications.
+
+Index Terms—MPI; threads; OpenMP; thread safety; lock;
+mutex; synchronization
+

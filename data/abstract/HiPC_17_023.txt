@@ -1,0 +1,28 @@
+
+Cosmological N-body simulations rank among the
+most computationally intensive efforts today. A key challenge
+is the analysis of structure, substructure, and the merger
+history for many billions of compact particle clusters, called
+halos. Effectively representing the merging history of halos is
+essential for many galaxy formation models used to generate
+synthetic sky catalogs, an important application of modern
+cosmological simulations. Generating realistic mock catalogs
+requires computing the halo formation history from simulations
+with large volumes and billions of halos over many time steps,
+taking hundreds of terabytes of analysis data. We present
+fast parallel algorithms for producing halo merger trees and
+tracking halo substructure from a single-level, density-based
+clustering algorithm. Merger trees are created from analyzing
+the halo-particle membership function in adjacent snapshots,
+and substructure is identified by tracking the “cores” of
+merging halos — sets of particles near the halo center. Core
+tracking is performed after creating merger trees and uses
+the relationships found during tree construction to associate
+substructures with hosts. The algorithms are implemented with
+MPI and evaluated on a Cray XK7 supercomputer using up to
+16,384 processes on data from HACC, a modern cosmological
+simulation framework. We present results for creating merger
+trees from 101 analysis snapshots taken from the Q Continuum,
+a large volume, high mass resolution, cosmological simulation
+evolving half a trillion particles.
+

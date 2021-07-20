@@ -1,0 +1,15 @@
+
+Many service applications use actors as a programming model for the middle tier, to simplify synchronization,
+fault-tolerance, and scalability. However, efficient operation of such actors in multiple, geographically distant
+datacenters is challenging, due to the very high communication latency. Caching and replication are essential
+to hide latency and exploit locality; but it is not a priori clear how to combine these techniques with the actor
+programming model.
+
+We present GEo, an open-source geo-distributed actor system that improves performance by caching
+actor states in one or more datacenters, yet guarantees the existence of a single latest version by virtue of
+a distributed cache coherence protocol. GEo’s programming model supports both volatile and persistent
+actors, and supports updates with a choice of linearizable and eventual consistency. Our evaluation on several
+workloads shows substantial performance benefits, and confirms the advantage of supporting both replicated
+and single-instance coherence protocols as configuration choices. For example, replication can provide fast,
+always-available reads and updates globally, while batching of linearizable storage accesses at a single location
+can boost the throughput of an order processing workload by 7x.

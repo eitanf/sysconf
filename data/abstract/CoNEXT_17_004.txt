@@ -1,0 +1,24 @@
+
+
+Deploying LTE networks in unlicensed spectrum requires us to
+move beyond coexistence mechanisms and understand the suitability of LTE’s synchronous operation in a spectrum that is governed
+by asynchronous access principles. Our study reveals a fundamental conflict in LTE uplink access that arises between the scheduled
+nature of LTE’s multi-user transmissions — critical for leveraging
+the diversity (OFDMA) and multiplexing (multi-user MIMO) gains
+— and the asynchronous nature of interference on the clients. The
+result is a significant loss in spectrum utilization and throughput
+that scales with the number of interfering terminals.
+
+To tackle this critical challenge on the LTE uplink, we propose Biv. Btu transforms today’s LTE schedulers into speculative
+schedulers that leverage interference diversity across clients to intelligently over-schedule clients on the same spectral resources to
+prevent this utilization loss. BLu’s challenges lie in how to overschedule appropriate clients on the same resources without paying
+the penalty of collisions, while containing the exponential overhead
+incurred in measuring the required interference dependencies between clients. The under-pinning of BLu’s design includes a novel
+mechanism to blue-print the very source of interference on LTE
+clients along with their dependencies, which allows for a constant,
+significantly reduced overhead. Btu can be realized in today’s LTE
+base stations. Its realization in an enterprise environment with
+SDRs (hosting LTE release 10) reveals appreciable gains of 1.5-2x
+in both utilization and throughput over existing schemes for SISO
+and MU-MIMO transmissions in unlicensed spectrum.
+

@@ -1,0 +1,28 @@
+
+As a promising alternative to centralized scheduling,
+sample-based scheduling is especially suitable for high fan-out
+workloads that contain a large number of interactive jobs. Compared to centralized schedulers, existing sample-based schedulers
+do not hold a global view of the cluster’s resource status. Instead,
+the scheduling decisions are made solely based on the status
+of a small set of randomly sampled workers. Although this
+simple approach is highly efficient in large clusters, the lack
+of global knowledge of the cluster can lead to sub-optimal task
+placement decisions and difficulties in enforcing global scheduling
+policies. In this paper, we address these challenges in existing
+sample-based scheduling approaches by allowing the scheduler
+to maintain an approximate version of the global resource
+status through caching the worker node’s status extracted from
+reply messages. More specifically, we introduce the privatecluster-state technique (PCS) for the scheduler to obtain such
+global information. We show that the scheduler can make better
+scheduling decisions by utilizing PCS and the scheduler can
+become more capable in enforcing global scheduling policies.
+The use of PCS is of low cost since it does not initiate new
+communication in sample-based scheduling. Our approach is
+implemented in PSCSampler, a full distribute sample-based
+scheduler, which gains global knowledge from PCS. Experiment
+results from both simulation runs and Amazon cluster runs show
+that compared to Sparrow, PCSsampler can significantly reduce
+both 50°” percentile and 90°" percentile runtime. The firsttime success rate of PCSsampler in gang scheduling is closer to
+an omniscient centralized scheduler than baseline sample based
+scheduler.
+

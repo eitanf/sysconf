@@ -1,0 +1,15 @@
+
+
+We propose Bohr, a similarity aware geo-distributed data
+analytics system that minimizes query completion time.
+The key idea is to exploit similarity between data in different data centers (DCs), and transfer similar data from
+the bottleneck DC to other sites with more WAN bandwidth. Though these sites have more input data to process, these data are more similar and can be more efficiently aggregated by the combiner to reduce the intermediate data that needs to be shuffled across the WAN.
+Thus our similarity aware approach reduces the shuffle
+time and in turn the query completion time (QCT).
+
+We design and implement Bohr based on OLAP data
+cubes to perform efficient similarity checking among
+datasets in different sites. Evaluation across ten sites of
+AWS EC2 shows that Bohr decreases the QCT by 30%
+compared to state-of-the-art solutions.
+

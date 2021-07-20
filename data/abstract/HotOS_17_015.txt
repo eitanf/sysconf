@@ -1,0 +1,22 @@
+
+
+The paper reports on first steps towards a systematic design
+process that ensures quantitative stochastic requirements like
+requirements on the expected energy consumption or resilience
+requirements by construction. The idea is to automatically extract a formal model from a configurable system and to use
+formal analysis techniques to automatically determine a configuration such that the system meets the quantitative requirements. As a proof of concept we present a tool that supports
+the automated synthesis of protocol parameters for IPC (interprocess communication). The tool takes as input a Lua script
+describing the communication structure of several processes.
+This script is annotated with quantitative information such
+as error probabilities and timing information. The output is a
+Markov chain specified in the input language of the prominent
+probabilistic model checker PRISM. This Markov chain yields
+the basis for quantitative formal analysis of failure scenarios
+caused by hardware faults in IPC channels. The results yield
+the basis for finding optimal values for protocol parameters
+that tune, e.g., the level of resiliency. As an initial demonstration of the tool, we analyze and adjust system parameters of
+a simple scenario with a few communicating processes and
+
+report on results. Though achieved under simplified assumptions, the results presented here are a proof-of-concept towards
+the vision of automated system configuration.
+

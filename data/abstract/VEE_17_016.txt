@@ -1,0 +1,8 @@
+
+Ubiquitous mobile platforms such as Android rely on managed language run-time environments, also known as language virtual machines (VMs), to run a diverse range of user
+applications (apps). Each app runs in its own private VM instance, and each VM makes its own private local decisions in
+managing its use of processor and memory resources. Moreover, the operating system and the hardware do not communicate their low-level decisions regarding power management with the high-level app environment. This lack of coordination across layers and across apps restricts more effective global use of resources on the device.
+
+We address this problem by devising and implementing a global memory manager service for Android that optimizes memory usage, run-time performance, and power
+consumption globally across all apps running on the device. The service focuses on the impact of garbage collection (GC) along these dimensions, since GC poses a significant overhead. within managed run-time environments.
+Our prototype collects system-wide statistics from all running VMs, makes centralized decisions about memory management across apps and across software layers, and also collects garbage centrally. Furthermore, the global memory manager coordinates with the power manager to tune collector scheduling. In our evaluation, we illustrate the impact of such a central memory management service in reducing total energy consumption (up to 18%) and increasing throughput (up to 12%), and improving memory utilization and adaptability to user activities.

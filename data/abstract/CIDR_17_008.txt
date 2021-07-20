@@ -1,0 +1,27 @@
+
+Modern database engines balance the demanding requirements of mixed, hybrid transactional and analytical processing (HTAP) workloads by relying on i) global shared
+memory, ii) system-wide cache coherence, and iii) massive
+parallelism. Thus, database engines are typically deployed
+on multi-socket multi-cores, which have been the only platform to support all three aspects.
+
+Two recent trends, however, indicate that these hardware assumptions will be invalidated in the near future.
+First, hardware vendors have started exploring alternate
+non-cache-coherent shared-memory multi-core designs due
+to escalating complexity in maintaining coherence across
+
+hundreds of cores. Second, as GPGPUs overcome programma
+bility, performance, and interfacing limitations, they are
+being increasingly adopted by emerging servers to expose
+heterogeneous parallelism. It is thus necessary to revisit
+database engine design because current engines can neither
+deal with the lack of cache coherence nor exploit heterogeneous parallelism.
+
+In this paper, we make the case for Heterogeneous-HTAP
+(H? TAP), a new architecture explicitly targeted at emerging
+hardware. H?TAP engines store data in shared memory to
+maximize data freshness, pair workloads with ideal processor
+types to exploit heterogeneity, and use message passing with
+explicit processor cache management to circumvent the lack
+of cache coherence. Using Caldera, a prototype H*TAP engine, we show that the H*TAP architecture can be realized
+in practice and can offer performance competitive with specialized OLTP and OLAP engines.
+

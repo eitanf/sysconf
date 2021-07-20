@@ -1,0 +1,21 @@
+
+During the past decade, network and storage devices
+have undergone rapid performance improvements, delivering ultra-low latency and several Gbps of bandwidth. Nevertheless, current network and storage stacks fail to deliver
+this hardware performance to the applications, often due
+to the loss of IO efficiency from stalled CPU performance.
+While many efforts attempt to address this issue solely on
+either the network or the storage stack, achieving highperformance for networked-storage applications requires a
+holistic approach that considers both.
+
+In this paper, we present FlashNet, a software IO stack
+that unifies high-performance network properties with flash
+storage access and management. FlashNet builds on
+RDMA principles and abstractions to provide a direct, asynchronous, end-to-end data path between a client and remote
+flash storage. The key insight behind FlashNet is to codesign the stack’s components (an RDMA controller, a flash
+controller, and a file system) to enable cross-stack optimizations and maximize IO efficiency. In micro-benchmarks,
+FlashNet improves 4kB network IOPS by 38.6% to 1.22M,
+decreases access latency by 43.5% to 50.4 secs, and prolongs the flash lifetime by 1.6-5.9x for writes. We illustrate
+the capabilities of FlashNet by building a Key-Value store,
+and porting a distributed data store that uses RDMA on
+it. The use of FlashNet’s RDMA API improves the performance of KV store by 2x, and requires minimum changes
+for the ported data store to access remote flash devices.

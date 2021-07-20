@@ -1,0 +1,36 @@
+
+In High-Performance Computing (HPC) systems,
+the design of the interconnection network is crucial. Indeed,
+the network topology, the switch architecture and the routing
+scheme determine the network performance and ultimately the
+system one. As the number of endnodes in HPC systems grows,
+and the supported applications become increasingly demanding
+for communication, the use of techniques to deal with network
+congestion and its negative effects gains importance. For that
+purpose, routing schemes such as adaptive or oblivious try to
+balance the network traffic in order to prevent and/or eliminate
+congestion. On the other hand, there are deterministic routing
+schemes that balance the number of paths per link with the aim
+of reducing the head-of-line blocking derived from congestion
+situations. Furthermore, other techniques to deal with congestion
+are based on queuing schemes. This approach is based on storing
+separately different packet flows at the ports buffers, so that the
+head-of-line blocking and/or buffer-hogging are reduced. Existing
+queuing schemes use different policies to separate flows, and they
+can be implemented in different ways. However, most queuing
+schemes are often used and designed assuming that the network
+is configured with deterministic routing, while actually they could
+be combined also with adaptive or oblivious routing.
+
+This paper analyzes the behavior of different queuing schemes
+under different routing algorithms: deterministic, adaptive or
+oblivious. We focus on fat-tree networks, configured with the
+most common routing algorithms of each type suitable for that
+topology. In order to evaluate these configurations, we have
+run simulation experiments modeling large fat-trees built from
+switches with radices available in the market, and supporting
+several queuing schemes. The experiments results show how
+different the performance of the queuing schemes may be when
+combined with either deterministic or oblivious/adaptive routing.
+Indeed, from these results we can conclude that some combinations of queuing schemes and routings are counterproductive.
+

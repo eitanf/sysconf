@@ -1,0 +1,22 @@
+
+Emerging applications for data analytics and knowledge discovery typically have irregular or unpredictable communication patterns that do not scale well on parallel systems
+designed for traditional bulk-synchronous HPC applications. New
+network architectures that focus on minimizing (short) message
+latencies, rather than maximizing (large) transfer bandwidths,
+are emerging as possible alternatives to better support those
+applications with irregular communication patterns. We explore
+a system based upon one such novel network architecture,
+the Data Vortex interconnection network, and examine how
+this system performs by running benchmark code written for
+the Data Vortex network, as well as a reference MPI-overInfiniband implementation, on the same cluster. Simple communication primitives (ping-pong and barrier synchronization), a
+few common communication kernels (distributed 1D Fast Fourier
+Transform, breadth-first search, Giga-Updates Per Second) and
+three prototype applications (a proxy application for simulating
+neutron transport-’SNAP”, a finite difference simulation for
+computing incompressible fluid flow, and an implementation of
+the heat equation) were all implemented for both network models.
+The results were compared and analyzed to determine what
+characteristics make an application a good candidate for porting
+to a Data Vortex system, and to what extent applications could
+potentially benefit from this new architecture.
+

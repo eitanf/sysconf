@@ -1,0 +1,24 @@
+
+GPUs are employed to accelerate scientific applications however they require much more programming effort from
+the programmers particularly because of the disjoint address
+spaces between the host and the device. OpenACC and OpenMP
+4.0 provide directive based programming solutions to alleviate
+the programming burden however synchronous data movement
+can create a performance bottleneck in fully taking advantage
+of GPUs. We propose a tiling based programming model and
+its library that simplifies the development of GPU programs and
+overlaps the data movement with computation. The programming
+model decomposes the data and computation into tiles and treats
+them as the main data transfer and execution units, which enables
+pipelining the transfers to hide the transfer latency. Moreover,
+partitioning application data into tiles allows the programmer to
+still take advantage of GPU even though application data cannot
+fit into the device memory. The library leverages C++ lambda
+functions, OpenACC directives, CUDA streams and tiling API
+from TiDA to support both productivity and performance. We
+show the performance of the library on a data transfer-intensive
+and a compute-intensive kernels and compare its speedup against
+OpenACC and CUDA. The results indicate that the library can
+hide the transfer latency, handle the cases where there is no
+sufficient device memory, and achieves reasonable performance.
+

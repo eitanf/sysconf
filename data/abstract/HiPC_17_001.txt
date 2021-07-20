@@ -1,0 +1,19 @@
+
+With rapidly increasing parallelism, DRAM performance and power have surfaced as primary constraints from
+consumer electronics to high performance computing (HPC)
+for a variety of applications, including bulk-synchronous dataparallel applications which are key drivers for multi-core, with
+examples including image processing, climate modeling, physics
+simulation, gaming, face recognition, and many others. We
+present the last-level collective prefetcher (LLCP), a purely
+hardware last-level cache (LLC) prefetcher that exploits the
+highly correlated prefetch patterns of data-parallel algorithms
+that would otherwise not be recognized by a prefetcher that
+is oblivious to data parallelism. LLCP generates prefetches on
+behalf of multiple cores in memory address order to maximize
+DRAM efficiency and bandwidth, and can prefetch from multiple memory pages without expensive translations. Compared
+to well-established other prefetchers, LLCP improves execution
+time by 5.5% on average (10% maximum), increases DRAM
+bandwidth by 9% to 18%, decreases DRAM rank energy
+by 6%, produces 27% more timely prefetches, and increases
+coverage by 25% at minimum.
+

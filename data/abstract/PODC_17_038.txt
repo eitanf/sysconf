@@ -1,0 +1,30 @@
+
+
+In this paper, we study the fundamental problem of gossip in the mobile telephone model: a recently introduced variation of the classical
+telephone model modified to better describe the local peer-to-peer
+communication services implemented in many popular smartphone
+operating systems. In more detail, the mobile telephone model differs from the classical telephone model in three ways: (1) each
+device can participate in at most one connection per round; (2) the
+network topology can undergo a parameterized rate of change; and
+(3) devices can advertise a parameterized number of bits about their
+state to their neighbors in each round before connection attempts
+are initiated. We begin by describing and analyzing new randomized gossip algorithms in this model under the harsh assumption of
+a network topology that can change completely in every round. We
+prove a significant time complexity gap between the case where
+nodes can advertise 0 bits to their neighbors in each round, and the
+case where nodes can advertise 1 bit. For the latter assumption, we
+present two solutions: the first depends on a shared randomness
+source, while the second eliminates this assumption using a pseudorandomness generator we prove to exist with a novel generalization
+of a classical result from the study of two-party communication
+complexity. We then turn our attention to the easier case where
+the topology graph is stable, and describe and analyze a new gossip
+algorithm that provides a substantial performance improvement
+for many parameters. We conclude by studying a relaxed version
+of gossip in which it is only necessary for nodes to each learn a
+specified fraction of the messages in the system. We prove that our
+existing algorithms for dynamic network topologies and a single
+advertising bit solve this relaxed version up to a polynomial factor
+faster (in network size) for many parameters. These are the first
+known gossip results for the mobile telephone model, and they
+significantly expand our understanding of how to communicate
+and coordinate in this increasingly relevant setting.

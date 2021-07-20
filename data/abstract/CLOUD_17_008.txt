@@ -1,0 +1,29 @@
+
+A service-oriented architecture (SOA)-based application is composed of a number of distributed and looselycoupled services which are interconnected to accomplish a more
+complex functionality. The main security challenge in SOA is
+that we cannot trust the participating services in a service
+composition to behave as expected all the time. Moreover, the
+chain of all services involved in an end-to-end invocation may
+not be visible to the clients. As a result, any violation of the
+client’s policies could remain undetected. To address these
+challenges in SOA, we propose the following contributions.
+First, we propose a new end-to-end security architecture for
+SOA based on a dynamic composite trust model. To maintain
+the dynamic trust, we designed a trusted-third party service
+called trust manager component, which collects and processes
+feedbacks from the actual execution of services. Second, we
+developed an end-to-end inter-service policy monitoring and
+enforcement framework (PME framework), which is able
+to dynamically intercept the interactions between services
+at runtime and react to the potentially malicious activities
+according to the client’s policies. Third, we design an intraservice policy monitoring and enforcement framework based
+on taint analysis mechanism to monitor the flow of information
+within services and detect and prevent information disclosure
+attacks. These two frameworks together can provide an end-toend visibility and security in SOA. Finally, we have extensively
+studied the correctness and performance of the proposed
+security frameworks based on a realistic SOA case study in
+a cloud environment. All experimental studies validate that
+the practicality and effectiveness of the presented solutions.
+
+Keywords-End-to-End Security; Service-Oriented Architecture; Security Policy
+

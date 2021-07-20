@@ -1,0 +1,23 @@
+
+
+Randomized backoff protocols have long been used to reduce contention on shared resources. They are heavily used in communication channels and radio networks, and have also been shown to
+greatly improve the performance of shared memory algorithms in
+real systems. However, while backoff protocols are well understood
+in many settings, their effect in shared memory has never been
+theoretically analyzed. This discrepency may be due to the difficulty
+of modeling asynchrony without eliminating the advantage gained
+by local delays.
+
+In this paper, we introduce a new cost model for contention in
+shared memory. Our model allows for adversarial asynchrony, but
+also provides a clear notion of time, thus enabling easy calculation
+of contention costs and delays. We then consider a simple use case
+in which n processes try to update a single memory location. Using
+our model, we first show that a naive protocol, without any backoff,
+requires Q(n*) work until all processes successfully update that
+location. We then analyze the commonly used exponential delay
+protocol, and show that it requires @(n? logn) work with high
+probability. Finally, we show that the exponential delay protocol
+is suboptimal, by introducing a new backoff protocol based on
+adaptive probabilities and showing that, for the same use case, it
+requires only O(n?) work with high probability.

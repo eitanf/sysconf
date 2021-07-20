@@ -1,0 +1,50 @@
+
+
+Internet communication today typically involves intermediary middleboxes like caches, compression proxies, or virus scanners. Unfortunately, as encryption becomes more widespread, these middleboxes become blind and we lose their security, functionality, and
+performance benefits. Despite initial efforts in both industry and
+academia, we remain unsure how to integrate middleboxes into
+secure sessions—it is not even clear how to define “secure” in this
+multi-entity context.
+
+In this paper, we first describe a design space for secure multientity communication protocols, highlighting tradeoffs between
+mutually incompatible properties. We then target real-world requirements unmet by existing protocols, like outsourcing middleboxes to untrusted infrastructure and supporting legacy clients. We
+propose a security definition and present Middlebox TLS (mbTLS),
+a protocol that provides it (in part by using Intel SGX to protect
+middleboxes from untrusted hardware). We show that mbTLS is
+deployable today and introduces little overhead, and we describe
+our experience building a simple mbTLS HTTP proxy.
+
+CCS CONCEPTS
+
+- Security and privacy — Security protocols; Trusted computing; « Networks — Session protocols; Middle boxes / network
+appliances;
+
+KEYWORDS
+TLS, middleboxes, trusted computing, SGX
+
+ACM Reference format:
+
+David Naylor, Richard Li, Christos Gkantsidis, Thomas Karagiannis, and
+Peter Steenkiste. 2017. And Then There Were More: Secure Communication
+for More Than Two Parties. In Proceedings of CoNEXT °17: The 13th International Conference on emerging Networking EXperiments and Technologies,
+Incheon, Republic of Korea, December 12-15, 2017 (CoNEXT ’17), 13 pages.
+DOT: 10.1145/3143361.3143383
+
+Work done while David and Richard were interns at Microsoft Research.
+
+ 
+
+Permission to make digital or hard copies of all or part of this work for personal or
+classroom use is granted without fee provided that copies are not made or distributed
+for profit or commercial advantage and that copies bear this notice and the full citation
+on the first page. Copyrights for components of this work owned by others than ACM
+must be honored. Abstracting with credit is permitted. To copy otherwise, or republish,
+to post on servers or to redistribute to lists, requires prior specific permission and/or a
+fee. Request permissions from permissions@acm.org.
+
+CoNEXT ’17, Incheon, Republic of Korea
+
+© 2017 ACM. 978-1-4503-5422-6/17/12...$15.00
+
+DOI: 10.1145/3143361.3143383
+

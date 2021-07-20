@@ -1,0 +1,29 @@
+
+A large number of cloud datastores have been
+developed to handle the cloud OLTP workload. Double caching
+problem where the same data resides both at the user buffer
+and the kernel buffer has been identified as one of the problems
+and has been largely solved by using direct I/O mode to bypass
+the kernel buffer. However, maintaining the caching layer only
+in user-level has the disadvantage that the user process may
+monopolize memory resources and that it is difficult to fully
+utilize the system memory due to the risks of the forced
+termination of the process or the unpredictable performance
+degradation in case of memory pressure.
+
+In this paper, we propose a new I/O mode, DBIO, to
+efficiently exploit OS kernel buffer as a victim cache for userlevel file content cache, enjoying the strengths of kernel-level
+cache rather than just skipping it. DBIO provides the new
+file read/write function calls, which enable user programs to
+dynamically choose the right I/O behavior based on their
+context when issuing I/Os instead of when opening the file. On
+the cloud key-value store workloads and the traditional OLTP
+workloads with the modified version of MySQL/InnoDB, DBIO
+improves the in-memory cache hit ratio and the transaction
+performance compared to both buffered and direct I/O mode,
+fully utilizing the user buffer and the kernel buffer without
+double caching.
+
+Keywords-double caching; victim cache; buffer pool; page
+cache;
+

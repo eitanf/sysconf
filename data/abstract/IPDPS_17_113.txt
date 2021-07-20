@@ -1,0 +1,21 @@
+
+A surprising development in recently announced
+HPC platforms is the addition of, sometimes massive amounts
+of, persistent (nonvolatile) memory (NVM) in order to increase
+memory capacity and compensate for plateauing I/O capabilities. However, there are no portable and scalable programming
+interfaces using aggregate NVM effectively. This paper introduces Papyrus: a new software system built to exploit emerging
+capability of NVM in HPC architectures. Papyrus (or Parallel
+Aggregate Persistent -YRU- Storage) is a novel programming
+system that provides features for scalable, aggregate, persistent
+memory in an extreme-scale system for typical HPC usage
+scenarios. Papyrus mainly consists of Papyrus Virtual File
+System (VFS) and Papyrus Template Container Library (TCL).
+Papyrus VFS provides a uniform aggregate NVM storage
+image across diverse NVM architectures. It enables Papyrus
+TCL to provide a portable and scalable high-level container
+programming interface whose data elements are distributed
+across multiple NVM nodes without requiring the user to
+handle complex communication, synchronization, replication,
+and consistency model. We evaluate Papyrus on two HPC
+systems, including UTK Beacon and NERSC Cori, using real
+NVM storage devices.

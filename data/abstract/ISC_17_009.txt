@@ -1,0 +1,16 @@
+
+. Many important applications — from big data analytics to
+information retrieval, gene expression analysis, and numerical weather
+prediction — require the solution of large dense singular value decompositions (SVD). In many cases the problems are too large to fit into
+the computer’s main memory, and thus require specialized out-of-core
+algorithms that use disk storage. In this paper, we analyze the SVD
+communications, as related to hierarchical memories, and design a class
+of algorithms that minimizes them. This class includes out-of-core SVDs
+but can also be applied between other consecutive levels of the memory
+hierarchy, e.g., GPU SVD using the CPU memory for large problems.
+We call these out-of-memory (OOM) algorithms. To design OOM SVDs,
+we first study the communications for both classical one-stage blocked
+SVD and two-stage tiled SVD. We present the theoretical analysis and
+strategies to design, as well as implement, these communication avoiding OOM SVD algorithms. We show performance results for multicore
+architecture that illustrate our theoretical findings and match our performance models.
+

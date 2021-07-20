@@ -1,0 +1,23 @@
+
+Although numerous loop optimization techniques
+have been designed and deployed in commercial compilers in
+the past, virtually no common experimental infrastructure nor
+repository exists to help the compiler community evaluate the
+effectiveness of these techniques.
+
+This paper describes a repository, LORE, that maintains a
+large number of C language for loop nests extracted from popular benchmarks, libraries, and real applications. It also describes
+the infrastructure that builds and maintains the repository. Each
+loop nest in the repository has been compiled, transformed,
+executed, and measured independently. These loops cover a
+variety of properties that can be used by the compiler community
+to evaluate loop optimizations using a broad and representative
+collection of loops.
+
+To illustrate the usefulness of the repository, we also present
+two example applications. One is assessing the capabilities of
+the auto-vectorization features of three widely used compilers.
+The other is measuring the performance difference of a compiler
+across different versions. These applications prove that the repository is valuable for identifying the strengths and weaknesses of
+a compiler and for quantitatively measuring the evolution of a
+compiler.

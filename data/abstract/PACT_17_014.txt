@@ -1,0 +1,38 @@
+
+The increasing memory requirements of big data
+applications have been driving the precipitous growth of memory capacity in server systems. To maximize the efficiency of
+external memory, HW-based memory compression techniques
+have been proposed to increase effective memory capacity.
+Although such memory compression techniques can improve
+the memory efficiency significantly, a critical trade-off exists in
+the HW-based compression techniques. As the memory blocks
+need to be decompressed as quickly as possible to serve cache
+misses, latency-optimized techniques apply compression at the
+cacheline granularity, achieving the decompression latency
+of less than a few cycles. However, such latency-optimized
+techniques can lose the potential high compression ratios of
+capacity-optimized techniques, which compress larger memory
+blocks with longer latency algorithms.
+
+Considering the fundamental trade-off in the memory compression, this paper proposes a transparent dual memory
+compression (DMC) architecture, which selectively uses two
+compression algorithms with distinct latency and compression
+characteristics. Exploiting the locality of memory accesses,
+the proposed architecture compresses less frequently accessed
+blocks with a capacity-optimized compression algorithm, while
+keeping recently accessed blocks compressed with a latencyoptimized one. Furthermore, instead of relying on the support
+from the virtual memory system to locate compressed memory
+blocks, the study advocates a HW-based translation between
+the uncompressed address space and compressed physical
+space. This OS-transparent approach eliminates conflicts between compression efficiency and large page support adopted to
+reduce TLB misses. The proposed compression architecture is
+applied to the Hybrid Memory Cube (HMC) with a logic layer
+under the stacked DRAMs. The experimental results show that
+the proposed compression architecture provides 54% higher
+compression ratio than the state-of-the-art latency-optimized
+technique, with no performance degradation over the baseline
+system without compression.
+
+Keywords-memory compression, dual compression technique,
+OS transparency, locality awareness
+

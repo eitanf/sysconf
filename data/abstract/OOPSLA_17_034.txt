@@ -1,0 +1,10 @@
+
+This paper presents natural synthesis, which generalizes the proof-theoretic synthesis technique to support very expressive logic theories. This approach leverages the natural proof methodology and reduces
+an intractable, unbounded-size synthesis problem to a tractable, bounded-size synthesis problem, which is
+amenable to be handled by modern inductive synthesis engines. The synthesized program admits a natural
+proof and is a provably-correct solution to the original synthesis problem. We explore the natural synthesis approach in the domain of imperative data-structure manipulations and present a novel syntax-guided
+synthesizer based on natural synthesis. The input to our system is a program template together with a rich
+functional specification that the synthesized program must meet. Our system automatically produces a program implementation along with necessary proof artifacts, namely loop invariants and ranking functions,
+and guarantees the total correctness with a natural proof. Experiments show that our natural synthesizer can
+efficiently produce provably-correct implementations for sorted lists and binary search trees. To our knowledge, this is the first system that can automatically synthesize these programs, their functional correctness
+and their termination in tandem from bare-bones control flow skeletons.

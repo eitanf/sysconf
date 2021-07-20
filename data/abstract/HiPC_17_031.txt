@@ -1,0 +1,33 @@
+
+Nowadays best performing automatic parallelizers
+and data locality optimizers for static control programs rely on
+the polyhedral model. Polyhedral compilation consists of three
+phases: (1) abstracting the input code into a mathematical
+view; (2) analyzing and transforming this representation into
+an optimized alternative; (3) generating the corresponding code
+while ensuring it is semantically equivalent to the input code.
+During this last phase, state-of-the-art polyhedral compilers
+generate only one type of parallelism when targeting multicore
+shared memory architectures: parallel loops via the OpenMP
+omp parallel for directive.
+
+In this work, we propose to explore how a polyhedral
+compiler could exploit parallel region constructs. Instead of
+initializing a new set of threads each time the code enters
+a parallel loop and synchronizing them when exiting it, the
+threads are initialized once for all at the entrance of the region
+of interest, and synchronized only when it is necessary.
+
+Technically, we propose to embed the whole region containing parallel loops in an omp parallel construct. Inside the
+parallel region, the single construct is used when some code
+needs to be executed sequentially; the for construct is used to
+distribute loop iterations between threads. Thanks to the power
+of the polyhedral dependence analysis, we compute when it is
+valid to add the optional nowait clause, to omit the implicit
+barrier at the end of a worksharing construct and thus to
+reduce even more control overhead.
+
+Through a set of experiments on the PolyBench benchmarks,
+we show that resulting codes can overwhelm the performance
+obtained by the Pluto polyhedral compiler.
+

@@ -1,0 +1,19 @@
+
+Page protection is often used to achieve memory access
+monitoring in many applications, dealing with program 
+analysis, checkpoint-based failure recovery, and garbage
+collection in managed runtime systems. Typically, low over 
+head access monitoring is limited by the relatively large
+page-level granularity of memory management unit hardware support for virtual memory protection. In this paper,
+we improve upon traditional page-level mechanisms by additionally using hardware support for virtualization in order
+to achieve fine and flexible granularities that can be smaller
+than a page. We first introduce a memory allocator based
+on page protection that can achieve fine-grained monitoring.
+Second, we explain how virtualization hardware support can
+be used to achieve dynamic adjustment of the monitoring
+granularity. In all, we propose a process-level virtual machine to achieve dynamic and fine-grained monitoring. Any
+application can run on our process-level virtual machine
+without modification. Experimental results for an incremental checkpoint tool provide a use-case to demonstrate our
+work. Comparing with traditional page-based checkpoint,
+our work can effectively reduce the amount of checkpoint
+data and improve performance.

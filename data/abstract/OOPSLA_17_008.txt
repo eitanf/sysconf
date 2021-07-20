@@ -1,0 +1,18 @@
+
+Today’s cloud services extensively rely on replication techniques to ensure availability and reliability. In
+complex datacenter network architectures, however, seemingly independent replica servers may inadvertently
+share deep dependencies (e.g., aggregation switches). Such unexpected common dependencies may potentially
+result in correlated failures across the entire replication deployments, invalidating the efforts. Although
+existing cloud management and diagnosis tools have been able to offer post-failure forensics, they, nevertheless,
+typically lead to quite prolonged failure recovery time in the cloud-scale systems. In this paper, we propose a
+novel language framework, named RepAudit, that manages to prevent correlated failure risks before service
+outages occur, by allowing cloud administrators to proactively audit the replication deployments of interest.
+In particular, RepAudit consists of three new components: 1) a declarative domain-specific language, RAL, for
+cloud administrators to write auditing programs expressing diverse auditing tasks; 2) a high-performance
+RAL auditing engine that generates the auditing results by accurately and efficiently analyzing the underlying
+structures of the target replication deployments; and 3) an RAL-code generator that can automatically produce
+complex RAL programs based on easily written specifications. Our evaluation result shows that RepAudit
+uses 80× less lines of code than state-of-the-art efforts in expressing the auditing task of determining the
+top-20 critical correlated-failure root causes. To the best of our knowledge, RepAudit is the first effort capable
+of simultaneously offering expressive, accurate and efficient correlated failure auditing to the cloud-scale
+replication systems.

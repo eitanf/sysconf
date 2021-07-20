@@ -1,0 +1,25 @@
+
+Spin-Transfer Torque Magnetoresistive RandomAccess Memory (STT-MRAM) is a promising memory
+technology, which has high density, fast read speed, low
+leakage power, and non-volatility, and is suitable for multi-core
+on-chip last-level caches. However, the high write energy and
+latency, as well as less-than-desirable write endurance of STTMRAM remain challenges. This paper proposes a new encoded
+content-aware cache replacement policy to reduce the total
+switch bits for write, lower the write energy, and improve write
+endurance. Instead of replacing the LRU block under the
+conventional pseudo-LRU replacement policy, we select a
+replacement block near the LRU position, which has the most
+similar content to the missed block. The selected replacement
+block can reduce the switch bits without damaging the cache
+performance. To avoid fetching and comparing the entire block
+contents, we present a novel content encoding method to
+encode 64-byte block using just 8 bits, each bit represents 8byte content. The encoded bit is determined by the presence of
+a dominant bit value in the 8 bytes. We measure the content
+similarity using the Hamming distance between the encoded
+bits of the missed block and the replaced block. Performance
+evaluation demonstrates that the proposed simple content
+encoding method is effective with an average of 20.5%
+reduction in total switch bits, which results in improvement on
+write endurance and less write energy consumption. These
+improvements are accomplished with low overhead and
+minimum impact on the cache performance.

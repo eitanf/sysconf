@@ -1,0 +1,31 @@
+
+Accurate, real-time Automatic Speech Recognition
+(ASR) comes at a high energy cost, so accuracy has often to
+be sacrificed in order to fit the strict power constraints of
+mobile systems. However, accuracy is extremely important for
+the end-user, and today’s systems are still unsatisfactory for
+many applications. The most critical component of an ASR
+system is the acoustic scoring, as it has a large impact on
+the accuracy of the system and takes up the bulk of execution
+time. The vast majority of ASR systems implement the acoustic
+scoring by means of Gaussian Mixture Models (GMMs), where
+the acoustic scores are obtained by evaluating multidimensional
+Gaussian distributions.
+
+In this paper, we propose a hardware accelerator for GMM
+evaluation that reduces the energy required for acoustic scoring
+by three orders of magnitude compared to solutions based on
+CPUs and GPUs. Our accelerator implements a lazy evaluation
+scheme where Gaussians are computed on demand, avoiding
+50% of the computations. Furthermore, it employs a novel
+clustering scheme to reduce the size of the acoustic model,
+which results in 8x memory bandwidth savings with a negligible
+impact on accuracy. Finally, it includes a novel memoization
+scheme that avoids 74.88% of floating-point operations. The
+end design provides a 164x speedup and 3532x energy reduction
+when compared with a highly-tuned implementation running
+on a modern mobile CPU. Compared to a state-of-the-art
+mobile GPU, the GMM accelerator achieves 5.89x speedup
+over a highly optimized CUDA implementation, while reducing
+energy by 241x.
+

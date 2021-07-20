@@ -1,0 +1,22 @@
+
+Malicious payload injection attacks have been a
+serious threat to software for decades. Unfortunately, protection against these attacks remains challenging due to the ever
+increasing diversity and sophistication of payload injection and
+triggering mechanisms used by adversaries. In this paper, we
+develop A2C, a system that provides general protection against
+payload injection attacks. A2C is based on the observation that
+payloads are highly fragile and thus any mutation would likely
+break their functionalities. Therefore, A2C mutates inputs from
+untrusted sources. Malicious payloads that reside in these inputs
+are hence mutated and broken. To assure that the program
+continues to function correctly when benign inputs are provided,
+A2C divides the state space into exploitable and post-exploitable
+sub-spaces, where the latter is much larger than the former, and
+decodes the mutated values only when they are transmitted from
+the former to the latter. A2C does not rely on any knowledge of
+malicious payloads or their injection and triggering mechanisms.
+Hence, its protection is general. We evaluate A2C with 30 realworld applications, including apache on a real-world work-load,
+and our results show that A2C effectively prevents a variety of
+payload injection attacks on these programs with reasonably low
+overhead (6.94%).
+

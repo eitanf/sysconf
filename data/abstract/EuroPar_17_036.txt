@@ -1,0 +1,11 @@
+
+. MapReduce environments offer great scalability by restricting the programming model to only map and reduce operators. This
+abstraction simplifies many difficult problems occuring in generic distributed computations like fault tolerance and synchronization, hiding
+them from the programmer. There are, however, algorithms that cannot
+be easily or efficiently expressed in MapReduce, such as recursive functions. In this paper we extend the Apache Spark runtime so that it can
+support recursive queries. We also introduce a new parallel and more
+lightweight scheduling mechanism, ideal for scheduling a very large set
+of tiny tasks. We implemented the aformentioned scheduler and found
+that it simplifies the code for recursive computation and can perform
+up to 2.1x faster than the default Spark scheduler.
+

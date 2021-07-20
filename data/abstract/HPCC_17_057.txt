@@ -1,0 +1,20 @@
+
+The emergence of Next Generation Sequencing
+(NGS) platforms has increased the throughput of genomic sequencing and in turn the amount of data that needs to be
+processed, requiring highly efficient computation for its analysis.
+In this context, modern architectures including accelerators and
+non-volatile memory are essential to enable the mass exploitation
+of these bioinformatics workloads. This paper presents a redesign
+of the main component of a state-of-the-art reference-free method
+for variant calling, SMUFIN, which has been adapted to make
+the most of GPUs and NVM devices. SMUFIN relies on counting the frequency of k-mers (substrings of length k) in DNA
+sequences, which also constitutes a well-known problem for many
+bioinformatics workloads, such as genome assembly. We propose
+techniques to improve the efficiency of k-mer counting and to
+scale-up workloads like SMUFIN that used to require 16 nodes
+of Marenostrum 3 to a single machine with a GPU and NVM
+drives. Results show that although the single machine is not able
+to improve the time to solution of 16 nodes, its CPU time is 7.5x
+shorter than the aggregate CPU time of the 16 nodes, with a
+reduction in energy consumption of 5.5x.
+

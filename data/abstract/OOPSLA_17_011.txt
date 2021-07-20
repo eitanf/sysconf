@@ -1,0 +1,18 @@
+
+Bounded exhaustive testing is an effective methodology for detecting bugs in a wide range of applications. A
+well-known approach for bounded exhaustive testing is Korat which generates all test inputs up to a given
+small size based on a formal specification that characterizes properties of desired test inputs. This specification
+is written as an executable predicate and Korat executes the predicate on candidate inputs to implement a
+backtracking search based on pruning to systematically explore the space of all possible inputs and generate
+only those that satisfy the specification.
+
+This paper presents a novel approach for speeding up test generation for bounded exhaustive testing using
+Korat. The novelty of our approach is two-fold. One, we introduce a new approach for writing the specification
+predicate based on an abstract representation of candidate inputs, so that the predicate executes directly
+on these abstract structures and each execution has a lower cost. Two, we use the abstract representation
+as the basis to define the first technique for utilizing GPUs for systematic test generation using executable
+predicates. Moreover, we present a suite of optimizations that are necessary to enable effective utilization of
+the computational resources offered by modern GPUs. We use our prototype tool to experimentally evaluate
+our approach using a suite of 7 data structures that were used in prior studies on bounded exhaustive testing.
+Our results show that our abstract representation can speed up test generation by 5.68 x on a standard CPU,
+while execution on a GPU speeds up the generation, on average, by 17.46x.

@@ -1,0 +1,17 @@
+
+
+NAND flash memory based storage devices use Flash
+Translation Layer (FTL) to translate logical addresses
+of I/O requests to corresponding flash memory addresses. Mobile storage devices typically have RAM with
+constrained size, thus lack in memory to keep the whole
+mapping table. Therefore, mapping tables are partially
+retrieved from NAND flash on demand, causing random-read performance degradation.
+
+In order to improve random read performance, we
+propose HPB (Host Performance Booster) which uses
+host system memory as a cache for FTL mapping table.
+By using HPB, FTL data can be read from host memory
+faster than from NAND flash memory. We define transactional protocols between host device driver and storage device to manage the host side mapping cache. We
+implement HPB on Galaxy S7 smartphone with UFS
+device. HPB is shown to have a performance improvement of 58 - 67% for random read workload.
+

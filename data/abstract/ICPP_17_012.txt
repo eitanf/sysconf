@@ -1,0 +1,21 @@
+
+Low-rank sparse tensor factorization is a popular
+tool for analyzing multi-way data and is used in domains
+such as recommender systems, precision healthcare, and cybersecurity. Imposing constraints on a factorization, such as
+non-negativity or sparsity, is a natural way of encoding prior
+knowledge of the multi-way data. While constrained factorizations are useful for practitioners, they can greatly increase
+factorization time due to slower convergence and computational
+overheads. Recently, a hybrid of alternating optimization and
+alternating direction method of multipliers (AO-ADMM) was
+shown to have both a high convergence rate and the ability to
+naturally incorporate a variety of popular constraints. In this
+work, we present a parallelization strategy and two approaches
+for accelerating AO-ADMM. By redefining the convergence
+criteria of the inner ADMM iterations, we are able to split
+the data in a way that not only accelerates the per-iteration
+convergence, but also speeds up the execution of the ADMM
+iterations due to efficient use of cache resources. Secondly,
+we develop a method of exploiting dynamic sparsity in the
+factors to speed up tensor-matrix kernels. These combined
+advancements achieve up to 8x speedup over the state-of-theart on a variety of real-world sparse tensors.
+

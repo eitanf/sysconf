@@ -1,0 +1,39 @@
+
+We present Nswap2L-FS, a fast, adaptable, and
+heterogeneous storage system for backing file data in clusters.
+Nswap2L-FS particularly targets backing temporary files, such
+as those created by data-intensive applications for storing
+intermediate results. Our work addresses the problem of how
+to efficiently and effectively make use of heterogeneous storage
+devices that are increasingly common in clusters. Nswap2L-FS
+implements a two-layer device design. The top layer transparently manages a set of bottom layer physical storage devices,
+which may include SSD, HDD, and its own implementation of
+network RAM. Nswap2L-FS appears to node operating systems
+as a single, fast backing storage device for file systems, hiding
+the complexity of heterogeneous storage management from OS
+subsystems. Internally, it implements adaptable and tunable
+policies that specify where data should be placed and whether
+data should be migrated from one underlying physical device
+to another based on resource usage and the characteristics
+of different devices. We present solutions to challenges that
+are specific to supporting backing filesystems, including how
+to efficiently support a wide range of I/O request sizes and
+balancing fast storage goals with expectations of persistence
+of stored file data. Nswap2L-FS defines relaxed persistence
+guarantees on individual file writes to achieve faster V/O
+accesses; less stringent persistence semantics allow it to make
+use of network RAM to store file data, resulting in faster file /O
+to applications. Relaxed persistence guarantees are acceptable
+in many situations, particularly those involving short-lived data
+such as temporary files. Nswap2L-FS provides a persistence
+snapshot mechanism that can be used by applications or
+checkpointing systems to ensure that file data are persistent at
+certain points in their execution. Nswap2L-FS is implemented
+as a Linux block device driver that can be added as a file
+partition on individual cluster nodes. Experimental results
+show that file-intensive applications run faster when using
+Nswap2L-FS as backing store. Additionally, its adaptive data
+placement and migration policies, which make effective use
+of different underlying physical storage devices, result in
+performance exceeding that of any single device.
+

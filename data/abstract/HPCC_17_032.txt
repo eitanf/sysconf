@@ -1,0 +1,23 @@
+
+Automatic number plate recognition (ANPR) is a
+significant part in intelligent traffic system. At present, there are
+many traditional approaches that have achieved a rather high
+accuracy to solve this problem, almost all of which are separated
+into three steps of localization, segmentation and recognition.
+However, these approaches, especially in segmentation progress,
+are limited to some specific conditions including light intensity,
+orientations, rotation and distortion angle of plates, etc. In this
+paper, distinct from traditional approaches, a network including a
+convolutional neural network(CNN) that operates directly on the
+image pixels is employed as a substitute of the integration of
+segmentation and recognition. The network works on the
+TensorFlow framework. Evaluation of this training network is
+characters’ recognition accuracy on a test set of 796 number plate
+pictures. In result, we achieve a 88.61% accuracy with a training
+set of only 7396 photographs that are expanded from 3041 different
+number plate pictures, which is a relatively high accuracy,
+especially for a deep CNN that usually needs a great number of
+samples. We also demonstrate one possible way to enrich data set
+and make a test using a even simpler network, which results in a
+90.07% accuracy on a test set.
+

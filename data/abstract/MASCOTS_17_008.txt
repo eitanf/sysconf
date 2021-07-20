@@ -1,0 +1,21 @@
+
+HPC (high-performance computing) applications
+usually show bursty I/O behaviors. In order to expedite the
+applications, permanent storage systems are usually provisioned
+to serve such I/O bursts. Approaching the era of exascale
+computing, non-volatile RAM is introduced as burst buffers,
+to absorb the bursty bulk data and relax the I/O provisioning
+requirement of the permanent storage systems. However, without
+judiciously draining the burst buffers, I/O bursts are passed
+down to the underlying storage systems, which causes severe
+V/O contention issues.
+
+In order to minimize the I/O provisioning requirement and
+resolve the issues caused by I/O bursts, we propose a proactive
+draining scheme to manage the draining process of distributed
+node-local burst buffers. In addition, we develop an I/O provisioning model to predict the minimized I/O provisioning requirement
+for permanent storage systems. Evaluation results show that
+applying the proactive draining scheme largely relaxes the I/O
+provisioning requirement while preserving the I/O performance
+of underlying storage systems.
+

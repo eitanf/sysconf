@@ -1,0 +1,28 @@
+
+Scientific HPC applications along with the emerging
+class of Big Data and Machine Learning workloads are rapidly
+driving the fabric scale both on premises and in the cloud.
+Achieving high aggregate fabric throughput is paramount to
+the overall performance of the application. However, achieving
+high fabric throughput at scale can be challenging - that is,
+the application communication pattern will need to map well
+on to the target fabric architecture, and the multi-layered host
+software stack in the middle will need to orchestrate that mapping
+optimally to unleash the full performance.
+
+In this paper, we investigate low-level optimizations to the host
+software stack with the goal of improving the aggregate fabric
+throughput, and hence, application performance. We develop
+and present a number of optimization and tuning techniques
+that are key driving factors to the fabric performance at scale
+- such as, Fine-grained interleaving, improved pipelining, and
+careful resource utilization and management. We believe that
+these low-level optimizations can be commonly leveraged by
+several programming models and their runtime implementations
+making these optimizations broadly applicable. Using a set of
+well-known MPI-based scientific applications, we demonstrate
+that these optimizations can significantly improve the overall
+fabric throughput and the application performance. Interestingly,
+we also observe that some of these optimizations are inter-related
+and can additively contribute to the overall performance.
+

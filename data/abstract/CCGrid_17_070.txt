@@ -1,0 +1,24 @@
+
+Applications hosted in the cloud have become
+indispensable in several contexts, with their performance often
+being key to business operation and their running costs needing
+to be minimized. To minimize running costs, most modern
+virtualization technologies such as Linux Containers, Xen, and
+KVM offer powerful resource control primitives for individual
+provisioning — that enable adding or removing of fraction of
+cores and/or megabytes of memory for as short as few seconds.
+Despite the technology being ready, there is a lack of proper
+techniques for fine-grained resource allocation, because there
+is an inherent challenge in determining the correct composition
+of resources an application needs, with varying workload, to
+ensure deterministic performance.
+
+This paper presents a control-based approach for the management of multiple resources, accounting for the resource consumption, together with the application performance, enabling
+fine-grained vertical elasticity. The control strategy ensures
+that the application meets the target performance indicators,
+consuming as less resources as possible. We carried out an
+extensive set of experiments using different applications —interactive with response-time requirements, as well as noninteractive with throughput desires — by varying the workload
+mixes of each application over time. The results demonstrate
+that our solution precisely provides guaranteed performance
+while at the same time avoiding both resource over- and underprovisioning.
+

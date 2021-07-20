@@ -1,0 +1,22 @@
+
+Hypervisor-based virtualization solutions reveal good security and isolation, while container-based solutions make applications and workloads more portable and distributed in
+an effective, standardized and repeatable way. Therefore,
+nested virtualization based computing environments (e.g.,
+container over virtual machine), which inherit the capabilities from both solutions, are becoming more and more attractive in clouds (e.g., running Docker over Amazon EC2
+VMs). Recent studies have shown that running applications
+in either VMs or containers still has significant overhead,
+especially for I/O intensive workloads. This motivates us
+to investigate whether the nested virtualization based solution can be adopted to build high-performance computing
+(HPC) clouds for running MPI applications efficiently and
+where the bottlenecks lie. To eliminate performance bottlenecks, we propose a high-performance two-layer locality and NUMA aware MPI library, which is able to dynamically detect co-resident containers inside one VM as
+well as detect co-resident VM inside one host at MPI runtime. Thus the MPI processes across different containers and
+VMs can communicate to each other by shared memory or
+Cross Memory Attach (CMA) channels instead of network
+channel if they are co-resident. We further propose an enhanced NUMA aware hybrid design to utilize InfiniBand
+loopback based channel to optimize large message transfer
+across containers when they are running on different sockets. Performance evaluations show that compared with the
+performance of the state-of-art (1Layer) design, our proposed enhance-hybrid design can bring up to 184%, 81%
+and 12% benefit on point-to-point, collective operations, and
+end applications. Compared with the default performance,
+our enhanced-hybrid design delivers up to 184%, 85% and
+16% performance improvement

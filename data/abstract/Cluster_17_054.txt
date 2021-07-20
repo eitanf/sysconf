@@ -1,0 +1,18 @@
+
+Stencil-based applications such as CFD have succeeded in obtaining high performance on GPU supercomputers.
+The problem sizes of these applications are limited by the GPU
+device memory capacity, which is typically smaller than the
+host memory. On GPU supercomputers, a locality improvement technique using temporal blocking method with memory
+swapping between host and device enables large computation
+beyond the device memory capacity. However, because the loop
+management of temporal blocking with data movement across
+these memories increase programming difficulty, the applying
+this methodology to the real stencil applications demands
+substantially higher programming cost. Our high-productivity
+stencil framework automatically applies temporal blocking to
+boundary exchange required for stencil computation and supports automatic memory swapping provided by a MPI/CUDA
+wrapper library. The framework-based application for the
+airflow in an urban city maintains 80% performance even
+with the twice larger than the GPU memory capacity and
+have demonstrated good weak scalability on the TSUBAME
+2.5 supercomputer.

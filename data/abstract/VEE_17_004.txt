@@ -1,0 +1,18 @@
+
+Content based page sharing techniques improve memory efficiency in virtualized systems by identifying and merging
+identical pages. Kernel Same-page Merging (KSM), a Linux
+kernel utility for page sharing, sequentially scans memory
+pages of virtual machines to deduplicate pages. Sequential scanning of pages has several undesirable side effects—
+wasted CPU cycles when no sharing opportunities exist, and
+rate of discovery of sharing being dependent on the scanning rate and corresponding CPU availability. In this work,
+we exploit presence of GPUs on modern systems to enable
+rapid memory sharing through targeted scanning of pages.
+Our solution, Catalyst, works in two phases, the first where
+pages of virtual machines are processed by the GPU to identify likely pages for sharing and a second phase that performs page-level similarity checks on a targeted set of shareable pages. Opportunistic usage of the GPU to produce sharing hints enables rapid and low-overhead duplicate detection, and sharing of memory pages in virtualization environments. We evaluate Catalyst against various benchmarks and
+workloads to demonstrate that Catalyst can achieve higher
+memory sharing in lesser time compared to different scan
+rate configurations of KSM, at lower or comparable compute costs.
+
+Keywords Memory Deduplication, Graphics Processing
+Units, Virtualization, KSM;
+

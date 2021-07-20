@@ -1,0 +1,24 @@
+
+Tasks coupled in an in situ workflow may not
+process data at the same speed, potentially causing overflows
+in the communication channel between them. To prevent this
+problem, software infrastructures for in situ workflows usually
+impose a strict FIFO policy that has the side-effect of slowing
+down faster tasks to the speed of the slower ones. This may
+not be the desired behavior; for example, a scientist may prefer
+to drop older data in the communication channel in order to
+visualize the latest snapshot of a simulation. In this paper,
+we present Manala, a flexible flow control library designed to
+manage the flow of messages between a producer and a consumer
+in an in situ workflow. Manala intercepts messages from the
+producer, stores them, and selects the message to forward to
+the consumer depending on the flow control policy. The library
+is designed to ease the creation of new flow control policies and
+buffering mechanisms. We demonstrate with three examples how
+changing the flow control policy between tasks can influence the
+performance and results of scientific workflows. The first example
+focuses on materials science with LAMMPS and a synthetic
+diffraction analysis code. The second example is an interactive visualization scenario with Gromacs as the producer and
+Damaris/Viz as consumer. Our third example studies different
+strategies to perform an asynchronous checkpoint with Gromacs.
+

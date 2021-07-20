@@ -1,0 +1,22 @@
+
+
+Randomized binary exponential backoff (BEB) is a popular algorithm for coordinating access to a shared channel. With an operational history exceeding four decades, BEB is currently an important
+component of several wireless standards.
+
+Despite this track record, prior theoretical results indicate that
+under bursty traffic (1) BEB yields poor makespan and (2) superior
+algorithms are possible. To date, the degree to which these findings
+manifest in practice has not been resolved.
+
+To address this issue, we examine one of the strongest cases
+against BEB: n packets that simultaneously begin contending for
+the wireless channel. Using Network Simulator 3, we compare
+against more recent algorithms that are inspired by BEB, but whose
+makespan guarantees are superior. Surprisingly, we discover that
+these newer algorithms significantly underperform.
+
+Through further investigation, we identify as the culprit a flawed
+but common abstraction regarding the cost of collisions. Our experimental results are complemented by analytical arguments that the
+number of collisions — and not solely makespan — is an important
+metric to optimize. We argue that these findings have implications
+for the design of contention-resolution algorithms.

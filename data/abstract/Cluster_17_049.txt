@@ -1,0 +1,24 @@
+
+Fault tolerance is one of the major design goals for
+HPC. The emergence of non-volatile memories (NVM) provides
+a solution to build fault tolerant HPC. Data in NVM-based main
+memory are not lost when the system crashes because of the nonvolatility nature of NVM. However, because of volatile caches,
+data must be logged and explicitly flushed from caches into NVM
+to ensure consistence and correctness before crashes, which can
+cause large runtime overhead.
+
+In this paper, we introduce an algorithm-based method to
+establish crash consistence in NVM for HPC applications. We
+slightly extend application data structures or sparsely flush
+cache blocks, which introduce ignorable runtime overhead. Such
+extension or cache flushing allows us to use algorithm knowledge
+to reason data consistence or correct inconsistent data when
+the application crashes. We demonstrate the effectiveness of
+our method for three algorithms, including an iterative solver,
+dense matrix multiplication, and Monte-Carlo simulation. Based
+on comprehensive performance evaluation on a variety of test
+environments, we demonstrate that our approach has very small
+runtime overhead (at most 8.2% and less than 3% in most cases),
+much smaller than that of traditional checkpoint, while having
+the same or less recomputation cost.
+

@@ -1,0 +1,31 @@
+
+The availability and amount of sequenced
+genomes have been rapidly growing in recent years because of
+the adoption of next-generation sequencing (NGS) technologies
+that enable high-throughput short-read generation at highly
+competitive cost. Since this trend is expected to continue in the
+foreseeable future, the design and implementation of efficient
+and scalable NGS bioinformatics algorithms are important to
+research and industrial applications. In this paper, we introduce
+S-Aligner—a highly scalable read mapper designed for the
+Sunway Taihu Light supercomputer and its fourth-generation
+ShenWei many-core architecture (SW26010). S-Aligner employs a combination of optimization techniques to overcome
+both the memory-bound and the compute-bound bottlenecks
+in the read mapping algorithm. In order to make full use of
+the compute power of Sunway Taihu Light, our design employs
+three levels of parallelism: (1) internode parallelism using
+MPI based on a task-grid pattern, (2) intranode parallelism
+using multithreading and asynchronous data transfer to fully
+utilize all 260 cores of the SW26010 many-core processor,
+and (3) vectorization to exploit the available 256-bit SIMD
+vector registers. Moreover, we have employed asynchronous
+access patterns and data-sharing strategies during file I/O to
+overcome bandwidth limitations of the network file system.
+Our performance evaluation demonstrates that S-Aligner scales
+almost linearly with approximately 95% efficiency for up to
+13,312 nodes (concurrently harnessing more than 3 million
+compute cores). Furthermore, our implementation on a single
+node outperforms the established RazerS3 mapper running
+on a platform with eight Intel Xeon E7-8860v3 CPUs while
+achieving highly competitive alignment accuracy.
+

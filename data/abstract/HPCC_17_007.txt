@@ -1,0 +1,27 @@
+
+ Knowing how many people occupy a building,
+and where they are located, is a key component of smart building
+services. Commercial, industrial and residential buildings often
+incorporate systems used to determine occupancy. However,
+relatively simple sensor technology and control algorithms limit
+the effectiveness of smart building services. In this paper we
+propose to replace sensor technology with time series models that
+can predict the number of occupants at a given location and time.
+
+We use Wi-Fi datasets readily available in abundance for
+smart building services and train Auto Regression Integrating
+Moving Average (ARIMA) models and Long Short-Term
+Memory (LSTM) time series models. As a use case scenario of
+smart building services, these models allow forecasting of the
+number of people at a given time and location in 15, 30 and 60
+minutes time intervals at building as well as Access Point (AP)
+level. For LSTM, we build our models in two ways: a separate
+model for every time scale, and a combined model for the three
+time scales. Our experiments show that LSTM combined model
+reduced the computational resources with respect to the number
+of neurons by 74.48 % for the AP level, and by 67.13 % for the
+building level. Further, the root mean square error (RMSE) was
+reduced by 88.2% - 93.4% for LSTM in comparison to ARIMA
+for the building levels models and by 80.9 % - 87% for the AP
+level models.
+

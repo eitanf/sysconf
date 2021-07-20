@@ -1,0 +1,36 @@
+
+GPU adoption for general purpose computing has
+been accelerating. To support a large number of concurrently
+active threads, GPUs are provisioned with a very large register
+file (RF). The RF power consumption is a critical concern. One
+option to reduce the power consumption dramatically is to
+use near-threshold voltage(NTV) to operate the RF. However,
+operating MOSFET devices at NTV is fraught with stability
+and reliability concerns. The adoption of FinFET devices in
+chip industry is providing a promising path to operate the
+RF at NTV while satisfactorily tackling the stability and
+reliability concerns. However, the fundamental problem of NTV
+operation, namely slow access latency, remains. To tackle this
+challenge in this paper we propose to build a partitioned RF
+using FinFET technology. The partitioned RF design exploits
+our observation that applications exhibit strong preference to
+utilize a small subset of their registers. One way to exploit
+this behavior is to cache the RF content as has been proposed
+in recent works. However, caching leads to unnecessary area
+overheads since a fraction of the RF must be replicated.
+Furthermore, we show that caching is not efficient as we
+increase the number of issued instructions per cycle, which is
+the expected trend in GPU designs. The proposed partitioned
+RF splits the registers into two partitions: the highly accessed
+registers are stored in a small RF that switches between
+high and low power modes. We use the FinFET’s back gate
+control to provide low overhead switching between the two
+power modes. The remaining registers are stored in a large
+RF partition that always operates at NTV. The assignment of
+the registers to the two partitions will be based on statistics
+collected by the a hybrid profiling technique that combines the
+compiler based profiling and the pilot warp profiling technique
+proposed in this paper. The partitioned FinFET RF is able to
+save 39% and 54% of the RF leakage and the dynamic energy,
+respectively, and suffers less than 2% performance overhead.
+

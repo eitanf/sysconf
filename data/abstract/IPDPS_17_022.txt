@@ -1,0 +1,26 @@
+
+B-spline based orbital representations are widely
+used in Quantum Monte Carlo (QMC) simulations of solids,
+historically taking as much as 50% of the total run time. Random
+accesses to a large four-dimensional array make it challenging to
+efficiently utilize caches and wide vector units of modern CPUs.
+We present node-level optimizations of B-spline evaluations on
+multi/many-core shared memory processors. To increase SIMD
+efficiency and bandwidth utilization, we first apply data layout
+transformation from array-of-structures to structure-of-arrays
+(SoA). Then by blocking SoA objects, we optimize cache reuse
+and get sustained throughput for a range of problem sizes.
+We implement efficient nested threading in B-spline orbital
+evaluation kernels, paving the way towards enabling strong
+scaling of QMC simulations. These optimizations are portable
+on four distinct cache-coherent architectures and result in up to
+5.6x performance enhancements on Intel® Xeon Phi™ processor
+7250P (KNL), 5.7x on Intel® Xeon Phi™ coprocessor 7120P,
+10x on an Intel® Xeon® processor E5v4 CPU and 9.5x on
+BlueGene/Q processor. Our nested threading implementation
+shows nearly ideal parallel efficiency on KNL up to 16 threads.
+We employ roofline performance analysis to model the impacts of
+our optimizations. This work combined with our current efforts
+of optimizing other QMC kernels, result in greater than 4.5x
+speedup of miniQMC on KNL.
+

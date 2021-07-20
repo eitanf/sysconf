@@ -1,0 +1,21 @@
+
+
+Practical algorithms for determining causality by assigning timestamps to events have focused on online algorithms, where a permanent timestamp is assigned to an event as soon as it is created. We
+address the problem of reducing size of the timestamp by utilizing
+the underlying topology (which is often not fully connected since
+not all processes talk to each other) and deferring the assignment
+of a timestamp to an event for a suitably chosen period of time
+after the event occurs. Specifically, we focus on inline timestamps,
+which are a generalization of offline timestamps that are assigned
+after the computation terminates. We show that for a graph with
+vertex cover VC, it is possible to assign inline timestamps which
+contains only 2|VC|+2 elements. In particular, for a system with n
+processes and K events per process, the size of a timestamp for any
+event is at most log, n+(2|VC|+1) log,(K +1)) bits. By contrast, if
+online timestamps are desired, then even for a star network, vector
+timestamp of length n (for the case of integer elements) or n—1 (for
+the case of real-valued elements) is required. Moreover, in addition
+to being efficient, the inline timestamps developed can be used to
+solve typical problems such as predicate detection, replay, recovery
+that are solved with vector clocks.
+

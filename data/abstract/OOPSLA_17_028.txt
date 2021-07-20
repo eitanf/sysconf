@@ -1,0 +1,19 @@
+
+This paper presents Fast Instrumentation Bias (FIB), a sound and complete dynamic data race detection
+algorithm that improves performance by reducing or eliminating the costs of analysis atomicity. In addition
+to checking for errors in target programs, dynamic data race detectors must introduce synchronization to
+guard against metadata races that may corrupt analysis state and compromise soundness or completeness.
+Pessimistic analysis synchronization can account for nontrivial performance overhead in a data race detector.
+The core contribution of FIB is a novel cooperative ownership-based synchronization protocol whose
+states and transitions are derived purely from preexisting analysis metadata and logic in a standard data race
+detection algorithm. By exploiting work already done by the analysis, FIB ensures atomicity of dynamic analysis
+actions with zero additional time or space cost in the common case. Analysis of temporally thread-local or
+read-shared accesses completes safely with no synchronization. Uncommon write-sharing transitions require
+synchronous cross-thread coordination to ensure common cases may proceed synchronization-free.
+We implemented FIB in the Jikes RVM Java virtual machine. Experimental evaluation shows that FIB
+eliminates nearly all analysis atomicity costs on programs where data often experience windows of threadlocal access. Adaptive extensions to the ownership policy effectively eliminate high coordination costs of the
+core ownership protocol on programs with high rates of serialized sharing. FIB outperforms a naïve pessimistic
+synchronization scheme by 50% on average. Compared to a tuned optimistic metadata synchronization scheme
+based on conventional one-grained atomic compare-and-swap operations, FIB is competitive overall, and up to
+17% faster on some programs. Overall, FIB effectively exploits latent analysis and program invariants to bring
+strong integrity guarantees to an otherwise unsynchronized data race detection algorithm at minimal cost.

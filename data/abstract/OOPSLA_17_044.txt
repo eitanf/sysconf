@@ -1,0 +1,20 @@
+
+Direct sharing and storing of memory objects allows high-performance and low-overhead collaboration
+between parallel processes or application workflows with loosely coupled programs. However, sharing
+of objects is hindered by the inability to use subtype polymorphism which is common in object-oriented
+programming languages. That is because implementations of subtype polymorphism in modern compilers
+rely on using virtual tables stored at process-specific locations, which makes objects unusable in processes
+other than the creating process.
+
+In this paper, we present SAVI Objects, objects with Sharing and Virtuality Incorporated. SAVI Objects
+support subtype polymorphism but can still be shared across processes and stored in persistent data structures.
+We propose two different techniques to implement SAVI Objects and evaluate the tradeoffs between them. The
+first technique is virtual table duplication which adheres to the virtual-table-based implementation of subtype
+polymorphism, but duplicates virtual tables for shared objects to fixed memory addresses associated with
+each shared memory region. The second technique is hashing-based dynamic dispatch which re-implements
+subtype polymorphism using hashing-based look-ups to a global virtual table.
+
+Our results show that SAVI Objects enable direct sharing and storing of memory objects that use subtype
+polymorphism by adding modest overhead costs to object construction and dynamic dispatch time. SAVI
+Objects thus enable faster inter-process communication, improving the overall performance of production
+applications that share polymorphic objects.

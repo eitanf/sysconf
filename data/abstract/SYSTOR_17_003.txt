@@ -1,0 +1,20 @@
+
+While flash-based SSDs have much higher access speed than
+hard disks, they have an Achilles heel, which is the service of
+write requests. Not only is writing slower than reading, but
+also it can incur expensive garbage collection operations and
+reduce SSDs’ lifetime. The deduplication technique can help
+to avoid writing data objects whose contents have been on
+the disk. A typical object is the disk block, for which a blocklevel deduplication scheme can help identify duplicate ones
+and avoid their writing. For the technique to be effective,
+data written to the disk must not only be the same as those
+currently on the disk but also be block-aligned.
+
+In this work, we will show that many deduplication opportunities are lost due to block misalignment, leading to a
+substantially large number of unnecessary writes. As case studies, we develop a scheme to retain alignments of the data
+that are read from the disk in the file modifications by using small additional spaces for two important applications,
+a log-based key-value store (e.g., FAWN) and an LSM-tree
+based key-value store (e.g., LevelDB). Our experiments show
+that the proposed scheme can achieve up to 4.5X and 26% of
+throughput improvement for FAWN and LevelDB systems,
+respectively, with a less than 5% space overhead.

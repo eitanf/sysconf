@@ -1,0 +1,27 @@
+
+Over the last few years, GPUs have become common in computing. However, current GPUs are not designed for a shared
+environment like a cloud, creating a number of challenges
+whenever a GPU must be multiplexed between multiple users.
+In particular, the round-robin scheduling used by today’s
+GPUs does not distribute the available GPU computation
+time fairly among applications. Most of the previous work
+addressing this problem resorted to scheduling all GPU computation in software, which induces high overhead. While
+there is a GPU scheduler called NEON which reduces the
+scheduling overhead compared to previous work, NEON’s
+accounting mechanism frequently disables GPU access for
+all but one application, resulting in considerable overhead if
+that application does not saturate the GPU by itself.
+
+In this paper, we present LoGA, a novel accounting mechanism for GPU computation time. LoGA monitors the GPU’s
+state to detect GPU-internal context switches, and infers the
+amount of GPU computation time consumed by each process
+from the time between these context switches. This method
+allows LoGA to measure GPU computation time consumed
+by applications while keeping all applications running concurrently. As a result, LoGA achieves a lower accounting
+overhead than previous work, especially for applications that
+do not saturate the GPU by themselves. We have developed
+a prototype which combines LoGA with the pre-existing
+NEON scheduler. Experiments with that prototype have
+shown that LoGA induces no accounting overhead while still
+delivering accurate measurements of applications’ consumed
+GPU computation time.

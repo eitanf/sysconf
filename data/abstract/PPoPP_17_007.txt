@@ -1,0 +1,15 @@
+
+Concurrent data structures often provide better performance
+on multi-core processors but are significantly more difficult
+to design and test than their sequential counterparts. The
+C/C++11 standard introduced a weak memory model with
+support for low-level atomic operations such as compare
+and swap (CAS). While low-level atomic operations can
+significantly improve the performance of concurrent data
+structures, they introduce non-intuitive behaviors that can
+increase the difficulty of developing code.
+In this paper, we develop a correctness model for concurrent data structures that make use of atomic operations.
+Based on this correctness model, we present CDSSPEC, a
+specification checker for concurrent data structures under the
+C/C++11 memory model. We have evaluated CDSSPEC on
+10 concurrent data structures, among which CDSSPEC detected 3 known bugs and 93% of the injected bugs.

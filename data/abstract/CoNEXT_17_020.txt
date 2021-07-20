@@ -1,0 +1,22 @@
+
+
+Internet eXchange Points (IXPs) play an ever-growing role in
+Internet inter-connection. To facilitate the exchange of routes
+amongst their members, IXPs provide Route Server (RS) services to dispatch the routes according to each member’s peering policies. Nowadays, to make use of RSes, these policies
+must be disclosed to the IXP. This poses fundamental questions regarding the privacy guarantees of route-computation
+on confidential business information. Indeed, as evidenced by
+interaction with IXP administrators and a survey of network
+operators, this state of affairs raises privacy concerns among
+network administrators and even deters some networks from
+subscribing to RS services. We design sIxPACK, an RS service
+that leverages Secure Multi-Party Computation (SMPC) to
+keep peering policies confidential, while extending, the functionalities of today’s RSes. As SMPC is notoriously heavy
+in terms of communication and computation, our design
+and implementation of srxpack aims at moving computation outside of the SMPC without compromising the privacy
+guarantees. We assess the effectiveness and scalability of
+our system by evaluating a prototype implementation using
+traces of data from one of the largest IXPs in the world. Our
+evaluation results indicate that srxpAck can scale to support
+privacy-preserving route-computation, even at IXPs with
+many hundreds of member networks.
+

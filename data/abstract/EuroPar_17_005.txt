@@ -1,0 +1,27 @@
+
+. This study characterizes the NVIDIA Jetson TK1 and TX1
+Platforms, both built on a NVIDIA Tegra System on Chip and combining a quad-core ARM CPU and an NVIDIA GPU. Their heterogeneous
+nature, as well as their wide operating frequency range, make it hard
+for application developers to reason about performance and determine
+which optimizations are worth pursuing. This paper attempts to inform
+developers’ choices by characterizing the platforms’ performance using
+Roofline models obtained through an empirical measurement-based approach as well as through a case study of a heterogeneous application
+(matrix multiplication). Our results highlight a difference of more than
+an order of magnitude in compute performance between the CPU and
+GPU on both platforms. Given that the CPU and GPU share the same
+memory bus, their Roofline models’ balance poinis are also more than
+an order of magnitude apart. We also explore the impact of frequency
+scaling: build CPU and GPU Roofline profiles and characterize both platforms’ balance point variation, power consumption, and performance per
+watt as frequency is scaled.
+
+The characterization we provide can be used in two main ways. First,
+given an application, it can inform the choice and number of processing
+elements to use (i.e., CPU/GPU and number of cores) as well as the
+optimizations likely to lead to high performance gains. Secondly, this
+characterization indicates that developers can use frequency scaling to
+tune the Jetson Platform to suit the requirements of their applications.
+Third, given a required power/performance budget, application developers can identify the appropriate parameters to use to tune the Jetson
+platforms to their specific workload requirements. We expect that this
+optimization approach can lead to overall gains in performance and/or
+power efficiency without requiring application changes.
+

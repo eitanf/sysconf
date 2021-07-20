@@ -1,0 +1,26 @@
+
+In High Performance Computing, heterogeneity
+is now the norm with specialized accelerators like GPUs
+providing efficient computational power. The added complexity
+has led to the development of task-based runtime systems,
+which allow complex computations to be expressed as task
+graphs, and rely on scheduling algorithms to perform load balancing between all resources of the platforms. Developing good
+scheduling algorithms, even on a single node, and analyzing
+them can thus have a very high impact on the performance of
+current HPC systems. The special case of two types of resources
+(mamely CPUs and GPUs) is of practical interest. HeteroPrio
+is such an algorithm which has been proposed in the context
+of fast multipole computations, and then extended to general
+task graphs with very interesting results. In this paper, we
+provide a theoretical insight on the performance of HeteroPrio,
+by proving approximation bounds compared to the optimal
+schedule in the case where all tasks are independent and for
+different platform sizes. Interestingly, this shows that spoliation
+allows to prove approximation ratios for a list scheduling
+algorithm on two unrelated resources, which is not possible
+otherwise. We also establish that almost all our bounds are
+tight. Additionally, we provide an experimental evaluation of
+HeteroPrio on real task graphs from dense linear algebra
+computation, which highlights the reasons explaining its good
+practical performance.
+

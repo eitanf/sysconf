@@ -1,0 +1,16 @@
+
+In application domains that store data in a tabular format, a common task is to fill the values of some cells
+using values stored in other cells. For instance, such data completion tasks arise in the context of missing
+value imputation in data science and derived data computation in spreadsheets and relational databases.
+Unfortunately, end-users and data scientists typically struggle with many data completion tasks that require
+non-trivial programming expertise. This paper presents a synthesis technique for automating data completion
+tasks using programming-by-example (PBE) and a very lightweight sketching approach. Given a formula sketch
+(e.g., AVG(?1, ?2)) and a few input-output examples for each hole, our technique synthesizes a program to
+automate the desired data completion task. Towards this goal, we propose a domain-specific language (DSL)
+that combines spatial and relational reasoning over tabular data and a novel synthesis algorithm that can
+generate DSL programs that are consistent with the input-output examples. The key technical novelty of our
+approach is a new version space learning algorithm that is based on finite tree automata (FTA). The use of
+FTAs in the learning algorithm leads to a more compact representation that allows more sharing between
+programs that are consistent with the examples. We have implemented the proposed approach in a tool called
+DACE and evaluate it on 84 benchmarks taken from online help forums. We also illustrate the advantages of
+our approach by comparing our technique against two existing synthesizers, namely Prose and Sketch.

@@ -1,0 +1,20 @@
+
+
+A sketch or synopsis of a large dataset captures vital properties of
+the original data while typically occupying much less space. In this
+paper, we consider the problem of computing a sketch of a massive data matrix A € R”*4, which is distributed across a large
+number of s servers. Our goal is to output a matrix B € R°*4
+which is significantly smaller than but still approximates A well
+in terms of covariance error, i.e., ||A7 A — B* Bll2. Here, for a
+matrix A, ||.A||2 is the spectral norm of A, which is defined as the
+largest singular value of A. Following previous works, we call Ba
+covariance sketch of A. We are mainly focused on minimizing the
+communication cost, which is arguably the most valuable resource
+in distributed computations. We show a gap between deterministic and randomized communication complexity for computing a
+covariance sketch. More specifically, we first prove a tight deterministic lower bound, then show how to bypass this lower bound
+using randomization. In Principle Component Analysis (PCA), the
+goal is to find a low-dimensional subspace that captures as much
+of the variance of a dataset as possible. Based on a well-known
+connection between covariance sketch and PCA, we give a new algorithm for distributed PCA with improved communication cost.
+Moreover, in our algorithms, each server only needs to make one
+pass over the data with limited working space.

@@ -1,0 +1,20 @@
+
+
+We study the problem of efficiently optimizing submodular functions under cardinality constraints in distributed setting. Recently,
+several distributed algorithms for this problem have been introduced which either achieve a sub-optimal solution or they run
+in super-constant number of rounds of computation. Unlike previous work, we aim to design distributed algorithms in multiple
+rounds with almost optimal approximation guarantees at the cost
+of outputting a larger number of elements. Toward this goal, we
+present a distributed algorithm that, for any e > 0 and any con
+stant r, outputs a set S of O(rk/ er) items in r rounds, and achieves
+a (1 — €)-approximation of the value of the optimum set with k
+items. This is the first distributed algorithm that achieves an approximation factor of (1 — e) running in less than log 1 number of
+rounds. We also prove a hardness result showing that the output
+of any 1 — € approximation distributed algorithm limited to one
+distributed round should have at least 2(k/e) items. In light of this
+hardness result, our distributed algorithm in one round, r = 1, is
+asymptotically tight in terms of the output size. We support the
+theoretical guarantees with an extensive empirical study of our
+algorithm showing that achieving almost optimum solutions is
+indeed possible in a few rounds for large-scale real datasets.
+

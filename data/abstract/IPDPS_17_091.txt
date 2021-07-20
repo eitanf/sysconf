@@ -1,0 +1,23 @@
+
+Current monitor based systems have many disadvantages for multi object operations. They require the
+programmers to (1) manually determine the order of locking
+operations, (2) manually determine the points of execution
+where threads should signal other threads, (3) use global locks
+or perform busy waiting for operations that depend upon a
+condition that spans multiple objects. Transactional memory
+systems eliminate the need for explicit locks, but do not support
+conditional synchronization. They also require the ability to
+rollback transactions. In this paper, we propose new monitor
+based methods that provide automatic signaling for global
+conditions that span multiple objects.
+
+Our system provides automatic notification for global conditions. Assuming that the global condition is a Boolean
+expression of local predicates, our method allows efficient
+monitoring of the conditions without any need for global locks.
+Furthermore, our system solves the compositionally problem
+of monitor systems without requiring global locks. We have
+implemented our constructs on top of Java and have evaluated
+their overhead. Our results show that on most of the multiobject problems, not only our code is simpler but also faster
+than Java’s reentrant-lock as well as the Deuce transactional
+memory system.
+

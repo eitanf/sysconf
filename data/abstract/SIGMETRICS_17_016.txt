@@ -1,0 +1,13 @@
+
+The Named Data Networking (NDN) architecture retrieves content by names rather than connecting to specific
+hosts. It provides benefits such as highly efficient and resilient content distribution, which fit well to data-intensive
+distributed computing. This paper presents and discusses our experience in modifying Apache Hadoop, a popular
+MapReduce framework, to operate on an NDN network. Through this first-of-its-kind implementation process, we
+demonstrate the feasibility of running an existing, large, and complex piece of distributed software commonly
+seen in data centers over NDN. We show advantages such as simplified network code and reduced network traffic
+which are beneficial in a data center environment. There are also challenges faced by NDN, that are being
+addressed by the community, which can be magnified under data center traffic. Through detailed evaluation, we
+show a reduction of 16% for overall data transmission between Hadoop nodes while writing data with default
+replication settings. Preliminary results also show promise for in-network caching of repeated reads in distributed
+applications. We also show that overall performance is currently slower under NDN, and we identify challenges
+and opportunities for further NDN improvements.

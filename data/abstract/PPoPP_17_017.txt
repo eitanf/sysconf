@@ -1,0 +1,17 @@
+
+Modern hardware contains parallel execution resources that
+are well-suited for data-parallelism—vector units—and task
+parallelism—multicores. However, most work on parallel
+scheduling focuses on one type of hardware or the other. In
+this work, we present a scheduling framework that allows
+for a unified treatment of task- and data-parallelism. Our key
+insight is an abstraction, task blocks, that uniformly handles
+data-parallel iterations and task-parallel tasks, allowing them
+to be scheduled on vector units or executed independently
+as multicores. Our framework allows us to define schedulers that can dynamically select between executing taskblocks on vector units or multicores. We show that these
+schedulers are asymptotically optimal, and deliver the maximum amount of parallelism available in computation trees.
+To evaluate our schedulers, we develop program transformations that can convert mixed data- and task-parallel programs into task block—based programs. Using a prototype
+instantiation of our scheduling framework, we show that, on
+an 8-core system, we can simultaneously exploit vector and
+multicore parallelism to achieve 14x-108x speedup over
+sequential baselines.

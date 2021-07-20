@@ -1,0 +1,25 @@
+
+Reducing communication is an important objective, as it can save energy or improve the performance
+of a communication-bound application. The graph algorithm
+PageRank computes the importance of vertices in a graph,
+and it serves as an important benchmark for graph algorithm
+performance. If the input graph to PageRank has poor locality,
+the execution will need to read many cache lines from memory,
+some of which may not be fully utilized. We present propagation
+blocking, an optimization to improve spatial locality, and we
+demonstrate its application to PageRank. In contrast to cache
+blocking which partitions the graph, we partition the data
+transfers between vertices (propagations).
+
+If the input graph has poor locality, our approach will
+reduce communication. Our approach reduces communication
+more than conventional cache blocking if the input graph
+is sufficiently sparse or if number of vertices is sufficiently
+large relative to the cache size. To evaluate our approach, we
+use both simple analytic models to gain insights and precise
+hardware performance counter measurements to compare implementations on a suite of 8 real-world and synthetic graphs.
+We demonstrate our parallel implementations substantially
+outperform prior work in execution time and communication
+volume. Although we present results for PageRank, propagation blocking could be generalized to SpMV (sparse matrix
+multiplying dense vector) or other graph programming models.
+

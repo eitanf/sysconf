@@ -1,0 +1,29 @@
+
+MPI process placement is an important step to Memory node 1 Memory node 2
+achieve scalable performance on modern non-uniform memory 1 |__BRAM _| DRAM z
+access (NUMA) systems. A recent study on NUMA architec- wv 3
+tures has shown that, on modern NUMA systems, the memory s Ng
+congestion problem could cause more severe performance [cr c2 ca ca L3 cache leap Mg coche
+degradation than the data locality problem because heavy | cs C6 C7 | C8 c5| C6 C7} C8
+congestion on memory controllers could cause long latencies.
+However, conventional work on MPI process placement has fo- i {
+cused on locality to minimize the remote-access communication.
+Moreover, maximizing the locality may actually degrade per- |e | a ca Glielala sede
+formance because the load imbalance among nodes in a modern L3 cache saan L3 cache
+NUMA system may increase. Thus, a process placement algo- on }cs) 05 c7 | ca | 106) C7 C8 z
+rithm must be designed to consider memory congestion. In this a a
+paper, a method to reconcile both the locality and the memory Ss t =
+congestion on modern NUMA systems is proposed. This method ae eines
+statically analyzes the application communication pattern to
+optimize the process placement. A data clustering method is
+applied to the time-series data of the MPI communications in Figure 1. A modern NUMA system, with four nodes and eight cores per
+
+node.
+
+order to identify data traffics that potentially cause memory
+congestion. The proposed method has been evaluated with
+the NPB kernels on a real NUMA system and a simulation
+environment. Experimental results show that the proposed
+method can achieve 1.6x performance improvement compared
+with the current state-of-the-art strategy.
+

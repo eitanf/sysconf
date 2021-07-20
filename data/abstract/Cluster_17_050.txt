@@ -1,0 +1,30 @@
+
+We consider the problem of orchestrating the execution of workflow applications structured as Directed Acyclic
+Graphs (DAGs) on parallel computing platforms that are subject
+to fail-stop failures. The objective is to minimize expected overall
+execution time, or makespan. A solution to this problem consists
+of a schedule of the workflow tasks on the available processors
+and of a decision of which application data to checkpoint to stable
+storage, so as to mitigate the impact of processor failures. For
+general DAGs this problem is hopelessly intractable. In fact, given
+a solution, computing its expected makespan is still a difficult
+problem. To address this challenge, we consider a restricted class
+of graphs, Minimal Series-Parallel Graphs (M-SPG S). It turns
+out that many real-world workflow applications are naturally
+structured as M-SPG S. For this class of graphs, we propose
+a recursive list-scheduling algorithm that exploits the M-SPG
+structure to assign sub-graphs to individual processors, and uses
+dynamic programming to decide which tasks in these sub-gaphs
+should be checkpointed. Furthermore, it is possible to efficiently
+compute the expected makespan for the solution produced by
+this algorithm, using a first-order approximation of task weights
+and existing evaluation algorithms for 2-state probabilistic DAGs.
+We assess the performance of our algorithm for production
+workflow configurations, comparing it to (i) an approach in
+which all application data is checkpointed, which corresponds
+to the standard way in which most production workflows are
+executed today; and (ii) an approach in which no application
+data is checkpointed. Our results demonstrate that our algorithm
+strikes a good compromise between these two approaches, leading
+to lower checkpointing overhead than the former and to better
+resilience to failure than the latter.

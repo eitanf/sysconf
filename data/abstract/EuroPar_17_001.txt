@@ -1,0 +1,14 @@
+
+. Radix trees belong to the class of trie data structures, used
+for storing both sets and dictionaries in a way optimized for space and
+lookup. In this work, we present an efficient non-blocking implementation
+of radix tree data structure that can be configured for arbitrary alphabet
+sizes. Our algorithm implements a linearizable set with contains, insert
+and remove operations and uses single word compare-and-swap (CAS)
+instruction for synchronization. We extend the idea of marking the child
+edges instead of nodes to improve the parallel performance of the data
+structure. Experimental evaluation indicates that our implementation
+out-performs other known lock-free implementations of trie and binary
+search tree data structures using CAS by more than 100% under heavy
+contention.
+

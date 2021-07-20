@@ -1,0 +1,23 @@
+
+
+We study the classic set cover problem in the streaming
+model: the sets that comprise the instance are revealed one
+by one in a stream and the goal is to solve the problem by
+making one or few passes over the stream while maintaining
+a sublinear space o(mn) in the input size; here m denotes
+the number of the sets and n is the universe size. Notice
+that in this model, we are mainly concerned with the space
+requirement of the algorithms and hence do not restrict their
+computation time.
+
+Our main result is a resolution of the space-approximation
+tradeoff for the streaming set cover problem: we show that
+any a@-approximation algorithm for the set cover problem requires O(mn/ *) space, even if it is allowed polylog(n) passes
+over the stream, and even if the sets are arriving in a random order in the stream. This space-approximation tradeoff
+matches the best known bounds achieved by the recent algorithm of Har-Peled et al. (PODS 2016) that requires only
+O(a) passes over the stream in an adversarial order, hence
+settling the space complexity of approximating the set cover
+problem in data streams in a quite robust manner. Additionally, our approach yields tight lower bounds for the space
+complexity of (1—<)-approximating the streaming maximum
+coverage problem studied in several recent works.
+

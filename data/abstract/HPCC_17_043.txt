@@ -1,0 +1,23 @@
+
+Memory size and the number of cores inside a chip are increasing
+with the advancement of technology. With 3D stacked IC technology,
+memory size becomes even larger inside the chip-multiprocessor. So memory
+mapping, task scheduling and along with communication optimization
+of the network-on-chip become crucial. Hence operating system memory
+management and scheduling approach need to consider this advancement
+of the on-chip memory size and on-chip network architecture for efficient
+mapping.
+
+In this paper, we have proposed an efficient virtual page to memory slice
+mapping and used simulated annealing based thread to core mapping of
+multi-threaded application onto 3D stacked memory chip-multiprocessor.
+Our experimental result shows, the thread to core mapping reduces the overall on-chip communication cost up to 26% and an average of 12%. Moreover,
+our proposed virtual pages to DRAM slices mapping reduces the overall onchip communication cost up to a maximum of 86% and an average of 56%
+for many real multi-threaded benchmarks and multi-benchmark workloads.
+Results also show that overall on-chip communication cost does not improve
+much due to the thread only mapping, but when it is combined with the
+virtual page to DRAM slice mapping then improvements are significant.
+Further, we extended the approach to do dynamic virtual page mapping
+at runtime, which reduces overall communication cost up to 78% with
+incurring a negligible amount of overhead.
+

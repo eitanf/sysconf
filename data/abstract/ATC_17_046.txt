@@ -1,0 +1,22 @@
+
+Application scalability is a critical aspect to efficiently
+use NUMA machines with many cores. To achieve that,
+various techniques ranging from task placement to data
+sharding are used in practice. However, from the perspective of an operating system, these techniques often do not
+work as expected because various subsystems in the OS
+interact and share data structures among themselves, resulting in scalability bottlenecks. Although current OSes
+attempt to tackle this problem by introducing a wide range
+of synchronization primitives such as spinlock and mutex, the widely used synchronization mechanisms are not
+designed to handle both under- and over-subscribed scenarios in a scalable fashion. In particular, the current
+blocking synchronization primitives that are designed to
+address both scenarios are NUMA oblivious, meaning
+that they suffer from cache-line contention in an undersubscribed situation, and even worse, inherently spur long
+scheduler intervention, which leads to sub-optimal performance in an over-subscribed situation.
+
+In this work, we present several design choices to implement scalable blocking synchronization primitives that
+can address both under- and over-subscribed scenarios.
+Such design decisions include memory-efficient NUMAaware locks (favorable for deployment) and schedulingaware, scalable parking and wake-up strategies. To validate our design choices, we implement two new blocking
+synchronization primitives, which are variants of mutex
+and read-write semaphore in the Linux kernel. Our evaluation shows that these locks can scale real-world applications by 1.2-1.6x and some of the file system operations
+up to 4.7x in both under- and over-subscribed scenarios.
+Moreover, they use 1.5—-10x less memory than the stateof-the-art NUMA-aware locks on a 120-core machine.

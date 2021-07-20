@@ -1,0 +1,28 @@
+
+
+In spite of the multicore revolution, high single thread performance still plays an important role in ensuring a decent
+overall gain. Look-ahead is a proven strategy in uncovering
+implicit parallelism; however, a conventional out-of-order
+core quickly becomes resource-inefficient when looking beyond a short distance. An effective approach is to use an independent look-ahead thread running on a separate context
+guided by a program slice known as the skeleton. We observe
+that fixed heuristics to generate skeletons are often suboptimal. As a consequence, look-ahead agent is not able to target
+sufficient bottlenecks to reap all the benefits it should.
+
+In this paper, we present DRUT, a holistic hardwaresoftware solution, which achieves good single thread performance by tuning the look-ahead skeleton efficiently. First,
+we propose a number of dynamic transformations to branch
+based code modules (we call them Do-It-Yourself or DIY)
+that enable a faster look-ahead thread without compromising
+the quality of the look-ahead. Second, we extend our tuning
+mechanism to any arbitrary code region and use a profiledriven technique to tune the skeleton for the whole program.
+
+Assisted by the aforementioned techniques, look-ahead
+thread improves the performance of a baseline decoupled
+look-ahead by up to 1.93 with a geometric mean of 1.15x.
+Our techniques, combined with the weak dependence removal technique, improve the performance of a baseline
+look-ahead by up to 2.12 with a geometric mean of 1.20x.
+This is an impressive performance gain of 1.61 over the
+single-thread baseline, which is much better compared to
+conventional Turbo Boost with a comparable energy budget.
+Keywords: Implicit parallelism, Turbo Boost, Decoupled
+look-ahead, Do-It-Yourself branches, Skeleton tuning
+

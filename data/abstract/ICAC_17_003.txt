@@ -1,0 +1,18 @@
+
+Independent applications co-scheduled on the same
+hardware will interfere with one another, affecting performance
+in complicated ways. Predicting this interference is key to efficiently scheduling applications on shared hardware, but forming
+accurate predictions is difficult because there are many shared
+hardware features that could lead to the interference. In this
+paper we investigate machine learning approaches (specifically,
+regularization) to understand the relation between those hardware features and application interference. We propose ESP, a
+highly accurate and fast regularization technique for application
+interference prediction. To demonstrate this practicality, we
+implement ESP and integrate it into a scheduler for both single
+and multi-node Linux/x86 systems and compare the scheduling
+performance to state-of-the-art heuristics. We find that ESP-based
+schedulers increase throughput by 1.25-1.8x depending on the
+scheduling scenario. Additionally, we find that ESP’s accurate
+predictions allow schedulers to avoid catastrophic decisions,
+which heuristic approaches fundamentally cannot detect.
+

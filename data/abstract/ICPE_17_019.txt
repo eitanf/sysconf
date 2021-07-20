@@ -1,0 +1,14 @@
+
+
+Checkpointing and rollback is a key mechanism used to improve the reliability of software systems. The benefits of
+this mechanism can be offset by the overhead of checkpointing when the failure rate is low. The problem of developing analytic models of rollback and checkpointing has been
+continuously addressed for over four decades using different assumptions. This paper examines the problem under
+a more realistic angle, i.e., one in which there are several
+software components sharing resources (e.g., processors and
+I/O devices) among themselves and with the checkpointing
+processes. Additionally, the paper allows for different components to have different computing, rollback, and checkpointing demands, as well as different failure distributions.
+Our models also allow for various checkpointing processes
+to be executing concurrently to checkpoint the state of different software components. The analytic models developed
+here combine Markov Chains and Queuing Networks and allow us to compute the following metrics: (1) average time
+needed by a component to complete its execution, (2) average throughput of a component, (3) availability of a component, and (4) checkpointing overhead. The models were validated through extensive simulation and experimentation.
+

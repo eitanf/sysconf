@@ -1,0 +1,19 @@
+
+. With the growing complexity and scale of high performance computing (HPC) systems, application performance variation has
+become a significant challenge in efficient and resilient system management. Application performance variation can be caused by resource contention as well as software- and firmware-related problems, and can lead
+to premature job termination, reduced performance, and wasted compute
+platform resources. To effectively alleviate this problem, system administrators must detect and identify the anomalies that are responsible for
+performance variation and take preventive actions. However, diagnosing
+anomalies is often a difficult task given the vast amount of noisy and
+high-dimensional data being collected via a variety of system monitoring
+infrastructures.
+
+In this paper, we present a novel framework that uses machine learning
+to automatically diagnose previously encountered performance anomalies
+in HPC systems. Our framework leverages resource usage and performance counter data collected during application runs. We first convert
+the collected time series data into statistical features that retain application characteristics to significantly reduce the computational overhead of
+our technique. We then use machine learning algorithms to learn anomaly
+characteristics from this historical data and to identify the types of anomalies observed while running applications. We evaluate our framework
+both on an HPC cluster and on a public cloud, and demonstrate that
+our approach outperforms current state-of-the-art techniques in detecting anomalies, reaching an F-score over 0.97.
+

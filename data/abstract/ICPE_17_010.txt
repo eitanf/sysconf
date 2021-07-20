@@ -1,0 +1,26 @@
+
+
+A multi-tier Internet server application needs to be analyzed
+for its performance before it is released. Performance analysis is usually done by (a) load testing of the application on
+a testbed and (b) building a performance model of the application. While there are a plethora of Web load-generator
+tools available, there are two problems with these tools: one,
+the tests have to be configured manually, which can lead to a
+time-consuming trial-and-error process until the desired performance charts in the appropriate load ranges are obtained;
+and two, the load generator tools do not produce output
+that is directly useful for creating a performance model of
+the application. In this paper, we present AutoPerf, a load
+generator tool designed to meet two distinct goals, named
+capacity analysis and profiling. The goal of capacity analysis
+is to run a comprehensive load test on a Web application, in
+an appropriately chosen range, at a minimal number of load
+levels, while still producing an accurate graph of throughput
+and response time vs load levels. The goal of profiling is to
+generate a detailed server resource usage profile per request
+type, without instrumenting the application code. This data
+(e.g. CPU execution time by Web server for one request) is
+crucial for parameterizing performance models of the application. AutoPerf intelligently plans and configures its load
+tests by using analytical results from queuing theory along
+with some heuristics. Results show that AutoPerf is able to
+run performance tests very efficiently while still producing
+an accurate chart of performance metrics.
+

@@ -1,0 +1,22 @@
+
+Cloud computing has become indispensable in today’s computer landscape. The flexibility it offers for customers as
+well as for providers has become a crucial factor for large
+parts of the computer industry. Virtualization is the key technology that allows for sharing of hardware resources among
+different customers. The controlling software component,
+called hypervisor, provides a virtualized view of the computer resources and ensures separation of different guest virtual machines. However, this important cornerstone of cloud
+computing is not necessarily trustworthy or bug-free. To mitigate this threat AMD introduced Secure Encrypted Virtualization, short SEV, which transparently encrypts a virtual
+machines memory.
+
+In this paper we analyse to what extend the proposed features can resist a malicious hypervisor and discuss the tradeoffs imposed by additional protection mechanisms. To do so,
+we developed a model of SEV’s security capabilities based
+on the available documentation as actual silicon implementations are not yet on the market.
+
+We found that the first proposed version of SEV is not
+up to the task owing to three design shortcomings. First the
+virtual machine control block is not encrypted and handled
+directly by the hypervisor, allowing it to bypass VM memory
+encryption by executing conveniently chosen gadgets. Secondly, the general purpose registers are not encrypted upon
+vmexit, leaking potentially sensitive data. Finally, the control
+over the nested pagetables allows a malicious hypervisor to
+closely monitor the execution state of a VM and attack it
+with memory replay attacks.

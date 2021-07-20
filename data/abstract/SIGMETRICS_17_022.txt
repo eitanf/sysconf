@@ -1,0 +1,16 @@
+
+Estimating cascade size and nodes’ influence is a fundamental task in social, technological, and biological networks. Yet
+this task is extremely challenging due to the sheer size and the structural heterogeneity of networks. We investigate a new
+influence measure, termed outward influence (OJ), defined as the (expected) number of nodes that a subset of nodes S will
+activate, excluding the nodes in S. Thus, OI equals, the de facto standard measure, influence spread of S minus |S|. OI is not
+only more informative for nodes with small influence, but also, critical in designing new effective sampling and statistical
+estimation methods,
+
+Based on OI, we propose SIEA/SOIEA, novel methods to estimate influence spread/outward influence at scale and with
+rigorous theoretical guarantees. The proposed methods are built on two novel components 1) IICP an important sampling
+method for outward influence; and 2) RSA, a robust mean estimation method that minimize the number of samples through
+analyzing variance and range of random variables. Compared to the state-of-the art for influence estimation, SIEA is Q(log* n)
+times faster in theory and up to several orders of magnitude faster in practice. For the first time, influence of nodes in the
+networks of billions of edges can be estimated with high accuracy within a few minutes. Our comprehensive experiments on
+real-world networks also give evidence against the popular practice of using a fixed number, e.g. 10K or 20K, of samples to
+compute the “ground truth” for influence spread.

@@ -1,0 +1,18 @@
+
+Nowadays, Graphics Processing Unit (GPU) is essential for general-purpose high-performance computing, because
+of its dominant performance in parallel computing compare to
+that of CPU. There have been many successful trials on the
+use of GPU in virtualized environment. Especially, NVIDIA
+Docker obtained a most practical way to bring GPU into the
+container-based virtualized environment. However, most of these
+trials did not consider sharing GPU among multiple containers.
+Without the above consideration, a system will experience a
+program failure or a deadlock situation in the worst case. In
+this paper, we propose ConVGPU, a solution to share the GPU
+in multiple containers. With ConVGPU, the system can guarantee
+the required GPU memory which the container needs to execute.
+To achieve it, we introduce four scheduling algorithms that
+manage the GPU memory to be taken by the containers. These
+algorithms can prevent the system from falling into deadlock
+situations between containers during execution.
+

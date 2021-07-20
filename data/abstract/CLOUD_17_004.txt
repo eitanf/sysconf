@@ -1,0 +1,24 @@
+
+In the age of Big Data, advances in distributed technologies and cloud storage services provide highly efficient and
+cost-effective solutions to large scale data storage and management. Supporting self-emerging data using clouds is a challenging
+problem. While straight-forward centralized approaches provide
+a basic solution to the problem, unfortunately they are limited to
+a single point of trust. Supporting attack-resilient timed release of
+encrypted data stored in clouds requires new mechanisms for self
+emergence of data encryption keys that enables encrypted data
+to become accessible at a future point in time. Prior to the release
+time, the encryption key remains undiscovered and unavailable in
+a secure distributed system, making the private data unavailable.
+In this paper, we propose Emerge, a self-emerging timed data
+release protocol for securely hiding data encryption keys of
+private encrypted data in a large-scale Distributed Hash Table
+(DHT) network that makes the data available and accessible only
+at the defined release time. We develop a suite of erasure-codingbased routing path construction schemes for securely storing
+and routing encryption keys in DHT networks that protect an
+adversary from inferring the encryption key prior to the release
+time (release-ahead attack) or from destroying the key altogether
+(drop attack). Through extensive experimental evaluation, we
+demonstrate that the proposed schemes are resilient to both
+release-ahead attack and drop attack as well as to attacks that
+arise due to traditional churn issues in DHT networks.
+

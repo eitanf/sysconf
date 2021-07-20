@@ -1,0 +1,18 @@
+
+Onboarding network functions onto current clouds requires laborintensive configuration of the virtual environment. Developers
+need to dimension the resources available to each virtual machine
+such as CPU and memory, define thresholds for scaling dynamically
+and create configuration files that operators can use to execute the
+network services. This process is time consuming and dependent on
+the server architecture. As resources are managed on an individual
+virtual machine basis, services cannot be orchestrated end to end
+without significant expertise. In this paper, we argue that much of
+the manual configuration needed for onboarding services onto a
+cloud can be automated. Moreover, we can automatically generate abstractions that consider services end-to-end and enable their
+holistic orchestration. We propose a framework that benchmarks
+network services during the onboarding process and generates an
+elastic model which relates workload mixes to resource requirements, identifies component dependencies and automates service
+operation on heterogeneous stacks. We have evaluated our framework using a real-time communication service that handles multiple
+classes of workloads. Results show that underprovisioning can be
+eliminated for regular daily traffic, reducing resource provisioning time by at least 5X for the most stressing traffic surges, while
+improving key performance indicators by at least 40%.

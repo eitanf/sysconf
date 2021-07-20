@@ -1,0 +1,25 @@
+
+Approximate computing aims for efficient execution of workflows
+where an approximate output is sufficient instead of the exact
+output. The idea behind approximate computing is to compute
+over a representative sample instead of the entire input dataset.
+Thus, approximate computing — based on the chosen sample size —
+can make a systematic trade-off between the output accuracy and
+computation efficiency.
+
+Unfortunately, the state-of-the-art systems for approximate computing primarily target batch analytics, where the input data remains unchanged during the course of computation. Thus, they are
+not well-suited for stream analytics. This motivated the design of
+STREAMAPPROX— a stream analytics system for approximate computing. To realize this idea, we designed an online stratified reservoir sampling algorithm to produce approximate output with rigorous error bounds. Importantly, our proposed algorithm is generic
+and can be applied to two prominent types of stream processing systems: (1) batched stream processing such as Apache Spark Streaming, and (2) pipelined stream processing such as Apache Flink.
+
+To showcase the effectiveness of our algorithm, we implemented
+STREAMAPPROx as a fully functional prototype based on Apache
+Spark Streaming and Apache Flink. We evaluated STREAMAPPROX
+using a set of microbenchmarks and real-world case studies. Our
+results show that Spark- and Flink-based SrREAMAPPROX systems
+achieve a speedup of 1.15x—3x compared to the respective native
+Spark Streaming and Flink executions, with varying sampling fraction of 80% to 10%. Furthermore, we have also implemented an
+improved baseline in addition to the native execution baseline — a
+Spark-based approximate computing system leveraging the existing sampling modules in Apache Spark. Compared to the improved
+baseline, our results show that STREAMAPPROX achieves a speedup
+of 1.1x—2.4x while maintaining the same accuracy level.

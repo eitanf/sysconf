@@ -1,0 +1,17 @@
+
+Recently, there has been a growing interest in
+enabling fast data analytics by leveraging system capabilities
+from large-scale high-performance computing (HPC) systems.
+OpenSHMEM is a popular run-time system on HPC systems
+that has been used for large-scale compute-intensive scientific
+applications. In this paper, we propose to leverage OpenSHMEM
+to design a distributed in-memory key-value store for fast data
+analytics. Accordingly, we have developed SHMEMCache on
+top of OpenSHMEM to leverage its symmetric global memory,
+efficient one-sided communication operations and general portability. We have also evaluated SHMEMCache through extensive
+experimental studies. Our results show that SHMEMCache has
+accomplished significant performance improvements over hte
+original Memcached in terms of latency and throughput. Our
+evaluation on the Titan supercomputer has also demonstrated
+that SHMEMCache can scale to 1024 nodes.
+

@@ -1,0 +1,19 @@
+
+How to preserve users’ privacy while supporting high-utility
+analytics for low-latency stream processing?
+
+To answer this question: we describe the design,
+implementation and evaluation of PRIVAPPROX, a data
+analytics system for privacy-preserving stream processing.
+PRIVAPPROX provides three important properties: (i)
+Privacy: zero-knowledge privacy guarantee for users, a
+privacy bound tighter than the state-of-the-art differential
+privacy; (ii) Utility: an interface for data analysts to
+systematically explore the trade-offs between the output
+accuracy (with error estimation) and the query execution
+budget; (iii) Latency: near real-time stream processing based
+on a scalable “synchronization-free” distributed architecture.
+
+The key idea behind our approach is to marry two techniques together, namely, sampling (used for approximate
+computation) and randomized response (used for privacypreserving analytics). The resulting marriage is complementary — it achieves stronger privacy guarantees, and also
+improves the performance for stream analytics.

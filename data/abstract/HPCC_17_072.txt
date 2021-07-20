@@ -1,0 +1,21 @@
+
+Phase Change Memory (PCM) is considered as one
+of the most popular candidates to replace flash memory in mobile
+consumer systems. PCM has many superior performance characteristics, including non-volatility, byte-addressability, low access
+latency and power consumption. However, it also suffers from
+finite program counts like flash memory. Prior researches used
+PCM as a black box, and implemented the wear leveling schemes
+in device controller, which failed to utilize file attributes in host
+side and result in poor efficiency of wear evenness. In this paper,
+we propose a file aware wear leveling algorithm (called FAWL)
+for PCM-based storage system in mobile consumer electronics.
+FAWL is designed in the host side, which combines file attributes
+and statistical information of PCM. It exploits rich attributes of
+files to divide files into different categories and distribute them
+in suitable pages to avoid extra swap overhead. In addition, by
+utilizing an adjust management in FAWL, the wear imbalance
+can be greatly mitigated. Experimental results show that FAWL
+effectively improves the lifetime of PCM compared with existing
+wear leveling algorithms, including random swapping, start-gap
+and segment swapping.
+

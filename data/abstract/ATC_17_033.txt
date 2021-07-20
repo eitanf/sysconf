@@ -1,0 +1,15 @@
+
+The performance of an OS’s networking stack can be
+measured by its achieved throughput, CPU utilization,
+latency, and per-flow fairness. To be able to drive increasing line-rates at 10Gbps and beyond, modern OS
+networking stacks rely on a number of important hardware and software optimizations, including but not limited to using multiple transmit and receive queues and
+segmentation offloading. Unfortunately, we have observed that these optimizations lead to substantial flowlevel unfairness.
+
+We describe Titan, an extension to the Linux networking stack that systematically addresses unfairness arising
+in different operating conditions. Across both fine and
+coarse timescales and when NIC queues are undersubscribed and oversubscribed, we find that the Titan can
+reduce unfairness by 58% or more when compared with
+the best performing Linux configuration. We also find
+that improving fairness can lead to a reduction in tail
+flow completion times for flows in an all-to-all shuffle
+in a cluster of servers.

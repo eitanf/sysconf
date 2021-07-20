@@ -1,0 +1,12 @@
+
+General purpose GPU (GPGPU) computing in virtualized
+environments leverages PCI passthrough to achieve GPU
+performance comparable to bare-metal execution. However,
+GPU passthrough prevents service administrators from performing virtual machine migration between physical hosts.
+
+Crane is a new technique for virtualizing OpenCL-based
+GPGPU computing that achieves within 5.25% of passthrough GPU performance while supporting VM migration. Crane interposes a virtualization-aware OpenCL library that makes it possible to reclaim and subsequently
+reassign physical GPUs to a VM without terminating the
+guest or its applications. Crane also enables continued GPU
+operation while the VM is undergoing live migration by
+transparently switching between GPU passthrough operation and API remoting.

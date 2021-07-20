@@ -1,0 +1,19 @@
+
+Recent GPUs enable Peer-to-Peer Direct Memory Access (P2P) from fast peripheral devices like NVMe SSDs
+to exclude the CPU from the data path between them
+for efficiency. Unfortunately, using P2P to access files
+is challenging because of the subtleties of low-level nonstandard interfaces, which bypass the OS file I/O layers
+and may hurt system performance.
+
+SPIN integrates P2P into the standard OS file I/O stack,
+dynamically activating P2P where appropriate, transparently to the user. It combines P2P with page cache
+accesses, re-enables read-ahead for sequential reads,
+all while maintaining standard POSIX FS consistency,
+portability across GPUs and SSDs, and compatibility
+with virtual block devices such as software RAID.
+
+We evaluate SPIN on NVIDIA and AMD GPUs using standard file I/O benchmarks, application traces and
+end-to-end experiments. SPIN achieves significant performance speedups across a wide range of workloads, exceeding P2P throughput by up to an order of magnitude.
+It also boosts the performance of an aerial imagery rendering application by 2.6x by dynamically adapting to
+its input-dependent file access pattern, and enables 3.3 x
+higher throughput for a GPU-accelerated log server.

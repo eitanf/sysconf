@@ -1,0 +1,19 @@
+
+In this paper, we present a non-parametric dataanalytic soft-error detector. Our detector uses the key properties of Gaussian process regression. First, because Gaussian
+process regression provides confidence on the prediction, this
+confidence can be used to automatize construction of the
+detection range. Second, because the correlation model of a
+Gaussian process captures the similarity among neighboring
+point values, only one-time online training is needed. This leads
+to very low online performance overheads. Finally, Gaussian
+process regression localizes the detection range computation,
+thereby avoiding communication costs. We compare our detector with the adaptive impact-driven (AID) and spatial supportvector-machine (SSD) detectors, two effective detectors based
+on observation of the temporal and spatial evolution of data,
+respectively. Experiments with five failure distributions and
+six real-world high-performance computing applications reveal
+that the Gaussian-process-based detector achieves low false
+positive rate and high recall while incurring less than 0.1%
+performance and memory overheads. Considering the detection
+performance and overheads, our Gaussian process detector
+provides the best trade-off.
+

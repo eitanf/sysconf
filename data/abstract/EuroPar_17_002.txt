@@ -1,0 +1,14 @@
+
+. The paper presents the first concurrency-optimal implementation of a binary search tree (BST). The implementation, based on a
+standard sequential implementation of a partially-external tree, ensures
+that every schedule, i.e., interleaving of steps of the sequential code, is
+accepted unless linearizability is violated. To ensure this property, we use
+a novel read-write locking protocol that protects tree edges in addition
+to its nodes.
+
+Our implementation performs comparably to the state-of-the-art
+BSTs and even outperforms them on few workloads, which suggests that
+optimizing the set of accepted schedules of the sequential code can be an
+adequate design principle for efficient concurrent data structures.
+
+

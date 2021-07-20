@@ -1,0 +1,22 @@
+
+Cameras are the defacto sensor. The growing demand for real-time and low-power computer vision, coupled
+with trends towards high-efficiency heterogeneous systems, has
+given rise to a wide range of image processing acceleration
+techniques at the camera node and in the cloud. In this paper,
+we characterize two novel camera systems that use acceleration
+techniques to push the extremes of energy and performance
+scaling, and explore the computation-communication tradeoffs
+in their design. The first case study targets a camera system
+designed to detect and authenticate individual faces, running
+solely on energy harvested from RFID readers. We design a
+multi-accelerator SoC design operating in the sub-mW range,
+and evaluate it with real-world workloads to show performance
+and energy efficiency improvements over a general purpose
+microprocessor. The second camera system supports a 16-camera
+rig processing over 32 Gb/s of data to produce real-time 3D-360°
+virtual reality video. We design a multi-FPGA processing pipeline
+that outperforms CPU and GPU configurations by up to 10x
+in computation time, producing panoramic stereo video directly
+from the camera rig at 30 frames per second. We find that an
+early data reduction step, either before complex processing or
+offloading, is the most critical optimization for in-camera systems.

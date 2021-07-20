@@ -1,0 +1,16 @@
+
+. Energy consumption is an important concern for large-scale
+data-centers, which results in huge monetary cost for data-center operators. Due to the hardware heterogeneity and contentions between concurrent workloads, straggler mitigation is important to many Big Data
+applications running in large-scale data-centers and the speculative execution technique is widely-used to handle stragglers. Although a large
+number of studies have been proposed to improve the performance of Big
+Data applications using speculative execution, few of them have studied
+the energy efficiency of their solutions. In this paper, we propose two techniques to improve the energy efficiency of speculative executions while
+ensuring comparable performance. Specifically, we propose a hierarchical straggler detection mechanism which can greatly reduce the number
+of killed speculative copies and hence save the energy consumption. We
+also propose an energy-aware speculative copy allocation method which
+considers the trade-off between performance and energy when allocating
+speculative copies. We implement both techniques into Hadoop and evaluate them using representative MapReduce benchmarks. Results show
+that our solution can reduce the energy waste on killed speculative copies
+by up to 100% and improve the energy efficiency by 20% compared to
+state-of-the-art mechanisms.
+

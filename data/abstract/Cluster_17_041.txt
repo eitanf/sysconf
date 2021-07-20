@@ -1,0 +1,22 @@
+
+Efficiently programming shared-memory machines is a difficult challenge because mapping application
+threads onto the memory hierarchy has a strong impact on
+the performance. However, optimizing such thread placement
+is difficult: architectures become increasingly complex and
+application behavior changes with implementations and input
+parameters, e.g problem size and number of threads. In this
+work, we propose a fully automatic, abstracted and portable
+affinity module. It produces and implements an optimized
+affinity strategy that combines knowledge about application
+characteristics and the platform topology. Implemented in the
+back-end of our runtime system (ORWL), our approach was
+used to enhance the performance and the scalability of several
+unmodified ORWL-coded applications: matrix multiplication,
+a 2D stencil (Livermore Kernel 23), and a video tracking real
+world application. On two SMP machines with quite different
+hardware characteristics, our tests show spectacular performance improvements for these unmodified application codes
+due to a dramatic decrease of cache misses and pipeline stalls. A
+comparison to reference implementations using OpenMP confirms this performance gain of almost one order of magnitude.
+
+Keywords-Thread placement, Task based runtimes, Hardware affinity, Parallel programming.
+

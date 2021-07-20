@@ -1,0 +1,14 @@
+
+We discuss early results with Toucan, a sourceto-source translator that automatically restructures C/C++
+MPI applications to overlap communication with computation.
+We co-designed the translator and runtime system to enable
+dynamic, dependence-driven execution of MPI applications,
+and require only a modest amount of programmer annotation.
+Co-design was essential to realizing overlap through dynamic
+code block reordering and avoiding the limitations of static
+code relocation and inlining. We demonstrate that Toucan hides
+significant communication in four representative applications
+running on up to 24K cores of NERSC’s Edison platform.
+Using Toucan, we have hidden from 33% to 85% of the communication overhead, with performance meeting or exceeding
+that of painstakingly hand-written overlap variants.
+

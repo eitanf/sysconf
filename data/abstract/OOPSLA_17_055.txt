@@ -1,0 +1,16 @@
+
+Programmers in dynamic languages wishing to constrain and understand the behavior of their programs
+may turn to gradually-typed languages, which allow types to be specified optionally and check values at the
+boundary between dynamic and static code. Unfortunately, the performance cost of these run-time checks can
+be severe, slowing down execution by at least 10x when checks are present. Modern virtual machines (VMs)
+for dynamic languages use speculative techniques to improve performance: If a particular value was seen once,
+it is likely that similar values will be seen in the future. They combine optimization-relevant properties of
+values into cacheable łshapesž, then use a single shape check to subsume checks for each property. Values with
+the same memory layout or the same field types have the same shape. This greatly reduces the amount of type
+checking that needs to be performed at run-time to execute dynamic code. While very valuable to the VM’s
+optimization, these checks do little to benefit the programmer aside from improving performance. We present
+in this paper a design for intrinsic object contracts, which makes the obligations of gradually-typed languages’
+type checks an intrinsic part of object shapes, and thus can subsume run-time type checks into existing shape
+checks, eliminating redundant checks entirely. With an implementation on a VM for JavaScript used as a
+target for SafeTypeScript’s soundness guarantees, we demonstrate slowdown averaging 7% in fully-typed
+code relative to unchecked code, and no more than 45% in pessimal configurations.

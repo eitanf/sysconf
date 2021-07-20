@@ -1,0 +1,16 @@
+
+This paper extends the concepts behind cloud services to
+offer hypervisor-based reliability and security monitors for
+cloud virtual machines. Cloud VMs can be heterogeneous
+and as such guest OS parameters needed for monitoring
+can vary across different VMs and must be obtained in
+some way. Past work involves running code inside the VM,
+which is unacceptable for a cloud environment. We solve this
+problem by recognizing that there are common OS design
+patterns that can be used to infer monitoring parameters from
+the guest OS. We extract information about the cloud user’s
+guest OS with the user’s existing VM image and knowledge
+of OS design patterns as the only inputs to analysis. To
+demonstrate the range of monitoring functionality possible
+with this technique, we implemented four sample monitors:
+a guest OS process tracer, an OS hang detector, a return-touser attack detector, and a process-based keylogger detector.

@@ -1,0 +1,23 @@
+
+Cloud instances are usually virtual machines hosted
+on shared hardware. Containers are often used to deploy services
+in cloud instances. However, excessive consumption of shared
+hardware resources by some VMs may lead to unpredictability in
+the performance of containers running in co-located VMs. Existing techniques to detect performance interference in applications
+are either too expensive in terms of profiling or applicable only
+from the perspective of the infrastructure owner. In this paper, we
+propose Sherlock, a lightweight subscriber-centric mechanism to
+detect performance interference and estimate its impact on cloud
+services. Sherlock does not require access to hardware counters
+and can work on unmodified clouds without any support from
+the cloud provider or changes to the hypervisor. Sherlock uses a
+simple profiling technique which is performed only for a short
+duration before deployment. When interference from co-resident
+VMs is observed, Sherlock notifies the cloud subscriber, so that
+any remedial actions can be taken. We also define a metric Score,
+which is an estimate of the impact of interference on a service.
+Experiments on the real-world web benchmark CloudSuite show
+that our approach is able to detect interference with accuracy
+ranging from 89% to 98.4%, and with very less false positives
+(< 8%).
+

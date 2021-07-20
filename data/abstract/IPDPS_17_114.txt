@@ -1,0 +1,22 @@
+
+Substantial advances in nonvolatile memory
+(NVM) technologies have motivated wide-spread integration of
+NVM into mobile, enterprise, and HPC systems. Recently, considerable research has focused on architectural integration of
+NVM and respective programming systems, exploiting NVM’s
+trait of persistence correctly and efficiently. In this regard, we
+design several novel language-based optimization techniques
+for programming NVM and demonstrate them as an extension
+of our NVL-C system. Specifically, we focus on optimizing the
+performance of atomic updates to complex data structures
+residing in NVM. We build on two variants of automatic
+undo logging: canonical undo logging, and shadow updates.
+We show these techniques can be implemented transparently
+and efficiently, using dynamic selection and other logging
+optimizations. Our empirical results on several applications
+gathered on an NVM testbed illustrate that our cost-modelbased dynamic selection technique can accurately choose the
+best logging variant across different NVM modes and input
+sizes. In comparison to statically choosing canonical undo
+logging, this improvement reduces execution time to as little
+as 53% for block-addressable NVM and 73% for emulated
+byte-addressable NVM on a Fusion-io ioScale device.
+

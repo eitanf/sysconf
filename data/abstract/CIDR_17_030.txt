@@ -1,0 +1,27 @@
+
+RocksDB is an embedded, high-performance, persistent keyvalue storage engine developed at Facebook. Much of our
+current focus in developing and configuring RocksDB is to
+give priority to resource efficiency instead of giving priority
+to the more standard performance metrics, such as response
+time latency and throughput, as long as the latter remain
+acceptable. In particular, we optimize space efficiency while
+ensuring read and write latencies meet service-level requirements for the intended workloads. This choice is motivated
+by the fact that storage space is most often the primary
+bottleneck when using Flash SSDs under typical production
+workloads at Facebook. RocksDB uses log-structured merge
+trees to obtain significant space efficiency and better write
+throughput while achieving acceptable read performance.
+
+This paper describes methods we used to reduce storage
+usage in RocksDB. We discuss how we are able to trade
+off storage efficiency and CPU overhead, as well as read
+and write amplification. Based on experimental evaluations
+of MySQL with RocksDB as the embedded storage engine
+(using TPC-C and LinkBench benchmarks) and based on
+measurements taken from production databases, we show
+that RocksDB uses less than half the storage that InnoDB
+uses, yet performs well and in many cases even better than
+the B-tree-based InnoDB storage engine. To the best of our
+knowledge, this is the first time a Log-structured merge treebased storage engine has shown competitive performance
+when running OLTP workloads at large scale.
+

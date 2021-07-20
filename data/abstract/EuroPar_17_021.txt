@@ -1,0 +1,10 @@
+
+. This paper reports our experiments to compare various
+deployment strategies of memcached-like in-memory storage for Hadoop
+on supercomputers, where each node often does not have a local disk
+but shares a slow central disk. For the experiments, we developed our
+own memcached-like file system, named SEMem, for Hadoop. Since
+SEMem was designed for supercomputers, it uses MPI for communication. SEMem is configurable to adopt various deployment strategies and
+our experiments revealed that a good deployment strategy was allocating some nodes that work only for in-memory storage but do not directly
+perform map-reduce computation.
+

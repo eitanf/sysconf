@@ -1,0 +1,18 @@
+
+Realizing the next generation of radio telescopes
+such as the Square Kilometre Array (SKA) requires both more
+efficient hardware and algorithms than today’s technology provides. The recently introduced image-domain gridding (DG)
+algorithm is a novel approach towards solving the most computeintensive parts of creating sky images: gridding and degridding. It
+avoids the performance bottlenecks of traditional AW-projection
+gridding by applying instrumental and environmental corrections
+in the image domain instead of in the Fourier domain. In this
+paper, we present the first implementations of this new algorithm
+for CPUs and Graphics Processing Units (GPUs). A thorough performance analysis, in which we apply a modified roofline analysis,
+shows that our parallelization approaches and optimization leads
+to nearly optimal performance on all architectures. The analysis
+also indicates that, by leveraging dedicated hardware to evaluate
+trigonometric functions, GPUs are both much faster and more
+energy-efficient than regular CPUs. This makes IDG on GPUs
+a candidate for meeting the computational and energy-efficiency
+constraints of future telescopes.
+

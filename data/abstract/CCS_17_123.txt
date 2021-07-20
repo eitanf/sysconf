@@ -1,0 +1,18 @@
+
+
+We present a high-assurance software stack for secure function
+evaluation (SFE). Our stack consists of three components: i. a verified compiler (CircGen) that translates C programs into Boolean
+circuits; ii. a verified implementation of Yao’s SFE protocol based on
+garbled circuits and oblivious transfer; and iii. transparent application integration and communications via FRESCO, an open-source
+framework for secure multiparty computation (MPC). CircGen is a
+general purpose tool that builds on CompCert, a verified optimizing
+compiler for C. It can be used in arbitrary Boolean circuit-based
+cryptography deployments. The security of our SFE protocol implementation is formally verified using EasyCrypt, a tool-assisted
+framework for building high-confidence cryptographic proofs, and
+it leverages a new formalization of garbled circuits based on the
+framework of Bellare, Hoang, and Rogaway (CCS 2012). We conduct
+a practical evaluation of our approach, and conclude that it is competitive with state-of-the-art (unverified) approaches. Our work
+provides concrete evidence of the feasibility of building efficient,
+verified, implementations of higher-level cryptographic systems.
+All our development is publicly available.
+

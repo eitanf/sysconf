@@ -1,0 +1,11 @@
+
+Debugging intermittently occurring bugs within MPI applications is challenging, and message races, a condition in
+which two or more sends race to match with a receive,
+are one of the common root causes. Many debugging tools
+have been proposed to help programmers resolve them, but
+their runtime interference perturbs the timing such that subtle races often cannot be reproduced with debugging tools.
+We present novel noise injection techniques to expose message races even under a tool’s control. We first formalize
+this race problem in the context of non-deterministic parallel applications and use this analysis to determine an effective noise-injection strategy to uncover them. We codified these techniques in NINJA (Noise INJection Agent) that
+exposes these races without modification to the application.
+Our evaluations on synthetic cases as well as a real-world
+bug in Hypre-2.10.1 show that NINJA significantly helps expose races.

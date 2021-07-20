@@ -1,0 +1,25 @@
+
+Distributed burst buffers are a promising storage
+architecture for handling I/O workloads for exascale computing.
+Their aggregate storage bandwidth grows linearly with system
+node count. However, although scientific applications can achieve
+scalable write bandwidth by having each process write to its
+node-local burst buffer, metadata challenges remain formidable,
+especially for files shared across many processes. This is due to the
+need to track and organize file segments across the distributed
+burst buffers in a global index. Because this global index can
+be accessed concurrently by thousands or more processes in a
+scientific application, the scalability of metadata management is
+a severe performance-limiting factor.
+
+In this paper, we propose MetaKV: a key-value store that
+provides fast and scalable metadata management for HPC
+metadata workloads on distributed burst buffers. MetaKV complements the functionality of an existing key-value store with
+specialized metadata services that efficiently handle bursty and
+concurrent metadata workloads: compressed storage management, supervised block clustering, and log-ring based collective
+message reduction. Our experiments demonstrate that MetaKV
+outperforms the state-of-the-art key-value stores by a significant
+margin. It improves put and get metadata operations by as much
+as 2.66 and 6.29x, respectively, and the benefits of MetaKV
+increase with increasing metadata workload demand.
+

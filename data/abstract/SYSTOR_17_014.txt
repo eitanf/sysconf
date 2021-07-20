@@ -1,0 +1,19 @@
+
+Storage disaggregation separates compute and storage to di
+erent nodes in order to allow for independent resource scaling and thus, better hardware resource utilization. While
+disaggregation o hard-drives storage is a common practice,
+NVM-SSD (i.e., PCle-based SSD) disaggregation is considered more challenging. This is because SSDs are signiicantly
+aster than hard drives, so the latency overheads (due to
+both network and CPU processing) as well as the extra
+compute cycles needed or the offloading stack become much
+more pronounced.
+
+In this work we characterize the overheads o NVMe-SSD
+disaggregation. We show that NVMe-over-Fabrics (NVM)
+—a recently-released remote storage protocol speciication —
+reduces the overheads o remote access to a bare minimum,
+thus greatly increasing the cost-eficiency of Flash disaggregation. Specifically, while recent work showed that SSD
+storage disaggregation via iSCSI degrades application-level
+throughput by 20%, we report on negligible perormance
+degradation with NVM — both when using stress-tests as
+well as with a more-realistic KV-store workload.

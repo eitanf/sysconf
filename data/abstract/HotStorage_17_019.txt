@@ -1,0 +1,18 @@
+
+
+Modern image storage services, especially those associated with social media services, host massive collections of images. These images are often replicated at
+many different resolutions to support different devices
+and contexts, incurring substantial capacity overheads.
+One approach to alleviate these overheads is to resize
+them at request time. However, this approach can be inefficient, as reading full-size source images for resizing
+uses more bandwidth than reading pre-resized images.
+We propose repurposing the progressive JPEG standard
+and customizing the organization of image data to reduce
+the bandwidth overheads of dynamic resizing. We show
+that at a PSNR of 32 dB, dynamic resizing with progressive JPEG provides 2.5x read data savings over baseline
+JPEG, and that progressive JPEG with customized encode parameters can further improve these savings (up
+to 5.8x over the baseline). Finally, we characterize the
+decode overheads of progressive JPEG to assess the feasibility of directly decoding progressive JPEG images on
+energy-limited devices. Our approach does not require
+modifications to current JPEG software stacks.
+

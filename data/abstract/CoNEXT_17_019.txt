@@ -1,0 +1,25 @@
+
+
+CoFlow scheduling improves data-intensive application performance
+by improving their networking performance. State-of-the-art CoFlow
+schedulers in essence approximate the classic online Shortest-JobFirst (SJF) scheduling, designed for a single CPU, in a distributed
+setting, with no coordination among how the flows of a CoFlow at
+individual ports are scheduled, and as a result suffer two performance
+drawbacks: (1) The flows of a CoFlow may suffer the out-of-sync
+problem — they may be scheduled at different times and become
+drifting apart, negatively affecting the CoFlow completion time
+(CCT); (2) FIFO scheduling of flows at each port bears no notion of
+SJF, leading to suboptimal CCT.
+
+We propose SAATH, an online CoFlow scheduler that overcomes
+the above drawbacks by explicitly exploiting the spatial dimension
+of CoFlows. In SAATH, the global scheduler schedules the flows of a
+CoFlow using an all-or-none policy which mitigates the out-of-sync
+problem. To order the CoFlows within each queue, SAATH resorts to
+a Least-Contention-First (LCoF) policy which we show extends the
+gist of SJF to the spatial dimension, complemented with starvation
+freedom. Our evaluation using an Azure testbed and simulations of
+two production cluster traces show that compared to Aalo, SAATH
+reduces the CCT in median (P90) cases by 1.53x (4.5x) and 1.42x
+(7x), respectively.
+

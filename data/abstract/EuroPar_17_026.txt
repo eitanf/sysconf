@@ -1,0 +1,17 @@
+
+. Manycore optimizations are essential for achieving performance worthy of anticipated exascale systems. Utilization of manycore
+chips is inevitable to attain the desired floating point performance of
+these energy-austere systems. In this work, we revisit ExaFMM, the
+open source Fast Multiple Method (FMM) library, in light of highly
+tuned shared-memory parallelization and detailed performance analysis
+on the new highly parallel Intel manycore architecture, Knights Landing
+(KNL). We assess scalability and performance gain using task-based parallelism of the FMM tree traversal. We also provide an in-depth analysis of the most computationally intensive part of the traversal kernel
+{i.e., the particle-to-particle (P2P) kernel), by comparing its performance
+across KNL and Broadwell architectures. We quantify different configurations that exploit the on-chip 512-bit vector units within different taskbased threading paradigms. MPI communication-reducing and NUMAaware approaches for the FMM’s global tree data exchange are examined
+with different cluster modes of KNL. By applying several algorithm- and
+architecture-aware optimizations for FMM, we show that the N-Body
+kernel on 256 threads of KNL achieves on average 2.8x speedup compared to the non-vectorized version, whereas on 56 threads of Broadwell,
+it achieves on average 2.9x speedup. In addition, the tree traversal kernel on KNL scales monotonically up to 256 threads with task-based programming models. The MPI-based communication-reducing algorithms
+show expected improvements of the data locality across the KNL on-chip
+network.
+

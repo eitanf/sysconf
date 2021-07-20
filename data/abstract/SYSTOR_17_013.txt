@@ -1,0 +1,18 @@
+
+As the number of cores increases in a single chip processor,
+several challenges arise: wire delays, contention or out-of
+chip accesses, and core heterogeneity. In order to address
+these issues and the applications demands, uture large-scale
+many-core processors are expected to be organized as a collection of NUMA clusters of heterogeneous cores. In this
+work we propose a scheduler that takes into account the
+non-uniorm memory latency, the heterogeneity of the cores,
+and the contention to the memory controller to ind the best
+matching core or the application’s memory and compute
+requirements. Scheduler decisions are based on an on-line
+classiication process that determines applications requirements either as memory- or compute-bound. We evaluate
+our proposed scheduler on the 48-core Intel SCC using applications rom SPEC CPU2006 benchmark suite. Our results
+show that even when all cores are busy, migrating processes
+to cores that match better the requirements of applications
+results in overall perormance improvement. In particular
+we observed a reduction of the execution time from 15% to
+36% compared to a random static scheduling policy.

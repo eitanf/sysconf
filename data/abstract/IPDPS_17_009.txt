@@ -1,0 +1,20 @@
+
+GPUs provide high-bandwidth/low-latency on-chip
+shared memory and L1 cache to efficiently service a large
+number of concurrent memory requests (to contiguous memory
+space). To support warp-wide accesses to L1 cache, GPU L1
+cache lines are very wide. However, such L1 cache architecture
+cannot always be efficiently utilized when applications generate
+many memory requests with irregular access patterns especially due to branch and memory divergences. In this paper,
+we propose Elastic-Cache that can efficiently support
+both fine- and coarse-grained L1 cache-line management for
+applications with both regular and irregular memory access
+patterns. Specifically, it can store 32- or 64-byte words in
+non-contiguous memory space to a single 128-byte cache line.
+Furthermore, it neither requires an extra tag storage structure
+nor reduces the capacity of L1 cache since it stores auxiliary
+tags for fine-grained L1 cache-line managements in sharedmemory space that is not fully used in many applications.
+Our experiment shows that Elastic-Cache improves the
+geo-mean performance of applications with irregular memory
+access patterns by 58% without degrading performance of
+applications with regular memory access patterns.

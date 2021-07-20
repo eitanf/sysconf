@@ -1,0 +1,20 @@
+
+Recent advances in flash memory technology have reduced the cost-per-bit of flash storage devices such as
+solid-state drives (SSDs), thereby enabling the development of large-capacity SSDs for enterprise-scale storage.
+However, two major concerns arise in designing SSDs.
+The first concern is the poor performance of random
+writes in an SSD. Server workloads such as databases
+generate many random writes; therefore, this problem
+must be resolved to enable the usage of SSDs in enterprise systems. The second concern is that the size of
+the internal DRAM of an SSD is proportional to the capacity of the SSD. The peculiarities of flash memory require an address translation layer called flash translation
+layer (FTL) to be implemented within an SSD. The FTL
+must maintain the address mapping table in the internal DRAM. Although the previously proposed demand
+map loading technique can reduce the required DRAM
+size, the technique aggravates the poor random performance. We propose a novel address reshaping technique
+called sequentializing in host and randomizing in device
+(SHRD), which transforms random write requests into
+sequential write requests in the block device driver by
+assigning the address space of the reserved log area in
+the SSD. Unlike previous approaches, SHRD can restore
+the sequentially written data to the original location without requiring explicit copy operations by utilizing the address mapping scheme of the FTL. We implement SHRD
+in a real SSD device and demonstrate the improved performance resulting from SHRD for various workloads.

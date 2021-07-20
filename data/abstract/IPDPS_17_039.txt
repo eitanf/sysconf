@@ -1,0 +1,21 @@
+
+Detecting data races in multithreaded programs is
+critical to ensure the correctness of the programs. To discover
+data races precisely without false alarms, dynamic detection
+approaches are often applied. However, the overhead of the
+existing dynamic detection approaches, even with recent innovations, is still substantially high. In this paper, we present a
+simple but efficient approach to parallelize data race detection
+in multicore SMP (Symmetric Multiprocessing) machines. In
+our approach, data access information needed for dynamic
+detection is collected at application threads and passed to detection threads. The access information is distributed in a way
+that the operation performed by each detection thread is independent of that of other detection threads. As a consequence,
+the overhead caused by locking operations in data race detection can be alleviated and multiple cores can be fully utilized to
+speed up and scale up the detection. Furthermore, each detection thread deals with only its own assigned memory access
+region rather than the whole address space. The executions of
+detection threads can exploit the spatial locality of accesses
+leading to an improved cache performance. We have applied
+our parallel approach on the FastTrack algorithm and demonstrated the validity of our approach on an Intel Xeon machine.
+Our experimental results show that the parallel FastTrack
+detector, on average, runs 2.2 times faster than the original
+FastTrack detector on the 8 core machine.
+

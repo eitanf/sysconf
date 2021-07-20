@@ -1,0 +1,21 @@
+
+In prior-research the authors have demonstrated
+that, for stencil-based numerical solvers for Partial Differential
+Equations (PDEs), the parallel performance can be significantly
+improved by selecting sub-domains that are not cubic in shape
+(Saxena et. al., HPCS 2016, pp. 875-885). This is achieved through
+accounting for cache utilization in both the message passing
+and the computational kernel, where it is demonstrated that
+the optimal domain decompositions not only depend on the
+communication and load balance but also on the cache-misses,
+amongst other factors. In this work we demonstrate that those
+conclusions may also be extended to more advanced numerical
+discretizations, based upon Adaptive Mesh Refinement (AMR).
+In particular, we show that when basing our AMR strategy
+on the local refinement of patches of the mesh, the optimal
+patch shape is not typically cubic. We provide specific examples,
+with accompanying explanation, to show that communication
+minimizing strategies are not necessarily the best choice when
+applying AMR in parallel. All numerical tests undertaken in this
+work are based upon the open source BoxLib library.
+

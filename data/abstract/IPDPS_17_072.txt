@@ -1,0 +1,26 @@
+
+Limited power budget is becoming one of the
+most crucial challenges in developing supercomputer systems.
+Hardware overprovisioning which installs a larger number of
+nodes beyond the limitations of the power constraint is an
+attractive way to design next generation supercomputers. In air
+cooled HPC centers, about half of the total power is consumed
+by cooling facilities. Reducing cooling power and effectively
+utilizing power resource for computing nodes are important
+challenges. It is known that the cooling power depends on
+the hotspot temperature of the node inlets. Therefore, if we
+minimize the hotspot temperature, performance efficiency of
+the HPC system will be increased.
+
+One of the ways to reduce the hotspot temperature is to
+allocate power-hungry jobs to compute nodes whose effect
+on the hotspot temperature is small. It can be accomplished
+by optimizing job-to-node mapping in the job scheduler. In
+this paper, we propose a cooling and node location-aware
+job scheduling strategy which tries to optimize job-to-node
+mapping while improving the total system throughput under
+the constraint of total system (compute nodes and cooling
+facilities) power consumption. Experimental results with the
+job scheduling simulation show that our scheduling scheme
+achieves 1.49X higher total system throughput than the conventional scheme.
+

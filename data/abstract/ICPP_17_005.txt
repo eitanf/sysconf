@@ -1,0 +1,29 @@
+
+Hyperspectral image classification has been proved
+significant in remote sensing field. Traditional classification methods have meet bottlenecks due to the lack of remote sensing
+background knowledge or high dimensionality. Deep learning
+based methods, such as deep convolutional neural network
+(CNN), can effectively extract high level features from raw data.
+But the training of deep CNN is rather time-consuming. The
+general purpose graphic processing units (GPUs) have been
+considered as one of the most common co-processors that can help
+accelerate deep learning applications. In this paper we propose
+a GPU-based Cube CNN (GCN) framework for hyperspectral
+image classification. First, a Parallel Neighbor Pixels Extraction
+(PNPE) algorithm is designed to enable the framework directly
+loading raw hyperspectral image into GPU’s global memory, and
+extracting samples into data cube. Then, based on the peculiarity
+of hyperspectral image and cube convolution, we propose a
+novel Cube CNN-to-GPU mapping mechanism that transfers the
+training of Cube CNN to GPU effectively. Finally, the mini-batch
+gradient descent(MBGD) algorithm is improved with Computing
+United Device Architecture(CUDA) multi-streaming technique,
+which further speeds up network training in GCN framework.
+Experiments on KSC dataset, PU dataset and SA dataset show
+that, compared with state-of-art framework Caffe, we achieve
+up to 83% and 67% reduction in network training time without
+losing accuracy, when using SGD (Stochastic Gradient Descent)
+and MBGD algorithm respectively. Experiments across different
+GPUs show the same performance trend, which demonstrates the
+good extendibility of GCN framework.
+

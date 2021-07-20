@@ -1,0 +1,24 @@
+
+Multi-tenant data centers for cloud computing
+require the deployment of virtual private networks for tenants
+in an on-demand manner, providing isolation and security
+between tenants. To address these requirements, network
+virtualization techniques such as encapsulation and tunneling
+have been widely used. However, these approaches inherently
+incur processing overhead on end-points (such as the host
+hypervisor), reducing the effective throughput for the tenant
+virtual network compared to the native network. This problem
+is exacerbated with increases in line rates, now exceeding
+10Gbps. In this paper, we introduce PARES (PAcket REwriting
+on SDN), a novel technique which uses the packet rewriting
+feature of SDN switches to provide multi-tenancy in data center
+networks at edge switches, thereby reducing the load on endpoint hypervisors and improving the throughput, compared to
+tunneling. Experiments in an SDN testbed show that our proposed data center arhictecture with PARES achieves near linerate multi-tenancy virtualization with 10Gbps links (compared
+to 20% of line-rate for VXLAN tunneling), without incurring
+processing overhead at end-point hypervisors or guest servers.
+Additionally, the paper evaluates the scalability of PARES for
+ARP protocol handling and with respect to number of SDN
+flow entries.
+
+Keywords-Software Defined Network(SDN), OpenFlow, Network Virtualization, Multi-Tenant Data Center, Cloud Computing
+

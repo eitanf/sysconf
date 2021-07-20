@@ -1,0 +1,25 @@
+
+Efficient execution of distributed database operators such as joining and aggregating is critical for the
+performance of big data analytics. With the increase of the
+compute speedup of modern CPUs, reducing the network
+communication time of these operators in large systems is
+becoming increasingly important, and also challenging current
+techniques. Significant performance improvements have been
+achieved by using state-of-the-art methods, such as reducing
+network traffic designed in the data management domain,
+and data flow scheduling in the data communications domain.
+However, the proposed techniques in both fields just view
+each other as a black box, and performance gains from a
+co-optimization perspective have not yet been explored.
+
+In this paper, based on current research in coflow scheduling,
+we propose a novel Coflow-based Co-optimization Framework
+(CCF), which can co-optimize application-level data movement
+and network-level data communications for distributed operators, and consequently contribute to their performance in
+large distributed environments. We present the detailed design
+and implementation of CCF, and conduct an experimental
+evaluation of CCF using large-scale simulations on large data
+joins. Our results demonstrate that CCF can always perform
+faster than current approaches on network communications in
+large-scale distributed scenarios.
+

@@ -1,0 +1,14 @@
+
+The constantly increasing gap between communication and computation performance emphasizes the importance of communication-avoidance techniques. Caching is
+a well-known concept used to reduce accesses to slow local
+memories. In this work, we extend the caching idea to MPI3 Remote Memory Access (RMA) operations. Here, caching
+can avoid inter-node communications and achieve similar
+benefits for irregular applications as communication-avoiding
+algorithms for structured applications. We propose CLaMPI,
+a caching library layered on top of MPI-3 RMA, to automatically optimize code with minimum user intervention. We
+demonstrate how cached RMA improves the performance of
+a Barnes Hut simulation and a Local Clustering Coefficient
+computation up to a factor of 1.8x and 5x, respectively. Due
+to the low overheads in the cache miss case and the potential
+benefits, we expect that our ideas around transparent RMA
+caching will soon be an integral part of many MPI libraries.

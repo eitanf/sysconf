@@ -1,0 +1,17 @@
+
+
+Enterprise storage systems must scale to increasing core
+counts to meet stringent performance requirements. Both
+the NetApp® Data ONTAP® storage operating system and
+its WAFL” file system have been incrementally parallelized over the years, but some components remain singlethreaded. The WAFL write allocator, which is responsible
+for assigning blocks on persistent storage to dirty data in a
+way that maximizes write throughput to the storage media,
+is single-threaded and has become a major scalability
+bottleneck. This paper presents a new write allocation
+architecture, White Alligator, for the WAFL file system that
+scales performance on many cores. We also place the new
+architecture in the context of the historical parallelization
+of WAFL and discuss the architectural decisions that have
+facilitated this parallelism. The resulting system demonstrates increased scalability that results in throughput
+gains of up to 274% on a many-core storage system.
+

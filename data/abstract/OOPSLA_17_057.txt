@@ -1,0 +1,17 @@
+
+Localizing failure-inducing code is essential for software debugging. Manual fault localization can be quite
+tedious, error-prone, and time-consuming. Therefore, a huge body of research efforts have been dedicated to
+automated fault localization. Spectrum-based fault localization, the most intensively studied fault localization
+approach based on test execution information, may have limited effectiveness, since a code element executed
+by a failed tests may not necessarily have impact on the test outcome and cause the test failure. To bridge the
+gap, mutation-based fault localization has been proposed to transform the programs under test to check the
+impact of each code element for better fault localization. However, there are limited studies on the effectiveness
+of mutation-based fault localization on sufficient number of real bugs. In this paper, we perform an extensive
+study to compare mutation-based fault localization techniques with various state-of-the-art spectrum-based
+fault localization techniques on 357 real bugs from the Defects4J benchmark suite. The study results firstly
+demonstrate the effectiveness of mutation-based fault localization, as well as revealing a number of guidelines
+for further improving mutation-based fault localization. Based on the learnt guidelines, we further transform
+test outputs/messages and test code to obtain various mutation information. Then, we propose TraPT, an
+automated Learning-to-Rank technique to fully explore the obtained mutation information for effective fault
+localization. The experimental results show that TraPT localizes 65.12% and 94.52% more bugs within Top-1
+than state-of-the-art mutation and spectrum based techniques when using the default setting of LIBSVM.

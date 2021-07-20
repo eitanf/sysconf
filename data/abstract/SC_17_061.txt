@@ -1,0 +1,15 @@
+
+Existing designs for MPI_Allreduce do not take advantage of the vast
+parallelism available in modern multi-/many-core processors like
+Intel Xeon/Xeon Phis or the increases in communication throughput and recent advances in high-end features seen with modern
+interconnects like InfiniBand and Omni-Path. In this paper, we
+propose a high-performance and scalable Data Partitioning-based
+Multi-Leader (DPML) solution for MPI_Allreduce that can take
+advantage of the parallelism offered by multi-/many-core architectures in conjunction with the high throughput and high-end
+features offered by InfiniBand and Omni-Path to significantly enhance the performance of MPI_Allreduce on modern HPC systems.
+We also model DPML-based designs to analyze the communication costs theoretically. Microbenchmark level evaluations show
+that the proposed DPML-based designs are able to deliver up to 3.5
+times performance improvement for MPI_Allreduce for multiple
+HPC systems at scale. At the application-level, up to 35% and 60%
+improvement is seen in communication for HPCG and miniAMR
+respectively.

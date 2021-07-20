@@ -1,0 +1,18 @@
+
+The need for parallel task execution has been
+steadily growing in recent years since manufacturers mainly improve processor performance by scaling the number of installed
+cores instead of the frequency of processors. To make use of this
+potential, an essential technique to increase the parallelism of a
+program is to parallelize loops. However, a main restriction of
+available tools for automatic loop parallelization is that the loops
+often have to be ‘polyhedral’ and that it is, e.g., not allowed to
+call functions from within the loops.
+
+In this paper, we present a seemingly simple extension to
+the C programming language which marks functions without
+side-effects. These functions can then basically be ignored when
+checking the parallelization opportunities for polyhedral loops.
+We extended the GCC compiler toolchain accordingly and evaluated several real-world applications showing that our extension
+helps to identify additional parallelization chances and, thus, to
+significantly enhance the performance of applications.
+

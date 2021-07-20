@@ -1,0 +1,19 @@
+
+Effective design of concurrent tree implementation
+plays a major role in improving the scalability of applications
+in a multicore environment. We introduce a concurrent binary
+search tree with fatnodes (FatCBST) and present algorithms to
+perform basic operations on it. Unlike a simple node with single
+value, a fatnode consists of a set of values. FatCBST concept
+allows a thread to perform update operations on an existing
+fatnode without changing the tree structure, making it less
+disruptive to other threads’ operations. Fatnodes help to take
+advantage of the spatial locality in the cache hierarchy and also
+reduce the height of the concurrent binary search tree. Our
+FatCBST implementation allows multiple threads to perform
+update operations on the same existing fatnode at the same time.
+Experimental results show that the FatCBST implementations
+that have small fatnode sizes provide better throughput for
+high and medium contention workloads; and large fatnode sizes
+provide better throughput for low contention workloads, as
+compared to the current state-of-the-art implementations.

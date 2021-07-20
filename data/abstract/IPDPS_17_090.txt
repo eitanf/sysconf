@@ -1,0 +1,19 @@
+
+Dynamic vectors are among the most commonly used
+data structures in programming. They provide constant time
+random access and resizable data storage. Additionally, they
+provide constant time insertion (pushback) and deletion (popback)
+at the end of the sequence. However, in a multithreaded system,
+concurrent pushback and popback operations attempt to update
+the same shared object, creating a synchronization bottleneck.
+
+In this paper, we present a lock-free vector design that efficiently
+addresses the synchronization bottlenecks by utilizing a combining
+technique on pushback operations. Typical combining techniques
+come with the price of blocking. Our design introduces combining
+without sacrificing lock-freedom. We evaluate the performance
+of our design on a dual socket NUMA Intel server. The results
+show that our design performs comparably at low loads, and
+out-performs prior concurrent blocking and non-blocking vector
+implementations at high contention, by as much as 2.7x.
+

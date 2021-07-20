@@ -1,0 +1,16 @@
+
+Continuous advances in molecular sequencing technologies now allow for inferring evolutionary trees (phylogenies)
+on supercomputers that comprise hundreds to thousands of
+species at the whole-transcriptome or whole-genome level. The
+phylogenetic likelihood function (PLF) consumes 90-95% of
+total execution time in such analyses and is therefore typically
+parallelized. Recently, the site repeats (SR) technique for substantially accelerating the PLF has been introduced. It identifies
+repeating patterns in parts of the likelihood computation and
+omits the respective redundant calculations to save time and
+space. However, the SR technique induces a parallel load imbalance. In this paper, we introduce a novel randomized data
+distribution algorithm to improve load balance (RDDA) for SRbased likelihood calculations. The algorithm is available as opensource code, induces minimal run-time overhead, and yields up
+to 25% run time improvements on empirical datasets and up
+to 50% for a synthetic, worst-case scenario. This improvement
+is substantial as current evolutionary data analyses may require
+tens of millions of core hours on supercomputer systems.
+

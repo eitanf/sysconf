@@ -1,0 +1,20 @@
+
+The wide adoption of SMP virtual machines (VMs) and resource consolidation present challenges to efficiently executing multi-threaded
+programs in the cloud. An important problem is the semantic gaps
+between the guest OS and the hypervisor. The well-known lockholder preemption (LHP) and lock-waiter preemption (LWP) problems are examples of such semantic gaps, in which the hypervisor
+is unaware of the activities in the guest OS and adversely deschedules virtual CPUs (vCPUs) that are executing in critical sections.
+Existing studies have focused on inferring a high-level semantic
+state of the guest OS to aid hypervisor-level scheduling so as to
+avoid the LHP and LWP problems.
+
+In this work, we find a reverse semantic gap — the guest OS is
+oblivious of the scheduling events at the hypervisor, leaving the
+potential of addressing the LHP and LWP problems in the guest
+OS unexploited. Inspired by scheduler activations (SAs) in hybrid
+threading, we proposed interference-resilient scheduling (IRS), a
+guest-hypervisor coordinated approach to enhancing load balancing in the guest. IRS informs the guest OS before vCPU preemption
+happens at the hypervisor to activate in-guest load balancing. As
+such, critical threads on preempted vCPUs can be migrated to other
+running vCPUs so that the LHP and LWP problems are all alleviated. Experimental results with Xen and Linux guests show as
+much as 42%, 43%, and 46% performance improvement for parallel
+programs with blocking, spinning synchronizations, and multithreaded server workloads, respectively.

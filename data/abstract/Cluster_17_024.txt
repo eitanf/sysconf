@@ -1,0 +1,20 @@
+
+In this paper, we present Justice, a fair-share
+deadline-aware resource allocator for big data cluster managers.
+In resource constrained environments, where resource contention
+introduces significant execution delays, Justice outperforms the
+popular existing fair-share allocator that is implemented as part
+of Mesos and YARN. Justice uses deadline information supplied
+with each job and historical job execution logs to implement
+admission control. It automatically adapts to changing workload
+conditions to assign enough resources for each job to meet
+its deadline “just in time.’ We use trace-based simulation of
+production YARN workloads to evaluate Justice under different
+deadline formulations. We compare Justice to the existing fairshare allocation policy deployed on cluster managers like YARN
+and Mesos and find that in resource-constrained settings, Justice
+improves fairness, satisfies significantly more deadlines, and
+utilizes resources more efficiently.
+
+Keywords—resource-constrained clusters; deadlines; admission
+control; resource allocation; big data;
+

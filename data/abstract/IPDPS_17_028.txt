@@ -1,0 +1,26 @@
+
+Today, machine learning based on neural networks has become mainstream, in many application domains.
+A small subset of machine learning algorithms, called Convolutional Neural Networks (CNN), are considered as state-ofthe-art for many applications (e.g. video/audio classification).
+The main challenge in implementing the CNNs, in embedded
+systems, is their large computation, memory, and bandwidth
+requirements. To meet these demands, dedicated hardware accelerators have been proposed. Since memory is the major cost
+in CNNs, recent accelerators focus on reducing the memory
+accesses. In particular, they exploit data locality using either
+tiling, layer merging or intra/inter feature map parallelism to
+reduce the memory footprint. However, they lack the flexibility
+to interleave or cascade these optimizations. Moreover, most
+of the existing accelerators do not exploit compression that
+can simultaneously reduce memory requirements, increase
+the throughput, and enhance the energy efficiency. To tackle
+these limitations, we present a flexible accelerator called
+MOCHA. MOCHA has three features that differentiate it
+from the state-of-the-art: (i) the ability to compress input/
+kernels, (ii) the flexibility to interleave various optimizations,
+and (iii) intelligence to automatically interleave and cascade
+the optimizations, depending on the dimension of a specific
+CNN layer and available resources. Post layout Synthesis
+results reveal that MOCHA provides up to 63% higher energy
+efficiency, up to 42% higher throughput, and up to 30% less
+storage, compared to the next best accelerator, at the cost of
+26-35% additional area.
+

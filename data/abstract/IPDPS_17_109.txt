@@ -1,0 +1,28 @@
+
+Data compression has become a commodity feature
+for space efficiency and reliability in flash-based storage systems
+by reducing write traffic and space capacity demand. However,
+it introduces noticeable processing overheads on the critical //O
+path, which degrades the system performance significantly. Existing data compression schemes for flash-based storage systems
+use fixed compression algorithms for all the incoming write
+data, failing to recognize and exploit the significant diversity
+in compressibility and access patterns of data and missing
+an opportunity to improve the system performance, the space
+efficiency or both. To achieve a reasonable trade-off between
+these two important design objectives, in this paper we introduce
+an Elastic Data Compression scheme, called EDC, which exploits
+the data compressibility and access intensity characteristics by
+judiciously matching data of different compressibility with different compression algorithms while leveraging the access idleness.
+Specifically, for compressible data blocks EDC exploits the
+compression diversity of the workload, and employs algorithms of
+higher compression rate in periods of lower system utilization and
+algorithms of lower compression rate in periods of higher system
+utilization. For non-compressible (or very lowly compressible)
+data blocks, it will write them through to the flash storage
+directly without any compression. The experiments conducted
+on our lightweight prototype implementation of the EDC system
+show that EDC saves storage space by up to 38.7%, with an
+average of 33.7%. In addition, it significantly outperforms the
+fixed compression schemes in the I/O performance measure by
+up to 61.4%, with an average of 36.7%.
+

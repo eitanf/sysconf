@@ -1,0 +1,28 @@
+
+Sparse-Matrix Vector products (SpMV) are highly
+irregular computational kernels that can be found in a diverse
+collection of high-performance science applications. Performance
+for this important kernel is often highly correlated with the associated matrix sparsity, which, in turn, governs the computational
+granularity, and therefore, the efficiency of the memory system.
+
+In this paper, we propose to extend the current set of Kokkos
+profiling tools with an autotuner that can iterate over possible
+choices for thread-team size and vector width, taking advantage of
+runtime information, while, choosing the optimal parameters for
+a particular input. This approach allows an iterative application
+that calls the same kernel multiple times to continue to progress
+towards a solution while, at the same time, alleviating the
+burden from the application programmer of knowing details
+of the underlying hardware and accounting for variable inputs.
+We compare the autotuner approach against a fixed approach
+that attempts to use all the hardware resources all the time,
+and show that the optimal choice made by the autotuner is
+significantly different among the two latest classes of accelerator
+architectures. After 100 iterations we identify which subset of the
+matrices benefit from improved performance, while others are
+near the break-even point, where the overhead of the tool has
+been completely hidden. We highlight the properties of sparse
+matrices that can help determine when autotuning will be of
+benefit. Finally, we connect the overhead of the autotuner to
+specific sparsity patterns and hardware resources.
+

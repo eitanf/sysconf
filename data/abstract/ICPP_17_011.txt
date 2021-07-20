@@ -1,0 +1,28 @@
+
+Sparse general matrix-matrix multiplication
+(SpGEMM) is one of the key kernels of preconditioners such
+as algebraic multigrid method or graph algorithms. However,
+the performance of SpGEMM is quite low on modern
+processors due to random memory access to both input and
+output matrices. As well as the number and the pattern of
+non-zero elements in the output matrix, important for
+achieving locality, are unknown before the _ execution.
+Moreover, the state-of-the-art GPU implementations of
+SpGEMM requires large amounts of memory for temporary
+results, limiting the matrix size computable on fast GPU
+device memory. We propose a new fast SpGEMM< algorithm
+requiring small amount of memory and achieving high
+performance. Calculation of the pattern and value in output
+matrix is optimized by using GPU’ s on-chip shared memory
+and a hash table. Additionally, our algorithm launches
+multiple kernels running concurrently to improve the
+utilization of GPU resources. The kernels for the calculation
+of each row of output matrix are chosen based on the
+number of non-zero elements. Performance evaluation using
+matrices from the Sparse Matrix Collection of University
+Florida on NVIDIA’ s Pascal generation GPU shows that our
+approach achieves speedups of up to x4.3 in single precision
+and x4.4 in double precision compared to existing SpGEMM
+libraries. Furthermore, the memory usage is reduced by
+14.7% in single precision and 10.9% in double precision on
+average, allowing larger matrices to be computed.

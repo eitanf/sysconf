@@ -1,0 +1,17 @@
+
+
+There is need of differentiated I/O service when applications with diverse performance-needs share a storagedevice. NVMe specification provides a method called
+Weighted-Round-Robin-with-urgent-priority | (WRR)
+which can help in providing such differentiated I/O service. In Round-Robin arbitration all I/O queues are
+treated to be of equal priority, leading to symmetric I/O
+processing. While in WRR arbitration, queues can be
+marked urgent, high, medium or low, with provision for
+different weightage for each category. Onus is on host
+to associate priority with I/O queues and define weights.
+We find that very little has been done in current Linux
+ecosystem when it comes to supporting WRR and making benefits reach to application. In this paper we propose a method that introduces WRR support in Linux
+NVMe driver. This method delivers WRR capability to
+applications without the need of rebuilding them. Unlike affinity-based approach, it does not limit computeability of application. Our results demonstrate that modified driver indeed provides differentiated I/O performance among applications. Proposed work modifies
+only NVMe driver and is generic enough to be included
+in mainstream Linux kernel for supporting WRR.
+

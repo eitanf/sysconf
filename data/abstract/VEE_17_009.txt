@@ -1,0 +1,13 @@
+
+We introduce Sky, an extension to the VMM that gathers
+insights and information by intercepting system calls made
+by guest applications. We show how Sky gains three specific
+insights — guest file-size information, metadata-data distinction, and file-content hints — and uses said information to
+enhance virtualized-storage performance. By caching small
+files and metadata with higher priority, Sky reduces the runtime by 2.3 to 8.8 times for certain workloads. Sky also
+achieves 4.5 to 18.7 times reduction in the runtime of an
+open-source block-layer deduplication system by exploiting
+hints about file contents. Sky works underneath both Linux
+and FreeBSD guests, as well as under a range of file systems,
+thus enabling portable and general VMM-level optimization
+underneath a wide range of storage stacks.

@@ -1,0 +1,21 @@
+
+Improving the performance of I/O virtualization is a
+key issue for cloud and datacenter infrastructures, especially with
+the rapid increase of network interconnection speeds. Previous
+efforts have made the performance overhead associated with
+the virtual I/O data path largely negligible. The remaining
+bottlenecks mainly lie in the event path: hypervisor interventions
+trigger costly virtual machine (VM) exits and lead to dramatical
+performance degradation. Aiming at an optimal virtual I/O
+event path, we propose ES2, a comprehensive scheme that
+simultaneously improves bidirectional I/O event delivery between
+guest VMs and their devices. ES2 can provide efficient I/O
+request delivery, non-exit interrupt delivery and enhanced I/O
+responsiveness. Moreover, it does not require any modification
+to guest operating system (OS) or compromise any virtualization
+benefit. We demonstrate that ES2 greatly reduces VM exit rate
+with the time in guest (TIG) for I/O processing above 96%
+for TCP streams and 99% for UDP streams, increases guest
+throughput by 1.8x for Memcached and 2x for Apache, and keeps
+guest latency at a very low level.
+

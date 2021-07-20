@@ -1,0 +1,12 @@
+
+Dynamic programming languages are becoming increasingly popular, and this motivates the need for just-in-time
+(JIT) compilation to close the productivity/performance gap. Unfortunately, developing custom JIT-optimizing virtual machines
+(VMs) requires significant effort. Recent work has shown the
+promise of meta-JIT frameworks, which abstract the language definition from the VM internals. Meta-JITs can enable automatic
+generation of high-performance JIT-optimizing VMs from highlevel language specifications. This paper provides a detailed workload characterization of meta-tracing JITs for two different dynamic programming languages: Python and Racket. We propose a
+new cross-layer methodology, and then we use this methodology to
+characterize a diverse selection of benchmarks at the application,
+framework, interpreter, JIT-intermediate-representation, and microarchitecture level. Our work is able to provide initial answers
+to important questions about meta-tracing JITs including the potential performance improvement over optimized interpreters, the
+source of various overheads, and the continued performance gap
+between JIT-compiled code and statically compiled languages.

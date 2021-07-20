@@ -1,0 +1,23 @@
+
+Increasing architectural diversity makes
+performance portability extremely important for parallel
+simulation codes. Emerging on-node parallelization frameworks
+such as Kokkos and RAJA decouple the work done in kernels
+from the parallelization mechanism, allowing for a single source
+kernel to be tuned for different architectures at compile time.
+However, computational demands in production applications
+change at runtime, and performance depends both on the
+architecture and the input problem, and tuning a kernel for one
+set of inputs may not improve its performance on another. The
+statically optimized versions need to be chosen dynamically to
+obtain the best performance. Existing auto-tuning approaches
+can handle slowly evolving applications effectively, but are too
+slow to tune highly input-dependent kernels. We developed
+Apollo, an auto-tuning extension for RAJA that uses pre-trained,
+reusable models to tune input-dependent code at runtime.
+Apollo is designed for highly dynamic applications; it generates
+sufficiently low-overhead code to tune parameters each time
+a kernel runs, making fast decisions. We apply Apollo to two
+hydrodynamics benchmarks and to a production multi-physics
+code, and show that it can achieve speedups from 1.2x to 4.8x.
+

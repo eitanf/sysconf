@@ -1,0 +1,16 @@
+
+Identifier names are often used by developers to convey additional information about the meaning of a program
+over and above the semantics of the programming language itself. We present an algorithm that uses this
+information to detect argument selection defects, in which the programmer has chosen the wrong argument to
+a method call in Java programs. We evaluate our algorithm at Google on 200 million lines of internal code and
+10 million lines of predominantly open-source external code and find defects even in large, mature projects
+such as OpenJDK, ASM, and the MySQL JDBC. The precision and recall of the algorithm vary depending on a
+sensitivity threshold. Higher thresholds increase precision, giving a true positive rate of 85%, reporting 459
+true positives and 78 false positives. Lower thresholds increase recall but lower the true positive rate, reporting
+2,060 true positives and 1,207 false positives. We show that this is an order of magnitude improvement on
+previous approaches. By analyzing the defects found, we are able to quantify best practice advice for API
+design and show that the probability of an argument selection defect increases markedly when methods have
+more than five arguments.
+CCS Concepts: • Software and its engineering → Software defect analysis; Automated static analysis;
+Additional Key Words and Phrases: empirical study, name-based program analysis, static analysis, method
+arguments

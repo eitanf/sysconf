@@ -1,0 +1,26 @@
+
+While GPUs are becoming common in HPC systems,
+the CPU is still responsible for managing both GPU-side and
+CPU-side compute, communication, and synchronization operations. For instance, if a result from a GPU-side computation is to
+be transferred to a remote destination, then the CPU must synchronize on GPU compute completion issuing a communication
+operation. Both CPU cycles and energy are consumed waiting
+for synchronization. In turn, this significantly affects overall
+application time and scalability (eg: strong scaling applications).
+
+In this work, we present techniques to decouple communication control flow between CPU and GPU on GPU-enabled systems
+with MPI+CUDA applications using the novel GPUDirect-aSync
+(GDS) mechanism. GDS allows the GPU to progress network
+communication with the goal of placing the CPU away from the
+critical path. To take advantage of GDS in MPI+CUDA applications, we introduce the notion of offloading MPI operations
+to CUDA streams (referred as MPI-GDS) which subsequently
+allow the GPU and the NIC to progress MPI communication
+in stream-order either before or after a CUDA operation. We
+also propose efficient designs/protocols to realize point-to-point
+communication operations that guarantee stream-ordering while
+achieving good performance. The proposed methods show good
+benefits with micro-benchmarks and up to 30% improvement in
+application-kernel pattern mimicking benchmark and up to 36%
+improvement with broadcast application-pattern simulation (in
+medium message range with 8 GPU nodes) in comparison with
+a pure MPI+CUDA application.
+

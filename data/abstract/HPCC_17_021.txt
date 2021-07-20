@@ -1,0 +1,23 @@
+
+In cloud datacenters, energy-efficient Virtual Machine Placement (VMP) mechanism is needed to maximize energy
+efficiency. Existing virtual machine (VM) allocation strategies
+based on whether the VMs’ resource demands are assumed
+to be static or dynamic. Apparently, the former fails to fully
+utilize resources while the latter, which is implemented on shorter
+timescales, is either complicated or inefficient. Moreover, most
+prior VMP algorithms place VMs one by one, which lacks
+an optimization space. To handle these problems, we predict
+Gaussian distribution patterns of VM demands and propose
+an ant-colony-system VM placement algorithm (GACO-VMP)
+which synchronously coordinates the VMs with complementary
+resource requirements on the same server. The Gaussian distribution pattern is derived from the VMs running the same job. This
+mechanism minimizes energy consumption, while guaranteeing
+high resource utilization and also balancing resource utilization
+across multiple resources. In addition, we design two new metrics,
+called cumulative utilization ratio(CUR) and resource balance
+distance (RBD), in order to measure the overall resource utilization level and the equilibrium of multi-dimensional resource
+utilization, respectively. Simulations based on Google Cluster
+real trace indicate that GACO-VMP can achieve remarkable
+performance gains over two existing strategies in energy efficiency
+3VM migrations, resource utilization and resource balance.
+

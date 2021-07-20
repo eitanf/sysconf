@@ -1,0 +1,18 @@
+
+Non-volatile memory (NVM) and remote direct memory
+access (RDMA) provide extremely high performance
+in storage and network hardware. However, existing
+distributed file systems strictly isolate file system and
+network layers, and the heavy layered software designs leave high-speed hardware under-exploited. In
+this paper, we propose an RDMA-enabled distributed
+persistent memory file system, Octopus, to redesign file
+system internal mechanisms by closely coupling NVM
+and RDMA features. For data operations, Octopus
+directly accesses a shared persistent memory pool to
+reduce memory copying overhead, and actively fetches
+and pushes data all in clients to re-balance the load between the server and network. For metadata operations,
+Octopus introduces self-identified RPC for immediate
+notification between file systems and networking, and
+an efficient distributed transaction mechanism for consistency. Evaluations show that Octopus achieves nearly
+the raw bandwidth for large I/Os and orders of magnitude
+better performance than existing distributed file systems.

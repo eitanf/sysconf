@@ -1,0 +1,22 @@
+
+Key-value stores (e.g., Memcached) and web servers
+(e.g., NGINX) are widely used by cloud providers. As interactive
+services, they have strict service-level objectives, with typical
+99th -percentile tail latencies on the order of a few milliseconds.
+Unlike average latency, tail latency is more sensitive to changes
+in usage load and traffic patterns, system configurations, and
+resource availability. Understanding the sensitivity of tail latency
+to application and system factors is critical to efficiently design
+and manage systems for these latency-critical services.
+
+We present a comprehensive study of the impact a diverse set of
+application, hardware, and isolation configurations have on tail
+latency for two representative interactive services, Memcached
+and NGINX. Examined factors include input load, thread-level
+parallelism, request size, virtualization, and resource partitioning.
+We conduct this study on two server platforms with significant
+differences in terms of architecture and price points: an Intel
+Xeon and an ARM-based Cavium ThunderX server. Experimental results show that latency on both platforms is subject to
+changes of several orders of magnitude depending on application
+and system settings, with Cavium ThunderX being more sensitive
+to configuration parameters.

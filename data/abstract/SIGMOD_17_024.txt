@@ -1,0 +1,13 @@
+
+
+This paper presents GRAPE, a parallel system for graph
+computations. GRAPE differs from prior systems in its ability to parallelize existing sequential graph algorithms as a
+whole. Underlying GRAPE are a simple programming model
+and a principled approach, based on partial evaluation and
+incremental computation. We show that sequential graph algorithms can be “plugged into” GRAPE with minor changes,
+and get parallelized. As long as the sequential algorithms
+are correct, their GRAPE parallelization guarantees to terminate with correct answers under a monotonic condition.
+Moreover, we show that algorithms in MapReduce, BSP and
+PRAM can be optimally simulated on GRAPE. In addition
+to the ease of programming, we experimentally verify that
+GRAPE achieves comparable performance to the state-ofthe-art graph systems, using real-life and synthetic graphs.

@@ -1,0 +1,24 @@
+
+
+Protecting the customer’s SSL private key is the paramount issue
+to persuade the website owners to migrate their contents onto the
+cloud infrastructure, besides the advantages of cloud infrastructure in terms of flexibility, efficiency, scalability and elasticity. The
+emerging Keyless SSL solution retains on-premise custody of customers’ SSL private keys on their own servers. However, it suffers
+from significant performance degradation and limited scalability,
+caused by the long distance connection to Key Server for each new
+coming end-user request. The performance improvements using
+persistent session and key caching onto cloud will degrade the key
+invulnerability and discourage the website owners because of the
+cloud’s security bugs.
+
+In this paper, the challenges of secured key protection and distribution are addressed in philosophy of “Storing the trusted DATA on
+untrusted platform and transmitting through untrusted channel”.
+To this end, a three-phase hierarchical key management scheme,
+called STYX! is proposed to provide the secured key protection together with hardware assisted service acceleration for cloud-based
+content delivery network (CCDN) applications. The STYX is implemented based on Intel Software Guard Extensions (SGX), Intel
+QuickAssist Technology (QAT) and SIGMA (SIGn-and-MAc) protocol. STYX can provide the tight key security guarantee by SGX
+based key distribution with a light overhead, and it can further
+significantly enhance the system performance with QAT based acceleration. The comprehensive evaluations show that the STYX
+not only guarantees the absolute security but also outperforms
+the direct HTTPS server deployed CDN without QAT by up to 5x
+throughput with significant latency reduction at the same time.

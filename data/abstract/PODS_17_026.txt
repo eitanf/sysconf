@@ -1,0 +1,23 @@
+
+
+We consider publication settings with positive user feedback, such
+as, users publishing tweets and other users retweeting them, friends
+posting photos and others liking them or even authors publishing research papers and others citing these publications. A wellaccepted notion of “impact” for users in these settings is the HIndex, which is the largest k such that at least k publications have
+k or more (positive) feedback.
+
+We study how to calculate H-index on large streams of user publications and feedback. If all the items can be stored, H-index of a
+user can be computed by sorting. We focus on the streaming setting
+where as is typical, we do not have space to store all the items.
+
+We present the first known streaming algorithm for computing
+the H-index of a user in the cash register streaming model using
+space poly(1/e, log(1/8), log n); this algorithm provides an additive e approximation. For the aggregated model where feedback for
+a publication is collated, we present streaming algorithms that use
+much less space, either only dependent on € and even a small constant. We also address the problem of finding “heavy hitters” users
+in H-index without estimating everyones’ H-index. We present
+randomized streaming algorithms for finding 1 + € approximation
+to heavy hitters that uses space poly(1/e, log(1/5), log n) and succeeds with probability at least 1 — 5. Again, this is the first sublinear space algorithm for this problem, despite extensive research
+on heavy hitters in general. Our work initiates study of streaming
+algorithms for problems that estimate impact or identify impactful
+users.
+

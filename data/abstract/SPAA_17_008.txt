@@ -1,0 +1,25 @@
+
+
+We present improved bounds on the cover time of the coalescingbranching random walk process COBRA. The COBRA process, introduced in [Dutta et al, SPAA 2013], can be viewed as spreading a
+single item of information throughout an undirected graph in synchronised rounds. In each round, each vertex which has received
+the information in the previous round (possibly simultaneously
+from more than one neighbour and possibly not for the first time),
+‘pushes’ the information to b randomly selected neighbours. The
+COBRA process is typically studied for integer branching rates
+b > 2 (with the case b = 1 corresponding to a random walk). The
+aim of the process is to propagate the information quickly, but with
+a limited number of transmissions per vertex per round.
+
+The cover time of COBRA is defined as the expected number of
+rounds until each vertex has received the information at least once.
+Our main results are a bound of O(m + (dmax)? log n) = O(n? log n)
+on the COBRA cover time for an arbitrary connected graph with
+n vertices, m edges and the maximum vertex degree dmax, and a
+bound of O((r?+r/(1—A)) log n) for r-regular connected graphs with
+the second eigenvalue A. Our bounds improve the O(n!/* log n)
+and O((r*/¢2) log” n) bounds shown in [Mitzenmacher et al., SPAA
+2016], where ¢ is the conductance of the graph, and complement
+the O((1/(1 — A))? logn) bound shown in [Cooper et al., PODC
+2016]. We obtain our bounds by analysing the process called Biased
+Infection with Persistent Source (BIPS), which was introduced in
+[Cooper et al., PODC 2016] as a dual process for COBRA .

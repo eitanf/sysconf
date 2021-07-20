@@ -1,0 +1,24 @@
+
+We present a new parallel algorithm for solving
+triangular systems with multiple right hand sides (TRSM).
+TRSM is used extensively in numerical linear algebra computations, both to solve triangular linear systems of equations
+as well as to compute factorizations with triangular matrices,
+such as Cholesky, LU, and QR. Our algorithm achieves
+better theoretical scalability than known alternatives, while
+maintaining numerical stability, via selective use of triangular
+matrix inversion. We leverage the fact that triangular inversion
+and matrix multiplication are more parallelizable than the
+standard TRSM algorithm. By only inverting triangular blocks
+along the diagonal of the initial matrix, we generalize the
+usual way of TRSM computation and the full matrix inversion
+approach. This flexibility leads to an efficient algorithm for
+any ratio of the number of right hand sides to the triangular
+matrix dimension. We provide a detailed communication cost
+analysis for our algorithm as well as for the recursive triangular
+matrix inversion. This cost analysis makes it possible to
+determine optimal block sizes and processor grids a priori.
+Relative to the best known algorithms for TRSM, our approach
+can require asymptotically fewer messages, while performing
+optimal amounts of computation and communication in terms
+of words sent.
+

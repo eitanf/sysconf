@@ -1,0 +1,25 @@
+
+Large datasets in astronomy and geoscience often
+require clustering and visualizations of phenomena at different
+densities and scales in order to generate scientific insight. We
+examine the problem of maximizing clustering throughput for
+concurrent dataset clustering in spatial dimensions. We introduce a novel hybrid approach that uses GPUs in conjunction
+with multicore CPUs for algorithmic throughput optimizations.
+The key idea is to exploit the fast memory on the GPU for index
+searches and optimize I/O transfers in such a way that the lowbandwidth host-GPU bottleneck does not have a significant
+negative performance impact. To achieve this, we derive two
+distinct GPU kernels that exploit grid-based indexing schemes
+to improve clustering performance. To obviate limited GPU
+memory and enable large dataset clustering, our method is
+complemented by an efficient batching scheme for transfers
+between the host and GPU accelerator. This scheme is robust
+with respect to both sparse and dense data distributions
+and intelligently avoids buffer overflows that would otherwise
+degrade performance, all while minimizing the number of
+data transfers between the host and GPU. We evaluate our
+approaches on ionospheric total electron content datasets as
+well as intermediate-redshift galaxies from the Sloan Digital
+Sky Survey. Our hybrid approach yields a speedup of up to 50x
+over the sequential implementation on one of the experimental
+scenarios, which is respectable for I/O intensive clustering.
+

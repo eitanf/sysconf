@@ -1,0 +1,19 @@
+
+Aggregating millions of hardware components to
+construct an exascale computing platform will pose significant
+resilience challenges. In addition to slowdowns associated with
+detected errors, silent errors are likely to further degrade application performance. Moreover, silent data corruption (SDC) has
+the potential to undermine the integrity of the results produced
+by important scientific applications.
+
+In this paper, we propose an application-independent mechanism to efficiently detect and correct SDC in read-mostly
+memory, where SDC may be most likely to occur. We use
+memory protection mechanisms to maintain compressed backups
+of application memory. We detect SDC by identifying changes
+in memory contents that occur without explicit write operations.
+We demonstrate that, for several applications, our approach can
+potentially protect a significant fraction of application memory
+pages from SDC with modest overheads. Moreover, our proposed
+technique can be straightforwardly combined with many other
+approaches to provide a significant bulwark against SDC.
+

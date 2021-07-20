@@ -1,0 +1,26 @@
+
+Scientific data sets, which grow rapidly in volume,
+are often attached with plentiful metadata, such as their associated experiment or simulation information. Thus, it becomes
+difficult for them to be utilized and their value is lost over
+time. Ideally, metadata should be managed along with its corresponding data by a single storage system, and can be accessed
+and updated directly. However, existing storage systems in highperformance computing (HPC) environments, such as Lustre
+parallel file system, still use a static metadata structure composed
+of non-extensible and fixed amount of information. The burden
+of metadata management falls upon the end-users and require
+ad-hoc metadata management software to be developed.
+
+With the advent of “object-centric’”’ storage systems, there is an
+opportunity to solve this issue. In this paper, we present SoMeta,
+a scalable and decentralized metadata management approach
+for object-centric storage in HPC systems. It provides a flat
+namespace that is dynamically partitioned, a tagging approach to
+manage metadata that can be efficiently searched and updated,
+and a light-weight and fault tolerant management strategy. In
+our experiments, SoMeta achieves up to 3.7X speedup over
+Lustre in performing common metadata operations, and up to
+16X faster than SciDB and MongoDB for advanced metadata
+operations, such as adding and searching tags. Additionally, in
+contrast to existing storage systems, SoMeta offers scalable userspace metadata management by allowing users with the capability
+to specify the number of metadata servers depending on their
+workload.
+

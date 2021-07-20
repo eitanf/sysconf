@@ -1,0 +1,23 @@
+
+It is common for real-world applications to analyze big graphs using distributed graph processing systems.
+Popular in-memory systems require an enormous amount of
+resources to handle big graphs. While several out-of-core
+approaches have been proposed for processing big graphs on
+disk, the high disk I/O overhead could significantly reduce
+performance. In this paper, we propose GraphH to enable highperformance big graph analytics in small clusters. Specifically,
+we design a two-stage graph partition scheme to evenly divide
+the input graph into partitions, and propose a GAB (GatherApply-Broadcast) computation model to make each worker
+process a partition in memory at a time. We use an edge
+cache mechanism to reduce the disk I/O overhead, and design
+a hybrid strategy to improve the communication performance.
+GraphH can efficiently process big graphs in small clusters
+or even a single commodity server. Extensive evaluations have
+shown that GraphH could be up to 7.8x faster compared to
+popular in-memory systems, such as Pregel+ and PowerGraph
+when processing generic graphs, and more than 100x faster
+than recently proposed out-of-core systems, such as GraphD
+and Chaos when processing big graphs.
+
+Keywords-Graph Processing, Distributed Computing System,
+Network
+

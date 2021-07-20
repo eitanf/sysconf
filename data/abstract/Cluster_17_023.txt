@@ -1,0 +1,13 @@
+
+As hardware vendors provision more cores and
+faster storage devices, attaining fast data durability for concurrent file writes is demanding to high-performance storage systems
+in cluster systems. We approach the challenge by proposing a
+system that uses a small amount of fast persistent memory for
+buffering concurrent file writes while preserving data durability.
+The main issue in designing a durable file buffer is allowing
+concurrent file writes to store data in a shared and limited
+space of persistent memory without incurring lock or resource
+contention. This paper addresses such issue and presents AUTOBAHN, a durable file buffer that expedites file I/O operations.
+
+Keywords-write buffer; file system; concurrency control; multicore scalability;
+

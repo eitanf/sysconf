@@ -1,0 +1,23 @@
+
+
+Modern data analytical tasks often witness very wide tables, from
+a few hundred columns to a few thousand. While it is commonly
+agreed that column stores are an appropriate data format for wide
+tables and analytical workloads, the physical order of columns has
+not been investigated. Column ordering plays a critical role in /O
+performance, because in wide tables accessing the columns in a
+single horizontal partition may involve multiple disk seeks. An
+optimal column ordering will incur minimal cumulative disk seek
+costs for the set of queries applied to the data. In this paper, we aim
+to find such an optimal column layout to maximize I/O performance.
+Specifically, we study two problems for column stores on HDFS:
+column ordering and column duplication. Column ordering seeks an
+approximately optimal order of columns; column duplication complements column ordering in that some columns may be duplicated
+multiple times to reduce contention among the queries’ diverse requirements on the column order. We consider an actual fine-grained
+cost model for column accesses and propose algorithms that take
+a query workload as input and output a column ordering strategy
+with or without storage redundancy that significantly improves the
+overall I/O performance. Experimental results over real-life data
+and production query workloads confirm the effectiveness of the
+proposed algorithms in diverse settings.
+

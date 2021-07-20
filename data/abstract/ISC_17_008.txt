@@ -1,0 +1,19 @@
+
+. In this work we present AWP-ODC-OS§, an end-to-end optimization of AWP-ODC targeting homogeneous, manycore supercomputers. AWP-ODC is an established community software package simulating seismic wave propagation using a staggered finite difference scheme
+which is fourth order accurate in space and second order in time. Recent
+production simulations, e.g. using the software for the computation of
+seismic hazard maps, largely relied on GPU accelerated supercomputers.
+In contrast, our work gives a comprehensive overview of the required
+steps to achieve near-optimal performance on the Intel® Xeon Phi™
+x200 processor (code-named Knights Landing), and compares our competitive performance results to the most recent GPU architectures.
+
+At the level of a single vector operation, we apply the vector folding technique to AWP-ODC-OS, yielding a 1.6x performance increase
+over traditional vectorization. Further, we present a novel strategy utilizing both DDR4 RAM and High Bandwidth Memory, increasing the
+maximum problem size by 26% while still operating at maximum performance. The presented shared and distributed parallelization carefully
+schedules work to the cores and ensures overlapping communication and
+computation. We conclude with a detailed study of AWP-ODC-O$’s fullapplication performance on the Intel Xeon Phi x200 processor, achieving
+up to 98.5% of the most recent P100 GPU generation’s performance.
+Additionally, our weak scaling study on up to 9,000 nodes of the supercomputer Cori Phase II achieves a parallel efficiency of greater than
+91%, equivalent to the performance of over twenty thousand NVIDIA
+Tesla K20X GPUs.
+

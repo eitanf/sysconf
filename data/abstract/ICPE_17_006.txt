@@ -1,0 +1,19 @@
+
+
+Many cost-conscious public cloud workloads (“tenants”) are turning to Amazon EC2’s spot instances because, on average, these
+instances offer significantly lower prices (up to 10 times lower)
+than on-demand and reserved instances of comparable advertized
+resource capacities. To use spot instances effectively, a tenant must
+carefully weigh the lower costs of these instances against their poorer
+availability. Towards this, we empirically study four features of
+EC2 spot instance operation that a cost-conscious tenant may find
+useful to model. Using extensive evaluation based on both historical and current spot instance data, we show shortcomings in the
+state-of-the-art modeling of these features that we overcome. Our
+analysis reveals many novel properties of spot instance operation
+some of which offer predictive value while others do not. Using
+these insights, we design predictors for our features that offer a
+balance between computational efficiency (allowing for online resource procurement) and cost-efficacy. We explore “case studies”
+wherein we implement prototypes of dynamic spot instance procurement advised by our predictors for two types of workloads.
+Compared to the state-of-the-art, our approach achieves (i) comparable cost but much better performance (fewer bid failures) for a
+latency-sensitive in-memory Memcached cache, and (ii) an additional 18% cost-savings with comparable (if not better than) performance for a delay-tolerant batch workload.
+

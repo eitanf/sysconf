@@ -1,0 +1,45 @@
+
+
+Leader election is one of the basic problems in distributed computing. This is a symmetry breaking problem: all nodes of a network
+must agree on a single node, called the leader. If the nodes of the
+network have distinct labels, then such an agreement means that all
+nodes have to output the label of the elected leader. For anonymous
+networks, the task of leader election is formulated as follows: every
+node v of the network must output a simple path, which is coded
+as a sequence of port numbers, such that all these paths end at
+a common node, the leader. In this paper, we study deterministic
+leader election in arbitrary anonymous networks.
+
+It is well known that deterministic leader election is impossible
+in some networks, regardless of the allocated amount of time, even
+if nodes know the map of the network. This is due to possible
+symmetries in it. However, even in networks in which it is possible
+to elect a leader knowing the map, the task may be still impossible
+without any knowledge, regardless of the allocated time. On the
+other hand, for any network in which leader election is possible
+knowing the map, there is a minimum time, called the election
+index, in which this can be done. Informally, the election index of
+a network is the minimum depth at which views of all nodes are
+distinct. Our aim is to establish tradeoffs between the allocated
+time t and the amount of information that has to be given a priori
+to the nodes to enable leader election in time r in all networks
+for which leader election in this time is at all possible. Following
+the framework of algorithms with advice, this information (a single
+binary string) is provided to all nodes at the start by an oracle
+knowing the entire network. The length of this string is called the
+size of advice. For a given time 7 allocated to leader election, we give
+upper and lower bounds on the minimum size of advice sufficient
+to perform leader election in time t.
+
+We focus on the two sides of the time spectrum. For the smallest
+possible time, which is the election index of the network, we show
+
+
+that the minimum size of advice is linear in the size n of the network,
+up to polylogarithmic factors. On the other hand, we consider
+large values of time: larger than the diameter D by a summand,
+respectively, linear, polynomial, and exponential in the election
+index; for these values, we prove tight bounds on the minimum
+size of advice, up to multiplicative constants. We also show that
+constant advice is not sufficient for leader election in all graphs,
+regardless of the allocated time.

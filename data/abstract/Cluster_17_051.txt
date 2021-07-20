@@ -1,0 +1,28 @@
+
+In this research we describe the development and
+optimisation of a new Monte Carlo neutral particle transport
+mini-app, neutral. In spite of the success of previous research
+efforts to load balance the algorithm at scale, it is not clear how
+to take advantage of the diverse architectures being installed
+in the newest supercomputers. We explore different algorithmic
+approaches, and perform extensive investigations into the performance of the application on modern hardware including Intel
+Xeon and Xeon Phi CPUs, POWERS CPUs, and NVIDIA GPUs.
+
+When applied to particle transport the Monte Carlo method
+is not embarrassingly parallel, as might be expected, due to
+dependencies on the computational mesh that expose random
+memory access patterns. The algorithm requires the use of atomic
+operations, and exhibits load imbalance at the node-level due
+to the random branching of particle histories. The algorithmic
+characteristics make it challenging to exploit the high memory
+bandwidth and FLOPS of modern HPC architectures.
+
+Both of the parallelisation schemes discussed in this paper are
+dominated latency issues caused by poor data locality, and are
+restricted by the use of atomic operations for tallying calculations.
+We saw a significant improvement in performance through the
+use of hyperthreading on all CPUs and best performance on
+the NVIDIA P100 GPU. A key observation is that architectures
+that are tolerant to latencies may be able to hide the negative
+characteristics of the algorithms.
+

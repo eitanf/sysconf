@@ -1,0 +1,26 @@
+
+Designing 3D systems with on-chip DRAM is a
+promising solution to improve memory bandwidth and reduce
+memory access latency. However, 3D chips exacerbate the chip
+thermal problem due to their longer heat dissipation path, as well
+as the tight thermal coupling between logic and memory layers. In
+this paper, we are interested in studying thermal aware resource
+management strategies for both CPUs and memory systems when
+realizing hard real-time systems on 3D platforms under given peak
+temperature constraints. Given the dramatically increased power
+density not only from CPUs but also from memory systems as well,
+we believe that a joint CPU and memory system resource management is highly desired for 3D platforms to effectively deal with the
+heat dissipation confined in a small package. In addition, different
+from many existing thermal management strategies, which are
+reactive and best-effort in nature, we are more interested in ones
+that can ensure the strong guarantee for real-time applications.
+To this end, we introduce a novel approach that incorporates the
+periodic resource model to guarantee timing constraints for hard
+real-time systems under thermal constraints. In the meantime,
+by periodically (deterministically) throttling the accesses of CPUs
+and memory resources, our approach can effectively guarantee
+the thermal constraints imposed on both CPUs and memory
+systems. We use simulation results to demonstrate the effectiveness
+of our proposed approach in guaranteeing both the timing and
+temperature constraints for hard real-time tasks on 3D platforms.
+

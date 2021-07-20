@@ -1,0 +1,22 @@
+
+
+Modern processors incorporate several performance monitoring units, which can be used to count events that occur within different components of the processor. They
+provide access to information on hardware resource usage
+and can therefore be used to detect performance bottlenecks. Thus, many performance measurement tools are able
+to record them complementary to information about the application behavior. However, the exact meaning of the supported hardware events is often incomprehensible due to the
+system complexity and partially lacking or even inaccurate
+documentation. For most events it is also not documented
+whether a certain rate indicates a saturated resource usage.
+Therefore, it is usually difficult to draw conclusions on the
+performance impact from the observed event rates. In this
+paper, we evaluate whether hardware performance counters
+can be used to measure the capacity utilization within the
+memory hierarchy and estimate the impact of memory accesses on the achieved performance. The presented approach
+is based on a small selection of micro-benchmarks that constantly stress individual components in the memory subsystem, ranging from caches to main memory. These workleads are used to identify hardware performance counters
+that provide good estimates for the utilization of individual
+components in the memory hierarchy. However, since access
+latencies can be interleaved with computing instructions, a
+high utilization of the memory hierarchy does not necessarily result in low performance. We therefore also investigate
+which stall counters provide good estimates for the number of cycles that are actually spent waiting for the memory
+hierarchy.
+

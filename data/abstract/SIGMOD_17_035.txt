@@ -1,0 +1,21 @@
+
+
+Crowdsourced query processing is an emerging processing
+technique that tackles computationally challenging problems
+by human intelligence. The basic idea is to decompose a
+computationally challenging problem into a set of human
+friendly microtasks (e.g., pairwise comparisons) that are distributed to and answered by the crowd. The solution of the
+problem is then computed (e.g., by aggregation) based on
+the crowdsourced answers to the microtasks. In this work,
+we attempt to revisit the crowdsourced processing of the topk queries, aiming at (1) securing the quality of crowdsourced
+comparisons by a certain confidence level and (2) minimizing
+the total monetary cost. To secure the quality of each paired
+comparison, we employ two statistical tools, Student’s tdistribution estimation and Stein’s estimation, to estimate
+the confidence interval of the underlying mean value, which
+is then used to draw a conclusion to the comparison. Based
+on the pairwise comparison process, we attempt to minimize
+the monetary cost of the top-k processing within a SelectPartition-Rank framework. Our experiments, conducted on
+four real datasets, demonstrate that our stochastic method
+outperforms other existing top-k processing techniques by a
+visible difference.
+

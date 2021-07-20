@@ -1,0 +1,25 @@
+
+In this paper, we present ChromePic, a web browser
+equipped with a novel forensic engine that aims to greatly enhance
+the browser’s logging capabilities. ChromePic’s main goal is to
+enable a fine-grained post-mortem reconstruction and trace-back
+of web attacks without incurring the high overhead of record-andreplay systems. In particular, we aim to enable the reconstruction
+of attacks that target users and have a significant visual component,
+such as social engineering and phishing attacks. To this end,
+ChromePic records a detailed snapshot of the state of a web
+page, including a screenshot of how the page is rendered and a
+“deep” DOM snapshot, at every significant interaction between
+the user and the page. If an attack is later suspected, these finegrained logs can be used to reconstruct the attack and trace back
+the sequence of steps the user followed to reach the attack page.
+
+We develop ChromePic by implementing several careful
+modifications and optimizations to the Chromium code base, to
+minimize overhead and make always-on logging practical. We
+then demonstrate that ChromePic can successfully capture and
+aid the reconstruction of attacks on users. Our evaluation includes
+the analysis of an in-the-wild social engineering download attack
+on Android, a phishing attack, and two different clickjacking
+attacks, as well as a user study aimed at accurately measuring the
+overhead introduced by our forensic engine. The experimental results show that browsing snapshots can be logged very efficiently,
+making the logging events practically unnoticeable to users.
+

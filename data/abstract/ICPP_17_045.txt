@@ -1,0 +1,21 @@
+
+Customizing the precision of data can provide
+attractive trade-offs between accuracy and hardware resources.
+Custom hardware and FPGA designs allow bit-level control
+over precision, but software is typically limited by the range of
+types supported by the underlying processor. We propose a new
+form of vector computing aimed at arrays of custom-precision
+data on general-purpose processors with SIMD extensions.
+We represent these vectors in bitslice format and use bitwise
+instructions to build arithmetic operators that operate on
+the customized bit precision. We construct a domain-specific
+code generator that builds bit-level customizable floatingpoint and integer operators for our vector types. Using a
+hardware circuit optimization tool we optimize our logical
+expressions, and synthesize fast software arithmetic operators
+for bitslice vector types. We evaluate the resulting code and
+find that advanced logic optimization significantly improves
+performance. Experiments on a platform with Intel AVX2
+SIMD extensions show that this approach is efficient for vectors
+of low-precision custom floating-point types, while providing
+arbitrary bit precision.
+

@@ -1,0 +1,19 @@
+
+Subgraph pattern matching is fundamental to graph
+analytics and has wide applications. Unfortunately, high computational complexity limits the robustness guarantees of existing
+algorithms: they do not scale for modern large graph datasets
+and/or they have limitations in terms of accuracy or in terms of
+the intricacy of the patterns supported. We present algorithms,
+theory, and empirical evidence that iteratively eliminating vertices that do not meet local constraints dramatically reduces the
+search space for pattern matching in real-world graphs, and
+demonstrate a scalable implementation of our algorithms. We
+additionally identify the characteristics of patterns for which
+every non-eliminated vertex participates in a match. These
+techniques are an essential step to enable scalable, practical
+solutions for robust pattern matching in large-scale labeled
+graphs. We demonstrate the advantages of the proposed approach
+through strong and weak scaling experiments on massive-scale
+real-world (up to 257 billion edges) and synthetic (up to 2.2
+trillion edges) graphs and at scales (256 compute nodes with
+6,144 processors) orders of magnitude larger than those used in
+the past for similar problems.

@@ -1,0 +1,9 @@
+
+We describe a SIMD technique for drawing values from multiple discrete distributions, such as sampling from the random variables of a mixture model, that avoids computing
+a complete table of partial sums of the relative probabilities. A table of alternate (“butterfly-patterned”) form is faster
+to compute, making better use of coalesced memory accesses; from this table, complete partial sums are computed
+on the fly during a binary search. Measurements using CUDA
+7.5 on an NVIDIA Titan Black GPU show that this technique makes an entire machine-learning application that uses
+a Latent Dirichlet Allocation topic model with 1024 topics about about 13% faster (when using single-precision
+floating-point data) or about 35% faster (when using doubleprecision floating-point data) than doing a straightforward
+matrix transposition after using coalesced accesses.

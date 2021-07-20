@@ -1,0 +1,21 @@
+
+A Suffix tree is a fundamental and versatile string
+data structure that is frequently used in important application
+areas such as text processing, information retrieval, and computational biology. Sequentially, the construction of suffix trees takes
+linear time, and optimal parallel algorithms exist only for the
+PRAM model. Recent works mostly target low core-count sharedmemory implementations but achieve suboptimal complexity, and
+prior distributed-memory parallel algorithms have quadratic
+worst-case complexity. Suffix trees can be constructed from
+suffix and longest common prefix (LCP) arrays by solving the
+All-Nearest-Smaller-Values (ANSV) problem. In this paper, we
+formulate a more generalized version of the ANSV problem, and
+present a distributed-memory parallel algorithm for solving it in
+O(2 +p) time. Our algorithm minimizes the overall and per-node
+communication volume. Building on this, we present a parallel
+algorithm for constructing a distributed representation of suffix
+trees, yielding both superior theoretical complexity and better
+practical performance compared to previous distributed-memory
+algorithms. We demonstrate the construction of the suffix tree
+for the human genome given its suffix and LCP arrays in under
+2 seconds on 1024 Intel Xeon cores.
+

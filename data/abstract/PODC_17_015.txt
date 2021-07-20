@@ -1,0 +1,23 @@
+
+
+Distributed minimum spanning tree (MST) problem is one of the
+most central and fundamental problems in distributed graph algorithms. Kutten and Peleg [KP98] devised an algorithm with running
+time O(D + -Yn- log* n), where D is the hop-diameter of the input
+n-vertex m-edge graph, and with message complexity O(m + n3/2),
+Peleg and Rubinovich [PR99] showed that the running time of the
+algorithm of [KP98] is essentially tight, and asked if one can achieve
+near-optimal running time together with near-optimal message complexity.
+
+In a recent breakthrough, Pandurangan et al. [PRS16] answered
+this question in the affirmative, and devised a randomized algorithm
+with time O(D + -Yn) and message complexity O(m). They asked if
+such a simultaneous time- and message-optimality can be achieved
+by a deterministic algorithm.
+
+In this paper, building upon the work of [PRS16], we answer
+this question in the affirmative, and devise a deterministic algorithm that computes MST in time O((D + Yn) - logan), using O(mlog n+ nlog n-log* n) messages. The polylogarithmic factors in the
+time and message complexities of our algorithm are significantly
+smaller than the respective factors in the result of [PRS16]. Also,
+our algorithm and its analysis are very simple and self-contained, as
+opposed to rather complicated previous sublinear-time algorithms
+[GKP98, KP98, Elk04b, PRS16].

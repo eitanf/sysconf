@@ -1,0 +1,40 @@
+
+Scale-out infrastructure such as Cloud is built
+upon a large network of multi-core processors. Performance,
+power consumption, and capital cost of such infrastructure
+depend on the overall system configuration including number of
+processing cores, core frequency, memory hierarchy and
+capacity, number of memory channels, and memory data rate.
+Among these parameters, memory subsystem is known to be one
+of the performance bottlenecks, contributing significantly to the
+overall capital and operational cost of the server. Also, given the
+rise of Big Data and analytics applications, this could potentially
+pose an even bigger challenge to the performance of cloud
+applications and cost of cloud infrastructure. Hence it is
+important to understand the role of memory subsystem in cloud
+infrastructure and in particular for this emerging class of
+applications. Despite the increasing interest in recent years, little
+work has been done in understanding memory requirements
+trends and developing accurate and effective models to predict
+performance and cost of memory subsystem. Currently there is
+no well-defined methodology for selecting a memory
+configuration that reduces execution time and power
+consumption by considering the capital and operational cost of
+cloud. In this paper, through a comprehensive real-system
+empirical analysis of performance, we address these challenges
+by first characterizing diverse types of scale-out applications
+across a wide range of memory configuration parameters. The
+characterization helps to accurately capture applications’
+behavior and derive a model to predict their performance. Based
+on the developed predictive model, we propose MeNa, which is a
+methodology to maximize the performance/cost ratio of scale-out
+applications running in cloud environment. MeNa navigates
+memory and processor parameters to find the system
+configuration for a given application and a given budget, to
+maximum performance. Compared to brute force method, MeNa
+achieves more than 90% accuracy for identifying the right
+configuration parameters to maximize performance/cost ratio.
+Moreover, we show how MeNa can be effectively leveraged for
+server designers to find architectural insights or subscribers to
+allocate just enough budget to maximize performance of their
+applications in cloud.

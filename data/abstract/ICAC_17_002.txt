@@ -1,0 +1,28 @@
+
+With the rapid growth of social media and
+Internet-of-Things, real-time processing of big data has
+become a core operation in various business areas. It is of
+paramount importance that big-data analyses are executed
+timely with specified accuracy guarantees. However, workloads in the wild are highly bursty with skewed contents
+and often present the conundrum of meeting latency and
+accuracy requirements simultaneously. In this paper we
+propose AccStream, which selectively samples and processes data tuples and blocks on emerging batch streaming
+platforms with a special focus on analysis of aggregation,
+e.g., counts, and top-k. AccStream dynamically learns the
+latency model of analysis jobs via on-line probing technique
+and employs sample theory to determine the lower limit of
+data so as to fulfill given accuracy targets. A unique feature
+of AccStream ensuring strong latency-accuracy fulfillment
+even under conflicts is the hybrid windowing that trades off
+data freshness via a combination of tumbling and rolling
+windows. We evaluate the prototype of AccStream on Spark
+Streaming, analyzing Twitter data. Our extensive results
+confirm that AccStream is able to achieve the latency and
+accuracy target against a wide range of conditions, i.e., slow
+and fast dynamic load intensities and content skewnesses,
+even when facing conflicting latency and accuracy targets.
+All in all, the effectiveness of AccStream in delivering
+timely, accurate, and (partial) fresh streaming analytics lies
+in shedding the adequate amount of input data at the right
+time and place.
+

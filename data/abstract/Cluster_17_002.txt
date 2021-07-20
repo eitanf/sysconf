@@ -1,0 +1,19 @@
+
+Multi-/many-core CPU based architectures are seeing widespread adoption due to their unprecedented compute
+performance in a small power envelope. With the increasingly
+large number of cores on each node, applications spend a
+significant portion of their execution time in intra-node communication. While shared memory is commonly used for intranode communication, it needs to copy each message once at the
+sender and once at the receiver side. Kernel-assisted mechanisms
+transfer a message using a single copy but suffer from significant contention with a large number of concurrent accesses.
+Consequently, naively using Kernel-assisted copy techniques in
+collectives can lead to severe performance degradation. In this
+work, we analyze and propose a model to quantify the contention
+and design collective algorithms to avoid this bottleneck. We
+evaluate the proposed designs on three different architectures Xeon, Xeon Phi, and OpenPOWER and compare them against
+state-of-the-art MPI libraries - MVAPICH2, Intel MPI, and Open
+MPI. Our designs show up to 50x improvement for One-to-all
+and All-to-one collectives (Scatter and Gather) and up to 5x
+improvement for All-to-all collectives (Allgather and Alltoall).
+
+Keywords-Collective Communication, Kernel-assisted, CrossMemory Attach, Multi-core, CMA, MPI, HPC
+

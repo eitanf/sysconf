@@ -1,0 +1,17 @@
+
+The hybrid runtime (HRT) model offers a path
+towards high performance and efficiency. By integrating the OS
+kernel, runtime, and application, an HRT allows the runtime
+developer to leverage the full feature set of the hardware and
+specialize OS services to the runtime’s needs. However, conforming to the HRT model currently requires a port of the runtime to
+the kernel level, for example to the Nautilus kernel framework,
+and this requires knowledge of kernel internals. In response, we
+developed Multiverse, a system that bridges the gap between a
+built-from-scratch HRT and a legacy runtime system. Multiverse
+allows unmodified applications and runtimes to be brought into
+the HRT model without any porting effort whatsoever by splitting
+the execution of the application between the domains of a legacy
+OS and an HRT environment. We describe the design and
+implementation of Multiverse and illustrate its capabilities using
+the massive, widely-used Racket runtime system.
+

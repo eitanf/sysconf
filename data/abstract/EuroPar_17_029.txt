@@ -1,0 +1,9 @@
+
+. We propose a technique called speculative lagging, which
+improves performance by dynamically adding periods of idle execution
+into the message-oriented system. The speculation is guided by a statistical model, which predicts context switches that benefit from delays. We
+analytically derive the expected speedup, which, for a fixed confidence,
+allows identifying lagging opportunities in O(1) time, without a performance overhead. We describe the corresponding speculation algorithm
+and use it to extend an existing scheduler. Comparison with other actor
+frameworks on standard benchmarks shows improvements of up to 2.1x.
+

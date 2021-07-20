@@ -1,0 +1,16 @@
+
+. Covariance matrices are ubiquitous in computational science
+and engineering. In particular, large covariance matrices arise from multivariate spatial data sets, for instance, in climate/weather modeling applications to improve prediction using statistical methods and spatial data.
+One of the most time-consuming computational steps consists in calculating the Cholesky factorization of the symmetric, positive-definite covariance matrix problem. The structure of such covariance matrices is also
+often data-sparse, in other words, effectively of low rank, though formally
+dense. While not typically globally of low rank, covariance matrices in
+which correlation decays with distance are nearly always hierarchically
+of low rank. While symmetry and positive definiteness should be, and
+nearly always are, exploited for performance purposes, exploiting low
+rank character in this context is very recent, and will be a key to solving these challenging problems at large-scale dimensions. The authors
+design a new and flexible tile row rank Cholesky factorization and propose a high performance implementation using OpenMP task-based programming model on various leading-edge manycore architectures. Performance comparisons and memory footprint saving on up to 200K x 200i
+covariance matrix size show a gain of more than an order of magnitude for both metrics, against state-of-the-art open-source and vendor
+optimized numerical libraries, while preserving the numerical accuracy
+fidelity of the original model. This research represents an important milestone in enabling large-scale simulations for covariance-based scientific
+applications.
+

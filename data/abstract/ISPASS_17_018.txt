@@ -1,0 +1,24 @@
+
+Heterogeneous system architectures are evolving towards tighter integration among devices, with emerging features
+such as shared virtual memory, memory coherence, and systemwide atomics. Languages, device architectures, system specifications, and applications are rapidly adapting to the challenges
+and opportunities of tightly integrated heterogeneous platforms.
+Programming languages such as OpenCL 2.0, CUDA 8.0, and
+C++ AMP allow programmers to exploit these architectures for
+productive collaboration between CPU and GPU threads. To
+evaluate these new architectures and programming languages,
+and to empower researchers to experiment with new ideas, a suite
+of benchmarks targeting these architectures with close CPU-GPU
+collaboration is needed.
+
+In this paper, we classify applications that target heterogeneous
+architectures into generic collaboration patterns including data
+partitioning, fine-grain task partitioning, and coarse-grain task
+partitioning. We present Chai, a new suite of 14 benchmarks that
+cover these patterns and exercise different features of heterogeneous architectures with varying intensity. Each benchmark
+in Chai has seven different implementations in different programming models such as OpenCL, C++ AMP, and CUDA, and
+with and without the use of the latest heterogeneous architecture
+features. We characterize the behavior of each benchmark with
+respect to varying input sizes and collaboration combinations,
+and evaluate the impact of using the emerging features of
+heterogeneous architectures on application performance.
+

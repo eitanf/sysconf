@@ -1,0 +1,21 @@
+
+A fundamental challenge in large-scale cloud networks and data centers is to achieve highly efficient server
+utilization and limit energy consumption, while providing excellent user-perceived performance in the presence
+of uncertain and time-varying demand patterns. Auto-scaling provides a popular paradigm for automatically
+adjusting service capacity in response to demand while meeting performance targets, and queue-driven autoscaling techniques have been widely investigated in the literature. In typical data center architectures and cloud
+environments however, no centralized queue is maintained, and load balancing algorithms immediately distribute
+incoming tasks among parallel queues. In these distributed settings with vast numbers of servers, centralized
+queue-driven auto-scaling techniques involve a substantial communication overhead and major implementation
+burden, or may not even be viable at all.
+
+Motivated by the above issues, we propose a joint auto-scaling and load balancing scheme which does not
+require any global queue length information or explicit knowledge of system parameters, and yet provides provably
+near-optimal service elasticity. We establish the fluid-level dynamics for the proposed scheme in a regime where
+the total traffic volume and nominal service capacity grow large in proportion. The fluid-limit results show that
+the proposed scheme achieves asymptotic optimality in terms of user-perceived delay performance as well as
+energy consumption. Specifically, we prove that both the waiting time of tasks and the relative energy portion
+consumed by idle servers vanish in the limit. At the same time, the proposed scheme operates in a distributed
+fashion and involves only constant communication overhead per task, thus ensuring scalability in massive data
+center operations. Extensive simulation experiments corroborate the fluid-limit results, and demonstrate that the
+proposed scheme can match the user performance and energy consumption of state-of-the-art approaches that do
+take full advantage of a centralized queue.

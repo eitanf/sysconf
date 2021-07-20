@@ -1,0 +1,20 @@
+
+Static information-flow analysis (especially taint-analysis) is a key technique in software security, computing
+where sensitive or untrusted data can propagate in a program. Points-to analysis is a fundamental static
+program analysis, computing what abstract objects a program expression may point to. In this work, we
+propose a deep unification of information-flow and points-to analysis. We observe that information-flow
+analysis is not a mere high-level client of points-to information, but it is indeed identical to points-to analysis
+on artificial abstract objects that represent different information sources. The very same algorithm can compute,
+simultaneously, two interlinked but separate results (points-to and information-flow values) with changes
+only to its initial conditions.
+The benefits of such a unification are manifold. We can use existing points-to analysis implementations,
+with virtually no modification (only minor additions of extra logic for sanitization) to compute information
+flow concepts, such as value tainting. The algorithmic enhancements of points-to analysis (e.g., different
+flavors of context sensitivity) can be applied transparently to information-flow analysis. Heavy engineering
+work on points-to analysis (e.g., handling of the reflection API for Java) applies to information-flow analysis
+without extra effort. We demonstrate the benefits in a realistic implementation that leverages the Doop
+points-to analysis framework (including its context-sensitivity and reflection analysis features) to provide
+an information-flow analysis with excellent precision (over 91%) and recall (over 99%) for standard Java
+information-flow benchmarks.
+The analysis comfortably scales to large, real-world Android applications, analyzing the Facebook Messenger
+app with more than 55K classes in under 7 hours.

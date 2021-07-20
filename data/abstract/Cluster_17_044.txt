@@ -1,0 +1,25 @@
+
+Almost all performance analysis tools in the HPC
+space perform some form of aggregation to compute summary
+information of a series of performance measurements, from summations to more complex operations like histograms. Aggregation
+not only reduces data volumes and consequently storage space
+requirements and overheads, but is also crucial to extract insights
+from recorded measurement data. In current tools, however,
+most aspects that control the aggregation, such as the data
+dimensions to be reduced, are hard-coded in the tool for a set of
+particular use cases identified by the tool developer and cannot
+be extended or modified by the user. This limits their flexibility
+and often results in users having to learn and use multiple tools
+with different aggregation options for their performance analysis
+needs.
+
+We present a novel approach for performance data aggregation
+based on a flexible key:value data model with user-defined
+attributes, where users can define custom aggregation schemes
+in a simple description language. This not only gives users the
+control to deploy the particular data aggregation they need,
+but also opens the door for aggregations along applicationspecific data dimensions that cannot be achieved with traditional
+profiling tools. We show how our approach can be applied for
+performance profiling at runtime, cross-process data aggregation,
+and interactive data analysis and demonstrate its functionality
+with several case studies driven by real world codes.

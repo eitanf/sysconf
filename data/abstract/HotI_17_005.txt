@@ -1,0 +1,36 @@
+
+ Meeting the exponential increase in the global
+demand for bandwidth has become a major concern for
+today’s data centers. The scalability of any data center is
+defined by the maximum capacity and port count of the
+switching devices it employs, limited by total pin bandwidth on
+current electronic switch ASICs. Optical switches can provide
+higher capacity and port counts, and hence, can be used to
+transform data center scalability. We have recently
+demonstrated a 1000-port star-coupler based wavelength
+division multiplexed (WDM) and time division multiplexed
+(TDM) optical switch architecture offering a bandwidth of 32
+Tbit/s with the use of fast wavelength-tunable transmitters and
+high-sensitivity coherent receivers. However, the major
+challenge in deploying such an optical switch to replace
+current electronic switches lies in designing and implementing
+a scalable scheduler capable of operating on packet timescales.
+
+In this paper, we present a pipelined and highly parallel
+electronic scheduler that configures the high-radix (1000-port)
+optical packet switch. The scheduler can process requests from
+1000 nodes and allocate timeslots across 320 wavelength
+channels and 4000 wavelength-tunable transceivers within a
+time constraint of lps. Using the Opencell NanGate 45nm
+standard cell library, we show that the complete 1000-port
+parallel scheduler algorithm occupies a circuit area of
+52.7mm/’, 4-8x smaller than that of a high-performance switch
+ASIC, with a clock period of less than 8ns, enabling 138
+scheduling iterations to be performed in 1s. The performance
+of the scheduling algorithm is evaluated in comparison to
+maximal matching from graph theory and conventional
+software-based wavelength allocation heuristics. The parallel
+hardware scheduler is shown to achieve similar matching
+performance and network throughput while being orders of
+magnitude faster.
+

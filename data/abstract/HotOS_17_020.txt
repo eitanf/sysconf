@@ -1,0 +1,16 @@
+
+ Why did my workload run so slowly? Is hardware degradation
+
+Users often struggle to reason about the performance of today’s
+systems. Without an understanding of what factors are most important to performance, users do not know how to tune their system’s
+hardware and software configuration to improve performance. We
+argue that performance clarity — making it easy to understand where
+bottlenecks lie and the performance implications of various system
+changes — should be a first class design goal. To illustrate that this is
+possible, we propose an architecture for data analytics frameworks
+in which jobs are decomposed into schedulable units called monotasks that each consume a single resource. By untangling the use of
+different resources, using monotasks allows the system to trivially
+report time used on each resource and the resource bottleneck. Our
+prototype implementation of monotasks for Apache Spark is APIcompatible and achieves performance parity with Spark, and yields
+a simple performance model that can predict the effects of future
+hardware and software changes.

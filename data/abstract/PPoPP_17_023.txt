@@ -1,0 +1,20 @@
+
+Record-and-replay systems are useful tools for debugging
+non-deterministic parallel programs by first recording an
+execution and then replaying that execution to produce
+the same access pattern. Existing record-and-replay systems generally target thread-based execution models, and
+record the behaviors and interleavings of individual threads.
+Dynamic multithreaded languages and libraries, such as
+the Cilk family, OpenMP, TBB, etc., do not have a notion
+of threads. Instead, these languages provide a processoroblivious model of programming, where programs expose
+task-parallelism using high-level constructs such as spawn/sync
+without regard to the number of threads/cores available to
+run the program. Thread-based record-and-replay would violate the processor-oblivious nature of these programs, as
+they incorporate the number of threads into the recorded information, constraining the replayed execution to the same
+number of threads.
+In this paper, we present a processor-oblivious recordand-replay scheme for such languages where record and replay can use different number of processors and both are
+scheduled using work stealing. We provide theoretical guarantees for our record and replay scheme — namely that
+record is optimal for programs with one lock and replay is
+near-optimal for all cases. In addition, we implemented this
+scheme in the Cilk Plus runtime system and our evaluation
+indicates that processor-obliviousness does not cause substantial overheads.

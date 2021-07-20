@@ -1,0 +1,33 @@
+
+
+Labeling schemes seek to assign a short label to each node in a
+network, so that a function on two nodes (such as distance or
+adjacency) can be computed by examining their labels alone. For
+the particular case of trees, following a long line of research, optimal
+bounds (up to low order terms) were recently obtained for adjacency
+labeling [FOCS °15], nearest common ancestor labeling [SODA
+*14], and ancestry labeling [SICOMP ’06]. In this paper we obtain
+optimal bounds for distance labeling. We present labels of size
+1/4 log? n + o(log” n), matching (up to low order terms) the recent
+1/4 log? n — O(log n) lower bound [ICALP ’16].
+
+Prior to our work, all distance labeling schemes for trees could
+be reinterpreted as universal trees. A tree T is said to be universal
+if any tree on n nodes can be found as a subtree of T. A universal
+tree with |T| nodes implies a distance labeling scheme with label
+size log |T|. In 1981, Chung et al. proved that any distance labeling
+scheme based on universal trees requires labels of size 1/2 log? n —
+logn - log log n + O(log n). Our scheme is the first to break this
+lower bound, showing a separation between distance labeling and
+universal trees.
+
+The O(log? n) barrier for distance labeling in trees has led researchers to consider distances bounded by k. The size of such
+labels was shown to be logn + O(k./logn) in [WADS ’01], and
+then improved to log n + O(k? log(k log n)) in [SODA ’03] and finally to log n + O(k log(k log(n/k))) in [PODC ’07]. We show how
+to construct labels whose size is the minimum between logn +
+O(k log((log n)/k)) and O(log n-log(k/ log n)). We complement this
+with almost tight lower bounds of logn + O(k log(log n/(k log k)))
+and O(log n-log(k/ log n)). Finally, we consider (1+ ¢)-approximate
+distances. We show that the recent labeling scheme of [ICALP ’16]
+can be easily modified to obtain an O(log(1/e) - log n) upper bound
+and we prove a matching O(log(1/e) - log n) lower bound.

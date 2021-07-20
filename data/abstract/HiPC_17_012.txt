@@ -1,0 +1,25 @@
+
+Streaming graph data mining has become a significant issue in high performance graph mining due to the
+increasing appearance of graph data sets as streams. In this
+paper we propose Acacia-Stream which is a scalable distributed
+streaming graph database engine developed with X10 programming language. Graph streams are partitioned using a streaming
+graph partitioner algorithm in Acacia-Stream and streaming
+graph processing queries are run on the graph streams. The
+partitioned data sets are persisted on secondary storage across
+X10 places. We investigate on the use of three different streaming
+graph partitioner algorithms called hash, Linear Deterministic
+Greedy, and Fennel algorithms and report their performance.
+Furthermore, to demonstrate Acacia-Stream’s streaming graph
+processing capabilities we implement streaming triangle counting
+with Acacia-Stream. We present performance results gathered
+from Acacia-Stream with different large scale streaming data
+sets in both horizontal and vertical scalability experiments.
+Furthermore, we compare streaming graph loading performance
+of Acacia-Stream with Neo4j and Oracle’s PGX graph database
+servers. From these experiments we observed that AcaciaStream’s Fennel partitioner based graph uploader can upload
+a 948MB rmat22 graph in 1283.42 seconds which is 38% faster
+than PGX graph database server and 12.8 times faster than Neo4j
+database server. Acacia-Stream’s Streaming Partitioner’s batch
+size adjustments based optimizations reduced the time used by
+the network communications almost by half.
+

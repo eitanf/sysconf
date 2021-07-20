@@ -1,0 +1,27 @@
+
+A major concern for today’s smartphones is their
+much faster battery drain than traditional feature phones,
+despite their greater battery capacities. The difference is mainly
+contributed by those more powerful but also much more powerconsuming smartphone components, such as the multi-core application processor. While the application processor must be active
+when any smart apps are being used, it is also unnecessarily
+waken up, even during idle periods, to perform operations related
+to basic phone functions (i.e., incoming calls and text messages).
+
+In this paper, we investigate how to increase the battery life of
+smartphones by minimizing the use of the application processor
+during idle periods. We find that the application processor is often
+waken up by a process running on it, called the Radio Interface
+Layer Daemon (RILD), which interfaces the user and apps to the
+GSM/LTE cellular network. In particular, we demonstrate that a
+great amount of energy could be saved if RILD is stopped, such
+that the application processor can sleep more often. Based on this
+key finding, we design a Smart On Demand (SOD) configuration
+that reduces smartphone idle energy consumption by running
+RILD operations on a secondary low-power microcontroller. As
+a result, RILD operations can be handled at much lower energy
+costs and the application processor is waken up only when one
+needs to use any smart apps, in an on-demand manner. We have
+built a hardware prototype of SOD and evaluated it with real
+user traces. Our results show that SOD can increase its battery
+life by up to 2.5 more days.
+

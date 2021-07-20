@@ -1,0 +1,22 @@
+
+Computation offloading is a programming model in
+which program fragments (e.g. hot loops) are annotated so that
+their execution is performed in dedicated hardware or accelerator devices. Although offloading has been extensively used to
+move computation to GPUs, through directive-based annotation
+standards like OpenMP, offloading computation to very large
+computer clusters can become a complex and cumbersome task.
+It typically requires mixing programming models (e.g. OpenMP
+and MPI) and languages (e.g. C/C++ and Scala), dealing with
+various access control mechanisms from different clouds (e.g.
+AWS and Azure), and integrating all this into a single application.
+This paper introduces the cloud as a computation offloading
+device. It integrates OpenMP directives, cloud based mapreduce Spark nodes and remote communication management
+such that the cloud appears to the programmer as yet another
+device available in its local computer. Experiments using LLVM,
+OpenMP 4.5 and Amazon EC2 show the viability of the proposed
+approach and enable a thorough analysis of the performance and
+costs involved in cloud offloading. The results show that although
+data transfers can impose overheads, cloud offloading can still
+achieve promising speedups of up to 86x in 256 cores for the
+2MM benchmark using 1GB matrices.
+

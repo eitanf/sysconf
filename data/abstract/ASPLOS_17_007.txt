@@ -1,0 +1,21 @@
+
+The slotted-page structure is a database page format
+commonly used for managing variable-length records. In
+this work, we develop a novel “failure-atomic slottedPage structure” for persistent memory that leverages byteaddressability and durability of persistent memory to minimize redundant write operations used to maintain consistency in traditional database systems. Failure-atomic slottedpaging consists of two key elements: (i) in-place commit
+per page using hardware transactional memory and (ii) slotheader logging that logs the commit mark of each page. The
+proposed scheme is implemented in SQLite and compared
+against NVWAL, the current state-of-the-art scheme. Our
+performance study shows that our failure-atomic slottedpaging shows optimal performance for database transactions
+that insert a single record. For transactions that touch more
+than one database page, our proposed slot-header logging
+scheme minimizes the logging overhead by avoiding duplicating pages and logging only the metadata of the dirty
+pages. Overall, we find that our failure-atomic slotted-page
+management scheme reduces database logging overhead to
+1/6 and improves query response time by up to 33% compared to NVWAL.
+
+Categories and Subject Descriptors H.2.7 [Database
+Management):Logging and recovery
+
+Keywords Non-volatile memory; Database buffer caching;
+Slotted page structure; Database recovery
+

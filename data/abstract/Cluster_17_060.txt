@@ -1,0 +1,15 @@
+
+Traditional machine learning algorithms often require computations on centralized data, but modern datasets are
+collected and stored in a distributed way. In addition to the cost of
+moving data to centralized locations, increasing concerns about
+privacy and security warrant distributed approaches. We propose
+keybin, a distributed key-based binning clustering algorithm
+for high-dimensional spaces. keybin locally generates a spatial
+key for each data point across all dimensions without needing
+knowledge of other data. Then, it performs a conceptual MapReduce procedure in the index space to form a global clustering
+assignment. We present an implementation and a case study on
+the capabilities and limitations of this approach, showing that
+this algorithm can learn a global clustering structure with limited
+communication and can scale with the dimensionality and size
+of data sets.
+

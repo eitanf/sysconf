@@ -1,0 +1,23 @@
+
+
+Nearly all modern software has security flaws—either known or
+unknown by the users. However, metrics for evaluating software
+security (or lack thereof) are noisy at best. Common evaluation
+methods include counting the past vulnerabilities of the program,
+or comparing the size of the Trusted Computing Base (TCB), measured in lines of code (LoC) or binary size. Other than deleting
+large swaths of code from project, it is difficult to assess whether a
+code change decreased the likelihood of a future security vulnerability. Developers need a practical, constructive way of evaluating
+security.
+
+This position paper argues that we actually have all the tools
+needed to design a better, empirical method of security evaluation.
+We discuss related work that estimates the severity and vulnerability of certain attack vectors based on code properties that can be
+determined via static analysis. This paper proposes a grand, unified
+model that can predict the risk and severity of vulnerabilities in a
+program. Our prediction model uses machine learning to correlate
+these code features of open-source applications with the history of
+vulnerabilities reported in the CVE (Common Vulnerabilities and
+Exposures) database. Based on this model, one can incorporate an
+analysis into the standard development cycle that predicts whether
+the code is becoming more or less prone to vulnerabilities.
+

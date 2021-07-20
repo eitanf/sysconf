@@ -1,0 +1,20 @@
+
+Checkpoint/restart has been widely used to cope
+with fail-stop errors. The checkpointing frequency is most often optimized by assuming an exponential failure distribution.
+However, field studies show that most often failures do not
+follow a constant failure rate exponential distribution. Therefore,
+the optimal checkpointing frequency should be computed and
+tuned considering the different distributions that failures follow.
+Moreover, due to operating system and input/output jitter and hybrid solutions that combine checkpointing with other techniques,
+such as data compression, checkpointing time can no longer be
+assumed constant. Thus, time varying checkpointing time should
+be accounted for to realistically model the application execution.
+
+In this study, we develop a mathematical theory and model
+to optimize the checkpointing frequency with respect to arbitrary failure distributions while capturing time-dependent nonconstant checkpointing time. We show that we can provide
+closed-form formulas for important failure distributions in most
+cases. By instantiating our model, we study and analyze 10
+important failure distributions to obtain the optimal checkpointing frequency for these distributions. Experimental evaluation
+shows that our model is highly accurate and deviates from the
+simulations less than 1% on average.
+

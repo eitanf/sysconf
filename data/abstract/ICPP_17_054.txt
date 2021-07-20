@@ -1,0 +1,26 @@
+
+Distributed algorithms for data analytics partition
+their input data across many machines for parallel execution. At
+scale, it is likely that some machines will perform worse than
+others because they are slower, power constrained or dependent
+on undesirable, dirty energy sources. It is challenging to balance
+analytics workloads across heterogeneous machines, because the
+algorithms are sensitive to statistical skew in data partitions. A
+skewed partition can slow down the whole workload or degrade
+the quality of results. Sizing partitions in proportion to each
+machine’s performance may introduce or further exacerbate
+skew. In this paper, we propose a scheme that controls the
+statistical distribution of each partition and sizes partitions
+according to the heterogeneity of the computing environment.
+We model heterogeneity as a multi-objective optimization, with
+the objectives being functions for execution time and dirty energy
+consumption. We use stratification to control skew. Experiments
+show that our computational heterogeneity aware (Het-Aware)
+partitioning strategy speeds up running time by up to 51%
+over the stratified partitioning scheme baseline. We also have a
+heterogeneity and energy aware (Het-Energy-Aware) partitioning
+scheme which is slower than the Het-Aware solution, but can
+lower the dirty energy footprint by up to 26%. For some analytic
+tasks there is also a significant qualitative benefit when using such
+partitioning strategies.
+

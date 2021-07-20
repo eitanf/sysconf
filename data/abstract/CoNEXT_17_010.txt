@@ -1,0 +1,23 @@
+
+
+Modern CDNs cache and deliver a highly-diverse set of traffic
+classes, including web pages, images, videos and software downloads. It is economically advantageous for a CDN to cache and
+deliver all traffic classes using a shared distributed cache server
+infrastructure. However, such sharing of cache resources across
+multiple traffic classes poses significant cache provisioning challenges that are the focus of this paper.
+
+Managing a vast shared caching infrastructure requires careful
+modeling of user request sequences for each traffic class. Using
+extensive traces from Akamai’s CDN, we show how each traffic
+class has drastically different object access patterns, object size
+distributions, and cache resource requirements. We introduce the
+notion of a footprint descriptor that is a succinct representation of
+the cache requirements of a request sequence. Leveraging novel
+connections to Fourier analysis, we develop a footprint descriptor
+calculus that allows us to predict the cache requirements when
+different traffic classes are added, subtracted and scaled to within a
+prediction error of 2.5%. We integrated our footprint calculus in the
+cache provisioning operations of the production CDN and show
+how it is used to solve key challenges in cache sizing, traffic mixing,
+and cache partitioning.
+

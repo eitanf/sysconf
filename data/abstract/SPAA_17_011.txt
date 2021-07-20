@@ -1,0 +1,26 @@
+
+
+Many modern datacenter applications involve large-scale computations composed of multiple data flows that need to be completed
+over a shared set of distributed resources. Such a computation
+completes when all of its flows complete. A useful abstraction for
+modeling such scenarios is a coflow, which is a collection of flows
+(e.g., tasks, packets, data transmissions) that all share the same
+performance goal.
+
+In this paper, we present the first approximation algorithms for
+scheduling coflows over general network topologies with the objective of minimizing total weighted completion time. We consider two
+different models for coflows based on the nature of individual flows:
+circuits, and packets. We design constant-factor polynomial-time
+approximation algorithms for scheduling packet-based coflows with
+or without given flow paths, and circuit-based coflows with given
+flow paths. Furthermore, we give an O(log n/log log n)-approximation
+polynomial time algorithm for scheduling circuit-based coflows
+without given flow paths (here n is the number of network edges).
+
+We obtain our results by developing a general framework for
+coflow schedules, based on interval-indexed linear programs, which
+may extend to other coflow models and objective functions and may
+also yield improved approximation bounds for specific network scenarios. We also present an experimental evaluation of our approach
+for circuit-based coflows that show a performance improvement of
+at least %22 on average over competing heuristics.
+

@@ -1,0 +1,32 @@
+
+ parallel machines such as Pregel [36], GraphLab [32, 33], Power
+Existing graph-processing frameworks let users develop efficient implementations for many graph problems, but none of them support
+efficiently bucketing vertices, which is needed for bucketing-based
+graph algorithms such as A-stepping and approximate set-cover.
+Motivated by the lack of simple, scalable, and efficient implementations of bucketing-based algorithms, we develop the Julienne
+framework, which extends a recent shared-memory graph processing framework called Ligra with an interface for maintaining a
+collection of buckets under vertex insertions and bucket deletions.
+
+We provide a theoretically efficient parallel implementation of
+our bucketing interface and study several bucketing-based algorithms that make use of it (either bucketing by remaining degree
+or by distance) to improve performance: the peeling algorithm for
+k-core (coreness), A-stepping, weighted breadth-first search, and
+approximate set cover. The implementations are all simple and concise (under 100 lines of code). Using our interface, we develop the
+first work-efficient parallel algorithm for k-core in the literature
+with nontrivial parallelism.
+
+We experimentally show that our bucketing implementation
+scales well and achieves high throughput on both synthetic and
+real-world workloads. Furthermore, the bucketing-based algorithms
+written in Julienne achieve up to 43x speedup on 72 cores with
+hyper-threading over well-tuned sequential baselines, significantly
+outperform existing work-inefficient implementations in Ligra, and
+either outperform or are competitive with existing special-purpose
+parallel codes for the same problem. We experimentally study our
+implementations on the largest publicly available graphs and show
+that they scale well in practice, processing real-world graphs with
+billions of edges in seconds, and hundreds of billions of edges in a
+few minutes. As far as we know, this is the first time that graphs
+at this scale have been analyzed in the main memory of a single
+multicore machine.
+

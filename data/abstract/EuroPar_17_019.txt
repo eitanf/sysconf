@@ -1,0 +1,12 @@
+
+. Most message logging protocols rely on a centralized event
+logger to store information (i.e., the determinants) to allow the recovery
+of an application process. This centralized approach, besides suffering
+from the single point of failure problem, represents a bottleneck for the
+efficiency of message logging protocols. In this work, we present a faulttolerant distributed event logger based on consensus that outperforms
+the centralized approach. We implemented the event logger of MPI determinants using the Paxos algorithm. Our event logger inherits the Paxos
+properties: safety is guaranteed even if the system is asynchronous and
+liveness is guaranteed despite processes failures. Experimental results are
+reported for the performance of the distributed event logger based both
+on classic Paxos and parallel Paxos applied to AMG (Algebraic MultiGrid) and NAS Parallel Benchmark applications.
+

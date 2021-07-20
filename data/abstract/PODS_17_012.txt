@@ -1,0 +1,24 @@
+
+
+The atomic commit problem lies at the heart of distributed
+database systems. The problem consists for a set of processes (database nodes) to agree on whether to commit or
+abort a transaction (agreement property). The commit decision can only be taken if all processes are initially willing
+to commit the transaction, and this decision must be taken
+if all processes are willing to commit and there is no failure
+(validity property). An atomic commit protocol is said to
+be non-blocking if every correct process (a database node
+that does not fail) eventually reaches a decision (commit or
+abort) even if there are failures elsewhere in the distributed
+database system (termination property).
+
+Surprisingly, despite the importance of the atomic commit
+problem, little is known about its complexity. In this paper,
+we present, for the first time, a systematic study on the time
+and message complexity of the problem. We measure complexity in the executions that are considered the most frequent in practice, i.e., failure-free, with all processes willing
+to commit. In other words, we measure how fast a transaction can commit. Through our systematic study, we close
+many open questions like the complexity of synchronous
+non-blocking atomic commit. We also present optimal protocols which may be of independent interest. In particular,
+we present an effective protocol which solves what we call
+indulgent atomic commit that tolerates practical distributed
+database systems which are synchronous “most of the time”.
+

@@ -1,0 +1,19 @@
+
+That the sum of guarantees on bandwidth for any
+link should be smaller than the link capacity, a prerequisite
+of offering bandwidth guarantees for tenants in the cloud, is
+satisfied by virtual machine placement algorithms. The current
+ones, however, either know nothing about bandwidth guarantees
+or employ a coarse-grained model for resource abstraction. To
+solve the problem, this paper first proposes a fine-grained virtual
+machine placement algorithm which is formulated as a nonlinear
+program of which the objective is to minimize the number of
+physical machines used. Specifically, apart from constraints for
+server resources, we add an additional one for each link to ensure
+the sum of offered guarantees for each of those links is not greater
+than its capacity. Further, we devise a heuristic algorithm to
+address the nonlinear programming problem. Through extensive
+simulations, we show that our approach is cost-effective, which
+can reduce the number of physical machines required by 26.17%
+on average compared with the most recent one.
+

@@ -1,0 +1,14 @@
+
+We present control replication, a technique for generating highperformance and scalable SPMD code from implicitly parallel programs. In contrast to traditional parallel programming models that
+require the programmer to explicitly manage threads and the communication and synchronization between them, implicitly parallel
+programs have sequential execution semantics and by their nature
+avoid the pitfalls of explicitly parallel programming. However, without optimizations to distribute control overhead, scalability is often
+poor.
+
+Performance on distributed-memory machines is especially sensitive to communication and synchronization in the program, and
+thus optimizations for these machines require an intimate understanding of a program’s memory accesses. Control replication
+achieves particularly effective and predictable results by leveraging language support for first-class data partitioning in the source
+programming model. We evaluate an implementation of control
+replication for Regent and show that it achieves up to 99% parallel
+efficiency at 1024 nodes with absolute performance comparable to
+hand-written MPI(+X) codes.

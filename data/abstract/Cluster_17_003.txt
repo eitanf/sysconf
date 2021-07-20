@@ -1,0 +1,22 @@
+
+We investigate efficient sensitivity analysis (SA) of
+algorithms that segment and classify image features in a large
+dataset of high-resolution images. Algorithm SA is the process
+of evaluating variations of methods and parameter values to
+quantify differences in the output. A SA can be very compute
+demanding because it requires re-processing the input dataset
+several times with different parameters to assess variations in
+output. In this work, we introduce strategies to efficiently speed
+up SA via runtime optimizations targeting distributed hybrid
+systems and reuse of computations from runs with different
+parameters. We evaluate our approach using a cancer image
+analysis workflow on a hybrid cluster with 256 nodes, each
+with an Intel Phi and a dual socket CPU. The SA attained a
+parallel efficiency of over 90% on 256 nodes. The cooperative
+execution using the CPUs and the Phi available in each node
+with smart task assignment strategies resulted in an additional
+speedup of about 2x. Finally, multi-level computation reuse
+lead to an additional speedup of up to 2.46 on the parallel
+version. The level of performance attained with the proposed
+optimizations will allow the use of SA in large-scale studies.
+

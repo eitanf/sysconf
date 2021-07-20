@@ -1,0 +1,17 @@
+
+. Offering insights into the behavior of applications at higher
+scale, performance models are useful for finding performance bugs and
+tuning the system. Extra-P, a tool for automated performance modeling,
+uses statistical methods to automatically generate, from a small number
+of performance measurements, models that can be used to predict performance where no measurements are available. However, the current version requires the manual pre-configuration of a search space, which might
+turn out to be unsuitable for the problem at hand. Furthermore, noise in
+the data often leads to models that indicate a worse behavior than there
+actually is. In this paper, we propose a new model-generation algorithm
+that solves both of the above problems: The search space is built and
+automatically refined on demand, and a scale-independent error metric
+tells both when to stop the refinement process and whether a model
+reflects faithfully enough the behavior the data exhibits. This makes
+Extra-P easier to use, while also allowing it to produce more accurate
+results. Using data from previous case studies, we show that the mean
+relative prediction error decreases from 46% to 13%.
+

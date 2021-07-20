@@ -1,0 +1,17 @@
+
+Graphics rendering is a complex, multi-step process
+whose data demands typically dominate memory system design
+in SoCs. GPUs create images by merging many, simpler scenes
+for each frame. For performance, scenes are tiled into parallel
+tasks, each of which produces different parts of the final output.
+This execution model results in complex memory behavior, whose
+bandwidth demands, reuse and sharing characteristics depend
+heavily on the structure and complexity of each application,
+frame, scene, and task, and vary over time. To design systems
+that can efficiently accommodate and schedule these workloads,
+we need to understand their behavior and diversity.
+
+In this work, we explore the data demands of modern graphics
+rendering quantitatively, using an architecturally-independent
+analysis that identifies the different types of data sharing present
+in the applications.

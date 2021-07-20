@@ -1,0 +1,23 @@
+
+Modern SoCs contain CPU and GPU cores to
+execute both general purpose and highly-parallel graphics workloads. While the primary use of the GPU is for rendering
+graphics, the effects of graphics workloads on the overall system
+have received little attention. The primary reason for this is
+the lack of efficient tools and simulators for modern graphics
+applications.
+
+In this work, we present GLTraceSim, a new graphics memory
+tracing and replay framework for studying the memory behavior
+of graphics workloads and how they interact in heterogeneous
+CPU/GPU memory systems. GLTraceSim efficiently generates
+GPU memory access traces and their corresponding, synchronized, CPU render thread memory traces. The resulting traces
+can then be replayed in both high-level models and detailed fullsystem simulators.
+
+We evaluate GLTraceSim on a range of graphics workloads
+from browsers to games. Our results show that GLTraceSim
+can efficiently generate graphics memory traces, and use these
+traces to study graphics performance in heterogeneous CPU/GPU
+memory systems. We show that understanding the impact of
+graphics workloads is essential, as they can cause slowdowns
+in co-running CPU applications of 26-59%, depending on the
+memory technology.

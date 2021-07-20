@@ -1,0 +1,18 @@
+
+Multi-stream SSDs can isolate data with different life time
+to disparate erase blocks, thus reduce garbage collection
+overhead and improve overall SSD performance. Applications are responsible for management of these device-level
+steams such as stream open/close and data-to-stream mapping. This requires application changes, and the engineer deploying the solution needs to be able to individually identify
+the streams in their workload. Furthermore, when multiple
+applications are involved, such as in VM or containerized
+environments, stream management becomes more complex
+due to the limited number of streams a device can support,
+for example, allocating streams to applications or sharing
+streams across applications will cause additional overhead.
+
+To address these issues and reduce the overhead of stream
+management, this paper proposes automatic stream management algorithms that operate under the application layer.
+Our stream assignment techniques, called AutoStream, is
+based on run time workload detection and independent of
+the application(s). We implement our AutoStream prototype in NVMe Linux device driver and our performance evaluation shows up to 60% reduction on WAF(Write Amplification Factor) and up to 237% improvement on performance
+compared to a conventional SSD device.

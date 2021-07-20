@@ -1,0 +1,22 @@
+
+Emerging non-volatile main memories (NVMMs)
+technologies can provide both data persistence and high performance at memory level. The design of existing file systems
+for NVMM has to handle the data durability problem between
+CPU cache and NVMM. However, most NVMM-aware file
+systems could not meet the strong data consistency requirement
+of applications with data structures, e.g. B-Tree. Traditional
+techniques, such as copy-on-write and journaling, delivering data
+consistency, have defects of write amplification and data copy,
+respectively.
+
+In this paper, we explore SNFS, one log-structured file system
+with optimization of data consistency based-on non-volatile main
+memory, providing high performance for applications with small
+writes. Specifically, SNFS adopts a small data-log mechanism
+to journal fine-grained data writes. It also uses in-place writes
+to minimize memory footprint for small data updating and
+accelerates data block locating with hashing strategy. Finally,
+we evaluate SNFS’s performance with several write-intensive
+workloads, and experimental results show that SNFS improves
+the system throughput by up to 23 times compared to state-of-theart file systems and reduces the execution time by up to 65.5%.
+

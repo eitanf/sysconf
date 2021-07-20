@@ -1,0 +1,13 @@
+
+This paper provides an in-depth analysis of the software overheads
+in the MPI performance-critical path and exposes mandatory performance overheads that are unavoidable based on the MPI-3.1
+specification. We first present a highly optimized implementation
+of the MPI-3.1 standard in which the communication stack—all the
+way from the application to the low-level network communication
+API—takes only a few tens of instructions. We carefully study these
+instructions and analyze the root cause of the overheads based
+on specific requirements from the MPI standard that are unavoidable under the current MPI standard. We recommend potential
+changes to the MPI standard that can minimize these overheads.
+Our experimental results on a variety of network architectures and
+applications demonstrate significant benefits from our proposed
+changes.

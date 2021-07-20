@@ -1,0 +1,25 @@
+
+Consolidating applications of conflicting service level
+objectives (SLOs) to share virtualized resources in cloud datacenters requires efficient resource management to ensure overall high
+Quality-of-Service (QoS). Applications of different performance
+targets often exhibit different resource demands. Thus, it is not
+trivial to translate individual application SLOs to corresponding
+resource shares in a shared virtualized environment to meet
+performance targets. In this paper, we present CéiriCloud, a
+performance-aware resource controlling system, that adaptively
+allocates resources, with a resource-share controller and an allocation optimization model. The controller automatically adapts
+resource demands based on performance deviations, while the
+optimization model resolves conflicts in resource demands from
+multiple co-located applications based on their ongoing performance achieved. We implement a proof-of-concept prototype of
+CtrlCloud in Python on top of Xen hypervisor. Our experimental
+results indicate that CtrlCloud can optimize allocations of CPU
+resources across multiple applications to maintain the 95th
+percentile latency within predefined SLO targets. CtriCloud
+also provides QoS differentiation and yet fulfilling of CPU
+share demands from applications is maximized given resource
+availability. We further compare CtriCloud against two other
+resource allocation methods commonly used in current clouds.
+CtrlCloud improves resource utilization by allocating resource
+shares optimal to ‘actual needs’ as it employs share-performance
+online modeling.
+

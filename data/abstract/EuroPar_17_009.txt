@@ -1,0 +1,12 @@
+
+. For the parallel-in-time integration method Parareal,
+pipelining can be used to hide some of the cost of the serial correction
+step and improve its efficiency. The paper introduces a basic OpenMP
+implementation of pipelined Parareal and compares it to a standard
+MPI-based variant. Both versions yield almost identical runtimes, but,
+depending on the compiler, the OpenMP variant consumes about 7%
+less energy and has a significantly smaller memory footprint. However,
+its higher implementation complexity might make it difficult to use in
+legacy codes and in combination with spatial parallelisation.
+
+

@@ -1,0 +1,12 @@
+
+
+Graphics processing units (GPUs) have become an attractive platform for general-purpose computing (GPGPU) in various domains.
+Making GPUs a time-multiplexing resource is a key to consolidating GPGPU applications (apps) in multi-tenant cloud platforms.
+However, advanced GPGPU apps pose a new challenge for consolidation. Such highly functional GPGPU apps, referred to as GPU
+eaters, can easily monopolize a shared GPU and starve collocated
+GPGPU apps. This paper presents GLoop, which is a software runtime that enables us to consolidate GPGPU apps including GPU
+eaters. GLoop offers an event-driven programming model, which
+allows GLoop-based apps to inherit the GPU eaters’ high functionality while proportionally scheduling them on a shared GPU in
+an isolated manner. We implemented a prototype of GLoop and
+ported eight GPU eaters on it. The experimental results demonstrate that our prototype successfully schedules the consolidated
+GPGPU apps on the basis of its scheduling policy and isolates resources among them.

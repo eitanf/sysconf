@@ -1,0 +1,16 @@
+
+
+Achieving consensus among a set of distributed entities (or participants) is a fundamental problem at the heart of many distributed systems. A critical problem with most consensus protocols
+is that they do not scale well. As the number of participants trying to achieve consensus increases, increasing network traffic can
+quickly overwhelm the network from topology-oblivious broadcasts, or a central coordinator for centralized consensus protocols.
+Thus, either achieving strong consensus is restricted to a handful
+of participants, or developers must resort to weaker models of consensus.
+
+We propose Canopus, a highly-parallel consensus protocol that
+is ‘plug-compatible’ with ZooKeeper, which exploits modern data
+center network topology, parallelism, and consensus semantics to
+achieve scalability with respect to the number of participants and
+throughput (i.e., the number of key-value reads/writes per second). In our prototype implementation, compared to EPaxos and
+ZooKeeper, Canopus increases throughput by more than 4x and
+16x respectively for read-heavy workloads.
+

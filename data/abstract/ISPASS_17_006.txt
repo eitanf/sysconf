@@ -1,0 +1,34 @@
+
+The chip industry faces two key challenges today the impending end of Moore’s Law and the rising costs of chip
+design and verification (millions of dollars today). Heterogeneous
+IPs - cores and domain-specific accelerators - are a promising
+answer to the first challenge, enabling performance and energy
+benefits no longer provided by technology scaling. IP-reuse
+with plug-and-play designs can help with the second challenge,
+amortizing NRE costs tremendously. A key requirement in a
+heterogeneous IP-based plug-and-play SoC environment is an
+interconnection fabric to connect these IPs together. This fabric
+needs to be scalable - low latency, low energy and low area and yet be flexible/parametrizable for use across designs. The
+key scalability challenge in any Network-on-Chip (NoC) today is
+that the latency increases proportional to the number of hops.
+
+In this work, we present a NoC generator called OpenSMART,
+which generates low-latency NoCs based on SMART'. SMART
+is a recently proposed NoC microarchitecture that enables multihop on-chip traversals within a single cycle, removing the
+dependence of latency on hops. SMART leverages wire delay of
+the underlying repeated wires, and augments each router with
+the ability to request and setup bypass paths. OpenSMART takes
+SMART from a NoC optimization to a design methodology for
+SoCs, enabling users to generate verified RTL for a class of userspecified network configurations, such as network size, topology,
+routing algorithm, number of VCs/buffers, router pipeline stages,
+and so on. OpenSMART also provides the ability to generate
+any heterogeneous topology with low and high-radix routers
+and optimized single-stage pipelines, leveraging fast logic delays
+in technology nodes today. OpenSMART v1.0 comes with both
+Bluespec System Verilog and Chisel implementations, and this
+paper also presents a case study of our experiences with both
+languages. OpenSMART is available for download’ and is going
+to be a key addition to the emerging open-source hardware
+movement, providing a glue for interconnecting existing and
+emerging IPs .
+

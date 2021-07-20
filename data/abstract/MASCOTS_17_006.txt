@@ -1,0 +1,25 @@
+
+Memory price will continue dropping in the next
+few years according to Gartner. Such trend renders it affordable for in-memory key-value stores (IMKVs) to maintain
+redundant memory-resident copies of each key-value pair to
+provision enhanced reliability and high availability services.
+Though contemporary IMKVs have reached unprecedented
+performance, delivering single-digit microsecond-scale latency
+with up to tens of millions queries per second throughput,
+existing replication protocols are unable to keep pace with such
+an advancement of IMKVs, either incurring unbearable latency
+overhead or demanding intensive resource usage. Consequently,
+the adoption of those replication techniques always results in
+substantial performance degradation.
+
+In this paper, we propose MacR, a RDMA-based highperformance and lightweight replication protocol for IMKVs.
+The design of MacR centers around sharing the remote backup
+memory to enable RDMA-based replication protocol, and
+synthesizes a collection of optimizations, including memory
+allocator cooperative replication and adaptive bulk data synchronization to control the number of network operations and to
+enhance the recovery performance. Performance evaluations
+with a variety of YCSB workloads demonstrate that MacR can
+efficiently outperform alternative replication methods in terms
+of the throughput while preserving sufficiently low latency
+overhead. It can also efficiently speed up the recovery process.
+

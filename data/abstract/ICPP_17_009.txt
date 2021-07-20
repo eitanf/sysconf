@@ -1,0 +1,14 @@
+
+
+Transactional Memory (TM) promises both to provide a scalable
+mechanism for synchronization in concurrent programs, and to offer ease-of-use benefits to programmers. To date, TM’s biggest successes have been as a mechanism for achieving Transactional Lock
+Elision (TLE). In TLE, critical sections are attempted as transactions, with a fall-back to the original lock if conflicts manifest. Thus
+TLE expects to improve scalability, but not ease of programming.
+Still, until TLE can deliver performance improvements, transactional styles of programming are unlikely to gain popularity.
+
+In this paper, we describe our experiences employing TLE in
+two real-world programs: the PBZip2 file compression tool, and
+the x265 video encoder/decoder. We discuss the obstacles we encountered, propose solutions to those obstacles, and introduce open
+challenges. In experiments using the GCC compiler’s hardware and
+software support for TM, we observe that both are able to outperform the original lock-based code, potentially heralding the readiness of TM to be used more broadly in TLE, if not for truly transactional styles of programming.
+

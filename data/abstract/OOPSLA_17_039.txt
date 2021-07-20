@@ -1,0 +1,12 @@
+
+Garbage collection greatly improves programmer productivity and ensures memory safety. Manual memory
+management on the other hand often delivers better performance but is typically unsafe and can lead to
+system crashes or security vulnerabilities. We propose integrating safe manual memory management with
+garbage collection in the NET runtime to get the best of both worlds. In our design, programmers can choose
+between allocating objects in the garbage collected heap or the manual heap. All existing applications run
+unmodified, and without any performance degradation, using the garbage collected heap. Our programming
+model for manual memory management is flexible: although objects in the manual heap can have a single
+owning pointer, we allow deallocation at any program point and concurrent sharing of these objects amongst
+all the threads in the program. Experimental results from our NET CoreCLR implementation on real-world
+applications show substantial performance gains especially in multithreaded scenarios: up to 3x savings in
+peak working sets and 2x improvements in runtime.

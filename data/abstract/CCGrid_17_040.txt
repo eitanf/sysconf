@@ -1,0 +1,22 @@
+
+In order to boost the performance of data-intensive
+computing on HPC systems, in-memory computing frameworks,
+such as Apache Spark and Flink, use local DRAM for data storage.
+Optimizing the memory allocation to data storage is critical to
+delivering performance to traditional HPC compute jobs and
+throughput to data-intensive applications sharing the HPC
+resources. Current practices that statically configure in-memory
+storage may leave inadequate space for compute jobs or miss the
+opportunity to utilize available space for data-intensive
+applications. In this paper, we explore techniques to dynamically
+adjust in-memory storage allocation and provide optimum
+memory to compute jobs. We have developed a dynamic inmemory storage controller, DynIMS, which monitors memory
+demands of compute tasks in real time and employs a feedbackbased control mechanism to adapt the allocation of in-memory
+storage. We test DynIMS using HPCC and Spark workloads on a
+HPC cluster. Experimental results show that DynIMS can achieve
+up to 5X performance improvement compared to systems with
+static memory allocations.
+
+Keywords-component; in-memory storage; parallel file system;
+dynamic control; HPC;
+

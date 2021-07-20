@@ -1,0 +1,27 @@
+
+Understanding the extent to which computational
+results can change across platforms, compilers, and compiler flags
+can go a long way toward supporting reproducible experiments.
+In this work, we offer the first automated testing aid called FLiT
+(Floating-point Litmus Tester) that can show how much these
+results can vary for any user-given collection of computational
+kernels. Our approach is to take a collection of these kernels,
+disperse them across a collection of compute nodes (each with
+a different architecture), have them compiled and run, and
+bring the results to a central SQL database for deeper analysis.
+Properly conducting these activities requires a careful selection
+(or design) of these kernels, input generation methods for them,
+and the ability to interpret the results in meaningful ways.
+The results in this paper are meant to inform two different
+communities: (a) those interested in seeking higher performance
+by considering “IEEE unsafe” optimizations, but then want to
+understand how much result variability to expect, and (b) those
+interested in standardizing compiler flags and their meanings, so
+that one may safely port code across generations of compilers
+and architectures. By releasing FLiT, we have also opened up the
+possibility of all HPC developers using it as a common resource
+as well as contributing back interesting test kernels as well as
+best practices, thus extending the floating-point result-consistency
+workload we contribute. This is the first such workload and
+result-consistency tester underlying floating-point reproducibility
+of which we are aware.

@@ -1,0 +1,15 @@
+
+MPI allows applications to treat processes as a logical collection of integer ranks for each MPI communicator, while
+internally translating these logical ranks into actual network
+addresses. In current MPI implementations the management and
+lookup of such network addresses use memory sizes that are
+proportional to the number of processes in each communicator. In this paper, we propose a new mechanism, called AVRankmap, for managing such logical addressing. AV-Rankmap
+takes advantage of logical patterns in rank mapping that most
+applications naturally tend to have, and it exploits the fact
+some aspects of the network address translation are naturally
+more performance critical than others. It uses this information
+to compress the network address management structures. We
+demonstrate that AV-Rankmap can achieve similar or better
+performance compared with that of other MPI implementations
+while using significantly less memory.
+

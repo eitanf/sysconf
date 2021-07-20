@@ -1,0 +1,24 @@
+
+Memory and logic integration on the same chip
+is becoming increasingly cost effective, creating the opportunity to offload data-intensive functionality to processing units
+placed inside memory chips. The introduction of memoryside processing units (MPUs) into conventional systems faces
+virtual memory as the first big showstopper: without efficient
+hardware support for address translation MPUs have highly
+limited applicability. Unfortunately, conventional translation
+mechanisms fall short of providing fast translations as contemporary memories exceed the reach of TLBs, making expensive
+page walks common.
+
+In this paper, we are the first to show that the historically
+important flexibility to map any virtual page to any page frame
+is unnecessary in today’s servers. We find that while limiting
+the associativity of the virtual-to-physical mapping incurs no
+penalty, it can break the translate-then-fetch serialization if
+combined with careful data placement in the MPU’s memory,
+allowing for translation and data fetch to proceed independently and in parallel. We propose the Distributed Inverted
+Page Table (DIPTA), a near-memory structure in which the
+smallest memory partition keeps the translation information
+for its data share, ensuring that the translation completes
+together with the data fetch. DIPTA completely eliminates the
+performance overhead of translation, achieving speedups of up
+to 3.81x and 2.13x over conventional translation using 4KB
+and 1GB pages respectively.

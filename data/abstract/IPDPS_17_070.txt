@@ -1,0 +1,22 @@
+
+Scalable Networks-on-chip (NoCs) have become the
+de facto interconnection mechanism in large scale Chip Multiprocessors. Not only are NoCs devouring a large fraction of
+the on-chip power budget but static NoC power consumption is
+becoming the dominant component as technology scales down.
+Hence reducing static NoC power consumption is critical for
+energy-efficient computing. Previous research has proposed to
+power-gate routers attached to inactive cores so as to save static
+power, but they either required centralized decision making and
+global network knowledge or a non-scalable escape ring network.
+In this paper, we propose Fly-Over (FLOV), a light-weight distributed mechanism for power gating routers, which encompasses
+FLOV router microarchitecture and a partition-based dynamic
+routing algorithm to maintain network functionality. With simple
+modifications to the baseline router microarchitecture, FLOV can
+facilitate fly-over links over power-gated routers. The proposed
+routing algorithm provides best-effort minimal path routing
+without the necessity for global network information. We evaluate
+our scheme using synthetic workloads as well as real workloads
+from PARSEC 2.1 benchmark suite. The results show that FLOV
+can achieve 19.2% latency reduction and 16.9% total power
+savings.
+

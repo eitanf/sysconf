@@ -1,0 +1,14 @@
+
+
+We report our experience building and evaluating
+pmemcached, a version of memcached ported to byteaddressable persistent memory. Persistent memory is
+expected to not only improve overall performance of applications’ persistence tier, but also vastly reduce the
+“warm up” time needed for applications after a restart.
+We decided to test this hypothesis on memcached, a popular key-value store. We took the extreme view of persisting memcached’s entire state, resulting in a virtually
+instantaneous warm up phase. Since memcached is already optimized for DRAM, we expected our port to be
+a straightforward engineering effort. However, the effort
+turned out to be surprisingly complex during which we
+encountered several non-trivial problems that challenged
+the boundaries of memcached’s architecture. We detail
+these experiences and corresponding lessons learned.
+

@@ -4,6 +4,7 @@ Each subdirectory has a README.md with the description of the files.
 
 ## File description {-}
 
+  * `abstract/`: Text files (one per paper) with the plaintext abstracts of each paper.
   * `authors/`: A collection of JSON files, one per conference, with Google Scholar statistics about authors near the publication date of the conference.
   * `cfp/`: A collection of text files, one per conference, with the call for papers. Free-form text (no codebook available).
   * `conf/`: A collection of JSON files, one per conference, with statistics and qualitative information about conferences near its first day (postdate).

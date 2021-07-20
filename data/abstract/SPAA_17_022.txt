@@ -1,0 +1,23 @@
+
+
+We consider a scheduling problem on m identical processors sharing an arbitrarily divisible resource. In addition to assigning jobs to
+processors, the scheduler must distribute the resource among the
+processors (e.g., for three processors in shares of 20%, 15%, and 65%)
+and adjust this distribution over time. Each job j comes with a size
+pj € Randa resource requirement r; > 0. Jobs do not benefit when
+receiving a share larger than 7; of the resource. But providing them
+with a fraction of the resource requirement causes a linear decrease
+in the processing efficiency. We seek a (non-preemptive) job and
+resource assignment minimizing the makespan.
+
+Our main result is an efficient approximation algorithm which
+achieves an approximation ratio of 2+ 1/(m-—2). It can be improved
+to an (asymptotic) ratio of 1+1/(m-—1) if all jobs have unit size. Our
+algorithms also imply new results for a well-known bin packing
+problem with splittable items and a restricted number of allowed
+item parts per bin.
+
+Based upon the above solution, we also derive an approximation algorithm with similar guarantees for a setting in which we
+introduce so-called tasks each containing several jobs and where
+we are interested in the average completion time of tasks (a task is
+completed when all its jobs are completed).

@@ -1,0 +1,23 @@
+
+This paper presents an algorithm based fault tolerance
+method to harden three two-sided matrix factorizations
+against soft errors: reduction to Hessenberg form, tridiagonal form, and bidiagonal form. These two sided factorizations are usually the prerequisites to computing eigenvalues/eigenvectors and singular value decomposition.
+
+Algorithm based fault tolerance has been shown to work
+on three main one-sided matrix factorizations: LU, Cholesky,
+and QR, but extending it to cover two sided factorizations
+is non-trivial because there are no obvious offline, problem
+specific maintenance of checksums. We thus develop an online, algorithm specific checksum scheme and show how to
+systematically adapt the two sided factorization algorithms
+used in LAPACK and ScaLAPACK packages to introduce
+the algorithm based fault tolerance.
+
+The resulting ABFT scheme can detect and correct arithmetic errors continuously during the factorizations that allow
+timely error handling. Detailed analysis and experiments are
+conducted to show the cost and the gain in resilience. We
+demonstrate that our scheme covers a significant portion of
+the operations of the factorizations. Our checksum scheme
+achieves high error detection coverage and error correction
+coverage compared to the state of the art, with low overhead
+and high scalability.
+

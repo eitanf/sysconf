@@ -1,0 +1,12 @@
+
+Event races are a common source of subtle errors in JavaScript web applications. Several automated tools for
+detecting event races have been developed, but experiments show that their accuracy is generally quite low.
+We present a new approach that focuses on three categories of event race errors that often appear during the
+initialization phase of web applications: form-input-overwritten errors, late-event-handler-registration errors,
+and access-before-definition errors. The approach is based on a dynamic analysis that uses a combination of
+adverse and approximate execution. Among the strengths of the approach are that it does not require browser
+modifications, expensive model checking, or static analysis.
+In an evaluation on 100 widely used websites, our tool InitRacer reports 1 085 initialization races, while
+providing informative explanations of their causes and effects. A manual study of 218 of these reports shows
+that 111 of them lead to uncaught exceptions and at least 47 indicate errors that affect the functionality of the
+websites.

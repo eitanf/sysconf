@@ -1,0 +1,16 @@
+
+Computing a Maximal Independent Set (MIS) is a central problem
+in distributed graph algorithms. This paper presents an improved
+randomized distributed algorithm for computing an MIS in an allto-all communication distributed model, known as the congested
+clique model, defined as follows: Given a graph G = (V, £), initially
+each node knows only its neighbors. Communication happens in
+synchronous rounds over a complete graph, and per round each
+node can send O(log n) bits to each other node.
+
+We present a randomized algorithm that computes an MIS in
+O(log A/,/logn +1) < O(,flog A) rounds of congested clique, with
+high probability. Here A denotes the maximum degree in the graph.
+This improves quadratically on the O(log A) algorithm of [Ghaffari,
+SODA’16]. The core technical novelty in this result is a certain
+local sparsification technique for MIS, which we believe to be of
+independent interest.

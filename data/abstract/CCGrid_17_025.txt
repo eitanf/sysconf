@@ -1,0 +1,20 @@
+
+Event correlation is a cornerstone for process discovery over event logs crossing multiple data sources. The
+computed correlation rules and process instances will greatly
+help us to unleash the power of process mining. However,
+exploring all possible event correlations over a log could be
+time consuming, especially when the log is large. State-of-theart methods based on MapReduce designed to handle this challenge have offered significant performance improvements over
+standalone implementations. However, all existing techniques are
+still based on a conventional generating-and-pruning scheme.
+Therefore, event partitioning across multiple machines is often
+inefficient. In this paper, following the principle of filtering-andverification, we propose a new algorithm, called RF-GraP, which
+provides a more efficient correlation over distributed systems.
+We present the detailed implementation of our approach and
+conduct a quantitative evaluation using the Spark platform.
+Experimental results demonstrate that the proposed method is
+indeed efficient. Compared to the state-of-the-art, we are able
+to achieve significant performance speedups with obviously less
+network communication.
+
+Keywords-event correlation; process mining; service computing; data partitioning; big data; data-intensive computing
+

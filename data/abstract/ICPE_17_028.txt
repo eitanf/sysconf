@@ -1,0 +1,23 @@
+
+
+Collection data structures have a major impact on the performance of applications, especially in languages such as
+Java, C#, or C++. This requires a developer to select an
+appropriate collection from a large set of possibilities, including different abstractions (e.g. list, map, set, queue),
+and multiple implementations. In Java, the default implementation of collections is provided by the standard Java
+Collection Framework (JCF). However, there exist a large
+variety of less known third-party collection libraries which
+can provide substantial performance benefits with minimal
+code changes.
+
+In this paper, we first study the popularity and usage
+patterns of collection implementations by mining a code
+corpus comprised of 10,986 Java projects. We use the results to evaluate and compare the performance of the six
+most popular alternative collection libraries in a large variety of scenarios. We found that for almost every scenario
+and JCF collection type there is an alternative implementation that greatly decreases memory consumption while offering comparable or even better execution time. Memory
+savings range from 60% to 88% thanks to reduced overhead
+and some operations execute 1.5x to 50x faster.
+
+We present our results as a comprehensive guideline to
+help developers in identifying the scenarios in which an alternative implementation can provide a substantial performance improvement. Finally, we discuss how some coding
+patterns result in substantial performance differences of collections.
+

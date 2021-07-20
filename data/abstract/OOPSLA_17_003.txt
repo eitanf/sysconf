@@ -1,0 +1,13 @@
+
+Developing a small but useful set of inputs for tests is challenging. We show that a domain-specific language
+backed by a constraint solver can help the programmer with this process. The solver can generate a set of test
+inputs and guarantee that each input is different from other inputs in a way that is useful for testing.
+
+This paper presents Iorek: a tool that empowers the programmer with the ability to express to any SMT
+solver what it means for inputs to be different. The core of Iorek is a rich language for constraining the set of
+inputs, which includes a novel bounded enumeration mechanism that makes it easy to define and encode a
+flexible notion of difference over a recursive structure. We demonstrate the flexibility of this mechanism for
+generating strings.
+
+We use Iorek to test real services and find that it is effective at finding bugs. We also build Iorek into a
+random testing tool and show that it increases coverage.

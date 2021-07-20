@@ -1,0 +1,21 @@
+
+Exploiting the cloud storage hierarchy both within and
+across data-centers o different cloud providers empowers
+Internet applications to choose data centers (DCs) and storage services based on storage needs. However, using multiple storage services across multiple data centers brings a
+complex data placement problem that depends on a large
+number o factors including, e.g., desired goals, storage and
+network characteristics, and pricing policies. In addition,
+dynamics e.g., changing user locations and access patterns,
+make it impossible to determine the best data placement
+statically. In this paper, we present TripS, a lightweight
+system that considers both data center locations and storage tiers to determine the data placement or geo-distributed
+storage systems. Such systems make use o TripS by providing inputs including SLA, consistency model, fault tolerance,
+latency inormation, and cost information. With given inputs, TripS models and solves the data placement problem
+using mixed integer linear programming (MILP) to determine data placement. In addition, to adapt quickly to dynamics, we introduce the notion o Target Locale List (TLL),
+a pro-active approach to avoid expensive re-evaluation o
+the optimal placement. The TripS prototype is running on
+Wiera, a policy driven geo-distributed storage system, to
+show how a storage system can easily utilize TripS or data
+placement. We evaluate TripS/Wiera on multiple data centers o AWS and Azure. The results show that TripS/Wiera
+can reduce cost 14.96% ~ 98.1% based on workloads in comparison with other works’ approaches and can handle both
+short- and long-term dynamics to avoid SLA violations.

@@ -1,0 +1,21 @@
+
+Given an input tensor, its CANDECOMP/PARAFAC
+decomposition (or CPD) is a low-rank representation. CPDs
+are of particular interest in data analysis and mining, especially when the data tensor is sparse and of higher order
+(dimension). This paper focuses on the central bottleneck of a
+CPD algorithm, which is evaluating a sequence of matricized
+tensor times Khatri-Rao products (MTTKRPs). To speed up
+the MTTKRP sequence, we propose a novel, adaptive tensor
+memoization algorithm, ADATM. Besides removing redundant
+computations within the MTTKRP sequence, which potentially
+reduces its overall asymptotic complexity, our technique also
+allows a user to make a space-time tradeoff by automatically
+tuning algorithmic and machine parameters using a model-driven
+framework. Our method improves as the tensor order grows,
+making its performance more scalable for higher-order data
+problems. We show speedups of up to 8x and 820 on real
+sparse data tensors with orders as high as 85 over the SPLATT
+package and Tensor Toolbox library respectively; and on a full
+CPD algorithm (CP-ALS), ADATM can be up to 8x faster than
+state-of-the-art method implemented in SPLATT.
+

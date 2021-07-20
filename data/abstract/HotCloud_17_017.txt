@@ -1,0 +1,22 @@
+
+
+Many popular Web services use CDNs to host their
+content closer to users and thus improve page load times.
+While this model’s success is beyond question, it has its
+limits: for users with poor last-mile latency even to a
+nearby CDN node, the many RTTs needed to fetch a Web
+page add up to large delays. Thus, in this work, we explore a complementary model of speeding up Web page
+delivery — a content gathering network (CGN), whereby
+users establish their own geo-distributed presence, and
+use these points of presence to proxy content for them.
+We show that deploying only 14 public cloud-based CGN
+nodes puts the closest node within a median RTT of
+merely 4.8 ms (7.2 ms) from servers hosting the top 10k
+(100k) most popular Web sites. The CGN node nearest
+to a server can thus obtain content from it rapidly, and
+then transmit it to the client over fewer (limited by available bandwidth) high-latency interactions using aggressive transport protocols. This simple approach reduces
+the median page load time across 100 popular Web sites
+by as much as 53%, and can be deployed immediately
+without depending on any changes to Web servers at an
+estimated cost of under $1 per month per user.
+

@@ -1,0 +1,14 @@
+
+Modern big data processing platforms employ huge inmemory key-value (KV) maps. Their applications simultaneously drive high-rate data ingestion and large-scale analytics. These two scenarios expect KV-map implementations
+that scale well with both real-time updates and large atomic
+scans triggered by range queries.
+
+We present KiWi, the first atomic KV-map to efficiently
+support simultaneous large scans and real-time access. The
+key to achieving this is treating scans as first class citizens, and organizing the data structure around them. KiWi
+provides wait-free scans, whereas its put operations are
+lightweight and lock-free. It optimizes memory management jointly with data structure access. We implement KiWi
+and compare it to state-of-the-art solutions. Compared to
+other KV-maps providing atomic scans, KiWi performs either long scans or concurrent puts an order of magnitude
+faster. Its scans are twice as fast as non-atomic ones implemented via iterators in the Java skiplist.
+

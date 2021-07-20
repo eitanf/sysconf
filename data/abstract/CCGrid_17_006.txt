@@ -1,0 +1,17 @@
+
+We analyze YARN container overhead and present
+early results of reducing its overhead by dynamically adjusting
+the input split size. YARN is designed as a generic resource
+manager that decouples programming models from resource
+management infrastructures. We demonstrate that YARN’s
+generic design incurs significant overhead because each container must perform various initialization steps, including
+authentication. To reduce container overhead without changing
+the existing YARN framework significantly, we propose leveraging the input split, which is the logical representation of physical
+HDFS blocks. With input splits, we can combine multiple
+HDFS blocks and increase the input size of each container,
+thereby enabling a single map wave and reducing the number
+of containers and their initialization overhead. Experimental
+results shows that we can avoid recurring container overhead
+by selecting the right size for input splits and reducing the
+number of containers.
+

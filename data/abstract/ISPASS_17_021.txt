@@ -1,0 +1,24 @@
+
+Accurate IPC estimates are critical for generating
+performance projections of key workloads on future designs.
+However, the need to respond to projections requests in a
+timely manner in the face of rapidly evolving applications and
+software stacks and tight schedule constraints, often preclude
+design teams from executing detailed workload analysis, sampling and simulation flows for such purposes.
+
+We address this problem by taking advantage of the large
+amount of data that performance modeling teams commonly
+generate as part of architectural studies across thousands of
+workload scenarios. We propose two methods for exploiting
+these datasets: one that builds proxy suites, and another that
+builds decision-tree based classifiers. Both methods can generate IPC estimates for a target workload without collecting new
+workload samples, or running a single additional simulation.
+We discuss our experience using these techniques to estimate
+the IPC of numerous commercial workloads on four industrial
+x86 processor designs. The resulting IPC estimates were on
+average, within 2% of those obtained via measurements or
+detailed cycle-accurate simulations Importantly, using these
+methods, we were able to generate IPC estimates for a target
+workload in a matter of hours to 1-2 days, compared to several
+weeks using conventional approaches.
+

@@ -1,0 +1,21 @@
+
+
+Delta synchronization (sync) is known to be crucial for
+network-level efficiency of cloud storage services (e.g.,
+Dropbox). Practical delta sync techniques are, however, only available for PC clients and mobile apps,
+but not web browsers—the most pervasive and OSindependent access method. To understand obstacles of
+web-based delta sync, we implemented a traditional delta
+sync solution (named WebRsync) for web browsers using JavaScript, and find that WebRsync severely suffers
+from the inefficiency of JavaScript execution inside web
+browsers, thus leading to frequent stagnation and even
+crashing. Given that the computation burden on the web
+browser mainly stems from data chunk search and comparison, we reverse the traditional delta sync approach by
+lifting all chunk search and comparison operations from
+the client side into the server side. Inevitably, this brings
+enormous computation overhead to the servers. Hence,
+we further leverage locality matching and a more efficient checksum to reduce the overhead. The resulting
+solution (called WebR2sync+) outpaces WebRsync by
+an order of magnitude, and it is able to simultaneously
+support ~7300 web clients’ delta sync using an ordinary
+VM server based on a Dropbox-like system architecture.
+

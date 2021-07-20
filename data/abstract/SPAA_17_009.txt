@@ -1,0 +1,18 @@
+
+
+We investigate scheduling algorithms for distributed transactional
+memory systems where transactions residing at nodes of a communication graph operate on shared, mobile objects. A transaction
+requests the objects it needs, executes once those objects have been
+assembled, and then possibly forwards those objects to other waiting transactions. Minimizing execution time in this model is known
+to be NP-hard for arbitrary communication graphs, and also hard
+to approximate within any factor smaller than the size of the graph.
+Nevertheless, networks on chips, multi-core systems, and clusters
+are not arbitrary. Here, we explore efficient execution schedules
+in specialized graphs likely to arise in practice: Clique, Line, Grid,
+Cluster, Hypercube, Butterfly, and Star. In most cases, when individual transactions request k objects, we obtain solutions close to a
+factor O(k) from optimal, yielding near-optimal solutions for constant k. These execution times approximate the TSP tour lengths of
+the objects in the graph. We show that for general networks, even
+for two objects (k = 2), it is impossible to obtain execution time
+close to the objects’ optimal TSP tour lengths, which is why it is
+useful to consider more realistic network models. To our knowledge, this is the first attempt to obtain provably fast schedules for
+distributed transactional memory.

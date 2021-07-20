@@ -1,0 +1,17 @@
+
+Straggler task is commonly considered as the major
+bottleneck in parallel data processing. Previous work mainly
+focuses on the coarse-grained straggler detection and optimization such as speculative scheduling. However, fine-grained rootcause analysis of straggler tasks is rarely considered. In addition,
+existing work simply depends on empirical analysis, which lacks
+of useful guidance to performance optimization. In this paper, we
+propose a new methodology of fine-grained straggler root-cause
+analysis using machine learning. We collect raw metrics from
+Spark event log and hardware sampling tool, and refine them into
+high-level metrics for model learning. Then we present the rootcause analysis of stragglers through CART tree. A customized
+prune method is also applied to improve analysis accuracy. From
+the analysis, we derive several new findings beyond the well
+known causes of stragglers. Our work provides a new perspective
+on identifying and understanding the inefficiency in parallel data
+processing programs by applying machine learning techniques to
+fine-grained root-cause analysis of straggler tasks.
+

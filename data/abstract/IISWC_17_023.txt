@@ -1,0 +1,26 @@
+
+Owing to the advantages of low standby power
+and high scalability, ReRAM technology is considered as a
+promising replacement for conventional DRAM in future manycore systems. In order to make ReRAM highly scalable, the
+memory array has to have a crossbar array structure, which
+needs a specific access mechanism for activating a row of memory
+when reading/writing a data block from/to it. This type of
+memory access would cause Sneak Current that would lead to
+voltage drop on the memory cells of the activated row, i.e., the
+cells which are far from the write drivers experience more voltage
+drop compared to those close to them. This results in a nonuniform access latency for the cells of the same row.
+
+To address this problem, we propose and evaluate a scheme
+that exploits the non-uniformity of write access pattern of the
+workloads. More specifically, based on our extensive characterization of write patterns to the cache lines and memory pages
+of 20 CPU workloads, we recognized that (i) on each main
+memory access, just a few cache lines of the activated row need
+to be updated on a write-back, and more importantly, there is a
+temporal and spatial locality of the writes to the cache lines; and
+(ii) all pages of the memory footprint of an application do not
+see the same write counts during the execution of the workload.
+Motivated by these characteristics, we then evaluate different
+intra-page memory block permutations in order to improve the
+performance of a crossbar ReRAM-based main memory. Our
+results collectively show that, by applying some types of intrapage memory block permutation, the access latency to a RERAMbased main memory can be reduced up to 50% when running
+the SPEC CPU2006 workloads.

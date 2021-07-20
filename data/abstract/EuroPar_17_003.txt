@@ -1,0 +1,12 @@
+
+. In this paper, we present a fine-grained multi-stage metricbased triangular remeshing algorithm on manycore and NUMA architectures. It is motivated by the dynamically evolving data dependencies
+and workload of such irregular algorithms, often resulting in poor performance and data locality at high number of cores. In this context, we
+devise a multi-stage algorithm in which a task graph is built for each kernel. Parallelism is then extracted through fine-grained independent set,
+maximal cardinality matching and graph coloring heuristics. In addition
+to index ranges precalculation, a dual-step atomic-based synchronization
+scheme is used for nodal data updates. Despite its intractable latencyboundness, a good overall scalability is achieved on a NUMA dual-socket
+Intel Haswell and a dual-memory Intel KNL computing nodes (64 cores).
+The relevance of our synchronization scheme is highlighted through a
+comparison with the state-of-the-art.
+
+

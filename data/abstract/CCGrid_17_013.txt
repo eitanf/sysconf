@@ -1,0 +1,30 @@
+
+Running Big Data applications in the cloud has
+become extremely popular in recent times. To enable the storage
+of data for these applications, cloud-based distributed storage
+solutions are a must. OpenStack Swift is an object storage service
+which is widely used for such purposes. Swift is one of the
+main components of the OpenStack software package. Although
+Swift has become extremely popular in recent times, its proxy
+server based design limits the overall throughput and scalability
+of the cluster. Swift is based on the traditional TCP/IP sockets
+based communication which has known performance issues such
+as context-switch and buffer copies for each message transfer.
+Modern high-performance interconnects such as InfiniBand and
+RoCE offer advanced features such as RDMA and provide high
+bandwidth and low latency communication. In this paper, we
+propose two new designs to improve the performance and scalability of Swift. We propose changes to the Swift architecture and
+operation design. We propose high-performance implementations
+of network communication and I/O modules based on RDMA
+to provide the fastest possible object transfer. In addition, we
+use efficient hashing algorithms to accelerate object verification
+in Swift. Experimental evaluations with microbenchmarks, Swift
+stack benchmark (ssbench), and synthetic application workloads
+reveal up to 2x and 7.3x performance improvement with our two
+proposed designs for put and get operations. To the best of our
+knowledge, this is the first work towards accelerating OpenStack
+Swift with RDMA over high-performance interconnects in the
+literature.
+
+Keywords-OpenStack, Swift, RDMA, High-performance interconnects
+

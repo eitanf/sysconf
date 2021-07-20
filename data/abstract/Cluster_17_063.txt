@@ -1,0 +1,33 @@
+
+Scientific computing requires trust in results. In
+high-performance computing, trust is impeded by silent data
+corruption (SDC), in other words corruption that remains
+unnoticed. Numerical integration solvers are especially sensitive
+to SDCs because an SDC introduced in a certain step affects all
+the following steps. SDCs can even cause the solver to become
+unstable. Adaptive solvers can change the step size, by comparing
+an estimation of the approximation error with an user-defined
+tolerance. If the estimation exceeds the tolerance, the step is
+rejected and recomputed. Adaptive solvers have an inherent
+resilience, because some SDCs might have no consequences on
+the accuracy of the results, and some SDCs might push the
+approximation error beyond the tolerance. Our first contribution
+shows that the rejection mechanism is not reliable enough
+to reject all SDCs that affect the results’ accuracy, because
+the estimation is also corrupted. We therefore provide another
+protection mechanism: at the end of each step, a second error
+estimation is employed to increase the redundancy. Because of
+the complex dynamics, the choice of the second estimate is
+difficult: two methods are explored. We evaluated them in HyPar
+and PETSc, on a cluster of 4,096 cores. We injected SDCs
+that are large enough to affect the trust or the convergence
+of the solvers. The new approach can detect 99% of the SDCs,
+reducing by more than 10 times the number of undetected SDCs.
+Compared with replication, a classic SDC detector, our protection
+mechanism reduces the memory overhead by more than 2 times
+and the computational overhead by more than 20 times in our
+experiments.
+
+Index Terms—high-performance computing, resilience, fault
+tolerance, silent data corruption, numerical integration solver
+

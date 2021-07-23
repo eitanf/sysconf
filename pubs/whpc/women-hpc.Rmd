@@ -367,12 +367,16 @@ Women in lead author position average more citations than men overall
 However, there is one outlier at the long tail of the distribution. This paper, led by a female author, garnered more than 450 citations as of this writing, but does not appear to be strongly related to HPC [@liang17:provchain].
 When we exclude this paper, the mean citations for women's papers drops to
 `r fc <- filter(cites, gender == "F", citations < high_cites)$citations; fc %>% mean() %>% round(2)`,
-much lower than men's
+lower than men's
 (`r report_test(t.test(fc, mc), 2, show_df = T)`).
-In addition, fewer papers written by a female lead author accomplish wide recognition. Google Scholar tracks the number of papers that were cited 10 or more times as the i-10 index. By this metric, only
+
+In addition to citation count, fewer papers written by a female lead author accomplish wide recognition. Google Scholar tracks the number of papers that were cited 10 or more times as the i-10 index. By this metric, only
 `r thrs <- 10; pct(sum(fc >= thrs), length(fc), 0)`% of female-led papers exceeded this threshold,
 compared to `r pct(sum(mc >= thrs), length(mc), 0)`% for men
 (`r report_test(chisq.test(data.frame(f = c(sum(fc >= thrs), sum(fc < thrs)), m = c(sum(mc >= thrs), sum(mc < thrs)))), 2)`).
+
+In both cases, the results may not be statistically significant and the sample size may be too small to establish a clear difference in citations by gender.
+It may be interesting to follow up on this analysis in regular intervals in the future and observe how the difference in reception behaves over time.
 
 ```{r citations, echo=F, message=F, warning=F, out.width='0.99\\columnwidth', fig.cap="Distribution of paper citations three years after publication."}
 cites %>%
@@ -387,12 +391,12 @@ cites %>%
          ylab("Density")
 ```
 
-
+\newpage{}
 # Researcher Demographics {#sec:demo}
 
 There are a total of
 `r nrow(demo)`
-authors and PC members in our dataset, spanning numerous countries and institutions. We can estimate the distribution of these demographics by looking at email addresses or GS affiliations. Using simple regular expressions, we mapped most domains to an institution's country and sector, and marked the rest as unknown. We also collected the various GS bibliometrics for each researcher to estimate their research experience, which is our next analysis.
+authors and PC members in our dataset, spanning numerous countries and institutions. We can estimate the distribution of these demographics by looking at email addresses or GS affiliations. Using regular expressions, we mapped most domains to an institution's country and sector, and marked the rest as unknown. We also collected the various GS bibliometrics for each researcher to estimate their research experience, which is our next analysis.
 
 ## Research Experience
 
@@ -400,9 +404,9 @@ We can approximate the experience of researchers with proxy metrics such as tota
 `r pct(nrow(filter(demo, !is.na(hindex))), nrow(demo), 2)`%
 of researchers with known gender had a uniquely identifiable GS profile). The profile contains various bibliometric measures that can approximate the experience and research influence of a person. For example, Fig. \@ref(fig:npubs) depicts the distribution of the total number of previous publications (circa their conference's date), while Fig. \@ref(fig:hindex) shows the distribution of the h-index metric.
 We also collected data on the number of past publications of authors only from a different source, Semantic Scholar, which has 100% author coverage (Fig. \@ref(fig:s2npubs)).
-Google Scholar and Semantic Scholar have different data sources and algorithms for questions such as name disambiguation, resulting in low correlation
+Google Scholar and Semantic Scholar use different data and algorithms for questions such as name disambiguation, resulting in low correlation
 (`r report_test(cor.test(demo$npubs, demo$s2npubs))`).
-Nevertheless, the overall similarity in distributions support the following observations.
+Nevertheless, the overall similarity in distributions supports the following observations.
 
 ```{r npubs, echo=F, message=F, warning=F, fig.env='figure*', fig.height=3, fig.cap="Distribution of past publications (ca. 2017) from Google Scholar by gender and role."}
 demo %>%
@@ -519,7 +523,7 @@ world %>%
     theme(legend.position = "bottom")
 ```
 
-When we look at the geographical distribution of researchers, it may not be surprising that most hail from the West, although China, India, and Japan are also prominent (Table \@ref(tab:top-countries) and Fig. \@ref(fig:world-by-pct-w)). The United States has the highest percentage of women of any country with more than 15 total researchers in our dataset, but it is still far from reaching gender parity. On the opposite end, Japan stands out among economically developed countries with particularly low female representation.
+When we look at the geographical distribution of researchers, it may not be surprising that most hail from the West, although China, India, and Japan are also prominent (Table \@ref(tab:top-countries) and Fig. \@ref(fig:world-by-pct-w)). The United States has the highest percentage of women of any country with more than 15 total researchers in our dataset, but it is still far from gender parity. On the opposite end, Japan stands out among economically developed countries with particularly low female representation.
 
 Another way to break down these numbers is by geographic region and conference role (Table \@ref(tab:region)).
 This perspective exposes the stark lack of geographic diversity in the field, with a full half of the
@@ -578,7 +582,7 @@ The smaller difference may stem from the larger sample size and from the fact th
 Either way, our data suggests that there are no gender differences in HPC based on work sector alone.
 
 
-```{r sector, echo=F, message=F, out.width='0.5\\textwidth', fig.height=3.5, fig.pos= "!", fig.cap="Representation of women by sector and role."}
+```{r sector, echo=F, message=F, out.width='0.5\\textwidth', fig.height=3.0, fig.pos= "!", fig.cap="Representation of women by sector and role."}
 demo %>%
   drop_na(gender) %>%
   drop_na(sector) %>%
@@ -601,7 +605,6 @@ demo %>%
 ```
 
 
-\newpage{}
 
 # Conclusion {#sec:conclusion}
 

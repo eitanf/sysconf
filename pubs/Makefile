@@ -12,13 +12,14 @@ endif
 export
 
 
-SUBDIRS=web gender-gap survey-report diversity-survey whpc-stats prestige
+SUBDIRS=diversity-survey whpc gender-gap prestige # web survey-report
 
 .PHONY: subdirs $(SUBDIRS) clean
 
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
+	echo "Entering $@/..."
 	$(MAKE) -C $@
 
 clean:

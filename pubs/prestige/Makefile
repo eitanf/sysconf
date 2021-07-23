@@ -4,7 +4,7 @@ endif
 
 PAPER=prestige
 
-OUTPUTS=${PAPER}.pdf ${PAPER}.tex _main.* libs _book _bookdown_files *.html *.log *.aux *.bbl *.blg *.dvi *.out *.xcp
+OUTPUTS=${PAPER}.pdf ${PAPER}.tex _main.* libs _book _bookdown_files *.html *.log *.aux *.bbl *.blg *.dvi *.out *.xcp *.cut
 export
 
 all: ${PAPER}.pdf

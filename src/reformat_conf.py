@@ -19,13 +19,13 @@ with open(sys.argv[1], mode='r', encoding='utf-8') as f:
 i = 0
 # Reorder conference data:
 conf = OrderedDict([ (k,find_key(data, k)) for k in [ \
-        'key', 'conference', 'organization', 'country', \
+        'key', 'conference', 'url', 'organization', 'country', \
         'postdate', 'last_deadline', 'review_days', \
         'submissions', 'min_reviews', 'total_reviews', 'double_blind', \
         'rebuttal', 'open_access', 'age', 'past_papers', \
-        'past_citations', 'h5_index', 'h5_median', 'notes', \
-        'pc_chairs', 'pc_members', 'keynote_speakers', 'session_chairs', 'panelists', \
-        'papers' \
+        'past_citations', 'h5_index', 'h5_median', 'field', 'subfield', \
+        'notes', 'pc_chairs', 'pc_members', 'keynote_speakers', \
+        'session_chairs', 'panelists', 'papers' \
         ] ])
 
 # Next, reorder paper data:

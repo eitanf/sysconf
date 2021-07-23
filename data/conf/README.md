@@ -2,6 +2,8 @@ The JSON files under the `data/conf/` directory hold information about each conf
 
 Empty fields (where not data was available or applicable) are denoted as empty strings or lists, according to the field's type.
 
+Some conferences from fields other than 'Systems' are mostly empty, collecting only minimal author information.
+
 ### Field description {-}
 
 * `key` (string): Short conference name.

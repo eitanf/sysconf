@@ -6,3 +6,4 @@ The file holds a mapping between names and genders as follows:
 
  * `name` (string): The normalized name of a person.
  * `gender` (F/M categorical string): One letter denoting gender for female or male.
+ * `probability` (numeric, optional): Confidence level for inference, as computed by genderize.io

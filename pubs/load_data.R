@@ -26,8 +26,6 @@ all_confs$total_reviews <- ifelse(is.na(all_confs$total_reviews), all_confs$min_
 all_confs$mean_review_load <- (all_confs$total_reviews * all_confs$mean_pages) / (all_confs$pc_size * all_confs$review_days)
 
 sys_confs <- filter(all_confs, field=="Systems")
-pl_confs <- filter(all_confs, field=="PL")
-knowledge_confs <- filter(all_confs, field=="Knowledge")
 
 
 ################# People data
@@ -62,13 +60,16 @@ persons <- read.csv(paste0(toplevel, "features/persons.csv"),
                         as_pc_chair = sum(role == "chair"), as_pc = sum(role == "pc"),
                         as_panelist = sum(role == "panel"), as_session_chair = sum(role == "session")))
 
-sys_persons <- select(sys_roles, name, gs_email) %>%
+sys_persons <- dplyr::select(sys_roles, name, gs_email) %>%
   unique() %>%
   left_join(persons)
 
 authors <- persons %>% filter(as_author > 0)
+sys_authors <- sys_persons %>% filter(as_author > 0)
 authors_with_profile <- filter(authors, !is.na(npubs))
+
 pcs <- persons %>% filter(as_pc + as_pc_chair > 0)
+sys_pcs <- sys_persons %>% filter(as_pc + as_pc_chair > 0)
 pcs_with_profile <- filter(pcs, !is.na(npubs))
 
 people_tidy <- left_join(roles, persons)
@@ -85,6 +86,9 @@ interests <- read.csv(paste0(toplevel, "features/interests.csv"), na.strings = "
 #### Paper data
 papers <- read.csv(paste0(toplevel, "features/papers.csv"), na.strings = "",
                    colClasses = c("factor", "integer", "logical", "logical", "integer", "integer", "logical", "logical", "integer", "integer", "character"))
+sys_papers <- papers %>%
+  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key))) %>%
+  filter(conf %in% sys_confs$key)
 
 citations <- read.csv(paste0(toplevel, "features/citations.csv"), na.strings = "",
                       colClasses = c("factor", "integer", "integer"))

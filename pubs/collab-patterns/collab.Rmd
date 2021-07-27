@@ -26,9 +26,173 @@ output:
 ```{r code = readLines("../load_data.R"), echo = F, message = F}
 ```
 
+Rewritting some of the shared_utils functions to be used in R.
+
+```{r}
+author_name <- function(name) {
+  
+  m <- str_match(name, "([^\\(]*) \\((.*)\\)$")
+  if (is.na(m[,1])) {
+    
+    orig <- name
+    affil <- NA
+    
+    
+  } else {
+    
+    orig <- m[,2]
+    affil <- m[,3]
+    
+  }
+  
+  return(c(orig, affil))
+  
+}
+
+normalized_author_name <- function(name) {
+  
+  recased <- str_to_title(name)
+  
+  recased <- str_replace(recased, "Jr\\.", "") %>% 
+    str_replace("Sr\\.", "") %>% 
+    str_replace("Dr\\.", "") %>% 
+    str_replace("Prof\\.", "")
+  
+  names <- author_name(recased)[1]
+  names <- str_split(names, " ")
+  
+  names <- names[[1]]
+  
+  if (length(names) == 1) {
+
+    return(names)
+
+  } else {
+
+    last <- tail(names, n = 1)
+    rest <- names[1:(length(names) - 1)]
+    
+    if (length(rest) == 1) {
+      first <- rest
+    } else {
+      
+      tot <- ""
+      for (i in seq_along(rest)) {
+        tot <- paste0(tot,' ', rest[i])
+      }
+    
+      first <- tot
+      
+    }
+    
+    full <- paste0(last, ", ", first)
+    return(full)
+
+  }
+  
+}
+
+```
+
+
 
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library('tidyverse')
+library('rjson')
+
+inferred <- read_csv("https://raw.githubusercontent.com/eitanf/sysconf/master/data/nonsys_inferred_gender_mapping.csv")
+verified <- read_csv("https://raw.githubusercontent.com/eitanf/sysconf/master/data/nonsys_verified_gender_mapping.csv")
+
+inferred <- inferred %>% 
+  select(-probability)
+
+full_combined_genders <- rbind(inferred, verified)
+
+
+```
+
+
+```{r}
+json_to_df <- function(conf_name) {
+  
+  full_gends <- full_combined_genders
+  json_fpath <- paste0("https://raw.githubusercontent.com/eitanf/sysconf/master/data/conf/", conf_name, ".json")
+  
+  json <- fromJSON(file = json_fpath)
+  
+  json_sub <- json[['papers']]
+  
+  df <- data.frame()
+  
+  for (i in seq_along(json_sub)) {
+    
+    id <- json_sub[[i]][1]
+    authors <- as.data.frame(json_sub[[i]][3])
+    
+    authors <- authors %>% 
+      mutate(paper_id = str_sub(id, -3L, -1L)) %>% 
+      mutate(conf = json[[1]])
+    
+    if (length(json[['field']]) != 0) {
+      
+      authors <- authors %>% 
+        mutate(field = json[['field']])
+      
+    } else {
+      
+      authors <- authors %>% 
+        mutate(field = "")
+      
+    }
+  
+    df <- rbind(df, authors)
+    
+  }
+  
+  # normalizing author names
+  
+  names_vector <- df$authors
+  
+  names_normed_df <- data.frame()
+  for (i in seq_along(names_vector)) {
+  
+    new <- as.data.frame(str_replace(normalized_author_name(names_vector[i]), "\\s+", " "))
+    names_normed_df <- rbind(names_normed_df, new)
+    
+
+  }
+  
+  names(names_normed_df) <- "name"
+  
+  
+  if (nrow(df) == nrow(names_normed_df)) {
+
+    df_full <-
+      cbind(df, names_normed_df) %>%
+      select(-authors)
+
+    df_full %>%
+      left_join(full_gends, by = "name")
+
+  } else {
+    
+    # this should never happen, but just in case we'll check for it
+    stop("lengths don't match")
+
+  }
+  
+}
+```
+
+
+```{r}
+conf_names <- 
+  c("AAAI", "ACL", "CHI", "CVPR", "ICML", "ICSE", "MM", "NIPS", "POPL","SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW")
+
+all_confs <- conf_names %>% 
+  map_dfr(
+    json_to_df
+  )
 
 ```
 

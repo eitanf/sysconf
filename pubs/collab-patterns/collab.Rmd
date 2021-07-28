@@ -42,8 +42,9 @@ verified_gender_nonsys <-
 inferred_gender_nonsys <- inferred_gender_nonsys %>% 
   select(-probability)
 
+
 # this is the dataframe that we will be joining with the .json conference files that we convert to .csvs
-nonsys_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys)
+nonsys_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender)
 
 # this function breaks an author's reference into their name and optionally their affiliation 
 author_name <- function(name) {
@@ -112,7 +113,7 @@ normalized_author_name <- function(name) {
 
 json_to_df <- function(conf_name) {
   
-  full_gends <- nonsys_genders
+  full_nonsys_gends <- nonsys_genders
   json_fpath <- paste0("https://raw.githubusercontent.com/eitanf/sysconf/master/data/conf/", conf_name, ".json")
   json <- fromJSON(file = json_fpath)
   json_sub <- json[['papers']]
@@ -161,7 +162,7 @@ json_to_df <- function(conf_name) {
       select(-authors)
 
     df_full %>%
-      left_join(full_gends, by = "name")
+      left_join(full_nonsys_gends, by = "name")
 
   } else {
     # this should never happen, but just in case we'll check for it
@@ -177,18 +178,12 @@ json_to_df <- function(conf_name) {
 nonsys_conf_names <- 
   c("AAAI", "ACL", "CHI", "CVPR", "ICML", "ICSE", "MM", "NIPS", "POPL","SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM")
 
-all_confs <- nonsys_conf_names %>% 
+nonsys_confs <- nonsys_conf_names %>% 
   map_dfr(
     json_to_df
   )
 
-all_confs <- all_confs %>% 
-  mutate(
-    conf = case_when(
-      conf == "CHI" ~ "CHI_17",
-      T ~ conf
-    )
-  )
+
 ```
 
 

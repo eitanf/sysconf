@@ -44,7 +44,10 @@ inferred_gender_nonsys <- inferred_gender_nonsys %>%
 
 
 # this is the dataframe that we will be joining with the .json conference files that we convert to .csvs
-nonsys_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender)
+all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender)
+
+all_genders <- all_genders %>% 
+  distinct(name, .keep_all = T)
 
 # this function breaks an author's reference into their name and optionally their affiliation 
 author_name <- function(name) {
@@ -111,9 +114,8 @@ normalized_author_name <- function(name) {
 # on to the next paper, stacking the new data frame with those that have already been created each time.
 # Finally it joins this dataframe with the csv of author names and corresponding genders.
 
-json_to_df <- function(conf_name) {
+json_to_df <- function(conf_name, gender_mapping) {
   
-  full_nonsys_gends <- nonsys_genders
   json_fpath <- paste0("https://raw.githubusercontent.com/eitanf/sysconf/master/data/conf/", conf_name, ".json")
   json <- fromJSON(file = json_fpath)
   json_sub <- json[['papers']]
@@ -162,7 +164,7 @@ json_to_df <- function(conf_name) {
       select(-authors)
 
     df_full %>%
-      left_join(full_nonsys_gends, by = "name")
+      left_join(gender_mapping, by = "name")
 
   } else {
     # this should never happen, but just in case we'll check for it
@@ -180,9 +182,8 @@ nonsys_conf_names <-
 
 nonsys_confs <- nonsys_conf_names %>% 
   map_dfr(
-    json_to_df
+    ~json_to_df(.x, all_genders)
   )
-
 
 ```
 

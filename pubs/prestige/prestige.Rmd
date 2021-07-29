@@ -24,7 +24,7 @@ abstract: |
 
  A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. Some such studies, both experimental and observational, have found strong associations between famous authors and single-blind reviewing, while others found no such association or even a negative association. Additionally, these studies are rarely directly comparable, leading to difficulty in generalization of their results.
 
- In this paper, we explore the design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, control variables, and outlier treatments. We show that depending on these choices, the data can lead to contradictory conclusions with high statistical significance. The main practical implication of our analyses is that a narrow evaluation may lead to unreliable results. A thorough evaluation of prestige bias requires a careful inventory of assumptions, metrics, and methodology, often requiring a more detailed sensitivity analysis than is normally taken.
+ In this paper, we explore the design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, control variables, and outlier treatments. We show that depending on these choices, the data can lead to contradictory conclusions with high statistical significance. The main practical implication of our analyses is that a narrow evaluation may lead to unreliable results. A thorough evaluation of prestige bias requires a careful inventory of assumptions, metrics, and methodology, often requiring a more detailed sensitivity analysis than is normally undertaken.
 ---
 
 ```{r code = readLines("../load_data.R"), echo=F, message=F}
@@ -307,7 +307,7 @@ Some of these studies have found conclusive evidence for bias while others have 
 
 Often, these studies are not directly comparable because of various differences in the data, methodologies, or metrics used.
 One limitation of these studies is that there are various ways to estimate a person's name recognition, and they do not all yield the same results.
-Another limitation is that the reviewing policy of a venue is not always independent from other factors, so DB reviewing could be confounded with other factors that affect submission or acceptance decisions.
+Another limitation is that the reviewing policy of a venue is not usually independent from other factors, so DB reviewing could be confounded with other factors that affect submission or acceptance decisions.
 When we tried to apply similar methodologies to one broad field of research, computer systems, we discovered that the outcome can vary significantly based on the methodology and metrics used.
 
 The present work began as one of these studies, focusing on the field of computer systems.
@@ -321,7 +321,7 @@ To reiterate, this study does not attempt to resolve the question of the existen
 Instead, we focus on exposing and analyzing the factors that could change the outcome of studies that do attempt to address this question.
 These factors include questions such as: "how to estimate the prestige or reputation of authors?" "where should data be sourced from, and how should it be cleaned?" and "how should we correct for confounding variables like conference prestige?"
 A meaningful analysis of review bias requires a careful consideration of these factors, and a cognizant effort to address the sensitivity of the outcomes to these choices.
-Understanding these factors can help accomplish more reliable and stable results in future studies on bias in general, and prestige bias in particular.
+Understanding these factors can help contribute to more reliable and stable results in future studies on bias in general, and prestige bias in particular.
 
 The rest of this paper is organized as follows.
 We start by describing the extensive dataset we collected on our field of focus in Sec. \@ref(sec:data).
@@ -381,14 +381,13 @@ and these researchers appear to be less experienced than researchers with a GS p
 We therefore also considered a proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database [@fricke18:semantic].
 
 In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
-These data included review policies, important dates, the composition of its technical PC, and the number of submitted papers.
+These data included review policies, the composition of its technical PC, and the number of submitted papers.
 We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar websites, including past citations, age, and total publications, and downloaded all `r nrow(papers)` papers.
 
 <!-------------------------------------------------------------------------------------------->
 ## Statistics
 
-For statistical testing, group means were compared pairwise using Welch's two-sample t-test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; differences between distributions of medians were tested with the Wilcoxon Signed Rank Test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient.
-All statistical tests are reported with their p-values.
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient.  In terms of statistical modeling, fixed-effects and mixed-effects generalized linear models were built and Satterthwaite's degrees of freedom method is used to hypothesis testing on model coefficients. All statistical tests are reported with their p-values.
 
 <!-------------------------------------------------------------------------------------------->
 ## Code and data availability

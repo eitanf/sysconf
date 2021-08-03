@@ -35,15 +35,16 @@ conf_stop_words <- c("abstract", "pp", "figure", "fig", "section", "sec", "acm",
 
 stop_words <- c(my_stop_words, conf_stop_words)
 
+cluster <- new_cluster(parallel::detectCores())
+cluster_library(cluster, "textclean")
+cluster_library(cluster, "textstem")
+cluster_library(cluster, "tidytext")
+cluster_library(cluster, "dplyr")
+
 ### Clean up words and generate a tidy data structure:
 
-tokens.tidy <- 
-  partition(all_text) %>%
-  cluster_library("textclean") %>%
-  cluster_library("textstem") %>%
-  cluster_library("tidytext") %>%
-  cluster_library("multidplyr") %>%
-
+tokens.tidy <- all_text %>%
+  partition(cluster) %>%
   mutate(text = gsub("[[:digit:]]+", " ", text)) %>%    # Remove all digits from text
   mutate(text = replace_contraction(text) %>% replace_kern()) %>%
   mutate(text = lemmatize_words(text)) %>%
@@ -51,8 +52,7 @@ tokens.tidy <-
 
   collect() %>%
   as_tibble() %>%
-  ungroup() %>%
-  select(-c(PARTITION_ID))
+  ungroup()
 
 unigrams <-tokens.tidy %>%
   unnest_tokens(token, text) %>%

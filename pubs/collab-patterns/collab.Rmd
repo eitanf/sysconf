@@ -35,7 +35,7 @@ inferred_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_inferred_gender
     select(-probability)
 
 # this is the dataframe that we will be joining with the .json nonsys conference files
-all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>%
+all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>% 
   distinct(name, .keep_all = T)
 
 # this function breaks an author's reference into their name and optionally their affiliation
@@ -149,7 +149,7 @@ nonsys_confs <- nonsys_conf_names %>%
 nonsys_confs %>%
   group_by(field) %>%
   summarise(
-    n_papers = n_distinct(paper_id),
+    n_papers = n_distinct(paper_id, conf),
     n_na = sum(is.na(gender)),
     n_male = sum(gender == "M", na.rm = T),
     n_female = sum(gender == "F", na.rm = T),

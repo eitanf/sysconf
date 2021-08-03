@@ -151,6 +151,7 @@ nonsys_confs %>%
   group_by(field) %>%
   summarise(
     n_papers = n_distinct(paper_id),
+    n_na = sum(is.na(gender)),
     n_male = sum(gender == "M", na.rm = T),
     n_female = sum(gender == "F", na.rm = T),
     prop_female = n_female / (n_female + n_male)

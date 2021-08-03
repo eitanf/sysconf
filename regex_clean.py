@@ -1,3 +1,5 @@
+# You can run this script with `python regex_clean.py` in a directory with a `papers` folder which contains everything to be cleaned.
+
 import regex
 import os
 
@@ -27,10 +29,10 @@ for filename in sorted(os.listdir("papers")):
     text = regex.sub(f"(?m)^.*{conf_name}.*$", "", text)
 
     # Remove text read from figures and tables (assuming the caption is below)
-    text = regex.sub("(?r)(?m)(?s)\.\n.*?\n((?:Fig\.|Figure|Table) [0-9]+[:.].+?\.\n)", r".\n\1" ,text)
+    text = regex.sub("(?r)(?m)(?s)\..*?\n((?:Fig\.|Figure|Table|TABLE) [0-9IVX]+[:.].+?\.\n)", r".\n\1" ,text)
 
     # Remove text read from algorithms (assuming the caption is above)
-    text = regex.sub("(?m)(?s)/^Algorithm:? [0-9]*.*\n(.*?\.)/gms", r"\1", text)
+    text = regex.sub("(?m)(?s)^Algorithm:? [0-9]*.*\n(.*?\.)", r"\1", text)
 
     # Remove equations 
     # (adding the letter x to operations might result in words containing x being deleted)

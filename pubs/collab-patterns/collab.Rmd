@@ -26,7 +26,6 @@ output:
 ```{r code = readLines("../load_data.R"), echo = F, message = F}
 ```
 
-
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library('tidyverse')
 library('rjson')
@@ -36,7 +35,7 @@ inferred_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_inferred_gender
     select(-probability)
 
 # this is the dataframe that we will be joining with the .json nonsys conference files
-all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>%
+all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>% 
   distinct(name, .keep_all = T)
 
 # this function breaks an author's reference into their name and optionally their affiliation
@@ -138,7 +137,7 @@ json_to_df <- function(conf_name, gender_mapping) {
 
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
 nonsys_conf_names <-
-  c("AAAI", "ACL", "CHI", "CVPR", "ICML", "ICSE", "MM", "NIPS", "POPL","SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM")
+  c("AAAI", "ACL", "CHI", "CVPR", "ICML", "ICSE", "MM", "NIPS", "POPL","SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM", "ITICSE", "FOCS", "TACAS")
 
 nonsys_confs <- nonsys_conf_names %>%
   map_dfr(~json_to_df(.x, all_genders))
@@ -150,7 +149,7 @@ nonsys_confs <- nonsys_conf_names %>%
 nonsys_confs %>%
   group_by(field) %>%
   summarise(
-    n_papers = n_distinct(paper_id),
+    n_papers = n_distinct(paper_id, conf),
     n_na = sum(is.na(gender)),
     n_male = sum(gender == "M", na.rm = T),
     n_female = sum(gender == "F", na.rm = T),

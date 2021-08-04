@@ -6,6 +6,10 @@ author:
     affiliation: 1
     corresponding: false
     email: yamamojo@reed.edu
+  - name: Alexis Richter
+    affiliation: 1
+    corresponding: false
+    email: ajrichter@reed.edu
   - name: Eitan Frachtenberg
     affiliation: 1
     corresponding: true
@@ -103,11 +107,8 @@ json_to_df <- function(conf_name, gender_mapping) {
       mutate(paper_id = str_sub(id, -3L, -1L)) %>%
       mutate(conf = json[[1]])
 
-    if (length(json[['field']]) != 0) {
-      authors <- mutate(authors, field = json[['field']])
-    } else {
-      authors <- mutate(authors, field = "")
-    }
+    authors$field <- json[['field']]
+    authors$subfield <- json[['subfield']]
 
     df <- rbind(df, authors)
   }
@@ -147,6 +148,18 @@ nonsys_confs <- nonsys_conf_names %>%
 
 ```{r}
 nonsys_confs %>%
+  group_by(conf) %>%
+  summarise(
+    n_papers = n_distinct(paper_id, conf),
+    n_na = sum(is.na(gender)),
+    n_male = sum(gender == "M", na.rm = T),
+    n_female = sum(gender == "F", na.rm = T),
+    prop_female = n_female / (n_female + n_male)
+    ) %>%
+  arrange(desc(prop_female)) %>%
+  knitr::kable()
+
+nonsys_confs %>%
   group_by(field) %>%
   summarise(
     n_papers = n_distinct(paper_id, conf),
@@ -155,7 +168,20 @@ nonsys_confs %>%
     n_female = sum(gender == "F", na.rm = T),
     prop_female = n_female / (n_female + n_male)
     ) %>%
-  arrange(desc(prop_female))
+  arrange(desc(prop_female)) %>%
+  knitr::kable()
+
+nonsys_confs %>%
+  group_by(subfield) %>%
+  summarise(
+    n_papers = n_distinct(paper_id, conf),
+    n_na = sum(is.na(gender)),
+    n_male = sum(gender == "M", na.rm = T),
+    n_female = sum(gender == "F", na.rm = T),
+    prop_female = n_female / (n_female + n_male)
+    ) %>%
+  arrange(desc(prop_female)) %>%
+  knitr::kable()
 ```
 
 

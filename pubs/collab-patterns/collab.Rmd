@@ -58,84 +58,72 @@ author_name <- function(name) {
 
 # this function converts the author's name to title case, removes any titles, and formats their name to be 'lastname, firstname'
 normalized_author_name <- function(name) {
-  recased <- str_to_title(name)
-  recased <- str_replace(recased, "Jr\\.", "") %>%
-    str_replace("Sr\\.", "") %>%
-    str_replace("Dr\\.", "") %>%
-    str_replace("Prof\\.", "")
-
-  names <- author_name(recased)[1]
-  names <- stringi::stri_trans_general(names, "Latin-ASCII")
-  names <- str_split(names, " ")
-  names <- names[[1]]
-
-  if (length(names) == 1) {
-    return(names)
-  } else {
-    last <- tail(names, n = 1)
-    rest <- names[1:(length(names) - 1)]
-
-    if (length(rest) == 1) {
-      first <- rest
+    recased <- str_to_title(name)
+    recased <- str_replace(recased, "Jr\\.", "") %>%
+      str_replace("Sr\\.", "") %>%
+      str_replace("Dr\\.", "") %>%
+      str_replace("Prof\\.", "")
+  
+    names <- author_name(recased)[1]
+    names <- stringi::stri_trans_general(names, "Latin-ASCII")
+    names <- str_split(names, " ")
+    names <- names[[1]]
+  
+    if (length(names) == 1) {
+      return(names)
     } else {
-      tot <- ""
-      for (i in seq_along(rest)) {
-        tot <- paste0(tot,' ', rest[i])
+      last <- tail(names, n = 1)
+      rest <- names[1:(length(names) - 1)]
+  
+      if (length(rest) == 1) {
+        first <- rest
+      } else {
+        tot <- ""
+        for (i in seq_along(rest)) {
+          tot <- paste0(tot,' ', rest[i])
+        }
+        first <- tot
       }
-      first <- tot
+  
+      full <- paste0(last, ", ", first)
+      return(full)
     }
-
-    full <- paste0(last, ", ", first)
-    return(full)
-  }
+  
 }
 
 # This function reads in a .json conference file and for each paper in the conference it extracts the author names, paper id,
 # field, and conference id into a data frame. It then normalizes the names using 'normalized_author_name' and moves
 # on to the next paper, stacking the new data frame with those that have already been created each time.
-# Finally it joins this dataframe with the csv of author names and corresponding genders.
+# Finally it normalizes the author names and joins with a gender mapping df to get the corresponding genders.
 
 json_to_df <- function(conf_name, gender_mapping) {
   json_fpath <- paste0(toplevel, "data/conf/", conf_name, ".json")
-  json <- rjson::fromJSON(file = json_fpath)
-  json_sub <- json[['papers']]
+  conf <- rjson::fromJSON(file = json_fpath)
+  papers <- conf[['papers']]
 
-  df <- data.frame()
-  for (i in seq_along(json_sub)) {
-    id <- json_sub[[i]][1]
-    authors <- as.data.frame(json_sub[[i]][3])
+  conf_info_df <- data.frame()
+  for (i in seq_along(papers)) {
+    id <- papers[[i]][1]
+    authors <- as.data.frame(papers[[i]][3])
 
     authors <- authors %>%
       mutate(paper_id = str_sub(id, -3L, -1L)) %>%
-      mutate(conf = json[[1]])
+      mutate(conf = conf[[1]])
 
-    authors$field <- json[['field']]
-    authors$subfield <- json[['subfield']]
+    authors$field <- conf[['field']]
+    authors$subfield <- conf[['subfield']]
 
-    df <- rbind(df, authors)
+    conf_info_df <- rbind(conf_info_df, authors)
   }
+  
+  conf_info_df <- conf_info_df %>% 
+    mutate(authors = map_chr(authors, normalized_author_name)) %>% 
+    mutate(authors = str_replace(authors, "\\s+", " ")) %>% 
+    rename(name = authors)
+  
+  conf_info_df %>% 
+    left_join(gender_mapping, by = "name")
 
-  names_vector <- df$authors
-  names_normed_df <- data.frame()
-  for (i in seq_along(names_vector)) {
-    new <- as.data.frame(str_replace(normalized_author_name(names_vector[i]), "\\s+", " "))
-    names_normed_df <- rbind(names_normed_df, new)
-  }
-
-  names(names_normed_df) <- "name"
-
-  if (nrow(df) == nrow(names_normed_df)) {
-    df_full <-
-      cbind(df, names_normed_df) %>%
-      select(-authors)
-
-    df_full %>%
-      left_join(gender_mapping, by = "name")
-
-  } else {
-    # this should never happen, but just in case we'll check for it
-    stop("lengths don't match")
-  }
 }
 
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
@@ -185,8 +173,6 @@ nonsys_confs %>%
   arrange(desc(prop_female)) %>%
   knitr::kable()
 ```
-
-
 
 
 

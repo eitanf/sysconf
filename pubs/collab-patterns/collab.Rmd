@@ -101,7 +101,7 @@ json_to_df <- function(conf_name, gender_mapping) {
   conf <- rjson::fromJSON(file = json_fpath)
   papers <- conf[['papers']]
 
-  df <- data.frame()
+  conf_info_df <- data.frame()
   for (i in seq_along(papers)) {
     id <- papers[[i]][1]
     authors <- as.data.frame(papers[[i]][3])
@@ -113,15 +113,15 @@ json_to_df <- function(conf_name, gender_mapping) {
     authors$field <- conf[['field']]
     authors$subfield <- conf[['subfield']]
 
-    df <- rbind(df, authors)
+    conf_info_df <- rbind(conf_info_df, authors)
   }
   
-  df <- df %>% 
+  conf_info_df <- conf_info_df %>% 
     mutate(authors = map_chr(authors, normalized_author_name)) %>% 
     mutate(authors = str_replace(authors, "\\s+", " ")) %>% 
     rename(name = authors)
   
-  df %>% 
+  conf_info_df %>% 
     left_join(gender_mapping, by = "name")
 
 }

@@ -33,6 +33,7 @@ output:
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library('tidyverse')
 library('rjson')
+library('stringi')
 
 verified_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_verified_gender_mapping.csv"), na.strings = "")
 inferred_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_inferred_gender_mapping.csv"), na.strings = "") %>%
@@ -64,6 +65,7 @@ normalized_author_name <- function(name) {
     str_replace("Prof\\.", "")
 
   names <- author_name(recased)[1]
+  names <- stringi::stri_trans_general(names, "Latin-ASCII")
   names <- str_split(names, " ")
   names <- names[[1]]
 
@@ -183,9 +185,6 @@ nonsys_confs %>%
   arrange(desc(prop_female)) %>%
   knitr::kable()
 ```
-
-
-
 
 
 

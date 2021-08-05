@@ -177,17 +177,6 @@ nonsys_confs %>%
 
 
 
-```{r}
-test <- tibble(
-  names = c("josh yaammama", "eitan fra", "taylor tay"),
-  paper = c("A", "B","C")
-)
-
-test %>% 
-  mutate(names = map_chr(names, normalized_author_name))
-```
-
-
 
 
 

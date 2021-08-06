@@ -386,14 +386,23 @@ On these conferences, we also collected historical metrics from the Institute of
 <!-------------------------------------------------------------------------------------------->
 ## Statistics
 
-For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient.  In terms of statistical modeling, fixed-effects and mixed-effects generalized linear models were built and Satterthwaite's degrees of freedom method is used to hypothesis testing on model coefficients. All statistical tests are reported with their p-values.
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient.  In terms of statistical modeling, fixed-effects and mixed-effects generalized linear models were built and Satterthwaite's degrees of freedom method is used for hypothesis testing on model coefficients. All statistical tests are reported with their p-values.
 
 <!-------------------------------------------------------------------------------------------->
 ## Code and data availability
 
-All analysis was conducted in the statistical software package `R`[@r2021]. For reproducibility, all of the data and source code files we used can be found in the supporting information and at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
+All analysis was conducted in the statistical software package `R`[@rteam13:r]. For reproducibility, all of the data and source code files we used can be found in the supporting information and at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
 The specific statistical analyses for this study can be found in the file
-`pubs/prestige/prestige.Rmd` and the relevant `R` packages in the file `pubs/dependencies.R`.  
+`pubs/prestige/prestige.Rmd` and the relevant `R` packages in the file `pubs/dependencies.R`.
+<!--A Docker image with the complete software environment for reproduction of this analysis can be found at \url{https://hub.docker.com/repository/docker/eitanf/sysconf} under the `prestige` tag. -->
+
+## Ethics statement {-}
+
+The data collected for this study was sourced from public-use datasets such as conference and academic web pages.
+The informed consent requirement was waived for this secondary analysis.
+This study was conducted under Reed College's IRB approval.
+
+
 
 <!-------------------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------------------->
@@ -408,12 +417,11 @@ In this section, we explore the observed relationships between reputation and re
 ## Reputation metrics {#subsec:metrics}
 
 Author reputation is an intangible, abstract concept. Nevertheless, the quantitative methodology that we focus on requires a concrete approximation.
-As a proxy for the intangible reputation, most bibliometric studies employ either metrics based on productivity (publication counts), on impact (citation metrics), or both [@carpenter14:metrics; @dettori19:measuring].
+As a proxy for reputation, most bibliometric studies employ metrics based on productivity (publication counts), impact (citation metrics), or both [@carpenter14:metrics; @dettori19:measuring].
 We chose an initial list of nine such metrics to analyze, whose distributions are depicted in Fig. \@ref(fig:metric-distribs).
 
-This list is certainly not exhaustive; the debate on their relative merits and effectiveness is an ongoing research topic, and new and improved metrics are proposed regularly.
+This list is certainly not exhaustive; the debate on their relative merits and effectiveness is ongoing, and new and improved metrics are proposed regularly.
 But this list represents some of the most commonly used metrics, and as our results show, is sufficient to surface diverse and even contradictory results in the context of reviewing policy.
-
 We next describe these metrics and their characteristics in our dataset.
 
 \hspace*{-2cm}
@@ -1244,7 +1252,7 @@ Despite the strong correlation between the two metrics, it is clear that they do
 Some researchers exhibit relatively high h-index and some exhibit relatively high publication count, compared to the average population as represented by the regression line.
 
 
-Observe that the points below the regression line (relatively high h-index) tend to publish more often in DB conference, whereas the opposite is true for authors with relatively many publications.
+Observe that the authors below the regression line (relatively high h-index) tend to publish more often in DB conference, whereas the opposite is true for authors with relatively many publications.
 This implied dichotomy suggests two broad types of researchers, which we dub as "impact" and "prolificity", respectively.
 Double-blind conferences probably attract more of the "impact"-type researchers because these conferences are also correlated with higher reputation metrics, including citations.
 On the other hand, "prolificity"-type researchers probably publish more in the SB, less-competitive conferences, which would statistically lead to more accepted papers but likely also to a lower relative h-index.

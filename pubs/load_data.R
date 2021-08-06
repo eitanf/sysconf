@@ -3,6 +3,7 @@
 
 library('tidyverse')
 library('lubridate')
+library('stringi')
 
 # Sys.setenv(SYSCONF_HOME = "~/Dropbox/sysconf")
 toplevel = paste0(Sys.getenv("SYSCONF_HOME"), "/")
@@ -79,6 +80,16 @@ sys_people_tidy <- filter(people_tidy, conf %in% sys_confs$key)
 inferred_gender <- read.csv(paste0(toplevel, "data/inferred_gender_mapping.csv"), na.strings = "")
 verified_gender <- read.csv(paste0(toplevel, "data/verified_gender_mapping.csv"), na.strings = "")
 
+# Non-systems-conferences genders
+verified_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_verified_gender_mapping.csv"), na.strings = "")
+inferred_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_inferred_gender_mapping.csv"), na.strings = "") %>%
+  select(-probability)
+
+# genders for both sys and nonsys conferences:
+all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>
+  distinct(name, .keep_all = T)
+
+
 #### interests.csv:
 interests <- read.csv(paste0(toplevel, "features/interests.csv"), na.strings = "",
                   colClasses = c("character", "character", "character", "factor"))
@@ -139,7 +150,7 @@ rounded_p <- function(p, rounding) {
   } else {
     paste0("$p=", format(p, scientific = F, digits = rounding), "$")
   }
-  
+
 }
 
 # Compute a string based on p value and a p_option as follows:
@@ -183,14 +194,63 @@ report_test <- function(test, rounding = 3, p_option = "rounded", show_stat = TR
       return("Unsupported test!")
     }
   }
-  
+
   if (show_df) {
       df_str <- paste0(ifelse(show_stat, ", ", ""), "$df=", round(test$parameter, 0), "$")
   }
-  
+
   ret = paste0(base_str, df_str)
   if (p_option != "stars" & p_option != FALSE & show_stat) {
     ret = paste0(ret, ", ")
   }
   paste0(ret, p_str)
+}
+
+#### Name handling:
+
+# Breaks an author's reference into their name and optionally their affiliation
+author_name <- function(name) {
+  m <- str_match(name, "([^\\(]*) \\((.*)\\)$")
+  if (is.na(m[,1])) {
+    orig <- name
+    affil <- NA
+  } else {
+    orig <- m[,2]
+    affil <- m[,3]
+  }
+  return(c(orig, affil))
+}
+
+# Converts the author's name to title case, removes any titles, and formats their name to be 'lastname, firstname'
+normalized_author_name <- function(name) {
+  recased <- str_to_title(name)
+  recased <- str_replace(recased, "Jr\\.", "") %>%
+    str_replace("Sr\\.", "") %>%
+    str_replace("Dr\\.", "") %>%
+    str_replace("Prof\\.", "")
+
+  names <- author_name(recased)[1]
+  names <- stringi::stri_trans_general(names, "Latin-ASCII")
+  names <- str_split(names, " ")
+  names <- names[[1]]
+
+  if (length(names) == 1) {
+    return(names)
+  } else {
+    last <- tail(names, n = 1)
+    rest <- names[1:(length(names) - 1)]
+
+    if (length(rest) == 1) {
+      first <- rest
+    } else {
+      tot <- ""
+      for (i in seq_along(rest)) {
+        tot <- paste0(tot,' ', rest[i])
+      }
+      first <- tot
+    }
+
+    full <- paste0(last, ", ", first)
+    return(full)
+  }
 }

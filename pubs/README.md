@@ -27,6 +27,7 @@ There are two ways to recreate the documents (which embed the analysis):
 
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: Initial draft of paper on gender gap in systems.
+  * `prestige`: paper draft: "Metrics and methods in prestige bias evaluation".
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
   * `whpc`: "Representation of Women in HPC Conferences" (`docker run -ti eitanf/sysconf:whpc`).
@@ -68,7 +69,7 @@ Steps to create a reproducible Docker image for a paper:
 
   3. Run everything as root from this point. Start with `service docker restart`. If necessary, also run `docker system prune -a` to clear all caches.
 
-  4. In the paper's directory, run `docker build -t dockeruser/sysconf:tag .` (where *tag* is the appropriate paper identifier, e.g., *whpc*). If you're having cache issues, you can delete it with `docker system prune -a`.
+  4. In the paper's directory, run `docker build -t --network=host dockeruser/sysconf:tag .` (where *tag* is the appropriate paper identifier, e.g., *whpc*). If you're having cache issues, you can delete it with `docker system prune -a`.
 
   5. Run `docker login` followed by `docker push dockeruser/sysconf:tag`.
 

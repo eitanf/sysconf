@@ -78,39 +78,64 @@ nonsys_confs <- nonsys_conf_names %>%
 
 
 ```{r}
+summary_table <- function(data) {
+  data %>% 
+    summarise(
+      n_papers = n_distinct(paper_id, conf),
+      n_na = sum(is.na(gender)),
+      n_male = sum(gender == "M", na.rm = T),
+      n_female = sum(gender == "F", na.rm = T),
+      prop_female = n_female / (n_female + n_male)
+      ) %>%
+    arrange(desc(prop_female)) %>%
+    knitr::kable()
+}
+
 nonsys_confs %>%
   group_by(conf) %>%
-  summarise(
-    n_papers = n_distinct(paper_id, conf),
-    n_na = sum(is.na(gender)),
-    n_male = sum(gender == "M", na.rm = T),
-    n_female = sum(gender == "F", na.rm = T),
-    prop_female = n_female / (n_female + n_male)
-    ) %>%
-  arrange(desc(prop_female)) %>%
-  knitr::kable()
+  summary_table()
+
 
 nonsys_confs %>%
   group_by(field) %>%
-  summarise(
-    n_papers = n_distinct(paper_id, conf),
-    n_na = sum(is.na(gender)),
-    n_male = sum(gender == "M", na.rm = T),
-    n_female = sum(gender == "F", na.rm = T),
-    prop_female = n_female / (n_female + n_male)
-    ) %>%
-  arrange(desc(prop_female)) %>%
-  knitr::kable()
+  summary_table()
 
 nonsys_confs %>%
   group_by(subfield) %>%
+  summary_table()
+
+author_order_data <- nonsys_confs %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n > 1) %>% 
+  select(-n) %>% 
+  group_by(conf, paper_id) %>%
+  mutate(author_order = row_number(paper_id)) %>%
+  ungroup()
+
+author_order_data %>% 
+  filter(author_order == 1) %>% 
+  group_by(field) %>% 
   summarise(
-    n_papers = n_distinct(paper_id, conf),
-    n_na = sum(is.na(gender)),
-    n_male = sum(gender == "M", na.rm = T),
-    n_female = sum(gender == "F", na.rm = T),
-    prop_female = n_female / (n_female + n_male)
-    ) %>%
-  arrange(desc(prop_female)) %>%
+    n_female_fa = sum(gender == "F", na.rm = T),
+    n_male_fa =  sum(gender == "M", na.rm = T),
+    prop_female_fa = n_female_fa / (n_female_fa + n_male_fa)
+  ) %>% 
+  arrange(desc(prop_female_fa)) %>% 
+  knitr::kable()
+
+author_order_data %>% 
+  group_by(conf, paper_id) %>% 
+  filter(author_order == max(author_order)) %>% 
+  ungroup() %>% 
+  group_by(field) %>% 
+  summarise(
+    n_female_la = sum(gender == "F", na.rm = T),
+    n_male_la =  sum(gender == "M", na.rm = T),
+    prop_female_la = n_female_la / (n_female_la + n_male_la)
+  ) %>% 
+  arrange(desc(prop_female_la)) %>% 
   knitr::kable()
 ```
+
+
+

@@ -86,7 +86,7 @@ inferred_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_inferred_gender
   select(-probability)
 
 # genders for both sys and nonsys conferences:
-all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>
+all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>%
   distinct(name, .keep_all = T)
 
 

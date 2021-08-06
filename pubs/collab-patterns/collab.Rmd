@@ -58,12 +58,12 @@ json_to_df <- function(conf_name, gender_mapping) {
     conf_info_df <- rbind(conf_info_df, authors)
   }
 
-  conf_info_df <- conf_info_df %>
-    mutate(authors = map_chr(authors, normalized_author_name)) %>
-    mutate(authors = str_replace(authors, "\\s+", " ")) %>
+  conf_info_df <- conf_info_df %>%
+    mutate(authors = map_chr(authors, normalized_author_name)) %>%
+    mutate(authors = str_replace(authors, "\\s+", " ")) %>%
     rename(name = authors)
 
-  conf_info_df %>
+  conf_info_df %>%
     left_join(gender_mapping, by = "name")
 
 }

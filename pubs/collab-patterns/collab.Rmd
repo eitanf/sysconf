@@ -165,6 +165,7 @@ total_female_authors <- nonsys_authors %>%
   filter(gender == "F") %>% 
   pull(n)
 
+# solo authorship
 nonsys_authors %>% 
   add_count(conf, paper_id) %>% 
   filter(n == 1) %>% 
@@ -172,6 +173,21 @@ nonsys_authors %>%
   count(gender) %>% 
   mutate(
     percent_solo = case_when(
+      gender == "M" ~ round((n/total_male_authors), 4) * 100,
+      gender == "F" ~ round((n/total_female_authors), 4) * 100
+    )
+  ) %>% 
+  select(-n) %>% 
+  knitr::kable()
+
+# dual authorship
+nonsys_authors %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n == 2) %>% 
+  filter(!is.na(gender)) %>% 
+  count(gender) %>% 
+  mutate(
+    percent_dual = case_when(
       gender == "M" ~ round((n/total_male_authors), 4) * 100,
       gender == "F" ~ round((n/total_female_authors), 4) * 100
     )

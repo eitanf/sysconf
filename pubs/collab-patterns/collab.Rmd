@@ -41,19 +41,20 @@ library('rjson')
 json_to_df <- function(conf_name, gender_mapping) {
   json_fpath <- paste0(toplevel, "data/conf/", conf_name, ".json")
   conf <- rjson::fromJSON(file = json_fpath)
+  confname <- conf[[1]]
+  field <- conf[['field']]
+  subfield <- conf[['subfield']]
   papers <- conf[['papers']]
 
   conf_info_df <- data.frame()
+
   for (i in seq_along(papers)) {
-    id <- papers[[i]][1]
-    authors <- as.data.frame(papers[[i]][3])
-
-    authors <- authors %>%
-      mutate(paper_id = str_sub(id, -3L, -1L)) %>%
-      mutate(conf = conf[[1]])
-
-    authors$field <- conf[['field']]
-    authors$subfield <- conf[['subfield']]
+    paper_id <- unlist(papers[[i]][1])
+    authors <- as.data.frame(papers[[i]][3]) %>%
+      mutate(conf = confname,
+             field = field,
+             subfield = subfield,
+             paper_id = paper_id)
 
     conf_info_df <- rbind(conf_info_df, authors)
   }
@@ -61,25 +62,25 @@ json_to_df <- function(conf_name, gender_mapping) {
   conf_info_df <- conf_info_df %>%
     mutate(authors = map_chr(authors, normalized_author_name)) %>%
     mutate(authors = str_replace(authors, "\\s+", " ")) %>%
+    mutate(paper_id = as.factor(paper_id)) %>%
     rename(name = authors)
 
   conf_info_df %>%
     left_join(gender_mapping, by = "name")
-
 }
 
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
-nonsys_conf_names <-
+nonsys_confs <-
   c("AAAI", "ACL", "CHI", "CVPR", "ICML", "ICSE", "MM", "NIPS", "POPL","SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM", "ITICSE", "FOCS", "TACAS")
 
-nonsys_confs <- nonsys_conf_names %>%
+nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders))
 ```
 
 
 ```{r}
-summary_table <- function(data) {
-  data %>% 
+gender_summary_table <- function(data) {
+  data %>%
     summarise(
       n_papers = n_distinct(paper_id, conf),
       n_na = sum(is.na(gender)),
@@ -91,51 +92,48 @@ summary_table <- function(data) {
     knitr::kable()
 }
 
-nonsys_confs %>%
+nonsys_authors %>%
   group_by(conf) %>%
-  summary_table()
+  gender_summary_table()
 
 
-nonsys_confs %>%
+nonsys_authors %>%
   group_by(field) %>%
-  summary_table()
+  gender_summary_table()
 
-nonsys_confs %>%
+nonsys_authors %>%
   group_by(subfield) %>%
-  summary_table()
+  gender_summary_table()
 
-author_order_data <- nonsys_confs %>% 
-  add_count(conf, paper_id) %>% 
-  filter(n > 1) %>% 
-  select(-n) %>% 
-  group_by(conf, paper_id) %>%
+author_order_data <- nonsys_authors %>%
+  add_count(conf, paper_id) %>%
+  filter(n > 1) %>%
+  select(-n) %>%
+  group_by(paper_id) %>%
   mutate(author_order = row_number(paper_id)) %>%
   ungroup()
 
-author_order_data %>% 
-  filter(author_order == 1) %>% 
-  group_by(field) %>% 
+author_order_data %>%
+  filter(author_order == 1) %>%
+  group_by(field) %>%
   summarise(
     n_female_fa = sum(gender == "F", na.rm = T),
     n_male_fa =  sum(gender == "M", na.rm = T),
     prop_female_fa = n_female_fa / (n_female_fa + n_male_fa)
-  ) %>% 
-  arrange(desc(prop_female_fa)) %>% 
+  ) %>%
+  arrange(desc(prop_female_fa)) %>%
   knitr::kable()
 
-author_order_data %>% 
-  group_by(conf, paper_id) %>% 
-  filter(author_order == max(author_order)) %>% 
-  ungroup() %>% 
-  group_by(field) %>% 
+author_order_data %>%
+  group_by(conf, paper_id) %>%
+  filter(author_order == max(author_order)) %>%
+  ungroup() %>%
+  group_by(field) %>%
   summarise(
     n_female_la = sum(gender == "F", na.rm = T),
     n_male_la =  sum(gender == "M", na.rm = T),
     prop_female_la = n_female_la / (n_female_la + n_male_la)
-  ) %>% 
-  arrange(desc(prop_female_la)) %>% 
+  ) %>%
+  arrange(desc(prop_female_la)) %>%
   knitr::kable()
 ```
-
-
-

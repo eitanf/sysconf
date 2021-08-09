@@ -140,16 +140,16 @@ author_order_data %>%
 
 
 ```{r}
-# average collaboration team size by gender
+# average coauthor team size by gender
 nonsys_authors %>%
   add_count(conf, paper_id) %>%
-  mutate(n_collaborators = n - 1) %>%
+  mutate(n_coauthors = n - 1) %>%
   select(-n) %>%
-  select(name, paper_id, n_collaborators) %>% 
+  select(name, paper_id, n_coauthors) %>% 
   left_join(all_genders, by = 'name') %>% 
   filter(!is.na(gender)) %>% 
   group_by(gender) %>% 
-  summarise(mean_number_of_collaborators = mean(n_collaborators)) %>% 
+  summarise(mean_number_of_coauthors = mean(n_coauthors)) %>% 
   knitr::kable()
 ```
 

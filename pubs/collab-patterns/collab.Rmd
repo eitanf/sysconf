@@ -149,7 +149,35 @@ nonsys_authors %>%
   left_join(all_genders, by = 'name') %>% 
   filter(!is.na(gender)) %>% 
   group_by(gender) %>% 
-  summarise(avg_number_of_collaborators = mean(n_collaborators))
+  summarise(mean_number_of_collaborators = mean(n_collaborators)) %>% 
+  knitr::kable()
+```
+
+```{r}
+# percent sole authors by gender
+total_male_authors <- nonsys_authors %>% 
+  count(gender) %>% 
+  filter(gender == "M") %>% 
+  pull(n)
+
+total_female_authors <- nonsys_authors %>% 
+  count(gender) %>% 
+  filter(gender == "F") %>% 
+  pull(n)
+
+nonsys_authors %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n == 1) %>% 
+  filter(!is.na(gender)) %>% 
+  count(gender) %>% 
+  mutate(
+    percent_solo = case_when(
+      gender == "M" ~ round((n/total_male_authors), 4) * 100,
+      gender == "F" ~ round((n/total_female_authors), 4) * 100
+    )
+  ) %>% 
+  select(-n) %>% 
+  knitr::kable()
 ```
 
 

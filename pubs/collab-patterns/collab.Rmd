@@ -240,23 +240,21 @@ collaborator_proportions <- read.csv(paste0(toplevel, "data/nonsys_collaborator_
 collaborator_proportions %>% 
   filter(!is.na(gender)) %>% 
   mutate(
-    prop_female_collaborators = n_female / (n_female + n_male),
     total_collaborators = n_female + n_male
     ) %>% 
   group_by(gender) %>% 
-  summarise(avg_n_collaborators = mean(total_collaborators, na.rm = T)) %>% 
+  summarise(
+    avg_n_collaborators = round(mean(total_collaborators, na.rm = T), 2)
+    ) %>% 
   knitr::kable()
 
 
 collaborator_proportions %>% 
   filter(!is.na(gender)) %>% 
-  mutate(
-    prop_female_collaborators = n_female / (n_female + n_male)
-    ) %>%
   group_by(gender) %>% 
   summarise(
-    avg_n_female_collaborators = mean(n_female, na.rm = T),
-    avg_n_male_collaborators = mean(n_male, na.rm = T)
+    avg_n_female_collaborators = round(mean(n_female, na.rm = T), 2),
+    avg_n_male_collaborators = round(mean(n_male, na.rm = T), 2)
     ) %>% 
   knitr::kable()
 ```

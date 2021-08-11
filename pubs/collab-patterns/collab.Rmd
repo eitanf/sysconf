@@ -170,6 +170,7 @@ nonsys_authors %>%
   add_count(conf, paper_id) %>% 
   filter(n == 1) %>% 
   filter(!is.na(gender)) %>% 
+  group_by(field) %>% 
   count(gender) %>% 
   mutate(
     percent_solo = case_when(
@@ -197,4 +198,66 @@ nonsys_authors %>%
 ```
 
 
+```{r collaborator df creation, eval=FALSE}
+
+unique_names <- nonsys_authors %>% 
+  distinct(name) %>% 
+  pull(name)
+
+collaborator_pulls <- function(df) {
+  
+  full_collab_df <- data.frame()
+  for (i in seq_along(unique_names)) {
+    
+    collaborators <- df %>% 
+      group_by(paper_id) %>% 
+      filter(any(name == unique_names[i])) %>% 
+      ungroup() %>% 
+      distinct(name, .keep_all = T) %>% 
+      filter(name != unique_names[i]) %>% 
+      summarise(n_male = sum(gender == "M"), n_female = sum(gender == "F")) %>% 
+      mutate(name = unique_names[i]) %>% 
+      select(name, n_female, n_male)
+      
+      
+    full_collab_df <- rbind(full_collab_df, collaborators)
+    
+  }
+  
+  full_collab_df %>% 
+    left_join(all_genders, by = "name") %>% 
+    select(name, gender, n_female, n_male)
+  
+} 
+
+all_collabs <- collaborator_pulls(nonsys_authors)
+
+```
+
+```{r}
+collaborator_proportions <- read.csv(paste0(toplevel, "data/nonsys_collaborator_counts.csv"))
+
+collaborator_proportions %>% 
+  filter(!is.na(gender)) %>% 
+  mutate(
+    prop_female_collaborators = n_female / (n_female + n_male),
+    total_collaborators = n_female + n_male
+    ) %>% 
+  group_by(gender) %>% 
+  summarise(avg_n_collaborators = mean(total_collaborators, na.rm = T)) %>% 
+  knitr::kable()
+
+
+collaborator_proportions %>% 
+  filter(!is.na(gender)) %>% 
+  mutate(
+    prop_female_collaborators = n_female / (n_female + n_male)
+    ) %>%
+  group_by(gender) %>% 
+  summarise(
+    avg_n_female_collaborators = mean(n_female, na.rm = T),
+    avg_n_male_collaborators = mean(n_male, na.rm = T)
+    ) %>% 
+  knitr::kable()
+```
 

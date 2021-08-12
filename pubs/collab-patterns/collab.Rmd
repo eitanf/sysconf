@@ -75,6 +75,32 @@ nonsys_confs <-
 
 nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders))
+
+name_combination_creator <- function(df) {
+  
+  authors <- df$name
+  
+  if (length(authors) > 1) {
+  
+    name_combinations <- t(combn(authors, 2))
+    name_combinations <- as.data.frame(t(apply(name_combinations,1,sort)))
+    names(name_combinations) <- c("name1", "name2")
+    name_combinations
+    
+  } else {
+    
+    name_combinations <- data.frame()
+    name_combinations
+    
+  }
+}
+
+
+collaboration_pairs <- nonsys_authors %>% 
+  group_by(paper_id) %>% 
+  group_modify(~name_combination_creator(.x)) %>% 
+  ungroup() %>% 
+  distinct(name1, name2, .keep_all = T)
 ```
 
 
@@ -200,35 +226,6 @@ nonsys_authors %>%
 
 
 ```{r}
-
-name_combination_creator <- function(df) {
-  
-  authors <- df$name
-  
-  if (length(authors) > 1) {
-  
-    name_combinations <- t(combn(authors, 2))
-    name_combinations <- as.data.frame(t(apply(name_combinations,1,sort)))
-    names(name_combinations) <- c("name1", "name2")
-    name_combinations
-    
-  } else {
-    
-    name_combinations <- data.frame()
-    name_combinations
-    
-  }
-    
-}
-
-collaboration_pairs <- nonsys_authors %>% 
-  group_by(paper_id) %>% 
-  group_modify(~name_combination_creator(.x)) %>% 
-  ungroup() %>% 
-  distinct(name1, name2, .keep_all = T)
-
-
-
 author_collaboration_counts <- collaboration_pairs %>%
   left_join(all_genders, by = c("name2" = "name")) %>% 
   rename(genderp2 = gender) %>% 
@@ -245,12 +242,13 @@ author_collaboration_counts <- collaboration_pairs %>%
   filter(!is.na(genderp1)) 
 
 
-
+# average number of collaborators by gender
 author_collaboration_counts %>% 
   group_by(genderp1) %>% 
   summarise(avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>% 
   knitr::kable()
 
+# average number of male and female collaborators also broken down by gender
 author_collaboration_counts %>% 
   group_by(genderp1) %>% 
   summarise(
@@ -258,9 +256,6 @@ author_collaboration_counts %>%
     avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
     ) %>% 
   knitr::kable()
-
-
-
 ```
 
 

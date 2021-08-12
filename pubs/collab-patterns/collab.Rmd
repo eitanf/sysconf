@@ -82,10 +82,11 @@ name_combination_creator <- function(df) {
   
   if (length(authors) > 1) {
   
-    name_combinations <- t(combn(authors, 2))
-    name_combinations <- as.data.frame(t(apply(name_combinations,1,sort)))
-    names(name_combinations) <- c("name1", "name2")
-    name_combinations
+    name_combinations <- as.data.frame(t(combn(authors, 2)))
+    name_combinations_stacked <- rbind(name_combinations, name_combinations[ ,c(2,1)])
+    
+    names(name_combinations_stacked) <- c("name1", "name2")
+    name_combinations_stacked
     
   } else {
     
@@ -257,10 +258,5 @@ author_collaboration_counts %>%
     ) %>% 
   knitr::kable()
 ```
-
-
-
-
-
 
 

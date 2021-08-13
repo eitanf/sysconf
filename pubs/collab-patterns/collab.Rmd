@@ -75,6 +75,33 @@ nonsys_confs <-
 
 nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders))
+
+name_combination_creator <- function(df) {
+  
+  authors <- df$name
+  
+  if (length(authors) > 1) {
+  
+    name_combinations <- as.data.frame(t(combn(authors, 2)))
+    name_combinations_stacked <- rbind(name_combinations, name_combinations[ ,c(2,1)])
+    
+    names(name_combinations_stacked) <- c("name1", "name2")
+    name_combinations_stacked
+    
+  } else {
+    
+    name_combinations <- data.frame()
+    name_combinations
+    
+  }
+}
+
+
+collaboration_pairs <- nonsys_authors %>% 
+  group_by(paper_id) %>% 
+  group_modify(~name_combination_creator(.x)) %>% 
+  ungroup() %>% 
+  distinct(name1, name2, .keep_all = T)
 ```
 
 
@@ -135,5 +162,99 @@ author_order_data %>%
     prop_female_la = n_female_la / (n_female_la + n_male_la)
   ) %>%
   arrange(desc(prop_female_la)) %>%
+  knitr::kable()
+```
+
+
+
+```{r}
+# average coauthor team size by gender
+nonsys_authors %>%
+  add_count(conf, paper_id) %>%
+  mutate(n_coauthors = n - 1) %>%
+  select(-n) %>%
+  select(name, paper_id, n_coauthors) %>% 
+  left_join(all_genders, by = 'name') %>% 
+  filter(!is.na(gender)) %>% 
+  group_by(gender) %>% 
+  summarise(mean_number_of_coauthors = mean(n_coauthors)) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+# percent sole authors by gender
+total_male_authors <- nonsys_authors %>% 
+  count(gender) %>% 
+  filter(gender == "M") %>% 
+  pull(n)
+
+total_female_authors <- nonsys_authors %>% 
+  count(gender) %>% 
+  filter(gender == "F") %>% 
+  pull(n)
+
+# solo authorship
+nonsys_authors %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n == 1) %>% 
+  filter(!is.na(gender)) %>% 
+  count(gender) %>% 
+  mutate(
+    percent_solo = case_when(
+      gender == "M" ~ round((n/total_male_authors), 4) * 100,
+      gender == "F" ~ round((n/total_female_authors), 4) * 100
+    )
+  ) %>% 
+  select(-n) %>% 
+  knitr::kable()
+
+# dual authorship
+nonsys_authors %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n == 2) %>% 
+  filter(!is.na(gender)) %>% 
+  count(gender) %>% 
+  mutate(
+    percent_dual = case_when(
+      gender == "M" ~ round((n/total_male_authors), 4) * 100,
+      gender == "F" ~ round((n/total_female_authors), 4) * 100
+    )
+  ) %>% 
+  select(-n) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+author_collaboration_counts <- collaboration_pairs %>%
+  left_join(all_genders, by = c("name2" = "name")) %>% 
+  rename(genderp2 = gender) %>% 
+  select(name1, name2, genderp2, -paper_id) %>% 
+  group_by(name1) %>% 
+  summarise(
+    n_female_collaborators = sum(genderp2 == "F"),
+    n_male_collaborators = sum(genderp2 == "M")
+    ) %>% 
+  mutate(n_total = n_female_collaborators + n_male_collaborators) %>% 
+  left_join(all_genders, by = c("name1" = "name")) %>% 
+  select(name1, gender, n_female_collaborators, n_male_collaborators, n_total) %>% 
+  rename(genderp1 = gender) %>% 
+  filter(!is.na(genderp1)) 
+
+
+# average number of collaborators by gender
+author_collaboration_counts %>% 
+  group_by(genderp1) %>% 
+  summarise(avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>% 
+  knitr::kable()
+
+# average number of male and female collaborators also broken down by gender
+author_collaboration_counts %>% 
+  group_by(genderp1) %>% 
+  summarise(
+    avg_n_female_collaborators = round(mean(n_female_collaborators, na.rm = T), 2),
+    avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
+    ) %>% 
   knitr::kable()
 ```

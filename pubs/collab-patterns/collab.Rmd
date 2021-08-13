@@ -137,3 +137,63 @@ author_order_data %>%
   arrange(desc(prop_female_la)) %>%
   knitr::kable()
 ```
+
+
+
+```{r}
+# average coauthor team size by gender
+nonsys_authors %>%
+  add_count(conf, paper_id) %>%
+  mutate(n_coauthors = n - 1) %>%
+  select(-n) %>%
+  select(name, paper_id, n_coauthors) %>% 
+  left_join(all_genders, by = 'name') %>% 
+  filter(!is.na(gender)) %>% 
+  group_by(gender) %>% 
+  summarise(mean_number_of_coauthors = mean(n_coauthors)) %>% 
+  knitr::kable()
+```
+
+
+```{r}
+# percent sole authors by gender
+total_male_authors <- nonsys_authors %>% 
+  count(gender) %>% 
+  filter(gender == "M") %>% 
+  pull(n)
+
+total_female_authors <- nonsys_authors %>% 
+  count(gender) %>% 
+  filter(gender == "F") %>% 
+  pull(n)
+
+# solo authorship
+nonsys_authors %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n == 1) %>% 
+  filter(!is.na(gender)) %>% 
+  count(gender) %>% 
+  mutate(
+    percent_solo = case_when(
+      gender == "M" ~ round((n/total_male_authors), 4) * 100,
+      gender == "F" ~ round((n/total_female_authors), 4) * 100
+    )
+  ) %>% 
+  select(-n) %>% 
+  knitr::kable()
+
+# dual authorship
+nonsys_authors %>% 
+  add_count(conf, paper_id) %>% 
+  filter(n == 2) %>% 
+  filter(!is.na(gender)) %>% 
+  count(gender) %>% 
+  mutate(
+    percent_dual = case_when(
+      gender == "M" ~ round((n/total_male_authors), 4) * 100,
+      gender == "F" ~ round((n/total_female_authors), 4) * 100
+    )
+  ) %>% 
+  select(-n) %>% 
+  knitr::kable()
+```

@@ -20,12 +20,12 @@ i = 0
 # Reorder conference data:
 conf = OrderedDict([ (k,find_key(data, k)) for k in [ \
         'key', 'conference', 'url', 'organization', 'country', \
-        'postdate', 'last_deadline', 'review_days', \
+        'postdate', 'last_deadline', 'review_days', 'mean_pages', \
         'submissions', 'min_reviews', 'total_reviews', 'double_blind', \
         'rebuttal', 'open_access', 'age', 'past_papers', \
         'past_citations', 'h5_index', 'h5_median', 'field', 'subfield', \
-        'notes', 'pc_chairs', 'pc_members', 'keynote_speakers', \
-        'session_chairs', 'panelists', 'papers' \
+        'diversit_effort', 'notes', 'pc_chairs', 'pc_members', \
+        'keynote_speakers', 'session_chairs', 'panelists', 'papers' \
         ] ])
 
 # Next, reorder paper data:

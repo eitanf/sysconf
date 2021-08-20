@@ -4,7 +4,7 @@ These files represent all the raw and processed data, as well as the code to
 process it, to analyze some of the top systems conferences during 2017. Each 
 subdirectory holds its own README.md file to describe the files in it.
 
-# Prerequisites for running the R analyses
+## Prerequisites for running the R analyses
 
 The required R packages are all listed in `pubs/dependencies.R` and can be installed with the built-in R function `install.packages()`. In addition, you must set the `R` environment variable to an R interpreter (v. 3.6 and above), usually just `Rscript` or `/usr/bin/Rscript` on a recent installation. The `SYSCONF_HOME` environment variable must be set to the top-level directory you cloned from github (typically the directory where the README.md file you're currently reading resided). For example:
 ```

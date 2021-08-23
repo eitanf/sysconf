@@ -1,0 +1,12 @@
+options(Ncpus = parallel::detectCores())
+install.packages('devtools')
+library('devtools')
+
+devtools::install_version('cowplot', version = '1.1.1')
+devtools::install_version('ggrepel', version = '0.9.0')
+devtools::install_version('ggdist', version = '3.0.0')
+devtools::install_version('kableExtra', version = '1.3.1')
+devtools::install_version('lmerTest', version = '3.1-3')
+devtools::install_version('MuMIn', version = '1.43.17')
+devtools::install_version('readr', version = '1.4.0')
+devtools::install_version('rjson', version = '0.2.20')

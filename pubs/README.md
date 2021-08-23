@@ -69,7 +69,7 @@ Steps to create a reproducible Docker image for a paper:
 
   3. Run everything as root from this point. Start with `service docker restart`. If necessary, also run `docker system prune -a` to clear all caches.
 
-  4. In the paper's directory, run `docker build -t --network=host dockeruser/sysconf:tag .` (where *tag* is the appropriate paper identifier, e.g., *whpc*). If you're having cache issues, you can delete it with `docker system prune -a`.
+  4. In the paper's directory, run `docker build --network=host -t dockeruser/sysconf:tag .` (where *tag* is the appropriate paper identifier, e.g., *whpc*). If you're having cache issues, you can delete it with `docker system prune -a`.
 
   5. Run `docker login` followed by `docker push dockeruser/sysconf:tag`.
 

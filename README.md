@@ -6,16 +6,8 @@ subdirectory holds its own README.md file to describe the files in it.
 
 ## Prerequisites for running the R analyses
 
-The required R packages are all listed in `pubs/dependencies.R` and can be installed with the built-in R function `install.packages()`. In addition, you must set the `R` environment variable to an R interpreter (v. 3.6 and above), usually just `Rscript` or `/usr/bin/Rscript` on a recent installation. The `SYSCONF_HOME` environment variable must be set to the top-level directory you cloned from github (typically the directory where the README.md file you're currently reading resided). For example:
-```
-export R=Rscript
-export SYSCONF_HOME=$(pwd)
-```
-
-## Quick start
-
-If you just want to try to recreate all the processed data files and reports,
-use `cd pubs; make prereq; cd ..; make`.
+To install all software prerequisites from scratch, you can find detailed instruction in [INSTALL.md](INSTALL.md). They have been tested on Ubuntu 20.04.3-LTS and MacOS 10.15.7.
+If you have access to a Linux machine with Docker, a much easier path is to just run of the prebuilt images at [docker uhb](https://hub.docker.com/r/eitanf/sysconf).
 
 To reproduce a single analysis, find the subdirectory of `pubs/` that contains it (the `README.md` in `pubs/` lists them all). Ensure that you've met the software prerequisites, then type `make` in that directory.
 
@@ -72,4 +64,4 @@ created, the script `download_fulltext.py` can be used to locate any PDF
 version of those papers for which GS found an eprint URL and download them into 
 the `./fulltext/` directory. This directory is not supplied in the repository 
 due to its size and to preserve the papers' copyright.
-  8. Use the supplied Makefile here or under features/ to generate updated features from the existing (and possibly new) data files. If necessary, add your new data files to the Makefile.
+  8. Use the supplied Makefile here or under features/ to generate updated features from the existing (and possibly new) data files. If necessary, add your new data files to the Makefile. The computation of the csv files in `features/` may require, in addition to the general installation instructions, that you run: `pip3 install python-dateutil editdistance pytesseract`.

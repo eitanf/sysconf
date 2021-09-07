@@ -2,6 +2,7 @@
 dependencies <- c(
                   "bindrcpp",
                   "bookdown",
+                  "corrplot",
                   "cowplot",
                   "devtools",
                   "GGally",
@@ -14,7 +15,7 @@ dependencies <- c(
                   "lubridate",
                   "MASS",
                   "multidplyr",
-                  "MUMIn",
+                  "MuMIn",
                   "NLP",
                   "plotly",
                   "psych",

@@ -12,6 +12,19 @@ export R=Rscript
 export SYSCONF_HOME=$(pwd)
 ```
 
+You [may](https://github.com/r-dbi/RPostgres/issues/110) need to set the `TAR` variable if `/bin/gtar` is not present:
+
+```
+export TAR="/bin/tar"
+```
+
+You will also need to install `pandoc` to regenerate the PDFs, e.g.:
+
+```
+sudo apt install pandoc
+```
+
+
 ## Quick start
 
 If you just want to try to recreate all the processed data files and reports,

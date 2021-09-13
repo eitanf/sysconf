@@ -135,7 +135,7 @@ The Association of Computing Machinery (ACM) defines a paper's artifact as follo
 
 The quality, standards, and expectations for artifacts still vary greatly [@hermann20:community], and many artifacts submissions do not meet even the lowest expectation bar [@dahlgren19:getting].
 In an attempt to standardize expectations for computer-science artifacts, the ACM describes its initiative to specifically evaluate artifact availability and functionality in some of its journals and conferences, and decorate papers with badges accordingly [@ACM20:artifact].
-One goal of this standardized artifact evaluation process is to send authors and readers the message that artifacts are valued an are an important contribution.
+One goal of this standardized artifact evaluation process is to send authors and readers the message that artifacts are valued and are an important contribution.
 It also provides valuable author feedback [@krishnamurthi15:real].
 
 There are some encouraging signs that such initiatives are leading to increased adoption.
@@ -148,7 +148,7 @@ Citations are not only a widely used metric of influence for papers and research
 Citations may also stand in as a proxy metrics for the transparency, reusability, reproducibility, and credibility of papers, if we make the assumption that any these qualities encourage subsequent researcher to cite the original work.
 The main goal of this paper is therefore to evaluate the association between artifacts availability as a predictor variable and citations as an outcome variable in the research field of computer systems.
 
-With this expansive dataset, we can broaden the scope of our exploration in to uncover more relationships between artifact properties and other paper properties.
+With this expansive dataset, we can broaden the scope of our exploration to uncover more relationships between artifact properties and other paper properties.
 Despite being primarily exploratory in nature, this paper still poses and answers  as secondary contributions a few concrete research questions, inspired by similar studies:
 
 1. What is the ratio of papers in computer systems for which artifacts are available?
@@ -240,7 +240,7 @@ For each one of these papers/artifacts, the following fields were recorded in th
 
 All of the searches for these artifacts are recent, so from the last field above we can denote the current status of an artifact as either "extant" or "expired".
 From the availability of a URL we can classify an artifact as "released" or "unreleased" (the latter denoting papers that promised an artifact but no link or repository was found).
-And from the host domain of the URL we can classify the location of the artifact as either an "Academic" web page, the "ACM" digital library, A "Filesharing" service such as Dropbox or Google, a specialized "Repository" such as Github.com, "Other" (including .com and .org web sites), or "NA".
+And from the host domain of the URL we can classify the location of the artifact as either an "Academic" web page, the "ACM" digital library, a "Filesharing" service such as Dropbox or Google, a specialized "Repository" such as Github.com, "Other" (including .com and .org web sites), or "NA".
 The records for all these artifacts are summarized in the file `features/artifacts.csv` in the supplementary information.
 
 The final relevant piece of the dataset is the conferences' attitude toward artifacts.
@@ -275,7 +275,7 @@ For statistical testing, group means were compared pairwise using Welch's two-sa
 ## Descriptive statistics
 
 We start with simple characterization of the statistical distributions of artifacts in our dataset.
-of the `r nrow(artifacts)` papers with artifacts, we find that about
+Of the `r nrow(artifacts)` papers with artifacts, we find that about
 `r pct(sum(artifacts$linked), nrow(artifacts))`%
 included an actual link to the artifact in the text.
 The ACM digital library marked
@@ -530,7 +530,7 @@ and a **higher h5-index** from GS metrics^[\url{https://scholar.google.com/citat
 Also note that papers in conferences that offered some option for author response to peer review (often in the form of a rebuttal) were slightly more likely to include artifacts, perhaps as a response to peer review
 (`r report_test(chisq.test(table(by_paper$artifact_released, by_paper$rebuttal)))`).
 
-To explain these relationships, we might hypothesize that a higher rate of artifact submission would be associated with more reputable conferences, either because artifact contribute to prestige, or because more rigorous conferences are also more likely to expect the artifacts.
+To explain these relationships, we might hypothesize that a higher rate of artifact submission would be associated with more reputable conferences, either because artifact presence contribute to prestige, or because more rigorous conferences are also more likely to expect such artifacts.
 Observe, however, that some of the conferences that encourage or require artifacts are not as competitive as the others.
 For example, OOPSLA, with the highest artifact rate, had an acceptance rate of 0.3, and SLE, with the fourth-highest artifact rate, had an acceptance rate of 0.42.
 The implication here is that it may not suffice for a conference to actively encourage artifacts for it to be competitive, but a conference that already is competitive may also attract more artifacts.
@@ -607,7 +607,7 @@ In other words, papers published in the same conference might exhibit strong cor
 We can attempt to control for these confounding variables by controlling for conference when evaluating associations using a multilevel model.
 
 One obvious factor affecting citations is time since publication, which we control for by measuring all citations at exactly the same interval, `r how_long` months since the conference's official start.
-Another crucial factor is the field of study, which we normalize for by focusing on a single field, while provide a wide cross-section of the field to limit the effect of statistical variability.
+Another crucial factor is the field of study, which we normalize for by focusing on a single field, while providing a wide cross-section of the field to limit the effect of statistical variability.
 
 There are also numerous paper-related factors that have shown positive association with citations, such as: review papers, fewer equations, number of references, statistically significant positive results, length of papers, number of figures and images, and even more obscure features such as the presence of punctuation marks in the title.
 We can control for the paper-related features we collected by building a simple linear regression model of citations as a function of artifact availability, and then add control variables as predictor variables and observe the effect on the main predictor.
@@ -745,7 +745,7 @@ Still, even when controlling for various paper-related and conference-related fa
 
 Citation metrics are a controversial measure of a work's quality, impact, and importance, and perhaps should not represent the sole or primary motivation for authors to share their artifacts.
 Instead, authors and readers may want to focus on the clear and important benefits to science in general, and to the increased reproducibility and credibility of their work in particular.
-Although there remain many obstacles to universal sharing of artifacts, the field of computer systems does have the advantage that many----f not most---of its artifacts come in the form of software, which is much easier to share than artifacts in other experimental fields.
+Although there remain many obstacles to universal sharing of artifacts, the field of computer systems does have the advantage that many----if not most---of its artifacts come in the form of software, which is much easier to share than artifacts in other experimental fields.
 It is therefore not surprising that we find the majority of shared and extant artifacts in computer systems hosted on github.com, a highly accessible source-code sharing platform.
 
 If increased citation counts are not enough to incent more systems authors to share their artifacts, perhaps conference organizers can leverage their substantial influence to motivate authors.

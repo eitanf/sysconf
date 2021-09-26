@@ -7,7 +7,7 @@ subdirectory holds its own README.md file to describe the files in it.
 ## Prerequisites for running the R analyses
 
 To install all software prerequisites from scratch, you can find detailed instruction in [INSTALL.md](INSTALL.md). They have been tested on Ubuntu 20.04.3-LTS and MacOS 10.15.7.
-If you have access to a Linux machine with Docker, a much easier path is to just run of the prebuilt images at [docker uhb](https://hub.docker.com/r/eitanf/sysconf).
+If you have access to a Linux machine with Docker, a much easier path is to just run of the prebuilt images at [docker hub](https://hub.docker.com/r/eitanf/sysconf).
 
 To reproduce a single analysis, find the subdirectory of `pubs/` that contains it (the `README.md` in `pubs/` lists them all). Ensure that you've met the software prerequisites, then type `make` in that directory.
 

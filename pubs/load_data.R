@@ -148,12 +148,15 @@ fmt <- function(x) { format(x, big.mark = ',') }
 # Return a string that properly formats a p-value (too small becomes <)
 rounded_p <- function(p, rounding) {
   if (p < 10^(-rounding)) {
+    if (p > 10^(-(rounding+1))) {
+      return (paste0("$p<", 1/(10^rounding), "$"))
+    }
     while (p < 10^(-rounding) & rounding < 10) {
       rounding = rounding + 1
     }
-    paste0("$p<10^{", -rounding, "}$")
+    return (paste0("$p<10^{", -rounding+1, "}$"))
   } else {
-    paste0("$p=", format(round(p, rounding), scientific = F), "$")
+    return (paste0("$p=", format(round(p, rounding), scientific = F), "$"))
   }
 }
 

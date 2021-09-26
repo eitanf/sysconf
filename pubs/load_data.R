@@ -142,15 +142,19 @@ freq_and_prop <- function(x, usena = "no") {
 
 ######## Statistical test reporting
 
+### Add separating commas to large numbers:
+fmt <- function(x) { format(x, big.mark = ',') }
+
 # Return a string that properly formats a p-value (too small becomes <)
 rounded_p <- function(p, rounding) {
-  threshold = 10^(-rounding - 1)
-  if (p < threshold) {
-    paste0("$p<", format(threshold, scientific = F), "$")
+  if (p < 10^(-rounding)) {
+    while (p < 10^(-rounding) & rounding < 10) {
+      rounding = rounding + 1
+    }
+    paste0("$p<10^{", -rounding, "}$")
   } else {
-    paste0("$p=", format(p, scientific = F, digits = rounding), "$")
+    paste0("$p=", format(round(p, rounding), scientific = F), "$")
   }
-
 }
 
 # Compute a string based on p value and a p_option as follows:
@@ -158,7 +162,7 @@ rounded_p <- function(p, rounding) {
 # "exact" shows the p value as is
 # "stars" returns either "", "*", "**", "***" based on the significance levels *<0.05, **<0.01, ***<0.001
 # The default option "rounded" rounds p value or shows it as less than the given precision threshold.
-format_p_value <- function(p, rounding = 3, p_option = "rounded") {
+format_p_value <- function(p, rounding = 2, p_option = "rounded") {
   case_when(
     p_option == FALSE        ~ "",
     p_option == "exact"      ~ paste0("$p=", p, "$"),
@@ -172,7 +176,7 @@ format_p_value <- function(p, rounding = 3, p_option = "rounded") {
 # p_option can be FALSE (don't print p value), "rounded" based on rounding, "exact" for no rounding, or "stars".
 # stat_stat either reports the value of the test statistic or noot (boolean).
 # show_df eith reports degrees of freedom.
-report_test <- function(test, rounding = 3, p_option = "rounded", show_stat = TRUE, show_df = FALSE) {
+report_test <- function(test, rounding = 2, p_option = "rounded", show_stat = TRUE, show_df = FALSE) {
   base_str <- ""
   df_str <- ""
   p_str <- format_p_value(test$p.value, rounding, p_option)
@@ -205,6 +209,7 @@ report_test <- function(test, rounding = 3, p_option = "rounded", show_stat = TR
   }
   paste0(ret, p_str)
 }
+
 
 #### Name handling:
 

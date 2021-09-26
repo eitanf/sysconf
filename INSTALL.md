@@ -39,7 +39,7 @@ export R=Rscript
 
 ## 5. Install R dependencies
 
-Run R from the command line, and inside the iterpreter, type:
+Run R from the command line, and in the interpreter, type:
 
 ```
 source("pubs/dependencies.R")

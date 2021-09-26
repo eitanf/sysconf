@@ -102,13 +102,11 @@ collaboration_pairs <- nonsys_authors %>%
   group_modify(~name_combination_creator(.x)) %>% 
   ungroup() %>% 
   distinct(name1, name2, .keep_all = T)
-```
 
 
-```{r}
 gender_summary_table <- function(data) {
   data %>%
-    summarise(
+    summarise(.groups = "keep",
       n_papers = n_distinct(paper_id, conf),
       n_na = sum(is.na(gender)),
       n_male = sum(gender == "M", na.rm = T),
@@ -118,7 +116,35 @@ gender_summary_table <- function(data) {
     arrange(desc(prop_female)) %>%
     knitr::kable()
 }
+```
 
+# Introduction
+
+TODO: Include all related work
+
+In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS.
+Specifically, we collected extensive and accurate gender data to answer the following research questions:
+
+  **RQ1**: Do women collaborate with fewer people than men?
+
+  **RQ2**: Does collaboration amount vary by the gender of the collaborators?
+
+  **RQ3**: Do women publish fewer single-author papers?
+  
+  **RQ4**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
+
+  **RQ5**: TODO: question(s) from Whittington
+
+
+# Materials and Methods
+
+TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
+
+# Results
+
+RQ1: Mean collaborations per paper, and total no. of collaborators overall.
+
+```{r echo=F}
 nonsys_authors %>%
   group_by(conf) %>%
   gender_summary_table()
@@ -143,7 +169,7 @@ author_order_data <- nonsys_authors %>%
 author_order_data %>%
   filter(author_order == 1) %>%
   group_by(field) %>%
-  summarise(
+  summarise(.groups = "keep",
     n_female_fa = sum(gender == "F", na.rm = T),
     n_male_fa =  sum(gender == "M", na.rm = T),
     prop_female_fa = n_female_fa / (n_female_fa + n_male_fa)
@@ -156,7 +182,7 @@ author_order_data %>%
   filter(author_order == max(author_order)) %>%
   ungroup() %>%
   group_by(field) %>%
-  summarise(
+  summarise(.groups = "keep",
     n_female_la = sum(gender == "F", na.rm = T),
     n_male_la =  sum(gender == "M", na.rm = T),
     prop_female_la = n_female_la / (n_female_la + n_male_la)
@@ -167,7 +193,7 @@ author_order_data %>%
 
 
 
-```{r}
+```{r echo=F}
 # average coauthor team size by gender
 nonsys_authors %>%
   add_count(conf, paper_id) %>%
@@ -177,12 +203,12 @@ nonsys_authors %>%
   left_join(all_genders, by = 'name') %>% 
   filter(!is.na(gender)) %>% 
   group_by(gender) %>% 
-  summarise(mean_number_of_coauthors = mean(n_coauthors)) %>% 
+  summarise(.groups = "keep", mean_number_of_coauthors = mean(n_coauthors)) %>% 
   knitr::kable()
 ```
 
 
-```{r}
+```{r echo=F}
 # percent sole authors by gender
 total_male_authors <- nonsys_authors %>% 
   count(gender) %>% 
@@ -226,13 +252,13 @@ nonsys_authors %>%
 ```
 
 
-```{r}
+```{r echo=F}
 author_collaboration_counts <- collaboration_pairs %>%
   left_join(all_genders, by = c("name2" = "name")) %>% 
   rename(genderp2 = gender) %>% 
   select(name1, name2, genderp2, -paper_id) %>% 
   group_by(name1) %>% 
-  summarise(
+  summarise(.groups = "keep",
     n_female_collaborators = sum(genderp2 == "F"),
     n_male_collaborators = sum(genderp2 == "M")
     ) %>% 
@@ -246,15 +272,19 @@ author_collaboration_counts <- collaboration_pairs %>%
 # average number of collaborators by gender
 author_collaboration_counts %>% 
   group_by(genderp1) %>% 
-  summarise(avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>% 
+  summarise(.groups = "keep", avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>% 
   knitr::kable()
 
 # average number of male and female collaborators also broken down by gender
 author_collaboration_counts %>% 
   group_by(genderp1) %>% 
-  summarise(
+  summarise(.groups = "keep",
     avg_n_female_collaborators = round(mean(n_female_collaborators, na.rm = T), 2),
     avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
     ) %>% 
   knitr::kable()
 ```
+
+# Discussion
+
+# Conclusions

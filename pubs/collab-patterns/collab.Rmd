@@ -118,31 +118,91 @@ gender_summary_table <- function(data) {
 }
 ```
 
-# Introduction
+# Introduction and background
 
-TODO: Include all related work
+Rewrite: Scholarly collaboration now drives the frontier of knowledge as well as the complexity, hyper-specialization, and funding of research 
+Rewrite: Scientific collaborations are the backbone of a successful career in science [@whittington18:tie].
+In CS, and in particular in its experimental subfields such as ... collaboration is crucial because the large-scale implementation efforts involved often require teams of researchers with various experience levels.
+
+Explain importance of collaborations with references from Sec. 3 of [@whittington18:tie].
+
+
+ * Assigning the "gender" of a paper based on the proportion of female authors [@hengel17:publishing]. The paper also looks separately at single-author papers and senior-author papers. Other aggregations: at least one female; at least half are female; 
+ 
+ * Since 1990, there are more same-gender coauthorships than expected [@wang21:trends].
+
+ * Women in biotech patent networks are more likely to collaborate with women (gender homophily) and benefit from it; but both genders collaborate with mostly men [@whittington18:tie]. Men have 45% higher average betweenness centrality. There are also fewer women "stars", which we found for systems with h-index and npubs [@cite].
+
+* There are fewer women in first and last author positions in science overall, as well as in single-author papers [@west13:role]
+
+* CS researchers tend to collaborate more than researchers in other fields, regardless of gender, and there are no gender-specific differences in how collaborative behavior impacts scientific success [@jadidi18:gender]. This study also found that gender homophily in CS has been increasing over the past few years.
+
+* A recent study of differences in collaboration patterns across disciplines found that female faculty have significantly fewer distinct co-authors over their careers than males, but that this difference can be fully accounted for by females’ lower publication rate and shorter career lengths [@zeng16:differences].
+It also found that female scientists have a lower probability of repeating previous co-authors than males.
+
+* Another study of collaboration patterns across sciences found that CS papers average 2.84 co-authors, and EE paper 3.04 (closer to our systems results) [@ghiasi15:compliance]. It also found that generally in engineering, FF collaborations accounted for only 7% of all total pairs. In CS, the percentage is even lower (5%).
+
+A surprising result came from a survey of 1,714 scientists in 2011, finding that when accounting for various confounding factors, women actually have more collaborators then men [@bozeman11:men].
+The paper also reported that regression models that take into account different collaboration strategies are better at predicting a researcher's number of collaborators.
+
+A thorough exploration of the well-known difference in productivity between men and women, which we observed in our data as well [@symonds06:gender]
+
+In mathematics, women publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
+Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
+
+Women are less likely to receive tenure the more they coauthor [@sarsons17:recognition].
+
+Women have more female collaborators in VIZ:
+Natkamon Tovanich, Pierre Dragicevic, Petra Isenberg. Gender in 30 Years of IEEE Visualization.IEEE Transactions on Visualization and Computer Graphics, Institute of Electrical and Electronics Engineers, In press. hal-03348149
+
+
+---
+
 
 In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS.
 Specifically, we collected extensive and accurate gender data to answer the following research questions:
 
-  **RQ1**: Do women collaborate with fewer people than men?
+  **RQ1**: Do women publish less than men? By field
 
-  **RQ2**: Does collaboration amount vary by the gender of the collaborators?
+  **RQ2**: Do women collaborate with fewer people than men?
 
-  **RQ3**: Do women publish fewer single-author papers?
+  **RQ3**: Does collaboration amount vary by the gender of the collaborators?
+
+  **RQ4**: Are cross-gender collaborations in our dataset fewer than expected?
+
+  **RQ5**: Do women publish fewer single-author papers?
   
-  **RQ4**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
+  **RQ6**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
+  
+  **RQ7**: Are team sizes (co-author groups) larger in more experimental subfields?
 
-  **RQ5**: TODO: question(s) from Whittington
+  **RQ TODO**: Are there differences in betweenness centrality of women and men [@whittington18:tie].
+
+The data reflects a snapshot in time, not annual trend, to avoid complexities of gender differences in drop-out rates.
 
 
 # Materials and Methods
 
 TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
 
+We have very few NA genders because of our approach.
+Lots of other studies omit "ambiguous" names, which tend to skew Asian (and more female [@cite]).
+Many gender-based studies that omit NAs justify their decision with substantively unchanged models [for example, @cite].
+But when analyzing networks, omitting a large number of connected sub-networks (such as Asians) may distort our results.
+So it's important that we only have a few NAs, and ommitting them doesn't change much (do sensitivity testing!)
+
 # Results
 
-RQ1: Mean collaborations per paper, and total no. of collaborators overall.
+General descriptive statistics.
+
+## RQ1
+
+Mean and median publications per gender by field, as well as "one-timers", "low timers" and "high timers".
+
+
+## RQ2
+
+Mean collaborations per paper, and total no. of collaborators overall.
 
 ```{r echo=F}
 nonsys_authors %>%
@@ -285,6 +345,9 @@ author_collaboration_counts %>%
   knitr::kable()
 ```
 
+## RQ3
+
 # Discussion
+
 
 # Conclusions

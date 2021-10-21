@@ -45,6 +45,7 @@ json_to_df <- function(conf_name, gender_mapping) {
   field <- conf[['field']]
   subfield <- conf[['subfield']]
   papers <- conf[['papers']]
+  submissions <- conf[['submissions']]
 
   conf_info_df <- data.frame()
 
@@ -54,7 +55,8 @@ json_to_df <- function(conf_name, gender_mapping) {
       mutate(conf = confname,
              field = field,
              subfield = subfield,
-             paper_id = paper_id)
+             paper_id = paper_id,
+             n_submissions = submissions)
 
     conf_info_df <- rbind(conf_info_df, authors)
   }
@@ -184,6 +186,17 @@ The data reflects a snapshot in time, not annual trend, to avoid complexities of
 # Materials and Methods
 
 TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
+
+```{r}
+# this is just scratch work and will be added to a fuller table with the other conferences
+nonsys_authors %>% 
+  group_by(conf) %>% 
+  mutate(n_papers = n_distinct(paper_id, conf)) %>% 
+  distinct(conf, .keep_all = T) %>% 
+  mutate(acceptance_r = round(n_papers/n_submissions, 2)) %>% 
+  select(conf, field, subfield, acceptance_r, n_papers) %>% 
+  knitr::kable()
+```
 
 We have very few NA genders because of our approach.
 Lots of other studies omit "ambiguous" names, which tend to skew Asian (and more female [@cite]).

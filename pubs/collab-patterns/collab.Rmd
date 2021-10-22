@@ -120,14 +120,66 @@ gender_summary_table <- function(data) {
 }
 ```
 
-# Introduction and background
+# Introduction
 
-Rewrite: Scholarly collaboration now drives the frontier of knowledge as well as the complexity, hyper-specialization, and funding of research 
-Rewrite: Scientific collaborations are the backbone of a successful career in science [@whittington18:tie].
-In CS, and in particular in its experimental subfields such as ... collaboration is crucial because the large-scale implementation efforts involved often require teams of researchers with various experience levels.
+The gender gap in science, technology, engineering and mathematics (STEM), and in particular in computer science (CS), is a well-known and well-studied problem.
+It carries significant societal effects, such as inequality in economic opportunities for women and an undersupply of researchers and engineers in the rapidly growing discipline [@nielsen17:opinion; @mattis07:upstream].
+The gender gap among researchers is particularly severe: the people who participate in research, publish about it, and have their research acknowledged for its value are predominantly men [@charman17:championing].
+Numerous studies estimate that only about 15%--30% of the CS research community are women [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
+Although some recent indications show these numbers could be growing, they remain low, and the rate of growth remains slow [@wang21:trends].
 
-Explain importance of collaborations with references from Sec. 3 of [@whittington18:tie].
+The gender gap is a complex, multifaceted challenge.
+Numerous approaches to understand and perhaps address the gender gap have focused on facets such as resource availability, gender stereotypes, child care, structural barriers, gender differences, discrimination, and other factors.
+This article focuses on one of these factors: the collaboration patterns of paper coathors across genders and CS fields.
 
+Scientific collaborations are the backbone of a successful career in science [@whittington18:tie].
+For example, researchers with more collaborators have been found to publish more articles, in higher impact journals, and accrue more citations more quickly [@lee05:impact].
+Consequentlly, many studies investigated whether women and men collaborate at different rates across discplines, and often found significant differences [@bozeman04:scientists; @hunter08:collaborative; @kyvik96:child; @scott90:disadvantage].
+
+In CS, and in particular in its more experimental fields such as computer systems, graphics, and artificial intelligence (AI), collaboration is crucial because the large-scale implementation efforts involved often require teams of researchers with various experience levels.
+In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS.
+
+Our study design is descriptive and observational in nature.
+We did not start out with any preset hypotheses to validate.
+Instead, our goal was to collect and analyze up-to-date, accurate and extensive data on CS authorship and collaboration patterns across genders.
+This data and analysis provides baseline statistics for comparison across different time points and scientific disciplines.
+But it also provides immediate answers and comparisons to other works that can provide new insights into the current state of collaboration differences across genders and CS fields.
+Specifically, in this article we address the following research questions:
+
+ *   **RQ1**: Do women publish less than men? By field
+
+ *   **RQ2**: Do women collaborate with fewer people than men?
+
+ *   **RQ3**: Does collaboration amount vary by the gender of the collaborators?
+
+ *   **RQ4**: Are cross-gender collaborations in our dataset fewer than expected?
+
+ *   **RQ5**: Do women publish fewer single-author papers?
+  
+ *  **RQ6**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
+  
+ *  **RQ7**: Are team sizes (co-author groups) larger in more experimental subfields?
+
+
+## Limitations
+
+The data reflects a snapshot in time, not annual trend, to avoid complexities of gender differences in drop-out rates.
+
+Network analysis and patterns are outside the scope of this paper; more descriptive than prescriptive, a basis for future work.
+
+Manual data.
+
+---
+
+Organization
+
+
+
+# Related work
+
+There exists a very rich literature on the gender gap in sciences in general, and in computer science research in particular.
+For a recent review of this literature, refer to [@].
+For the rest of this section, we limit our focus to the relevant literature on collaboration patterns and differences.
 
  * Assigning the "gender" of a paper based on the proportion of female authors [@hengel17:publishing]. The paper also looks separately at single-author papers and senior-author papers. Other aggregations: at least one female; at least half are female; 
  
@@ -157,30 +209,6 @@ Women are less likely to receive tenure the more they coauthor [@sarsons17:recog
 Women have more female collaborators in VIZ:
 Natkamon Tovanich, Pierre Dragicevic, Petra Isenberg. Gender in 30 Years of IEEE Visualization.IEEE Transactions on Visualization and Computer Graphics, Institute of Electrical and Electronics Engineers, In press. hal-03348149
 
-
----
-
-
-In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS.
-Specifically, we collected extensive and accurate gender data to answer the following research questions:
-
-  **RQ1**: Do women publish less than men? By field
-
-  **RQ2**: Do women collaborate with fewer people than men?
-
-  **RQ3**: Does collaboration amount vary by the gender of the collaborators?
-
-  **RQ4**: Are cross-gender collaborations in our dataset fewer than expected?
-
-  **RQ5**: Do women publish fewer single-author papers?
-  
-  **RQ6**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
-  
-  **RQ7**: Are team sizes (co-author groups) larger in more experimental subfields?
-
-  **RQ TODO**: Are there differences in betweenness centrality of women and men [@whittington18:tie].
-
-The data reflects a snapshot in time, not annual trend, to avoid complexities of gender differences in drop-out rates.
 
 
 # Materials and Methods
@@ -364,3 +392,5 @@ author_collaboration_counts %>%
 
 
 # Conclusions
+
+Future work: network analyses, such as degree centraility; evolution of patterns over time.

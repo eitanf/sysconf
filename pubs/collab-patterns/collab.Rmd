@@ -1,30 +1,50 @@
 ---
-title: Gender Differences in Collaboration Patterns in Computer Science
-preprint: false
-author:
-  - name: Josh Yamamoto
-    affiliation: 1
-    corresponding: false
-    email: yamamojo@reed.edu
-  - name: Alexis Richter
-    affiliation: 1
-    corresponding: false
-    email: ajrichter@reed.edu
-  - name: Eitan Frachtenberg
-    affiliation: 1
-    corresponding: true
-    email: eitan@reed.eud
-affiliation:
-    address: Department of Computer Science, Reed College
+title: Gender differences in collaboration patterns in computer science
 bibliography: ../sysconf.bib
-abstract: >
-
-
+simplesummary: |
+  A Simple summary goes here.
+abstract: |
+  A single paragraph of about 200 words maximum. For research articles, 
+  abstracts should give a pertinent overview of the work. We strongly encourage
+  authors to use the following style of structured abstracts, but without 
+  headings: 1) Background: Place the question addressed in a broad context and
+  highlight the purpose of the study; 2) Methods: Describe briefly the main
+  methods or treatments applied; 3) Results: Summarize the article's main 
+  findings; and 4) Conclusion: Indicate the main conclusions or interpretations. 
+  The abstract should be an objective representation of the article, it must not 
+  contain results which are not presented and substantiated in the main text and 
+  should not exaggerate the main conclusions.
+keywords: |
+  keyword 1; keyword 2; keyword 3 (list three to ten pertinent keywords specific 
+  to the article, yet reasonably common within the subject discipline.).
+acknowledgement: |
+  All sources of funding of the study should be disclosed. Please clearly 
+  indicate grants that you have received in support of your research work. 
+  Clearly state if you received funds for covering the costs to publish in open 
+  access.
+authorcontributions: |
+  For research articles with several authors, a short paragraph specifying their 
+  individual contributions must be provided. The following statements should be 
+  used ``X.X. and Y.Y. conceive and designed the experiments; X.X. performed the 
+  experiments; X.X. and Y.Y. analyzed the data; W.W. contributed 
+  reagents/materials/analysis tools; Y.Y. wrote the paper.'' Authorship must be
+  limited to those who have contributed substantially to the work reported.
+conflictsofinterest: |
+  The authors declare no conflict of interest.
+funding: |
+  SJREF
+institutionalreview: |
+  IRB number
+informedconsent: |
+  Any research article describing a study involving humans should contain this statement. Please add ``Informed consent was obtained from all subjects involved in the study.'' OR ``Patient consent was waived due to REASON (please provide a detailed justification).'' OR ``Not applicable'' for studies not involving humans. You might also choose to exclude this statement if the study did not involve humans.
+dataavailability: | 
+  github, doi, supplemental
 output:
   bookdown::pdf_book:
-    base_format: rticles::peerj_article
     keep_tex: true
+    template: main.tex
     citation_package: natbib
+    fig_caption: true
 ---
 
 ```{r code = readLines("../load_data.R"), echo = F, message = F}

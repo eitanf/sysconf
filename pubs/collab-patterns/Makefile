@@ -9,7 +9,7 @@ export
 
 all: ${PAPER}.pdf
 
-%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R
+%.pdf: %.Rmd  Makefile ../sysconf.bib ../load_data.R main.tex
 	if [ -f _main.Rmd ]; then \
 		rm _main.Rmd; \
 	fi

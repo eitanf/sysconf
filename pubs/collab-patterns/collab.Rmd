@@ -148,7 +148,7 @@ The gender gap among researchers is particularly severe: the people who particip
 Numerous studies estimate that only about 15%--30% of the CS research community are women [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 Although some recent indications show these numbers could be growing, they remain low, and the rate of growth remains slow [@wang21:trends].
 
-The gender gap is a complex, multifaceted challenge.
+The gender gap is a complex, multifaceted challenge [@avolio20:factors].
 Numerous approaches to understand and perhaps address the gender gap have focused on facets such as resource availability, gender stereotypes, child care, structural barriers, gender differences, discrimination, and other factors.
 This article focuses on one of these factors: the collaboration patterns of paper coathors across genders and CS fields.
 
@@ -181,7 +181,59 @@ Specifically, in this article we address the following research questions:
  *  **RQ7**: Are team sizes (co-author groups) larger in more experimental subfields?
 
 
-## Limitations
+To bring these questions into historical context, we briefly survey some of the previous work in the area next.
+
+## Related work {-}
+
+There exists a very rich literature on the gender gap in sciences in general, and in computer science research in particular.
+For a recent review of this literature, refer to [@avolio20:factors].
+Instead, we limit our focus to the relevant literature on collaboration patterns and differences.
+
+For example, a recent study of differences in collaboration patterns across disciplines found that female scientists have a lower probability of repeating previous coauthors than males.
+It also found that female faculty have significantly fewer distinct coauthors over their careers than males, but that this difference can be fully accounted for by females’ lower publication rate and shorter career lengths [@zeng16:differences].
+
+This productivity gap, which we observed in our dataset as well, has been thoroughly explored in a different study [@symonds06:gender].
+In mathematics, women generally publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
+Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
+There is even a gap in recognition, as women are also less likely to receive tenure the more they coauthor [@sarsons17:recognition].
+
+
+
+
+CS researchers in particular tend to collaborate more than researchers in other fields, regardless of gender, and there are no gender-specific differences in how collaborative behavior impacts scientific success [@jadidi18:gender].
+This study also found that gender homophily in CS has been increasing over the past few years.
+
+Related, another study of collaboration patterns across sciences found that CS papers average 2.84 coauthors, and electrical engineering papers average 3.04 [@ghiasi15:compliance], similar to what we have found in this study.
+It also found that generally in engineering, female-female collaborations accounted for only 7% of all total pairs.
+In CS, the percentage is even lower (5%).
+Since 1990, there have been even more same-gender (gender homophily) coauthorships than expected [@wang21:trends].
+But this property can vary across CS fields, necessitating more nuanced analysis.
+For example, in the field of data visualization, women collaborated with subtantially more women than men [@tovanich21:gender].
+
+Corroborating this result for biotech patent networks, women have been found more likely to collaborate with women, and benefit from it, but both genders collaborate with mostly men [@whittington18:tie].
+There are also fewer women "stars", which we also found to hold for computer systems with h-index and npubs [@frachtenberg21:underrepresentation].
+
+A surprising result came from a survey of 1,714 scientists in 2011, finding that when accounting for various confounding factors, women actually have more collaborators then men [@bozeman11:men].
+The paper also reported that regression models that take into account different collaboration strategies are better at predicting a researcher's number of collaborators.
+
+Several studies analyzed the gender gap by aggregating the coauthors of each paper into one "gender".
+One study analyzed different aggregations based the proportion of female authors, gender of most senior authors, and single-author papers [@hengel17:publishing].
+Looking at author position for aggregation, another study found that there are fewer women in first and last author positions in science overall, as well as in single-author papers [@west13:role].
+Other ways to aggregate genders including counting all papers that have at least one female author, and those where at least half the authors are female.
+ 
+
+## Organization {-}
+
+The rest of this paper is organized as follows.
+In the next section (Sec. \@ref(sec:data)), we describe in detail our data collection methodology, including the manual assigment of genders to authors to avoid the well-known issues of name-based gender inference.
+In the results section (Sec. \@ref(sec:results)), we enumerate our findings, organized by research question, and then summarize an answer to each of the questions.
+The discussion (Sec. \@ref(sec:discussion)) that follows then elaborates on these answers in an attempt to synthesize insights.
+Finally, we conclude in Sec. \@ref(sec:conclusion) and suggest directions for future research.
+
+
+# Materials and Methods {#sec:data}
+
+## Limitations {-}
 
 The data reflects a snapshot in time, not annual trend, to avoid complexities of gender differences in drop-out rates.
 
@@ -189,49 +241,6 @@ Network analysis and patterns are outside the scope of this paper; more descript
 
 Manual data.
 
----
-
-Organization
-
-
-
-# Related work
-
-There exists a very rich literature on the gender gap in sciences in general, and in computer science research in particular.
-For a recent review of this literature, refer to [@].
-For the rest of this section, we limit our focus to the relevant literature on collaboration patterns and differences.
-
- * Assigning the "gender" of a paper based on the proportion of female authors [@hengel17:publishing]. The paper also looks separately at single-author papers and senior-author papers. Other aggregations: at least one female; at least half are female; 
- 
- * Since 1990, there are more same-gender coauthorships than expected [@wang21:trends].
-
- * Women in biotech patent networks are more likely to collaborate with women (gender homophily) and benefit from it; but both genders collaborate with mostly men [@whittington18:tie]. Men have 45% higher average betweenness centrality. There are also fewer women "stars", which we found for systems with h-index and npubs [@cite].
-
-* There are fewer women in first and last author positions in science overall, as well as in single-author papers [@west13:role]
-
-* CS researchers tend to collaborate more than researchers in other fields, regardless of gender, and there are no gender-specific differences in how collaborative behavior impacts scientific success [@jadidi18:gender]. This study also found that gender homophily in CS has been increasing over the past few years.
-
-* A recent study of differences in collaboration patterns across disciplines found that female faculty have significantly fewer distinct co-authors over their careers than males, but that this difference can be fully accounted for by females’ lower publication rate and shorter career lengths [@zeng16:differences].
-It also found that female scientists have a lower probability of repeating previous co-authors than males.
-
-* Another study of collaboration patterns across sciences found that CS papers average 2.84 co-authors, and EE paper 3.04 (closer to our systems results) [@ghiasi15:compliance]. It also found that generally in engineering, FF collaborations accounted for only 7% of all total pairs. In CS, the percentage is even lower (5%).
-
-A surprising result came from a survey of 1,714 scientists in 2011, finding that when accounting for various confounding factors, women actually have more collaborators then men [@bozeman11:men].
-The paper also reported that regression models that take into account different collaboration strategies are better at predicting a researcher's number of collaborators.
-
-A thorough exploration of the well-known difference in productivity between men and women, which we observed in our data as well [@symonds06:gender]
-
-In mathematics, women publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
-Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
-
-Women are less likely to receive tenure the more they coauthor [@sarsons17:recognition].
-
-Women have more female collaborators in VIZ:
-Natkamon Tovanich, Pierre Dragicevic, Petra Isenberg. Gender in 30 Years of IEEE Visualization.IEEE Transactions on Visualization and Computer Graphics, Institute of Electrical and Electronics Engineers, In press. hal-03348149
-
-
-
-# Materials and Methods
 
 TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
 
@@ -250,9 +259,9 @@ We have very few NA genders because of our approach.
 Lots of other studies omit "ambiguous" names, which tend to skew Asian (and more female [@cite]).
 Many gender-based studies that omit NAs justify their decision with substantively unchanged models [for example, @cite].
 But when analyzing networks, omitting a large number of connected sub-networks (such as Asians) may distort our results.
-So it's important that we only have a few NAs, and ommitting them doesn't change much (do sensitivity testing!)
+So it's important that we only have a few NAs, and omitting them doesn't change much (do sensitivity testing!)
 
-# Results
+# Results {#sec:results}
 
 General descriptive statistics.
 
@@ -408,9 +417,18 @@ author_collaboration_counts %>%
 
 ## RQ3
 
-# Discussion
+## RQ4
+
+## RQ5
+
+## RQ6
+
+## RQ7
 
 
-# Conclusions
+# Discussion {#sec:discussion}
+
+
+# Conclusions {#sec:conclusion}
 
 Future work: network analyses, such as degree centraility; evolution of patterns over time.

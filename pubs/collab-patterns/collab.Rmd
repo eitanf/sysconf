@@ -245,14 +245,30 @@ Manual data.
 TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
 
 ```{r}
-# this is just scratch work and will be added to a fuller table with the other conferences
-nonsys_authors %>% 
-  group_by(conf) %>% 
-  mutate(n_papers = n_distinct(paper_id, conf)) %>% 
-  distinct(conf, .keep_all = T) %>% 
-  mutate(acceptance_r = round(n_papers/n_submissions, 2)) %>% 
-  select(conf, field, subfield, acceptance_r, n_papers) %>% 
-  knitr::kable()
+# this is all nonsys conferences
+ nonsys_full_table <- nonsys_authors %>% 
+   group_by(conf) %>% 
+   mutate(n_papers = n_distinct(paper_id, conf)) %>% 
+   distinct(conf, .keep_all = T) %>% 
+   mutate(acceptance_r = round(n_papers/n_submissions, 2)) %>% 
+   mutate(conf = gsub("_\\d*", "", conf)) %>% 
+   select(conf, subfield, n_papers, acceptance_r) %>% 
+   rename("Acceptance rate" = acceptance_r, "Papers" = n_papers, "Conference" = conf)
+
+ # this is all other conferences
+ sys_full_table <- all_confs %>%
+   mutate(Conference = gsub("_\\d*", "", conference)) %>%
+   rename("Start date" = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
+   mutate("Acceptance rate" = round(acceptance_rate, 2)) %>%
+   select(Conference, subfield, Papers, "Acceptance rate") 
+ 
+ full_table <- rbind(nonsys_full_table, sys_full_table) %>% 
+   arrange(subfield, `Acceptance rate`)
+ 
+ full_table %>% 
+   knitr::kable()
+ 
+
 ```
 
 We have very few NA genders because of our approach.

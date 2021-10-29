@@ -52,6 +52,7 @@ output:
 
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library('rjson')
+library('kableExtra')
 
 # This function reads in a .json conference file and for each paper in the conference it extracts the author names, paper id,
 # field, and conference id into a data frame. It then normalizes the names using 'normalized_author_name' and moves
@@ -94,7 +95,7 @@ json_to_df <- function(conf_name, gender_mapping) {
 ######################
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
 nonsys_confs <-
-  c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM", "ITICSE", "FOCS", "TACAS")
+  c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "ITICSE", "FOCS", "TACAS")
 
 nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders))
@@ -158,6 +159,7 @@ gender_summary_table <- function(data) {
 }
 ```
 
+\onecolumn
 # Introduction
 
 The gender gap in science, technology, engineering and mathematics (STEM), and in particular in computer science (CS), is a well-known and well-studied problem.
@@ -259,31 +261,39 @@ Network analysis and patterns are outside the scope of this paper; more descript
 Manual data.
 
 
-TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
+TODO: Add mapping table/list from subfield to field.
 
 ```{r echo = F}
 # this is all nonsys conferences
 nonsys_full_table <- nonsys_authors %>%
   group_by(conf) %>%
-  mutate(n_papers = n_distinct(paper_id, conf)) %>%
+  mutate(Papers = n_distinct(paper_id, conf), Authors = n_distinct(name, conf, na.rm = T)) %>%
   distinct(conf, .keep_all = T) %>%
-  mutate(acceptance_r = round(n_papers/n_submissions, 2)) %>%
-  mutate(conf = gsub("_\\d*", "", conf)) %>%
-  dplyr::select(conf, subfield, n_papers, acceptance_r) %>%
-  rename("Acceptance rate" = acceptance_r, "Papers" = n_papers, "Conference" = conf)
+  ungroup() %>%
+  mutate(Acceptance = round(Papers / n_submissions, 2)) %>%
+  mutate(Conference = gsub("_\\d*", "", conf)) %>%
+  dplyr::select(Conference, subfield, field, Papers, Authors, Acceptance) %>%
+  rename(Field = field, Subfield = subfield)
 
 # this is all other conferences
 sys_full_table <- all_confs %>%
   mutate(Conference = gsub("_\\d*", "", conference)) %>%
-  rename("Start date" = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
-  mutate("Acceptance rate" = round(acceptance_rate, 2)) %>%
-  dplyr::select(Conference, subfield, Papers, "Acceptance rate")
+  rename(Papers = npapers, Authors = authors_num, Field = field, Subfield = subfield) %>%
+  mutate(Acceptance = round(acceptance_rate, 2)) %>%
+  dplyr::select(Conference, Subfield, Field, Papers, Authors, Acceptance)
 
-full_table <- as.data.frame(rbind(nonsys_full_table, sys_full_table)) %>%
-  arrange(subfield, `Acceptance rate`)
+full_table <- dplyr::bind_rows(nonsys_full_table, sys_full_table) %>%
+  arrange(Subfield, Acceptance)
 
 full_table %>%
-  knitr::kable()
+  dplyr::select(-c(Field)) %>%
+  mutate(Acceptance = ifelse(is.na(Acceptance), "Unknown", Acceptance)) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "llrrr",
+               linesep = "",
+               caption = "All conferences, ordered by acceptance rate, per subfield") %>%
+  kable_styling(latex_options = c("hold_position"), font_size = 7)
 ```
 
 We have very few NA genders because of our approach.
@@ -301,9 +311,11 @@ For each research question, we start with descriptive statistics across the enti
 Many papers across disciplines discuss the existence and potential reasons for a productivity gap, where men generally publish more scholarly articles than women.
 Here, we start our exploration of the data by looking at the productivity rates across genders and subfields of CS.
 
+Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
+
+
 Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
 
-Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
 
 
 

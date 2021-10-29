@@ -4,29 +4,29 @@ bibliography: ../sysconf.bib
 simplesummary: |
   A Simple summary goes here.
 abstract: |
-  A single paragraph of about 200 words maximum. For research articles, 
+  A single paragraph of about 200 words maximum. For research articles,
   abstracts should give a pertinent overview of the work. We strongly encourage
-  authors to use the following style of structured abstracts, but without 
+  authors to use the following style of structured abstracts, but without
   headings: 1) Background: Place the question addressed in a broad context and
   highlight the purpose of the study; 2) Methods: Describe briefly the main
-  methods or treatments applied; 3) Results: Summarize the article's main 
-  findings; and 4) Conclusion: Indicate the main conclusions or interpretations. 
-  The abstract should be an objective representation of the article, it must not 
-  contain results which are not presented and substantiated in the main text and 
+  methods or treatments applied; 3) Results: Summarize the article's main
+  findings; and 4) Conclusion: Indicate the main conclusions or interpretations.
+  The abstract should be an objective representation of the article, it must not
+  contain results which are not presented and substantiated in the main text and
   should not exaggerate the main conclusions.
 keywords: |
-  keyword 1; keyword 2; keyword 3 (list three to ten pertinent keywords specific 
+  keyword 1; keyword 2; keyword 3 (list three to ten pertinent keywords specific
   to the article, yet reasonably common within the subject discipline.).
 acknowledgement: |
-  All sources of funding of the study should be disclosed. Please clearly 
-  indicate grants that you have received in support of your research work. 
-  Clearly state if you received funds for covering the costs to publish in open 
+  All sources of funding of the study should be disclosed. Please clearly
+  indicate grants that you have received in support of your research work.
+  Clearly state if you received funds for covering the costs to publish in open
   access.
 authorcontributions: |
-  For research articles with several authors, a short paragraph specifying their 
-  individual contributions must be provided. The following statements should be 
-  used ``X.X. and Y.Y. conceive and designed the experiments; X.X. performed the 
-  experiments; X.X. and Y.Y. analyzed the data; W.W. contributed 
+  For research articles with several authors, a short paragraph specifying their
+  individual contributions must be provided. The following statements should be
+  used ``X.X. and Y.Y. conceive and designed the experiments; X.X. performed the
+  experiments; X.X. and Y.Y. analyzed the data; W.W. contributed
   reagents/materials/analysis tools; Y.Y. wrote the paper.'' Authorship must be
   limited to those who have contributed substantially to the work reported.
 conflictsofinterest: |
@@ -37,7 +37,7 @@ institutionalreview: |
   IRB number
 informedconsent: |
   Any research article describing a study involving humans should contain this statement. Please add ``Informed consent was obtained from all subjects involved in the study.'' OR ``Patient consent was waived due to REASON (please provide a detailed justification).'' OR ``Not applicable'' for studies not involving humans. You might also choose to exclude this statement if the study did not involve humans.
-dataavailability: | 
+dataavailability: |
   github, doi, supplemental
 output:
   bookdown::pdf_book:
@@ -91,6 +91,7 @@ json_to_df <- function(conf_name, gender_mapping) {
     left_join(gender_mapping, by = "name")
 }
 
+######################
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
 nonsys_confs <-
   c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM", "ITICSE", "FOCS", "TACAS")
@@ -98,34 +99,51 @@ nonsys_confs <-
 nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders))
 
-name_combination_creator <- function(df) {
-  
+###########
+name_combination_creator <- function(df)
+{
   authors <- df$name
-  
+
   if (length(authors) > 1) {
-  
+
     name_combinations <- as.data.frame(t(combn(authors, 2)))
     name_combinations_stacked <- rbind(name_combinations, name_combinations[ ,c(2,1)])
-    
+
     names(name_combinations_stacked) <- c("name1", "name2")
     name_combinations_stacked
-    
+
   } else {
-    
+
     name_combinations <- data.frame()
     name_combinations
-    
+
   }
 }
 
+#######
+# All-to-all coauthor pairs for non-sys and for sys:
+nonsys_collaboration_pairs <- nonsys_authors %>%
+  group_by(paper_id) %>%
+  group_modify(~name_combination_creator(.x)) %>%
+  ungroup() %>%
+  distinct(name1, name2, paper_id, .keep_all = T) %>%
+  left_join(all_genders, by = c("name2" = "name")) %>%
+  rename(gender2 = gender) %>%
+  left_join(all_genders, by = c("name1" = "name")) %>%
+  rename(gender1 = gender) %>%
+  dplyr::select(paper_id, name1, gender1, name2, gender2)
 
-collaboration_pairs <- nonsys_authors %>% 
-  group_by(paper_id) %>% 
-  group_modify(~name_combination_creator(.x)) %>% 
-  ungroup() %>% 
-  distinct(name1, name2, .keep_all = T)
+sys_collaboration_pairs <- coauthors %>%
+  left_join(persons, by = c("name1" = "name", "gs_email1" = "gs_email")) %>%
+  rename(gender1 = gender, paper_id = paper) %>%
+  left_join(persons, by = c("name2" = "name", "gs_email2" = "gs_email")) %>%
+  rename(gender2 = gender) %>%
+  dplyr::select(paper_id, name1, gender1, name2, gender2) %>%
+  distinct(name1, name2, paper_id, .keep_all = T)
 
+all_pairs <- rbind(nonsys_collaboration_pairs, sys_collaboration_pairs)
 
+#####################
 gender_summary_table <- function(data) {
   data %>%
     summarise(.groups = "keep",
@@ -134,7 +152,7 @@ gender_summary_table <- function(data) {
       n_male = sum(gender == "M", na.rm = T),
       n_female = sum(gender == "F", na.rm = T),
       prop_female = n_female / (n_female + n_male)
-      ) %>%
+    ) %>%
     arrange(desc(prop_female)) %>%
     knitr::kable()
 }
@@ -166,20 +184,19 @@ This data and analysis provides baseline statistics for comparison across differ
 But it also provides immediate answers and comparisons to other works that can provide new insights into the current state of collaboration differences across genders and CS fields.
 Specifically, in this article we address the following research questions:
 
- *   **RQ1**: Do women publish less than men? By field
+ *  **RQ1**: Do women publish less than men? By field
 
- *   **RQ2**: Do women collaborate with fewer people than men?
+ *  **RQ2**: Do women collaborate with fewer people than men?
 
- *   **RQ3**: Does collaboration amount vary by the gender of the collaborators?
+ *  **RQ3**: Does collaboration amount vary by the gender of the collaborators?
 
- *   **RQ4**: Are cross-gender collaborations in our dataset fewer than expected?
+ *  **RQ4**: Are cross-gender collaborations in our dataset fewer than expected?
 
- *   **RQ5**: Do women publish fewer single-author papers?
-  
- *  **RQ6**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
-  
- *  **RQ7**: Are team sizes (co-author groups) larger in more experimental subfields?
+ *  **RQ5**: Do women publish fewer single-author papers?
 
+ *  **RQ6**: Are team sizes (coauthor groups) larger in more experimental subfields?
+
+ *  **RQ7**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
 
 To bring these questions into historical context, we briefly survey some of the previous work in the area next.
 
@@ -220,7 +237,7 @@ Several studies analyzed the gender gap by aggregating the coauthors of each pap
 One study analyzed different aggregations based the proportion of female authors, gender of most senior authors, and single-author papers [@hengel17:publishing].
 Looking at author position for aggregation, another study found that there are fewer women in first and last author positions in science overall, as well as in single-author papers [@west13:role].
 Other ways to aggregate genders including counting all papers that have at least one female author, and those where at least half the authors are female.
- 
+
 
 ## Organization {-}
 
@@ -244,31 +261,29 @@ Manual data.
 
 TODO: Add nonsys conferences to long table of conferences: name, field and subfield, acceptance rate, npapers.
 
-```{r}
+```{r echo = F}
 # this is all nonsys conferences
- nonsys_full_table <- nonsys_authors %>% 
-   group_by(conf) %>% 
-   mutate(n_papers = n_distinct(paper_id, conf)) %>% 
-   distinct(conf, .keep_all = T) %>% 
-   mutate(acceptance_r = round(n_papers/n_submissions, 2)) %>% 
-   mutate(conf = gsub("_\\d*", "", conf)) %>% 
-   select(conf, subfield, n_papers, acceptance_r) %>% 
-   rename("Acceptance rate" = acceptance_r, "Papers" = n_papers, "Conference" = conf)
+nonsys_full_table <- nonsys_authors %>%
+  group_by(conf) %>%
+  mutate(n_papers = n_distinct(paper_id, conf)) %>%
+  distinct(conf, .keep_all = T) %>%
+  mutate(acceptance_r = round(n_papers/n_submissions, 2)) %>%
+  mutate(conf = gsub("_\\d*", "", conf)) %>%
+  dplyr::select(conf, subfield, n_papers, acceptance_r) %>%
+  rename("Acceptance rate" = acceptance_r, "Papers" = n_papers, "Conference" = conf)
 
- # this is all other conferences
- sys_full_table <- all_confs %>%
-   mutate(Conference = gsub("_\\d*", "", conference)) %>%
-   rename("Start date" = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
-   mutate("Acceptance rate" = round(acceptance_rate, 2)) %>%
-   select(Conference, subfield, Papers, "Acceptance rate") 
- 
- full_table <- rbind(nonsys_full_table, sys_full_table) %>% 
-   arrange(subfield, `Acceptance rate`)
- 
- full_table %>% 
-   knitr::kable()
- 
+# this is all other conferences
+sys_full_table <- all_confs %>%
+  mutate(Conference = gsub("_\\d*", "", conference)) %>%
+  rename("Start date" = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
+  mutate("Acceptance rate" = round(acceptance_rate, 2)) %>%
+  dplyr::select(Conference, subfield, Papers, "Acceptance rate")
 
+full_table <- as.data.frame(rbind(nonsys_full_table, sys_full_table)) %>%
+  arrange(subfield, `Acceptance rate`)
+
+full_table %>%
+  knitr::kable()
 ```
 
 We have very few NA genders because of our approach.
@@ -279,14 +294,23 @@ So it's important that we only have a few NAs, and omitting them doesn't change 
 
 # Results {#sec:results}
 
-General descriptive statistics.
+For each research question, we start with descriptive statistics across the entire sample population, and then break the statistics down by field and subfield.
 
-## RQ1
+## RQ1: Do women publish less than men?
+
+Many papers across disciplines discuss the existence and potential reasons for a productivity gap, where men generally publish more scholarly articles than women.
+Here, we start our exploration of the data by looking at the productivity rates across genders and subfields of CS.
+
+Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
+
+Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
+
+
 
 Mean and median publications per gender by field, as well as "one-timers", "low timers" and "high timers".
 
+## RQ2: Do women collaborate with fewer people than men?
 
-## RQ2
 
 Mean collaborations per paper, and total no. of collaborators overall.
 
@@ -307,7 +331,7 @@ nonsys_authors %>%
 author_order_data <- nonsys_authors %>%
   add_count(conf, paper_id) %>%
   filter(n > 1) %>%
-  select(-n) %>%
+  dplyr::select(-n) %>%
   group_by(paper_id) %>%
   mutate(author_order = row_number(paper_id)) %>%
   ungroup()
@@ -344,102 +368,113 @@ author_order_data %>%
 nonsys_authors %>%
   add_count(conf, paper_id) %>%
   mutate(n_coauthors = n - 1) %>%
-  select(-n) %>%
-  select(name, paper_id, n_coauthors) %>% 
-  left_join(all_genders, by = 'name') %>% 
-  filter(!is.na(gender)) %>% 
-  group_by(gender) %>% 
-  summarise(.groups = "keep", mean_number_of_coauthors = mean(n_coauthors)) %>% 
+  dplyr::select(-n) %>%
+  dplyr::select(name, paper_id, n_coauthors) %>%
+  left_join(all_genders, by = 'name') %>%
+  filter(!is.na(gender)) %>%
+  group_by(gender) %>%
+  summarise(.groups = "keep", mean_number_of_coauthors = mean(n_coauthors)) %>%
   knitr::kable()
 ```
 
 
+
+```{r echo=F}
+author_collaboration_counts <- nonsys_collaboration_pairs %>%
+  left_join(all_genders, by = c("name2" = "name")) %>%
+  rename(genderp2 = gender) %>%
+  dplyr::select(name1, name2, genderp2, -paper_id) %>%
+  group_by(name1) %>%
+  summarise(.groups = "keep",
+    n_female_collaborators = sum(genderp2 == "F"),
+    n_male_collaborators = sum(genderp2 == "M")
+    ) %>%
+  mutate(n_total = n_female_collaborators + n_male_collaborators) %>%
+  left_join(all_genders, by = c("name1" = "name")) %>%
+  dplyr::select(name1, gender, n_female_collaborators, n_male_collaborators, n_total) %>%
+  rename(genderp1 = gender) %>%
+  filter(!is.na(genderp1))
+
+
+# average number of male and female collaborators also broken down by gender
+author_collaboration_counts %>%
+  group_by(genderp1) %>%
+  summarise(.groups = "keep",
+    avg_n_female_collaborators = round(mean(n_female_collaborators, na.rm = T), 2),
+    avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
+    ) %>%
+  knitr::kable()
+```
+
+## RQ3: Does collaboration amount vary by the gender of the collaborators?
+
+## RQ4: Are cross-gender collaborations in our dataset fewer than expected?
+
+## RQ5: Do women publish fewer single-author papers?
+
 ```{r echo=F}
 # percent sole authors by gender
-total_male_authors <- nonsys_authors %>% 
-  count(gender) %>% 
-  filter(gender == "M") %>% 
+total_male_authors <- nonsys_authors %>%
+  count(gender) %>%
+  filter(gender == "M") %>%
   pull(n)
 
-total_female_authors <- nonsys_authors %>% 
-  count(gender) %>% 
-  filter(gender == "F") %>% 
+total_female_authors <- nonsys_authors %>%
+  count(gender) %>%
+  filter(gender == "F") %>%
   pull(n)
 
 # solo authorship
-nonsys_authors %>% 
-  add_count(conf, paper_id) %>% 
-  filter(n == 1) %>% 
-  filter(!is.na(gender)) %>% 
-  count(gender) %>% 
+nonsys_authors %>%
+  add_count(conf, paper_id) %>%
+  filter(n == 1) %>%
+  filter(!is.na(gender)) %>%
+  count(gender) %>%
   mutate(
     percent_solo = case_when(
       gender == "M" ~ round((n/total_male_authors), 4) * 100,
       gender == "F" ~ round((n/total_female_authors), 4) * 100
     )
-  ) %>% 
-  select(-n) %>% 
+  ) %>%
+  dplyr::select(-n) %>%
   knitr::kable()
 
 # dual authorship
-nonsys_authors %>% 
-  add_count(conf, paper_id) %>% 
-  filter(n == 2) %>% 
-  filter(!is.na(gender)) %>% 
-  count(gender) %>% 
+nonsys_authors %>%
+  add_count(conf, paper_id) %>%
+  filter(n == 2) %>%
+  filter(!is.na(gender)) %>%
+  count(gender) %>%
   mutate(
     percent_dual = case_when(
       gender == "M" ~ round((n/total_male_authors), 4) * 100,
       gender == "F" ~ round((n/total_female_authors), 4) * 100
     )
-  ) %>% 
-  select(-n) %>% 
+  ) %>%
+  dplyr::select(-n) %>%
   knitr::kable()
 ```
 
 
-```{r echo=F}
-author_collaboration_counts <- collaboration_pairs %>%
-  left_join(all_genders, by = c("name2" = "name")) %>% 
-  rename(genderp2 = gender) %>% 
-  select(name1, name2, genderp2, -paper_id) %>% 
-  group_by(name1) %>% 
-  summarise(.groups = "keep",
-    n_female_collaborators = sum(genderp2 == "F"),
-    n_male_collaborators = sum(genderp2 == "M")
-    ) %>% 
-  mutate(n_total = n_female_collaborators + n_male_collaborators) %>% 
-  left_join(all_genders, by = c("name1" = "name")) %>% 
-  select(name1, gender, n_female_collaborators, n_male_collaborators, n_total) %>% 
-  rename(genderp1 = gender) %>% 
-  filter(!is.na(genderp1)) 
+## RQ6: Are team sizes larger in more experimental subfields?
 
+## RQ7: Are gender and collaboration patterns related to experimental costs?
 
 # average number of collaborators by gender
-author_collaboration_counts %>% 
-  group_by(genderp1) %>% 
-  summarise(.groups = "keep", avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>% 
+author_collaboration_counts %>%
+  group_by(genderp1) %>%
+  summarise(.groups = "keep", avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>%
   knitr::kable()
 
 # average number of male and female collaborators also broken down by gender
-author_collaboration_counts %>% 
-  group_by(genderp1) %>% 
+author_collaboration_counts %>%
+  group_by(genderp1) %>%
   summarise(.groups = "keep",
     avg_n_female_collaborators = round(mean(n_female_collaborators, na.rm = T), 2),
     avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
-    ) %>% 
+    ) %>%
   knitr::kable()
 ```
-
-## RQ3
-
-## RQ4
-
-## RQ5
-
-## RQ6
-
-## RQ7
 
 
 # Discussion {#sec:discussion}

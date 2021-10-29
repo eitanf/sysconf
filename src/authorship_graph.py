@@ -19,6 +19,9 @@ coauthors = []
 def append_pair(name1, email1, name2, email2, paper_key):
     global coauthors
 
+    if name1 == name2:
+        return
+
     if name1 < name2:
         pair = { 'name1' : name1, 'gs_email1' : email1,
                  'name2' : name2, 'gs_email2' : email2,

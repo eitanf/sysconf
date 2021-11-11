@@ -134,7 +134,6 @@ nonsys_collaboration_pairs <- nonsys_authors %>%
   rename(gender1 = gender) %>%
   dplyr::select(paper_id, name1, gender1, name2, gender2)
 
-coauthors <- readr::read_csv("../../features/coauthors.csv")
 
 sys_collaboration_pairs <- coauthors %>%
   left_join(persons, by = c("name1" = "name", "gs_email1" = "gs_email")) %>%

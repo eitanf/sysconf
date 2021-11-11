@@ -134,6 +134,7 @@ nonsys_collaboration_pairs <- nonsys_authors %>%
   rename(gender1 = gender) %>%
   dplyr::select(paper_id, name1, gender1, name2, gender2)
 
+
 sys_collaboration_pairs <- coauthors %>%
   left_join(persons, by = c("name1" = "name", "gs_email1" = "gs_email")) %>%
   rename(gender1 = gender, paper_id = paper) %>%
@@ -157,6 +158,26 @@ gender_summary_table <- function(data) {
     arrange(desc(prop_female)) %>%
     knitr::kable()
 }
+
+sys_auths <- roles %>% 
+  filter(role == "author") %>% 
+  left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>% 
+  dplyr::select(name, gender, key, as_author) %>% 
+  mutate(conf = str_extract(key, ".+?(?=_0)")) %>% 
+  left_join(all_confs, by = c("conf" = "conference")) %>% 
+  rename(key = key.x) %>% 
+  dplyr::select(name, gender, key, field, subfield, as_author)
+
+nonsys_auths <- nonsys_authors %>% 
+  dplyr::select(-conf, -n_submissions) %>% 
+  dplyr::select(name, gender, paper_id, field, subfield) %>% 
+  rename(key = paper_id) %>% 
+  add_count(name) %>% 
+  rename(as_author = n)
+  
+
+full_auths <- rbind(sys_auths, nonsys_auths)
+
 ```
 
 \onecolumn
@@ -450,6 +471,9 @@ nonsys_authors %>%
   ) %>%
   dplyr::select(-n) %>%
   knitr::kable()
+
+# 
+
 
 # dual authorship
 nonsys_authors %>%

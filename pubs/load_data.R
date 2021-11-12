@@ -52,6 +52,9 @@ roles$role = factor(roles$role, levels = c("author", "lead_author", "last_author
 
 sys_roles <- filter(roles, conf %in% sys_confs$conf)
 
+##### coauthors.csv:
+coauthors <- read.csv(paste0(toplevel, "features/coauthors.csv"), na.strings = "", colClasses = c("factor", "character"))
+
 #### persons.csv:
 persons <- read.csv(paste0(toplevel, "features/persons.csv"),
                     na.strings = "",
@@ -59,7 +62,8 @@ persons <- read.csv(paste0(toplevel, "features/persons.csv"),
   left_join(group_by(roles, name, gs_email) %>%
               summarize(as_author = sum(role == "author"), as_lead = sum(role == "lead_author"), as_keynote = sum(role == "keynote"),
                         as_pc_chair = sum(role == "chair"), as_pc = sum(role == "pc"),
-                        as_panelist = sum(role == "panel"), as_session_chair = sum(role == "session")))
+                        as_panelist = sum(role == "panel"), as_session_chair = sum(role == "session"),
+                        .groups = "keep"))
 
 sys_persons <- dplyr::select(sys_roles, name, gs_email) %>%
   unique() %>%
@@ -83,7 +87,7 @@ verified_gender <- read.csv(paste0(toplevel, "data/verified_gender_mapping.csv")
 # Non-systems-conferences genders
 verified_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_verified_gender_mapping.csv"), na.strings = "")
 inferred_gender_nonsys <- read.csv(paste0(toplevel, "data/nonsys_inferred_gender_mapping.csv"), na.strings = "") %>%
-  select(-probability)
+  dplyr::select(-probability)
 
 # genders for both sys and nonsys conferences:
 all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender) %>%

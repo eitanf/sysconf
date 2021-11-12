@@ -50,7 +50,7 @@ output:
 ```{r code = readLines("../load_data.R"), echo = F, message = F}
 ```
 
-```{r setup, echo=F, message=F, warning=F, cache=F}
+```{r setup, echo=F, message=F, warning=F, cache=T}
 library('rjson')
 library('kableExtra')
 
@@ -79,7 +79,7 @@ json_to_df <- function(conf_name, gender_mapping) {
              paper_id = paper_id,
              n_submissions = submissions)
 
-    conf_info_df <- rbind(conf_info_df, authors)
+    conf_info_df <- bind_rows(conf_info_df, authors)
   }
 
   conf_info_df <- conf_info_df %>%
@@ -98,7 +98,10 @@ nonsys_confs <-
   c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "ITICSE", "FOCS", "TACAS")
 
 nonsys_authors <- nonsys_confs %>%
-  map_dfr(~json_to_df(.x, all_genders))
+  map_dfr(~json_to_df(.x, all_genders)) %>%
+  mutate(across(.cols = everything(), na_if, "NA")) %>%
+  mutate(across(c(field, subfield, gender), factor))
+  
 
 ###########
 name_combination_creator <- function(df)
@@ -127,7 +130,7 @@ nonsys_collaboration_pairs <- nonsys_authors %>%
   group_by(paper_id) %>%
   group_modify(~name_combination_creator(.x)) %>%
   ungroup() %>%
-  distinct(name1, name2, paper_id, .keep_all = T) %>%
+#  distinct(name1, name2, paper_id, .keep_all = T) %>%
   left_join(all_genders, by = c("name2" = "name")) %>%
   rename(gender2 = gender) %>%
   left_join(all_genders, by = c("name1" = "name")) %>%
@@ -146,7 +149,8 @@ sys_collaboration_pairs <- coauthors %>%
 all_pairs <- rbind(nonsys_collaboration_pairs, sys_collaboration_pairs)
 
 #####################
-gender_summary_table <- function(data) {
+gender_summary_table <- function(data)
+{
   data %>%
     summarise(.groups = "keep",
       n_papers = n_distinct(paper_id, conf),
@@ -163,7 +167,7 @@ sys_auths <- roles %>%
   filter(role == "author") %>% 
   left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>% 
   dplyr::select(name, gender, key, as_author) %>% 
-  mutate(conf = str_extract(key, ".+?(?=_0)")) %>% 
+  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key))) %>% 
   left_join(all_confs, by = c("conf" = "conference")) %>% 
   rename(key = key.x) %>% 
   dplyr::select(name, gender, key, field, subfield, as_author)
@@ -174,10 +178,11 @@ nonsys_auths <- nonsys_authors %>%
   rename(key = paper_id) %>% 
   add_count(name) %>% 
   rename(as_author = n)
-  
 
-full_auths <- rbind(sys_auths, nonsys_auths)
+full_auths <- bind_rows(sys_auths, nonsys_auths)
 
+cmen <- "brown"
+cwomen <- "orange"
 ```
 
 \onecolumn
@@ -284,7 +289,7 @@ Manual data.
 
 TODO: Add mapping table/list from subfield to field.
 
-```{r echo = F}
+```{r echo=F, cache=T}
 # this is all nonsys conferences
 nonsys_full_table <- nonsys_authors %>%
   group_by(conf) %>%
@@ -327,6 +332,8 @@ So it's important that we only have a few NAs, and omitting them doesn't change 
 
 For each research question, we start with descriptive statistics across the entire sample population, and then break the statistics down by field and subfield.
 
+We may need "RQ0": distribution of FAR across conferences, subfields, fields.
+
 ## RQ1: Do women publish less than men?
 
 Many papers across disciplines discuss the existence and potential reasons for a productivity gap, where men generally publish more scholarly articles than women.
@@ -334,13 +341,43 @@ Here, we start our exploration of the data by looking at the productivity rates 
 
 Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
 
+```{r productivity-dist, echo=F, warning=F, message=F, cache=T, fig.cap="Distribution of number of distinct papers per author"}
+full_auths %>%
+  drop_na(gender) %>%
+  ggplot(aes(x = as_author, fill = gender)) +
+    geom_histogram(position = "dodge", binwidth = 1) +
+    scale_fill_manual(values = c(cwomen, cmen), labels = "Women", "Men") +
+    xlab("Papers in dataset") +
+    ylab("Total authors") +
+    scale_y_log10()
+```
+
 
 Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
+
+```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, out.width='0.95\\textwidth', fig.cap="Distribution of number of distinct papers per author"}
+full_auths %>%
+  drop_na(gender) %>%
+  group_by(subfield) %>%
+  mutate(avg_prod = mean(as_author), N=n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = as_author, fill = gender, color = field)) +
+    geom_boxplot(lwd = 0.5) +
+    geom_point(aes(y = avg_prod), color = "black", shape = 2) +
+    geom_text(aes(x = fct_reorder(subfield, avg_prod), y = 21, label = paste0("N=", N)), hjust = 1.1) +
+    xlab("Subfield") +
+    ylab("No. of papers") +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    coord_flip()
+```
 
 
 
 
 Mean and median publications per gender by field, as well as "one-timers", "low timers" and "high timers".
+
 
 ## RQ2: Do women collaborate with fewer people than men?
 
@@ -445,7 +482,7 @@ author_collaboration_counts %>%
 
 ## RQ5: Do women publish fewer single-author papers?
 
-```{r echo=F}
+```{r echo=F, eval=F}
 # percent sole authors by gender
 total_male_authors <- nonsys_authors %>%
   count(gender) %>%
@@ -515,6 +552,7 @@ author_collaboration_counts %>%
 
 # Discussion {#sec:discussion}
 
+Do normalized productivity as well: divided by the number of coauthors per paper, so each author gets a fraction.
 
 # Conclusions {#sec:conclusion}
 

@@ -163,6 +163,17 @@ gender_summary_table <- function(data)
     knitr::kable()
 }
 
+#######
+productivity_diff <- function(sf)
+{
+  men <- filter(full_auths, gender == "M", subfield == sf)
+  women <- filter(full_auths, gender == "F", subfield == sf)
+  paste0(round(mean(men$as_author) - mean(women$as_author), 2), "; ",
+         report_test(t.test(men$as_author, women$as_author)))
+}
+
+#######
+
 sys_auths <- roles %>% 
   filter(role == "author") %>% 
   left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>% 
@@ -179,13 +190,30 @@ nonsys_auths <- nonsys_authors %>%
   add_count(name) %>% 
   rename(as_author = n)
 
-full_auths <- bind_rows(sys_auths, nonsys_auths)
+full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
+  drop_na(gender)
 
-cmen <- "brown"
-cwomen <- "orange"
+full_auths$subfield = recode_factor(full_auths$subfield,
+                                    "Heterogeneous Computing" = "Computer Architecture",
+                                    "Virtualization" = "Operating Systems",
+                                    "Energy" = "Computer Architecture",
+                                    "Architecture" = "Computer Architecture")
+
+full_auths$field = recode_factor(full_auths$field,
+                                 "Systems" = "Computer Systems",
+                                 "Computer Science Education" = "CS Education",
+                                 "Artificial Intelligence" = "AI",
+                                 "Human-Computer Interaction" = "HCI",
+                                 "Theory and Algorithms" = "Theory",
+                                 "Software Engineering & Languages" = "SE/languages")
+
+cwomen <- "#7704FF"
+cmen <- "#00C3AA"
+cmen <- "gray70"
+cwomen <- "gray30"
+
 ```
 
-\onecolumn
 # Introduction
 
 The gender gap in science, technology, engineering and mathematics (STEM), and in particular in computer science (CS), is a well-known and well-studied problem.
@@ -275,6 +303,8 @@ In the results section (Sec. \@ref(sec:results)), we enumerate our findings, org
 The discussion (Sec. \@ref(sec:discussion)) that follows then elaborates on these answers in an attempt to synthesize insights.
 Finally, we conclude in Sec. \@ref(sec:conclusion) and suggest directions for future research.
 
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
 
 # Materials and Methods {#sec:data}
 
@@ -328,34 +358,58 @@ Many gender-based studies that omit NAs justify their decision with substantivel
 But when analyzing networks, omitting a large number of connected sub-networks (such as Asians) may distort our results.
 So it's important that we only have a few NAs, and omitting them doesn't change much (do sensitivity testing!)
 
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
 # Results {#sec:results}
 
 For each research question, we start with descriptive statistics across the entire sample population, and then break the statistics down by field and subfield.
 
 We may need "RQ0": distribution of FAR across conferences, subfields, fields.
 
+
+---
+
 ## RQ1: Do women publish less than men?
 
-Many papers across disciplines discuss the existence and potential reasons for a productivity gap, where men generally publish more scholarly articles than women.
+Many papers across disciplines discuss the existence and potential reasons for a productivity gap, that is, the observation that men generally publish more scholarly articles than women.
 Here, we start our exploration of the data by looking at the productivity rates across genders and subfields of CS.
 
-Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
 
 ```{r productivity-dist, echo=F, warning=F, message=F, cache=T, fig.cap="Distribution of number of distinct papers per author"}
 full_auths %>%
   drop_na(gender) %>%
   ggplot(aes(x = as_author, fill = gender)) +
     geom_histogram(position = "dodge", binwidth = 1) +
-    scale_fill_manual(values = c(cwomen, cmen), labels = "Women", "Men") +
+    scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    theme_classic() +
+    theme(legend.position = "bottom") +
     xlab("Papers in dataset") +
-    ylab("Total authors") +
-    scale_y_log10()
+    ylab("Total authors")
 ```
 
+Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
+Aside from the now-obvious observation that men far outnumber women authors overall, we can also observe a longer tail for the men's distribution overall.
+The interpretation is that the most prolific authors are especially skewed male.
+On the opposite tail, we find that
+`r pct(nrow(filter(full_auths, gender == "F", as_author == 1)), nrow(filter(full_auths, gender == "F")))`%
+of female authors published only one paper in our dataset, compared to
+`r pct(nrow(filter(full_auths, gender == "M", as_author == 1)), nrow(filter(full_auths, gender == "M")))`%
+of men.
 
-Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
+Overall, men average
+`r round(mean(filter(full_auths, gender == "M")$as_author), 2)`
+papers per author, compared to women's
+`r round(mean(filter(full_auths, gender == "F")$as_author), 2)`
+(`r report_test(t.test(filter(full_auths, gender == "F")$as_author, filter(full_auths, gender == "M")$as_author))`).
+Looking at medians---to attempt to attenuate the large effect of the long tail on means---does not help much.
+Both medians are 1; but a Wilcoxon signed rank test still shows a significant difference
+(`r report_test(wilcox.test(filter(full_auths, gender == "F")$as_author, filter(full_auths, gender == "M")$as_author))`).
 
-```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, out.width='0.95\\textwidth', fig.cap="Distribution of number of distinct papers per author"}
+
+```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height = 8, fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95% range."}
+legend_ord <- c("AI", "HCI", "Knowledge Systems", "Computer Systems", "SE/languages", "Theory", "CS Education")
+
 full_auths %>%
   drop_na(gender) %>%
   group_by(subfield) %>%
@@ -366,17 +420,28 @@ full_auths %>%
     geom_point(aes(y = avg_prod), color = "black", shape = 2) +
     geom_text(aes(x = fct_reorder(subfield, avg_prod), y = 21, label = paste0("N=", N)), hjust = 1.1) +
     xlab("Subfield") +
-    ylab("No. of papers") +
-    theme_minimal() +
-    theme(legend.position = "bottom") +
+    ylab("Paper count per author") +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(fill = guide_legend(direction = 'horizontal', title = "Gender"),
+           color = guide_legend(direction = 'horizontal', title = "Field")) +
     scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_color_brewer(palette = "Paired") +
     coord_flip()
 ```
 
 
 
+Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
+The field of AI and its subfields show the highest average productivity (and highest outliers, for men), while software engineering, programming languages, and CS education exhibit the lowest average papers per author.
+In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means: `r productivity_diff("Theoretical Computer Science")`), followed by machine learning (`r productivity_diff("Machine Learning")`), benchmarking (`r productivity_diff("Benchmarking")`), HPC (`r productivity_diff("High-Performance Computing")`), security (`r productivity_diff("Security")`), and AI (`r productivity_diff("Artificial Intelligence")`).
+A few subfields show a small productivity advantage for women, such as programming languages (`r productivity_diff("Programming Languages")`), but none are statistically significant.
 
-Mean and median publications per gender by field, as well as "one-timers", "low timers" and "high timers".
+
+```{r echo=F, eval=F}
+for (sf in levels(full_auths$subfield)) { m<-filter(full_auths, gender == "M", subfield == sf); f<-filter(full_auths, gender == "F", subfield == sf); print(paste(sf, mean(m$as_author)-mean(f$as_author), report_test(t.test(m$as_author, f$as_author)))) }
+```
+
 
 
 ## RQ2: Do women collaborate with fewer people than men?
@@ -549,10 +614,15 @@ author_collaboration_counts %>%
   knitr::kable()
 ```
 
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
 
 # Discussion {#sec:discussion}
 
 Do normalized productivity as well: divided by the number of coauthors per paper, so each author gets a fraction.
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
 
 # Conclusions {#sec:conclusion}
 

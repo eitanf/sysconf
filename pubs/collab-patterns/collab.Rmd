@@ -107,21 +107,14 @@ nonsys_authors <- nonsys_confs %>%
 name_combination_creator <- function(df)
 {
   authors <- df$name
-
-  if (length(authors) > 1) {
-
-    name_combinations <- as.data.frame(t(combn(authors, 2)))
-    name_combinations_stacked <- rbind(name_combinations, name_combinations[ ,c(2,1)])
-
-    names(name_combinations_stacked) <- c("name1", "name2")
-    name_combinations_stacked
-
-  } else {
-
-    name_combinations <- data.frame()
-    name_combinations
-
+  if (length(authors) <= 1) {
+    return (data.frame(name1 = c(), name2 = c()))
   }
+
+  ret <- as.data.frame(t(combn(authors, 2)))
+  names(ret) <- c("name1", "name2")
+  ret <- rbind(ret, data.frame(name1 = ret$name2, name2 = ret$name1))
+  return(ret)
 }
 
 #######
@@ -130,13 +123,11 @@ nonsys_collaboration_pairs <- nonsys_authors %>%
   group_by(paper_id) %>%
   group_modify(~name_combination_creator(.x)) %>%
   ungroup() %>%
-#  distinct(name1, name2, paper_id, .keep_all = T) %>%
   left_join(all_genders, by = c("name2" = "name")) %>%
   rename(gender2 = gender) %>%
   left_join(all_genders, by = c("name1" = "name")) %>%
   rename(gender1 = gender) %>%
   dplyr::select(paper_id, name1, gender1, name2, gender2)
-
 
 sys_collaboration_pairs <- coauthors %>%
   left_join(persons, by = c("name1" = "name", "gs_email1" = "gs_email")) %>%
@@ -487,7 +478,6 @@ A few subfields show a small productivity advantage for women, such as programmi
 
 
 ## RQ2: Do women collaborate with fewer people than men?
-
 
 Mean collaborations per paper, and total no. of collaborators overall.
 

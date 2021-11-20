@@ -268,7 +268,8 @@ For example, a recent study of differences in collaboration patterns across disc
 It also found that female faculty have significantly fewer distinct coauthors over their careers than males, but that this difference can be fully accounted for by females’ lower publication rate and shorter career lengths [@zeng16:differences].
 
 This productivity gap, which we observed in our dataset as well, has been thoroughly explored in a different study [@symonds06:gender].
-In mathematics, women generally publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
+In the social sciences, one study has found that women generally publish fewer papers than men, and that two thirds of the single-author papers were written by men [@schucan11:women].
+In mathematics, women also publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
 Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
 There is even a gap in recognition, as women are also less likely to receive tenure the more they coauthor [@sarsons17:recognition].
 
@@ -373,7 +374,7 @@ Before we can look at collaboration patterns, we need to establish a baseline fo
 For example, the question of how many women or men an author collaborates with makes little sense without the context of how many women and men are available to collaborate with overall.
 The first question we ask, therefore, is what is the female author ratio (FAR) in our dataset.
 
-Summarizing across all `r fmt(nrow(full_auths))` and omitting the `r fmt(sum(is.na(full_auths$gender)))` authors for which we could establish no gender, we find a total of `r fmt(sum(gen_auths$gender == "F"))` women, which represents an overall FAR of
+Summarizing across all `r fmt(nrow(full_auths))` authors and omitting the `r fmt(sum(is.na(full_auths$gender)))` authors for which we could establish no gender, we find a total of `r fmt(sum(gen_auths$gender == "F"))` women, which represents an overall FAR of
 `r pct(sum(gen_auths$gender == "F"), nrow(gen_auths))`% across unique authors.
 This result is on the low end of previously reported statistics in the range of 15--30% [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 Keep in mind, however, the differences between those studies and this one, both in data and in methodology.
@@ -677,6 +678,8 @@ Correlate all variables:
 
  * Relationship between anything and FAR, speculate on causality and "whysofew"
  
+ * Theoretical CS is an extreme point by almost all metrics, and matches what [@mihaljevic16:effect] found for math.
+
 <!-------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------->
 

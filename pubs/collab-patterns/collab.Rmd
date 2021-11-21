@@ -479,9 +479,25 @@ A few subfields show a small productivity advantage for women, such as programmi
 
 ## RQ2: Do women collaborate with fewer people than men?
 
-Mean collaborations per paper, and total no. of collaborators overall.
+This question could be addressed by two distinct measures.
 
-```{r echo=F}
+The first measure is the mean number of coauthors per paper.
+Women in our dataset average
+`r coauthor_count <- all_pairs %>% group_by(paper_id, name1, gender1) %>% summarize(.groups = "keep", n = n()); round(mean(filter(coauthor_count, gender1 == "F")$n), 2)`
+coauthors, while men average
+`r round(mean(filter(coauthor_count, gender1 == "M")$n), 2)`
+(`r report_test(t.test(filter(coauthor_count, gender1 == "F")$n, filter(coauthor_count, gender1 == "M")$n))`).
+
+The second measure is how many distinct authors each person collaborates with across all of their papers---in other words, the size of the cohort of all a person's collaborators.
+In our dataset, women average
+`r cohorts <- all_pairs %>% group_by(name1, gender1) %>% summarize(.groups = "keep", cohort = n_distinct(name2, gender2)); round(mean(filter(cohorts, gender1 == "F")$cohort), 2)`
+total cohort size, while men average
+`r round(mean(filter(cohorts, gender1 == "M")$cohort), 2)`
+(`r report_test(t.test(filter(cohorts, gender1 == "F")$cohort, filter(cohorts, gender1 == "M")$cohort))`).
+
+
+
+```{r echo=F, eval=F}
 nonsys_authors %>%
   group_by(conf) %>%
   gender_summary_table()
@@ -530,7 +546,7 @@ author_order_data %>%
 
 
 
-```{r echo=F}
+```{r echo=F, eval=F}
 # average coauthor team size by gender
 nonsys_authors %>%
   add_count(conf, paper_id) %>%
@@ -546,7 +562,7 @@ nonsys_authors %>%
 
 
 
-```{r echo=F}
+```{r echo=F, eval=F}
 author_collaboration_counts <- nonsys_collaboration_pairs %>%
   left_join(all_genders, by = c("name2" = "name")) %>%
   rename(genderp2 = gender) %>%

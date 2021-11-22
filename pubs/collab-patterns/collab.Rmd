@@ -172,7 +172,9 @@ nonsys_auths <- nonsys_authors %>%
   add_count(name) %>% 
   rename(as_author = n)
 
-full_auths <- bind_rows(sys_auths, nonsys_auths)
+full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
+  group_by(key) %>%
+  mutate(coauthors = n())
 
 full_auths$subfield = recode_factor(full_auths$subfield,
                                     "Heterogeneous Computing" = "Computer Architecture",
@@ -375,7 +377,7 @@ However, the smaller sample size allowed us to apply a primarily manual approach
 In contrast, most comparable studies use a gender inference approach based on given names, which can fail for names with unclear or no gender association at all, as are many East Asian names, and tend to misidentify women in particular [@cohoon11:cspapers; @mattauch20:bibliometric; @santamaria18:comparison].
 We believe these two differences can explain much of the gap between the FARs observed in our data and in previous datasets.
 
-```{r FAR-by-subfield, echo=F, warning=F, message=F, cache=T, out.width='0.95\\textwidth', fig.cap="Female author ratio by subfield"}
+```{r FAR-by-subfield, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Female author ratio by subfield"}
 gen_auths %>%
   group_by(subfield) %>%
   summarize(FAR = sum(gender == "F") / n(), N = n(), field = first(field), subfield = first(subfield)) %>%
@@ -414,7 +416,7 @@ Many papers across disciplines discuss the existence and potential reasons for a
 Here, we continue our exploration of the data by looking at the productivity rates across genders and subfields of CS.
 
 
-```{r productivity-dist, echo=F, warning=F, message=F, cache=T, fig.cap="Distribution of number of distinct papers per author"}
+```{r productivity-dist, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author"}
 gen_auths %>%
   ggplot(aes(x = as_author, fill = gender)) +
     geom_histogram(position = "dodge", binwidth = 1) +
@@ -444,9 +446,7 @@ Both medians are 1; but a Wilcoxon signed rank test still shows a significant di
 (`r report_test(wilcox.test(filter(gen_auths, gender == "F")$as_author, filter(gen_auths, gender == "M")$as_author))`).
 
 
-```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height = 8, fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95% range."}
-legend_ord <- c("AI", "HCI", "Knowledge Systems", "Computer Systems", "SE/languages", "Theory", "CS Education")
-
+```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=8, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
 gen_auths %>%
   group_by(subfield) %>%
   mutate(avg_prod = mean(as_author), N=n()) %>%
@@ -479,14 +479,61 @@ A few subfields show a small productivity advantage for women, such as programmi
 
 ## RQ2: Do women collaborate with fewer people than men?
 
-This question could be addressed by two distinct measures.
+This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total cohort for each author.
 
-The first measure is the mean number of coauthors per paper.
+
+```{r coauthors-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Mean number of coauthors by gender and subfield (triangles denote overall mean for subfield)."}
+gen_auths %>%
+  group_by(subfield) %>%
+  mutate(avg_co = mean(coauthors)) %>%
+  ungroup() %>%
+  group_by(subfield, avg_co, gender) %>%
+  summarize(.groups = "keep", Coauthors = mean(coauthors), field = first(field), subfield = first(subfield)) %>%
+    ggplot(aes(x = fct_reorder(subfield, avg_co), y = Coauthors, color = gender, fill = field)) +
+    geom_bar(stat = "identity", position = "dodge", size = 1) +
+    geom_point(aes(y = avg_co), color = "black", shape = 2) +
+    xlab("Subfield") +
+    ylab("Coauthor count per author") +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender"),
+           fill = guide_legend(direction = 'horizontal', title = "Field")) +
+    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_fill_brewer(palette = "Paired") +
+    coord_flip()
+```
+
 Women in our dataset average
-`r coauthor_count <- all_pairs %>% group_by(paper_id, name1, gender1) %>% summarize(.groups = "keep", n = n()); round(mean(filter(coauthor_count, gender1 == "F")$n), 2)`
+<!--excludes solo authors: `r coauthor_count <- all_pairs %>% group_by(paper_id, name1, gender1) %>% summarize(.groups = "keep", n = n()); round(mean(filter(coauthor_count, gender1 == "F")$n), 2)` -->
+`r round(mean(filter(gen_auths, gender == "F")$coauthors) - 1, 2)`
 coauthors, while men average
-`r round(mean(filter(coauthor_count, gender1 == "M")$n), 2)`
-(`r report_test(t.test(filter(coauthor_count, gender1 == "F")$n, filter(coauthor_count, gender1 == "M")$n))`).
+`r round(mean(filter(gen_auths, gender == "M")$coauthors) - 1, 2)`
+(`r report_test(t.test(filter(gen_auths, gender == "F")$coauthors, filter(gen_auths, gender == "M")$coauthors))`).
+This metric appears to show no significant differences in the aggregate.
+Breaking it down by field (Figure \@ref(fig:coauthors-by-subfield)) shows that the gender differences remain minimal almost throughout.
+The largest difference appear in the subfields of computer architecture
+(`r report_test(t.test(filter(gen_auths, subfield == "Computer Architecture", gender == "F")$coauthors, filter(gen_auths, subfield == "Computer Architecture", gender == "M")$coauthors))`)
+and operating systems
+(`r report_test(t.test(filter(gen_auths, subfield == "Operating systems", gender == "F")$coauthors, filter(gen_auths, subfield == "Operating Systems", gender == "M")$coauthors))`).
+In general, the field of computer systems stands out with a an average gender gap of
+`r round(mean(filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors) -  mean(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors), 2)`
+fewer coauthors for women than for men
+(`r report_test(t.test(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors, filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors))`).
+Interestingly, authorship norms vary significantly by field, if not by gender,  with computer systems averaging
+`r round(mean(filter(full_auths, field == "Computer Systems")$coauthors), 2)`
+coauthors per paper, followed by HCI
+(`r round(mean(filter(full_auths, field == "HCI")$coauthors), 2)`),
+knowledge systems
+(`r round(mean(filter(full_auths, field == "Knowledge Systems")$coauthors), 2)`),
+software engineering and programming languages
+(`r round(mean(filter(full_auths, field == "SE/languages")$coauthors), 2)`),
+AI
+(`r round(mean(filter(full_auths, field == "AI")$coauthors), 2)`),
+CS education
+(`r round(mean(filter(full_auths, field == "CS Education")$coauthors), 2)`),
+and finally theory
+(`r round(mean(filter(full_auths, field == "Theory")$coauthors), 2)`).
+
 
 The second measure is how many distinct authors each person collaborates with across all of their papers---in other words, the size of the cohort of all a person's collaborators.
 In our dataset, women average
@@ -494,8 +541,12 @@ In our dataset, women average
 total cohort size, while men average
 `r round(mean(filter(cohorts, gender1 == "M")$cohort), 2)`
 (`r report_test(t.test(filter(cohorts, gender1 == "F")$cohort, filter(cohorts, gender1 == "M")$cohort))`).
+This measure also shows no significant gender differences in the aggregate.
+Unfortunately, it cannot be neatly broken down by fields, because cohorts often include authors that span more than one field.
 
+Overall, men exhibit slightly higher collaboration metrics than women (more coauthors per paper and more coauthors overall), but not signficantly so.
 
+---
 
 ```{r echo=F, eval=F}
 nonsys_authors %>%
@@ -589,7 +640,6 @@ author_collaboration_counts %>%
   knitr::kable()
 ```
 
----
 
 ## RQ3: Does collaboration amount vary by the gender of the collaborators?
 

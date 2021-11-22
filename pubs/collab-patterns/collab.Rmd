@@ -233,15 +233,13 @@ This data and analysis provides baseline statistics for comparison across differ
 But it also provides immediate answers and comparisons to other works that can provide new insights into the current state of collaboration differences across genders and CS fields.
 Specifically, in this article we address the following research questions:
 
- *  **RQ0**: What are the ratios of women and men among CS conference authors?
+ *  **RQ1**: What are the ratios of women and men among CS conference authors?
  
- *  **RQ1**: Do women publish less than men?
+ *  **RQ2**: Do women publish less than men?
 
- *  **RQ2**: Do women collaborate with fewer people than men?
+ *  **RQ3**: Do women collaborate with fewer people than men?
 
- *  **RQ3**: Does collaboration amount vary by the gender of the collaborators?
-
- *  **RQ4**: Are cross-gender collaborations in our dataset fewer than expected?
+ *  **RQ4**: Do authors exhibit gender homophily in their choice of coauthrs?
 
  *  **RQ5**: Do women publish fewer single-author papers?
 
@@ -359,7 +357,7 @@ So it's important that we only have a few NAs, and omitting them doesn't change 
 
 For each research question, we start with descriptive statistics across the entire sample population, and then break the statistics down by field and subfield.
 
-## RQ0 What are the ratios of women and men among CS conference authors?
+## RQ1 What are the ratios of women and men among CS conference authors?
 
 Before we can look at collaboration patterns, we need to establish a baseline for authorship numbers across genders.
 For example, the question of how many women or men an author collaborates with makes little sense without the context of how many women and men are available to collaborate with overall.
@@ -378,7 +376,7 @@ We believe these two differences can explain much of the gap between the FARs ob
 ```{r FAR-by-subfield, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Female author ratio by subfield"}
 gen_auths %>%
   group_by(subfield) %>%
-  summarize(FAR = sum(gender == "F") / n(), N = n(), field = first(field), subfield = first(subfield)) %>%
+  summarize(.groups = "keep", FAR = sum(gender == "F") / n(), N = n(), field = first(field), subfield = first(subfield)) %>%
   ggplot(aes(x = fct_reorder(subfield, FAR), y = FAR, fill = field)) +
     geom_bar(stat = "identity") +
     geom_text(aes(x = fct_reorder(subfield, FAR), y = 0.42, label = paste0(subfield, "  N=", fmt(N))), hjust = 1, angle = 0, size = 3) +
@@ -408,7 +406,7 @@ Most conferences in the field of computer systems hovered around 10% FAR while t
 
 ---
 
-## RQ1: Do women publish less than men?
+## RQ2: Do women publish less than men?
 
 Many papers across disciplines discuss the existence and potential reasons for a productivity gap, that is, the observation that men generally publish more scholarly articles than women.
 Here, we continue our exploration of the data by looking at the productivity rates across genders and subfields of CS.
@@ -475,7 +473,7 @@ A few subfields show a small productivity advantage for women, such as programmi
 ---
 
 
-## RQ2: Do women collaborate with fewer people than men?
+## RQ3: Do women collaborate with fewer people than men?
 
 This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total network size for each author.
 
@@ -624,13 +622,7 @@ author_collaboration_counts %>%
   knitr::kable()
 ```
 
-
-## RQ3: Does collaboration amount vary by the gender of the collaborators?
-
----
-
-## RQ4: Are cross-gender collaborations in our dataset fewer than expected?
-
+## RQ4: Do authors exhibit gender homphily?
 ---
 
 ## RQ5: Do women publish fewer single-author papers?

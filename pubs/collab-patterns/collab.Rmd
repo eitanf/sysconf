@@ -623,6 +623,65 @@ author_collaboration_counts %>%
 ```
 
 ## RQ4: Do authors exhibit gender homphily?
+
+We follow the same approach of Wang et al. to estimate whether authors collaborate with coauthrs of the same gender at rates higher than expected [@wang21:trends].
+For this computation, we look at every pairing of coauthors as one coauthoring event (omitting single-author papers), and ask whether same-gender pairings occur at a higher frequency than we would observe from a random pairing.
+A random pairing is expected to follow the same overall statistics for gender distribution, i.e., the expected probability of any (co)author to be a women should be the same as the overall FAR.
+
+As Wang's study has also found, our data suggests that is not the case for CS, and authors---especially women---are actually more likely to collaborate with coauthors of the same gender.
+Overall, the probability of a woman's coauthor to be a woman in our dataset is
+`r pct(nrow(filter(all_pairs, gender1 == "F", gender2 == "F")), nrow(filter(all_pairs, gender1 == "F")))`%,
+nearly ten percentage points above the overall FAR.
+For men, the probabily to collaborate with a woman is 
+`r pct(nrow(filter(all_pairs, gender1 == "M", gender2 == "F")), nrow(filter(all_pairs, gender1 == "M")))`%,
+slightly below the overall FAR.
+
+```{r prob-female-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Probability of an author to coauthor with a woman (triangles denote overall probability for subfield, which is similar to FAR but excludes single authors). Women show gender homophily when their probability to coauthor with a woman is higher than the overall probability, and men exhibit homophily when their probability is lower than the overall's."}
+pairs_with_field <- full_auths %>%    # Add field and subfield to all_pairs
+  mutate(paper_id = key) %>%
+  group_by(paper_id) %>%
+  summarize(.groups = "keep", field = first(field), subfield = first(subfield)) %>%
+  right_join(all_pairs) %>%
+  drop_na(gender1) %>%
+  drop_na(gender2)
+
+pairs_with_field %>%
+  group_by(subfield) %>%
+  mutate(.groups = "keep", avg_prob = sum(gender2 == "F") / n()) %>%
+  ungroup() %>%
+  group_by(subfield, avg_prob, gender1) %>%
+  summarize(.groups = "keep", Probability = sum(gender2 == "F") / n(), field = first(field), subfield = first(subfield)) %>%
+    ggplot(aes(x = fct_reorder(subfield, avg_prob), y = Probability, color = gender1, fill = field)) +
+    geom_bar(stat = "identity", position = "dodge", size = 1) +
+    geom_point(aes(y = avg_prob), color = "black", shape = 2) +
+    xlab("Subfield") +
+    ylab("Probability of coauthor being female") +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender"),
+           fill = guide_legend(direction = 'horizontal', title = "Field")) +
+    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_fill_brewer(palette = "Paired") +
+    coord_flip()
+```
+
+
+
+We can also break down these probabilities by subfield (\@ref(fig:prob-female-by-subfield)).
+As a generalization, most subfields exhibit gender homophily, especially in the two subfields with the highest FAR (CS education and HCI).
+A few subfields exhibit gender heterophily, but typically very little.
+A curious exception is the subfield of programming languages, where women only have a probability of
+`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", subfield == "Programming Languages")), nrow(filter(pairs_with_field, gender1 == "F", subfield == "Programming Languages")))`%
+to collaborate with a woman, less than half the overall FAR for the field.
+Together with the subfield of software engineering, this field appears show consistent heterophily among its female authors.
+
+All other fields show fairly consistent gender homomphily to varying degrees.
+For example, in the large field of computer systems, women have a probability of
+`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", field == "Computer Systems")), nrow(filter(pairs_with_field, gender1 == "F", field == "Computer Systems")))`%
+to collaborate with a woman, above the ~10% FAR.
+In all cases, the more pronounced deviations from the expected probabily is for women, suggesting that perhaps collaborating with same-gender authors is more important to women.
+Note, however, that since most authors are men and therefore overall FAR is mostly determined by men, we would expect men's deviations from FAR to be smaller than women's.
+
 ---
 
 ## RQ5: Do women publish fewer single-author papers?

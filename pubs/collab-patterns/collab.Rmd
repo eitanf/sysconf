@@ -247,8 +247,6 @@ Specifically, in this article we address the following research questions:
 
  *  **RQ6**: Are team sizes (coauthor groups) larger in more experimental subfields?
 
- *  **RQ7**: What is the relationship between the cost of the system investigated and gender and collaboration patterns?
-
 To bring these questions into historical context, we briefly survey some of the previous work in the area next.
 
 ## Related work {-}
@@ -479,7 +477,7 @@ A few subfields show a small productivity advantage for women, such as programmi
 
 ## RQ2: Do women collaborate with fewer people than men?
 
-This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total cohort for each author.
+This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total network size for each author.
 
 
 ```{r coauthors-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Mean number of coauthors by gender and subfield (triangles denote overall mean for subfield)."}
@@ -519,30 +517,16 @@ In general, the field of computer systems stands out with a an average gender ga
 `r round(mean(filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors) -  mean(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors), 2)`
 fewer coauthors for women than for men
 (`r report_test(t.test(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors, filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors))`).
-Interestingly, authorship norms vary significantly by field, if not by gender,  with computer systems averaging
-`r round(mean(filter(full_auths, field == "Computer Systems")$coauthors), 2)`
-coauthors per paper, followed by HCI
-(`r round(mean(filter(full_auths, field == "HCI")$coauthors), 2)`),
-knowledge systems
-(`r round(mean(filter(full_auths, field == "Knowledge Systems")$coauthors), 2)`),
-software engineering and programming languages
-(`r round(mean(filter(full_auths, field == "SE/languages")$coauthors), 2)`),
-AI
-(`r round(mean(filter(full_auths, field == "AI")$coauthors), 2)`),
-CS education
-(`r round(mean(filter(full_auths, field == "CS Education")$coauthors), 2)`),
-and finally theory
-(`r round(mean(filter(full_auths, field == "Theory")$coauthors), 2)`).
 
 
-The second measure is how many distinct authors each person collaborates with across all of their papers---in other words, the size of the cohort of all a person's collaborators.
+The second measure is how many distinct authors each person collaborates with across all of their papers---in other words, the size of the network of all a person's collaborators.
 In our dataset, women average
 `r cohorts <- all_pairs %>% group_by(name1, gender1) %>% summarize(.groups = "keep", cohort = n_distinct(name2, gender2)); round(mean(filter(cohorts, gender1 == "F")$cohort), 2)`
 total cohort size, while men average
 `r round(mean(filter(cohorts, gender1 == "M")$cohort), 2)`
 (`r report_test(t.test(filter(cohorts, gender1 == "F")$cohort, filter(cohorts, gender1 == "M")$cohort))`).
 This measure also shows no significant gender differences in the aggregate.
-Unfortunately, it cannot be neatly broken down by fields, because cohorts often include authors that span more than one field.
+Unfortunately, it cannot be neatly broken down by fields, because coauthor networks often include authors that span more than one field.
 
 Overall, men exhibit slightly higher collaboration metrics than women (more coauthors per paper and more coauthors overall), but not signficantly so.
 
@@ -701,25 +685,31 @@ nonsys_authors %>%
 
 ## RQ6: Are team sizes larger in more experimental subfields?
 
----
+The data we collected on coauthorship (Fig. \@ref(fig:coauthorship-by-subfield))
+shows that authorship norms vary significantly by field, if not by gender. 
+The largest coauthorship groups appear in computer systems papers, averaging
+`r round(mean(filter(full_auths, field == "Computer Systems")$coauthors), 2)`
+coauthors per paper, followed by HCI
+(`r round(mean(filter(full_auths, field == "HCI")$coauthors), 2)`),
+knowledge systems
+(`r round(mean(filter(full_auths, field == "Knowledge Systems")$coauthors), 2)`),
+software engineering and programming languages
+(`r round(mean(filter(full_auths, field == "SE/languages")$coauthors), 2)`),
+AI
+(`r round(mean(filter(full_auths, field == "AI")$coauthors), 2)`),
+CS education
+(`r round(mean(filter(full_auths, field == "CS Education")$coauthors), 2)`),
+and finally theory
+(`r round(mean(filter(full_auths, field == "Theory")$coauthors), 2)`).
 
-## RQ7: Are gender and collaboration patterns related to experimental costs?
+This data do appear to confirm the hypothesis that experimental fields generally require larger teams to design, engineer, implement, and measure research results.
+For example, research in computer architecture, the most collaborative of our subfields, often requires large investments in effort (and often, in capital).
+This characterization extends to most computer systems subfields of research that occupy the top spots in terms of collaboration sizes.
+It appears indeed that the larger effort and resource requirement is associated with larger collaborations, as expressed in mean number of coauthors.
 
-# average number of collaborators by gender
-author_collaboration_counts %>%
-  group_by(genderp1) %>%
-  summarise(.groups = "keep", avg_n_collaborators = round(mean(n_total, na.rm = T), 2)) %>%
-  knitr::kable()
+On the opposite end, research in computer theory requires virtually no equipment and is often carried out by individuals, as we have previously observed.
+The characteristics of theory research are naturally very similar to those of mathematicians as a whole, so it is perhaps not surprising that the mean number of coauthors we found for theory is nearly identical to the one found for mathematicians [@mihaljevic16:effect].
 
-# average number of male and female collaborators also broken down by gender
-author_collaboration_counts %>%
-  group_by(genderp1) %>%
-  summarise(.groups = "keep",
-    avg_n_female_collaborators = round(mean(n_female_collaborators, na.rm = T), 2),
-    avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
-    ) %>%
-  knitr::kable()
-```
 
 ---
 

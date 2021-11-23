@@ -686,50 +686,77 @@ Note, however, that since most authors are men and therefore overall FAR is most
 
 ## RQ5: Do women publish fewer single-author papers?
 
-```{r echo=F, eval=F}
-# percent sole authors by gender
-total_male_authors <- nonsys_authors %>%
-  count(gender) %>%
-  filter(gender == "M") %>%
-  pull(n)
+Next we'll look at all of the solo-authored papers in our data set and compute the proportion of those that are male and female.
 
-total_female_authors <- nonsys_authors %>%
-  count(gender) %>%
-  filter(gender == "F") %>%
-  pull(n)
+```{r solo-props-by-gender, echo=F, warning=F, message=F, cache=T}
 
-# solo authorship
-nonsys_authors %>%
-  add_count(conf, paper_id) %>%
-  filter(n == 1) %>%
-  filter(!is.na(gender)) %>%
-  count(gender) %>%
-  mutate(
-    percent_solo = case_when(
-      gender == "M" ~ round((n/total_male_authors), 4) * 100,
-      gender == "F" ~ round((n/total_female_authors), 4) * 100
-    )
-  ) %>%
-  dplyr::select(-n) %>%
-  knitr::kable()
+prop_solo_table <- gen_auths %>% 
+  add_count(key) %>% 
+  filter(n == 1) %>% 
+  group_by(gender) %>% 
+  summarise(n = n()) %>% 
+  mutate(prop = round(n/sum(n), 3)) 
 
-# 
+total_solo <- prop_solo_table$n[1] + prop_solo_table$n[2]
+
+prop_solo_table %>% 
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "llrrr",
+               linesep = "") 
+ 
+
+```
 
 
-# dual authorship
-nonsys_authors %>%
-  add_count(conf, paper_id) %>%
-  filter(n == 2) %>%
-  filter(!is.na(gender)) %>%
-  count(gender) %>%
-  mutate(
-    percent_dual = case_when(
-      gender == "M" ~ round((n/total_male_authors), 4) * 100,
-      gender == "F" ~ round((n/total_female_authors), 4) * 100
-    )
-  ) %>%
-  dplyr::select(-n) %>%
-  knitr::kable()
+```{r, echo = F, warning=F, message=F, cache=T}
+solo_prop_test <- prop.test(x= c(prop_solo_table$n[1], prop_solo_table$n[2]), n = c(total_solo, total_solo))
+```
+
+We find that `r prop_solo_table$prop[1]*100`% of all solo authors in our data set are Female while `r prop_solo_table$prop[2]*100`% of them are Male ($\chi=$ `r round(solo_prop_test$statistic, 3)`, $p <$ `r solo_prop_test$p.value`).
+
+
+Next we'll investigate what percentage of papers that men/women write are solo authored
+
+```{r solo-props-by-subfield, echo = F, warning=F, message=F, cache=T, fig.height = 6.5,out.width='0.75\\textwidth', fig.cap = "For each gender within each subfield we divided the number solo authorships of that gender by the total number of author contributions for that gender. So the bar at the top of this plot can be interpreted as saying that in Computer Science Education, around 5.5\\% of male contributions are solo authorships."}
+solo_by_subfield <- gen_auths %>% 
+  add_count(key) %>% 
+  filter(n == 1) %>% 
+  group_by(gender, subfield, .drop = F) %>% 
+  summarise(n = n())
+
+field_subfield <- gen_auths %>% 
+  distinct(field, subfield)
+
+prop_by_subfield <- gen_auths %>%
+  group_by(gender, subfield, .drop = F) %>%
+  distinct(name, .keep_all = T) %>%
+  summarise(total = sum(as_author)) %>%
+  ungroup() %>% 
+  left_join(solo_by_subfield, by = c("subfield", "gender")) %>% 
+  mutate(prop = n/total) %>% 
+  left_join(field_subfield, by = "subfield")
+
+
+prop_by_subfield %>% 
+  group_by(subfield) %>% 
+  mutate(avg_solo = mean(prop, na.rm = T)) %>% 
+  ungroup() %>% 
+  mutate(subfield = fct_reorder(subfield, avg_solo)) %>% 
+  ggplot(aes(x = subfield, y = prop, fill = field, color = gender)) +
+  geom_col(stat= "identity", position = "dodge", size = 1) +
+  geom_point(aes(y = avg_solo), color = "black", shape = 2) +
+  scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+  theme_classic() +
+  theme(legend.position = "bottom", legend.box = "vertical") +
+  guides(
+    fill = guide_legend(direction = 'horizontal', title = "Gender"),
+    color = guide_legend(direction = 'horizontal', title = "Field")
+    ) +
+  labs(y = "Percent of Solo Authors", x = "Subfield") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer(palette = "Paired") +
+  coord_flip()
 ```
 
 ---

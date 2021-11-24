@@ -614,97 +614,6 @@ Overall, men exhibit slightly higher collaboration metrics than women (more coau
 
 ---
 
-```{r echo=F, eval=F}
-nonsys_authors %>%
-  group_by(conf) %>%
-  gender_summary_table()
-
-
-nonsys_authors %>%
-  group_by(field) %>%
-  gender_summary_table()
-
-nonsys_authors %>%
-  group_by(subfield) %>%
-  gender_summary_table()
-
-author_order_data <- nonsys_authors %>%
-  add_count(conf, paper_id) %>%
-  filter(n > 1) %>%
-  dplyr::select(-n) %>%
-  group_by(paper_id) %>%
-  mutate(author_order = row_number(paper_id)) %>%
-  ungroup()
-
-author_order_data %>%
-  filter(author_order == 1) %>%
-  group_by(field) %>%
-  summarise(.groups = "keep",
-    n_female_fa = sum(gender == "F", na.rm = T),
-    n_male_fa =  sum(gender == "M", na.rm = T),
-    prop_female_fa = n_female_fa / (n_female_fa + n_male_fa)
-  ) %>%
-  arrange(desc(prop_female_fa)) %>%
-  knitr::kable()
-
-author_order_data %>%
-  group_by(conf, paper_id) %>%
-  filter(author_order == max(author_order)) %>%
-  ungroup() %>%
-  group_by(field) %>%
-  summarise(.groups = "keep",
-    n_female_la = sum(gender == "F", na.rm = T),
-    n_male_la =  sum(gender == "M", na.rm = T),
-    prop_female_la = n_female_la / (n_female_la + n_male_la)
-  ) %>%
-  arrange(desc(prop_female_la)) %>%
-  knitr::kable()
-```
-
-
-
-```{r echo=F, eval=F}
-# average coauthor team size by gender
-nonsys_authors %>%
-  add_count(conf, paper_id) %>%
-  mutate(n_coauthors = n - 1) %>%
-  dplyr::select(-n) %>%
-  dplyr::select(name, paper_id, n_coauthors) %>%
-  left_join(all_genders, by = 'name') %>%
-  filter(!is.na(gender)) %>%
-  group_by(gender) %>%
-  summarise(.groups = "keep", mean_number_of_coauthors = mean(n_coauthors)) %>%
-  knitr::kable()
-```
-
-
-
-```{r echo=F, eval=F}
-author_collaboration_counts <- nonsys_collaboration_pairs %>%
-  left_join(all_genders, by = c("name2" = "name")) %>%
-  rename(genderp2 = gender) %>%
-  dplyr::select(name1, name2, genderp2, -paper_id) %>%
-  group_by(name1) %>%
-  summarise(.groups = "keep",
-    n_female_collaborators = sum(genderp2 == "F"),
-    n_male_collaborators = sum(genderp2 == "M")
-    ) %>%
-  mutate(n_total = n_female_collaborators + n_male_collaborators) %>%
-  left_join(all_genders, by = c("name1" = "name")) %>%
-  dplyr::select(name1, gender, n_female_collaborators, n_male_collaborators, n_total) %>%
-  rename(genderp1 = gender) %>%
-  filter(!is.na(genderp1))
-
-
-# average number of male and female collaborators also broken down by gender
-author_collaboration_counts %>%
-  group_by(genderp1) %>%
-  summarise(.groups = "keep",
-    avg_n_female_collaborators = round(mean(n_female_collaborators, na.rm = T), 2),
-    avg_n_male_collaborators = round(mean(n_male_collaborators, na.rm = T), 2)
-    ) %>%
-  knitr::kable()
-```
 
 ## RQ4: Do authors exhibit gender homphily?
 
@@ -788,19 +697,19 @@ prop_solo_table %>%
                booktabs = T,
                align = "llrrr",
                linesep = "") 
- 
 
 ```
+
+
 
 
 ```{r, echo = F, warning=F, message=F, cache=T}
 solo_prop_test <- prop.test(x= c(prop_solo_table$n[1], prop_solo_table$n[2]), n = c(total_solo, total_solo))
 ```
 
-We find that `r prop_solo_table$prop[1]*100`% of all solo authors in our data set are Female while `r prop_solo_table$prop[2]*100`% of them are Male ($\chi=$ `r round(solo_prop_test$statistic, 3)`, $p <$ `r solo_prop_test$p.value`).
+We find that `r prop_solo_table$prop[1]*100`% of all solo authors in our data set are Female while `r prop_solo_table$prop[2]*100`% of them are Male ($\chi=$ `r round(solo_prop_test$statistic, 3)`, $p <$ `r solo_prop_test$p.value`). Notably this value is lower than the FAR we found of `r pct(sum(gen_auths$gender == "F"), nrow(gen_auths))`%.
 
-
-Next we'll investigate what percentage of papers that men/women write are solo authored
+Next we'll investigate what percentage of papers that men/women write are solo authored.
 
 ```{r solo-props-by-subfield, echo = F, warning=F, message=F, cache=T, fig.height = 6.5,out.width='0.75\\textwidth', fig.cap = "For each gender within each subfield we divided the number solo authorships of that gender by the total number of author contributions for that gender. So the bar at the top of this plot can be interpreted as saying that in Computer Science Education, around 5.5\\% of male contributions are solo authorships."}
 solo_by_subfield <- gen_auths %>% 
@@ -819,14 +728,14 @@ prop_by_subfield <- gen_auths %>%
   ungroup() %>% 
   left_join(solo_by_subfield, by = c("subfield", "gender")) %>% 
   mutate(prop = n/total) %>% 
-  left_join(field_subfield, by = "subfield")
-
-
-prop_by_subfield %>% 
+  left_join(field_subfield, by = "subfield") %>% 
   group_by(subfield) %>% 
   mutate(avg_solo = mean(prop, na.rm = T)) %>% 
   ungroup() %>% 
-  mutate(subfield = fct_reorder(subfield, avg_solo)) %>% 
+  mutate(subfield = fct_reorder(subfield, avg_solo))
+
+
+prop_by_subfield  %>% 
   ggplot(aes(x = subfield, y = prop, fill = field, color = gender)) +
   geom_col(stat= "identity", position = "dodge", size = 1) +
   geom_point(aes(y = avg_solo), color = "black", shape = 2) +
@@ -837,11 +746,17 @@ prop_by_subfield %>%
     fill = guide_legend(direction = 'horizontal', title = "Gender"),
     color = guide_legend(direction = 'horizontal', title = "Field")
     ) +
-  labs(y = "Percent of Solo Authors", x = "Subfield") +
+  labs(y = "Percent of Authorships that are Solo", x = "Subfield") +
   scale_y_continuous(labels = scales::percent) +
   scale_fill_brewer(palette = "Paired") +
   coord_flip()
 ```
+
+
+Fig. \@ref(fig:solo-props-by-subfield) shows that in subfields with a lower percentage of solo authorships (below `r round(pull(select(distinct(filter(prop_by_subfield, subfield == "Concurrency"), subfield, .keep_all =T), avg_solo))*100, 3)`%), male solo authorships account for a larger percent of male authorships than female solo authorships do of female authorships. But when we look above `r round(pull(select(distinct(filter(prop_by_subfield, subfield == "Concurrency"), subfield, .keep_all =T), avg_solo))*100, 3)`% we see more variety in which gender is made up of more solo authorships. Notably, there are a few subfields in which solo authorships account for more of total authorships for Female authors than they do for Male authors. These are World-Wide-Web, Data Science, Storage, Multimedia, and Graphics.
+
+
+
 
 ---
 

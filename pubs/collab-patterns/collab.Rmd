@@ -276,7 +276,7 @@ But this property can vary across CS fields, necessitating more nuanced analysis
 For example, in the field of data visualization, women collaborated with subtantially more women than men [@tovanich21:gender].
 
 Corroborating this result for biotech patent networks, women have been found more likely to collaborate with women, and benefit from it, but both genders collaborate with mostly men [@whittington18:tie].
-There are also fewer women "stars", which we also found to hold for computer systems with h-index and npubs [@frachtenberg21:underrepresentation].
+There are also fewer women "stars", which we also found to hold specifically for the subfield of high-performance computing [@frachtenberg21:whpc].
 
 A surprising result came from a survey of 1,714 scientists in 2011, finding that when accounting for various confounding factors, women actually have more collaborators then men [@bozeman11:men].
 The paper also reported that regression models that take into account different collaboration strategies are better at predicting a researcher's number of collaborators.
@@ -300,18 +300,14 @@ Finally, we conclude in Sec. \@ref(sec:conclusion) and suggest directions for fu
 
 # Materials and Methods {#sec:data}
 
-## Limitations {-}
+To answer our research questions, we needed to collect expansive data on CS publications and their authors.
+Such data collection involves many choices, such as which publications to collect and how to assign gender to authors.
+The following list enumerates our main data decisions.
+Each choice necessarily involves trade-offs, and we attempt to justify our choices by explaining which aspects of the trade-off we prioritized.
 
 The data reflects a snapshot in time, not annual trend, to avoid complexities of gender differences in drop-out rates.
 
-Network analysis and patterns are outside the scope of this paper; more descriptive than prescriptive, a basis for future work.
-
-Manual data.
-
-
-TODO: Add mapping table/list from subfield to field.
-
-```{r echo=F, cache=T}
+```{r all-confs, echo=F, cache=T}
 # this is all nonsys conferences
 nonsys_full_table <- nonsys_authors %>%
   group_by(conf) %>%
@@ -340,15 +336,103 @@ full_table %>%
                booktabs = T,
                align = "llrrr",
                linesep = "",
-               caption = "All conferences, ordered by acceptance rate, per subfield") %>%
+               caption = "All conferences, ordered by subfield and acceptance rate") %>%
   kable_styling(latex_options = c("hold_position"), font_size = 7)
 ```
 
-We have very few NA genders because of our approach.
-Lots of other studies omit "ambiguous" names, which tend to skew Asian (and more female [@cite]).
-Many gender-based studies that omit NAs justify their decision with substantively unchanged models [for example, @cite].
-But when analyzing networks, omitting a large number of connected sub-networks (such as Asians) may distort our results.
-So it's important that we only have a few NAs, and omitting them doesn't change much (do sensitivity testing!)
+* Conference data instead of journal data.
+In CS, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences]. To increase the coverage and relevance of our dataset, we only looked at conference publications. The complete list of selected conference can be found in Table \@ref(tab:all-confs).
+
+* Choice of conferences.
+Our dataset evolved from our previous study of conferences related to one major subfield, computer systems [@frachtenberg20:survey].
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast.
+For this specific study, we decided to expand the analysis to include some of the most influential conferences in most subfields of CS, based on the same measures.
+Obviously, not all subfields have equal numbers of participants or conferences, and we had no set quota for either to be included in our dataset.
+Instead, we tried to ensure that each subfield is represented by at least a few hundred authors for statistical power.
+
+* Limit data to a single year.
+Many fields and researchers shift characteristics over time, complicating collaboration analyses.
+To control for these effects, all of the conferences in our dataset are from a single year, 2017.
+
+* Focus on manual gender assignment. Most studies of author gender at scale use automated approaches to assign gender to authors, typically inferred from given names [@huang20:historical; @karimi16:gender].
+These statistical approaches can be reasonably accurate for names of Western origin, and especially for male names  [@cohoon11:cspapers; @mattauch20:bibliometric; @santamaria18:comparison].
+We opted instead to rely primarily on a manual approach that can overcome the limitations of name-based inference.
+Using web lookup, we assigned the gender of
+`r fmt(nrow(verified_gender) + nrow(verified_gender_nonsys))`
+of the unique researchers for whom we could identify an unambiguous web page with a recognizable gendered pronoun or absent that, a photo.
+(For example, many Linkedin profiles may lack a photo, but include a gendered pronoun in the recommendations section.)
+For `r fmt(nrow(inferred_gender) + nrow(inferred_gender_nonsys))`
+others, we used genderize.io's automated gender designations if it was at least 90% confident about them [@santamaria18:comparison].
+The remaining
+`r fmt(filter(full_auths, is.na(gender)) %>% pull(name) %>% unique() %>% length())`
+persons were assigned "NA" instead of a gender and were excluded from most analyses.
+This method provided more gender data and higher accuracy than automated approaches based on forename and country, especially for women [@karimi16:gender; @lariviere13:bibliometrics; @mattauch20:bibliometric; @squazzoni20:noevidence; @wang21:trends].
+Consequently, we have very few NA genders because of our manual approach, relative to comparable studies.
+We believe that when analyzing coathuroship networks in particular, omitting a large number of connected sub-networks (such as people from Asia) may distort our results.
+
+* Assignment of field and subfield.
+We could find no comprehensive definition and delineation of fields and subfields of CS, so we had to come up with our own, which is necessarily subjective (Table \@ref(tab:subfield-mapping)).
+Moreover, conferences do not always fall neatly into a single subfield, and some papers may stray from the primary focus of the conference.
+We note, however, that in most of our analyses, papers subfields assigned to the same field often exhibited similar characteristics to each other and distinct from other subfields.
+This affinity provides evidence that these assignments are not entirely arbitrary.
+That said, other researchers may therefore choose different assignments of papers or conferences to subfields and fields.
+Since our dataset and code are both open and available, we welcome such reevaluations of the data.
+
+```{r subfield-mapping, echo=F, cache=T}
+df <- full_auths %>%
+  group_by(subfield) %>%
+  summarize(.groups = "keep", Field = first(field)) %>%
+  rename(Subfield = subfield)
+
+df$Field = recode_factor(df$Field,
+                         "AI" = "Artificial Intelligence (AI)",
+                         "HCI" = "Human-Computer Interaction (HCI)",
+                         "SE/languages" = "Software Engineering & Programming Languages")
+
+df %>%
+  arrange(Field, Subfield) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "ll",
+               linesep = "",
+               caption = "All CS subfields analyzed, arranged by fields") %>%
+  kable_styling()
+```
+
+
+## Limitations {-}
+
+The choices listed above also represent some compromises that limit the generlization or applicability of our analysis.
+One such limitation is that the data reflects a snapshot in time to avoid the complexities of gender differences in retention rates.
+However, this choice precludes analyses of changes and trends in collaboration patterns over time.
+
+Another limitation is our which conferences to include out of the hundreds or thousands of annual CS conferences.
+Our conference choices may not be not representative of all of CS or even a proportional representation of subfields with CS.
+The relative metrics we measured comparing different subfields are nevertheless meaningful, but overall metrics should be taken with a grain of salt.
+We hope that the large number of authors we included in our dataset does not significantly deviate from a representative sample of the field of CS as a whole.
+
+For this study, the most critical piece of information on these researchers is their \emph{perceived gender}.
+Gender is a complex, multifaceted identity, but most bibliometric studies still rely on binary genders---either collected by the journal, or inferred from first name---because that is the only designator available to them [@bhagat18:data; @cohoon11:cspapers; @holman18:gender; @national20:science; @wang21:trends; @way16:gender; @zweben18:taulbee].
+In the absence of self-identified gender information for our authors, we also necessarily compromised on using binary gender designations.
+We therefore use the gender terms "women" and "men" interchangeably with the sex terms "female" and "male".
+The conferences in our dataset did not collect or share specific gender information, so we had to collect this information from other public sources.
+
+This labor-intensive approach does introduce the prospect of human bias and error.
+For example, a gender assigned by an outdated biography paragraph with pronouns may no longer agree with the self-identification of the researcher.
+To verify the validity of our approach, we compared our manually assigned genders to self-assigned binary genders in a separate survey we conducted among 918 of the authors  [@frachtenberg20:survey].
+We found no disagreements for these authors, which suggests that the likelihood of disagreements among the remaining authors is low.
+But the main limitation that arises from this manual process of data collection and gender assignment, is that it does not scale well to many more conferences or years.
+
+Finally, the nature of the current analysis is more descriptive than presprictive.
+Rather than presenting preconceived hypotheses and testing them with the data, we ask and answer open-ended research questions.
+In particular, the scope of this study excludes social network analysis, which is also important to understanding collaboration patterns [@whittington18:tie] and we hope to address in followup work.
+The open dataset we provide with this article should enable any interested researcher to perform such analyses as well.
+
+## Statistics {-}
+
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and correlations between two numerical variables were evaluated with Pearson's product moment correlation coefficient.
+All statistical tests are reported with their p-values.
+
 
 <!-------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------->

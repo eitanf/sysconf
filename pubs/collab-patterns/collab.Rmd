@@ -54,6 +54,13 @@ output:
 library('rjson')
 library('kableExtra')
 
+# Colors:
+cwomen <- "#7704FF"
+cmen <- "#00C3AA"
+cmen <- "gray70"
+cwomen <- "gray30"
+
+
 # This function reads in a .json conference file and for each paper in the conference it extracts the author names, paper id,
 # field, and conference id into a data frame. It then normalizes the names using 'normalized_author_name' and moves
 # on to the next paper, stacking the new data frame with those that have already been created each time.
@@ -192,11 +199,6 @@ full_auths$field = recode_factor(full_auths$field,
 
 gen_auths <- full_auths %>% drop_na(gender)
 
-cwomen <- "#7704FF"
-cmen <- "#00C3AA"
-cmen <- "gray70"
-cwomen <- "gray30"
-
 #######
 productivity_diff <- function(sf)
 {
@@ -205,6 +207,16 @@ productivity_diff <- function(sf)
   paste0(round(mean(men$as_author) - mean(women$as_author), 2), "; ",
          report_test(t.test(men$as_author, women$as_author)))
 }
+
+#### Summary table of properties of subfields.
+subfield_summary <- gen_auths %>%
+  group_by(subfield) %>%
+  mutate(FAR = sum(gender == "F") / n()) %>%
+  ungroup() %>%
+  group_by(subfield, FAR, gender) %>%
+  summarize(.groups = "keep", aa = mean(as_author)) %>%
+  group_by(subfield, FAR) %>%
+  summarize(.groups = "keep", prod_adv = nth(aa, 2) / nth(aa, 1))
 ```
 
 # Introduction
@@ -447,7 +459,7 @@ Before we can look at collaboration patterns, we need to establish a baseline fo
 For example, the question of how many women or men an author collaborates with makes little sense without the context of how many women and men are available to collaborate with overall.
 The first question we ask, therefore, is what is the female author ratio (FAR) in our dataset.
 
-Summarizing across all `r fmt(nrow(full_auths))` authors (with repeats for multiple papers) and omitting the `r fmt(sum(is.na(full_auths$gender)))` authors for which we could establish no gender, we find a total of `r fmt(sum(gen_auths$gender == "F"))` women, which represents an overall FAR of
+Summarizing across all `r fmt(nrow(full_auths))` authors (with repeats for multiple papers) and omitting the `r fmt(sum(is.na(full_auths$gender)))` authorships for which we could establish no gender, we find a total of `r fmt(sum(gen_auths$gender == "F"))` women, which represents an overall FAR of
 `r pct(sum(gen_auths$gender == "F"), nrow(gen_auths))`% across unique authors.
 This result is on the low end of previously reported statistics in the range of 15--30% [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 Keep in mind, however, the differences between those studies and this one, both in data and in methodology.
@@ -762,7 +774,7 @@ Fig. \@ref(fig:solo-props-by-subfield) shows that in subfields with a lower perc
 
 ## RQ6: Are team sizes larger in more experimental subfields?
 
-The data we collected on coauthorship (Fig. \@ref(fig:coauthorship-by-subfield))
+The data we collected on coauthorship (Fig. \@ref(fig:coauthors-by-subfield))
 shows that authorship norms vary significantly by field, if not by gender. 
 The largest coauthorship groups appear in computer systems papers, averaging
 `r round(mean(filter(full_auths, field == "Computer Systems")$coauthors), 2)`
@@ -795,17 +807,45 @@ The characteristics of theory research are naturally very similar to those of ma
 
 # Discussion {#sec:discussion}
 
-Correlate all variables:
+In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics.
+The first relationship we investigate is between productivity and FAR.
+In other words, can the higher observed productivity of men explain why we observe so many more male authors than females?
+
+The answer appears to be "mostly not."
+Obviously, the observation that men publish more than women implies that we would find more names of men on papers than we would of women, but the modest advantage in overall productivity for men
+(`r round(mean(100 * filter(gen_auths, gender == "M")$as_author) / mean(filter(gen_auths, gender == "F")$as_author) - 100, 2)`%) cannot fully explain the nearly 9:1 ratio of male-to-female authorship.
+In fact, if we ignore repeated publications altogether and look simply at the ratio of unique women among all unique authors, we still observe a ratio of
+`r tmp <- gen_auths %>% group_by(gender) %>% summarize(.groups = "keep", names = n_distinct(name)); pct(filter(tmp, gender=="F")$names, sum(tmp$names))`% women overall.
+While this ratio represents a significant improvement over the non-unique FAR, it is still far from parity, suggesting that higher productivity alone cannot fully explain the gender gap.
+Aggregating the data on a subfield basis (Table \@ref(tab:subfield-aggregation)) confirms that the correlation between a subfield's FAR and its male productivity advantage, defined as the ratio between the mean productivity of men and women, is indeed fairly weak
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$prod_adv))`).
+Some subfields, like theory, exhibit both a high male-to-female productivity ratio and low FAR, and vice-versa, like CS education. 
+Others show no apparent relationship, like information retrieval and neural networks that have nearly identical FARs but very dissimilar productivity gaps.
+
+```{r subfield-aggregation, echo = F, cache = T}
+subfield_summary %>%
+  rename("Productivity ratio" = prod_adv) %>%
+  arrange(desc(FAR)) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "lrr",
+               linesep = "",
+               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Ratios (of mean papers per author) are calculated with women in the denominator.") %>%
+  kable_styling()
+```
+
 
  * Do normalized productivity as well: divided by the number of coauthors per paper, so each author gets a fraction.
 
- * Relationship between anything and FAR, speculate on causality and "whysofew"
- 
  * Theoretical CS is an extreme point by almost all metrics, and matches what [@mihaljevic16:effect] found for math.
 
+ * Linear regression / decision tree model predicting subfield FAR from the others. Possibly mixed-effects with field.
+ 
 <!-------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------->
 
 # Conclusions {#sec:conclusion}
 
 Future work: network analyses, such as degree centraility; evolution of patterns over time.
+speculate on causality and "whysofew"
+ 

@@ -32,13 +32,13 @@ authorcontributions: |
 conflictsofinterest: |
   The authors declare no conflict of interest.
 funding: |
-  SJREF
+  Funding for this work was generously provided by the Reed College Social Justice Research and Education Fund.
 institutionalreview: |
-  IRB number
+  This study was exempted from the informed consent requirement under Exempt Category 4: the use of secondary data by Reed College's Institutional Review Board (No. 2021-S26).
 informedconsent: |
-  Any research article describing a study involving humans should contain this statement. Please add ``Informed consent was obtained from all subjects involved in the study.'' OR ``Patient consent was waived due to REASON (please provide a detailed justification).'' OR ``Not applicable'' for studies not involving humans. You might also choose to exclude this statement if the study did not involve humans.
+  The data collected for this study was sourced from public-use datasets such as conference and academic web pages. The informed consent requirement was waived for this secondary analysis.
 dataavailability: |
-  github, doi, supplemental
+  All of the code and data for this article are publicly available at \url{https://github.com/eitanf/sysconf} \cite{frachtenberg:github-repo}
 output:
   bookdown::pdf_book:
     keep_tex: true
@@ -223,7 +223,7 @@ Scientific collaborations are the backbone of a successful career in science [@w
 For example, researchers with more collaborators have been found to publish more articles, in higher impact journals, and accrue more citations more quickly [@lee05:impact].
 Consequentlly, many studies investigated whether women and men collaborate at different rates across discplines, and often found significant differences [@bozeman04:scientists; @hunter08:collaborative; @kyvik96:child; @scott90:disadvantage].
 
-In CS, and in particular in its more experimental fields such as computer systems, graphics, and artificial intelligence (AI), collaboration is crucial because the large-scale implementation efforts involved often require teams of researchers with various experience levels.
+In CS, and in particular in its more experimental fields such as computer systems, graphics, and artificial intelligence, collaboration is crucial because the large-scale implementation efforts involved often require teams of researchers with various experience levels.
 In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS.
 
 Our study design is descriptive and observational in nature.
@@ -245,12 +245,12 @@ Specifically, in this article we address the following research questions:
 
  *  **RQ6**: Are team sizes (coauthor groups) larger in more experimental subfields?
 
-To bring these questions into historical context, we briefly survey some of the previous work in the area next.
+To bring these questions into historical context, we next briefly survey some of the previous work in the area.
 
 ## Related work {-}
 
-There exists a very rich literature on the gender gap in sciences in general, and in computer science research in particular.
-For a recent review of this literature, refer to [@avolio20:factors].
+There exists rich literature on the gender gap in sciences in general, and in computer science research in particular.
+For a recent review of these works, refer to [@avolio20:factors].
 Instead, we limit our focus to the relevant literature on collaboration patterns and differences.
 
 For example, a recent study of differences in collaboration patterns across disciplines found that female scientists have a lower probability of repeating previous coauthors than males.
@@ -447,7 +447,7 @@ Before we can look at collaboration patterns, we need to establish a baseline fo
 For example, the question of how many women or men an author collaborates with makes little sense without the context of how many women and men are available to collaborate with overall.
 The first question we ask, therefore, is what is the female author ratio (FAR) in our dataset.
 
-Summarizing across all `r fmt(nrow(full_auths))` authors and omitting the `r fmt(sum(is.na(full_auths$gender)))` authors for which we could establish no gender, we find a total of `r fmt(sum(gen_auths$gender == "F"))` women, which represents an overall FAR of
+Summarizing across all `r fmt(nrow(full_auths))` authors (with repeats for multiple papers) and omitting the `r fmt(sum(is.na(full_auths$gender)))` authors for which we could establish no gender, we find a total of `r fmt(sum(gen_auths$gender == "F"))` women, which represents an overall FAR of
 `r pct(sum(gen_auths$gender == "F"), nrow(gen_auths))`% across unique authors.
 This result is on the low end of previously reported statistics in the range of 15--30% [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 Keep in mind, however, the differences between those studies and this one, both in data and in methodology.
@@ -483,7 +483,7 @@ The highest FAR was exhibited in CS education conferences
 (`r pct(nrow(filter(gen_auths, gender == "F", subfield == "Computer Science Education")), nrow(filter(gen_auths, subfield == "Computer Science Education")))`%)
 and the lowest in theoretical CS
 (`r pct(nrow(filter(gen_auths, gender == "F", subfield == "Theoretical Computer Science")), nrow(filter(gen_auths, subfield == "Theoretical Computer Science")))`%).
-Most conferences in the field of computer systems hovered around 10% FAR while the entire field AI averaged a little higer at
+Most conferences in the field of computer systems hovered around 10% FAR while the entire field of AI averaged a little higer at
 (`r pct(nrow(filter(gen_auths, gender == "F", field == "AI")), nrow(filter(gen_auths, field == "AI")))`%).
 
 
@@ -508,7 +508,7 @@ gen_auths %>%
 ```
 
 Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper productivity in CS across genders.
-Aside from the now-obvious observation that men far outnumber women authors overall, we can also observe a longer tail for the men's distribution overall.
+Aside from the now-obvious observation that men far outnumber women authors, we can also observe a longer tail for the men's distribution overall.
 The interpretation is that the most prolific authors are especially skewed male.
 On the opposite tail, we find that
 `r pct(nrow(filter(gen_auths, gender == "F", as_author == 1)), nrow(filter(gen_auths, gender == "F")))`%
@@ -522,7 +522,7 @@ papers per author, compared to women's
 `r round(mean(filter(gen_auths, gender == "F")$as_author), 2)`
 (`r report_test(t.test(filter(gen_auths, gender == "F")$as_author, filter(gen_auths, gender == "M")$as_author))`).
 Looking at medians---to attempt to attenuate the large effect of the long tail on means---does not help much.
-Both medians are 1; but a Wilcoxon signed rank test still shows a significant difference
+Both medians are naturally 1; but a Wilcoxon signed rank test still shows a significant difference
 (`r report_test(wilcox.test(filter(gen_auths, gender == "F")$as_author, filter(gen_auths, gender == "M")$as_author))`).
 
 
@@ -550,7 +550,7 @@ gen_auths %>%
 
 Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
 The field of AI and its subfields show the highest average productivity (and highest outliers, for men), while software engineering, programming languages, and CS education exhibit the lowest average papers per author.
-In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means: `r productivity_diff("Theoretical Computer Science")`), followed by machine learning (`r productivity_diff("Machine Learning")`), benchmarking (`r productivity_diff("Benchmarking")`), HPC (`r productivity_diff("High-Performance Computing")`), security (`r productivity_diff("Security")`), and AI (`r productivity_diff("Artificial Intelligence")`).
+In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means $\delta$=`r productivity_diff("Theoretical Computer Science")`), followed by machine learning (`r productivity_diff("Machine Learning")`), benchmarking (`r productivity_diff("Benchmarking")`), HPC (`r productivity_diff("High-Performance Computing")`), security (`r productivity_diff("Security")`), and AI (`r productivity_diff("Artificial Intelligence")`).
 A few subfields show a small productivity advantage for women, such as programming languages (`r productivity_diff("Programming Languages")`), but none are statistically significant.
 
 
@@ -671,7 +671,7 @@ Together with the subfield of software engineering, this field appears show cons
 All other fields show fairly consistent gender homomphily to varying degrees.
 For example, in the large field of computer systems, women have a probability of
 `r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", field == "Computer Systems")), nrow(filter(pairs_with_field, gender1 == "F", field == "Computer Systems")))`%
-to collaborate with a woman, above the ~10% FAR.
+to collaborate with a woman, above the $\approx{10}\%$ FAR.
 In all cases, the more pronounced deviations from the expected probabily is for women, suggesting that perhaps collaborating with same-gender authors is more important to women.
 Note, however, that since most authors are men and therefore overall FAR is mostly determined by men, we would expect men's deviations from FAR to be smaller than women's.
 

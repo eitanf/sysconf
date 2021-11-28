@@ -211,12 +211,13 @@ productivity_diff <- function(sf)
 #### Summary table of properties of subfields.
 subfield_summary <- gen_auths %>%
   group_by(subfield) %>%
-  mutate(FAR = sum(gender == "F") / n()) %>%
+  mutate(FAR = sum(gender == "F") / n(), avg_prod = mean(as_author), avg_coauthors = mean(coauthors)) %>%
   ungroup() %>%
-  group_by(subfield, FAR, gender) %>%
-  summarize(.groups = "keep", aa = mean(as_author)) %>%
-  group_by(subfield, FAR) %>%
-  summarize(.groups = "keep", prod_adv = nth(aa, 2) / nth(aa, 1))
+  group_by(subfield, gender, FAR, avg_coauthors, avg_prod) %>%
+  summarize(.groups = "keep", aa = mean(as_author), co = mean(coauthors)) %>%
+  group_by(subfield, FAR, avg_coauthors, avg_prod) %>%
+  summarize(.groups = "keep",
+            prod_ratio = nth(aa, 2) / nth(aa, 1))
 ```
 
 # Introduction
@@ -408,7 +409,7 @@ df %>%
                align = "ll",
                linesep = "",
                caption = "All CS subfields analyzed, arranged by fields") %>%
-  kable_styling()
+  kable_styling(font_size = 7)
 ```
 
 
@@ -571,7 +572,7 @@ A few subfields show a small productivity advantage for women, such as programmi
 
 ## RQ3: Do women collaborate with fewer people than men?
 
-This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total network size for each author.
+This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total coauthor network for each author.
 
 
 ```{r coauthors-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Mean number of coauthors by gender and subfield (triangles denote overall mean for subfield)."}
@@ -807,8 +808,8 @@ The characteristics of theory research are naturally very similar to those of ma
 
 # Discussion {#sec:discussion}
 
-In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics.
-The first relationship we investigate is between productivity and FAR.
+In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics, summarized in Table \@ref(tab:subfield-aggregation) .
+The first relationship we investigate is between productivity (RQ2) and FAR.
 In other words, can the higher observed productivity of men explain why we observe so many more male authors than females?
 
 The answer appears to be "mostly not."
@@ -817,29 +818,49 @@ Obviously, the observation that men publish more than women implies that we woul
 In fact, if we ignore repeated publications altogether and look simply at the ratio of unique women among all unique authors, we still observe a ratio of
 `r tmp <- gen_auths %>% group_by(gender) %>% summarize(.groups = "keep", names = n_distinct(name)); pct(filter(tmp, gender=="F")$names, sum(tmp$names))`% women overall.
 While this ratio represents a significant improvement over the non-unique FAR, it is still far from parity, suggesting that higher productivity alone cannot fully explain the gender gap.
-Aggregating the data on a subfield basis (Table \@ref(tab:subfield-aggregation)) confirms that the correlation between a subfield's FAR and its male productivity advantage, defined as the ratio between the mean productivity of men and women, is indeed fairly weak
-(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$prod_adv))`).
-Some subfields, like theory, exhibit both a high male-to-female productivity ratio and low FAR, and vice-versa, like CS education. 
-Others show no apparent relationship, like information retrieval and neural networks that have nearly identical FARs but very dissimilar productivity gaps.
+Aggregating the data on a subfield basis confirms that the correlation between a subfield's FAR and the mean productivity of its practitioners is fairly weak
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_prod))`).
+
+The correlation between FAR and male productivity advantage, defined as the ratio between the mean productivity of men and women, is even weaker overall
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$prod_ratio))`).
+Some subfields show no apparent relationship between the metrics, like information retrieval and computer vision, which have nearly identical FARs but very dissimilar productivity gaps.
+Other subfields exhibit a stronger opposite relationship, like theory one extreme of the FAR data, with both a high male-to-female productivity ratio and low FAR, and vice-versa, like CS education on the other extreme.
 
 ```{r subfield-aggregation, echo = F, cache = T}
-subfield_summary %>%
-  rename("Productivity ratio" = prod_adv) %>%
+rounding = 3
+data.frame(Subfield = subfield_summary$subfield,
+           FAR = round(subfield_summary$FAR, rounding),
+           "Mean productivity" = round(subfield_summary$avg_prod, rounding),
+           "Productivity ratio" = round(subfield_summary$prod_ratio, rounding),
+           "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
+           check.names = F) %>%
   arrange(desc(FAR)) %>%
   knitr::kable(format = "latex",
                booktabs = T,
-               align = "lrr",
+               align = "lrrrr",
                linesep = "",
-               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Ratios (of mean papers per author) are calculated with women in the denominator.") %>%
-  kable_styling()
+               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), ratio of men's productivity to women's, mean total coauthors (with repeats).") %>%
+  column_spec(1, width = "3.5cm") %>%
+  column_spec(2:5, width = "1.4cm") %>%
+  kable_styling(font_size = 7)
 ```
 
+These two subfields on the extreme also serve as a good counter-example to a hypothetical relationship between FAR and the typical collaboration size in the subfield (RQ3).
+Both exhibit a relatively low metric for mean coauthors per paper, but with very different FAR metrics.
+Here too, the negative correlation between the two metrics overall is quite low and even less significant.
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_coauthors))`).
+
+Next on our list of comparisons is gender homophily (RQ4).
 
  * Do normalized productivity as well: divided by the number of coauthors per paper, so each author gets a fraction.
 
  * Theoretical CS is an extreme point by almost all metrics, and matches what [@mihaljevic16:effect] found for math.
 
  * Linear regression / decision tree model predicting subfield FAR from the others. Possibly mixed-effects with field.
+
+Although none of these metrics in isolation is strongly associated with subfield's FAR, it is possible that in combination they can explain a significant part of the variance in the representation of women.
+To test this hypothesis, we built a linear regression model using FAR as our outcome variable and all other metrics as predictors.
+<!-- To account for the fact that some characteristics of an entire field are not captured by our choice of metrics, such as their experimental nature (RQ6), we also include the field as a random effect in the model.-->
  
 <!-------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------->

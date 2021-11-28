@@ -199,6 +199,20 @@ full_auths$field = recode_factor(full_auths$field,
 
 gen_auths <- full_auths %>% drop_na(gender)
 
+########
+pairs_with_field <- full_auths %>%    # Add field and subfield to all_pairs
+  mutate(paper_id = key) %>%
+  group_by(paper_id) %>%
+  summarize(.groups = "keep", field = first(field), subfield = first(subfield)) %>%
+  right_join(all_pairs) %>%
+  ungroup() %>%
+  drop_na(gender1) %>%
+  drop_na(gender2) %>%
+  group_by(subfield) %>%
+  mutate(internal = sum(gender1 == gender2), external = sum(gender1 != gender2)) %>%
+  mutate(ei_index = (external - internal) / (external + internal)) %>%
+  mutate(w_prob = sum(gender1 == "F" & gender2 == "F") / sum(gender1 == "F"))
+  
 #######
 productivity_diff <- function(sf)
 {
@@ -209,6 +223,10 @@ productivity_diff <- function(sf)
 }
 
 #### Summary table of properties of subfields.
+tmp <- pairs_with_field %>%
+  group_by(subfield, field) %>%
+  summarize(.groups = "keep", ei_index = first(ei_index), wprob = first(w_prob))
+
 subfield_summary <- gen_auths %>%
   group_by(subfield) %>%
   mutate(FAR = sum(gender == "F") / n(), avg_prod = mean(as_author), avg_coauthors = mean(coauthors)) %>%
@@ -217,7 +235,9 @@ subfield_summary <- gen_auths %>%
   summarize(.groups = "keep", aa = mean(as_author), co = mean(coauthors)) %>%
   group_by(subfield, FAR, avg_coauthors, avg_prod) %>%
   summarize(.groups = "keep",
-            prod_ratio = nth(aa, 2) / nth(aa, 1))
+            prod_ratio = nth(aa, 2) / nth(aa, 1)) %>%
+  left_join(tmp) %>%
+  mutate(whomo = wprob / FAR)
 ```
 
 # Introduction
@@ -630,9 +650,9 @@ Overall, men exhibit slightly higher collaboration metrics than women (more coau
 
 ## RQ4: Do authors exhibit gender homphily?
 
-We follow the same approach of Wang et al. to estimate whether authors collaborate with coauthrs of the same gender at rates higher than expected [@wang21:trends].
+We follow the approach of Wang et al. to estimate whether authors collaborate with coauthrs of the same gender at rates higher than expected [@wang21:trends].
 For this computation, we look at every pairing of coauthors as one coauthoring event (omitting single-author papers), and ask whether same-gender pairings occur at a higher frequency than we would observe from a random pairing.
-A random pairing is expected to follow the same overall statistics for gender distribution, i.e., the expected probability of any (co)author to be a women should be the same as the overall FAR.
+A random pairing is expected to follow the same overall statistics for gender distribution, i.e., the expected probability of any (co)author to be a woman should be the same as the overall FAR.
 
 As Wang's study has also found, our data suggests that is not the case for CS, and authors---especially women---are actually more likely to collaborate with coauthors of the same gender.
 Overall, the probability of a woman's coauthor to be a woman in our dataset is
@@ -643,14 +663,6 @@ For men, the probabily to collaborate with a woman is
 slightly below the overall FAR.
 
 ```{r prob-female-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Probability of an author to coauthor with a woman (triangles denote overall probability for subfield, which is similar to FAR but excludes single authors). Women show gender homophily when their probability to coauthor with a woman is higher than the overall probability, and men exhibit homophily when their probability is lower than the overall's."}
-pairs_with_field <- full_auths %>%    # Add field and subfield to all_pairs
-  mutate(paper_id = key) %>%
-  group_by(paper_id) %>%
-  summarize(.groups = "keep", field = first(field), subfield = first(subfield)) %>%
-  right_join(all_pairs) %>%
-  drop_na(gender1) %>%
-  drop_na(gender2)
-
 pairs_with_field %>%
   group_by(subfield) %>%
   mutate(.groups = "keep", avg_prob = sum(gender2 == "F") / n()) %>%
@@ -808,7 +820,7 @@ The characteristics of theory research are naturally very similar to those of ma
 
 # Discussion {#sec:discussion}
 
-In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics, summarized in Table \@ref(tab:subfield-aggregation) .
+In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics, summarized in Table \@ref(tab:subfield-aggregation).
 The first relationship we investigate is between productivity (RQ2) and FAR.
 In other words, can the higher observed productivity of men explain why we observe so many more male authors than females?
 
@@ -833,15 +845,16 @@ data.frame(Subfield = subfield_summary$subfield,
            "Mean productivity" = round(subfield_summary$avg_prod, rounding),
            "Productivity ratio" = round(subfield_summary$prod_ratio, rounding),
            "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
+           "Women's homophily" = round(subfield_summary$whomo, rounding),
            check.names = F) %>%
   arrange(desc(FAR)) %>%
   knitr::kable(format = "latex",
                booktabs = T,
-               align = "lrrrr",
+               align = "lrrrrr",
                linesep = "",
-               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), ratio of men's productivity to women's, mean total coauthors (with repeats).") %>%
+               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), ratio of men's productivity to women's, mean total coauthors (with repeats), the ratio between a woman's probability to coauthor with a woman and FAR.") %>%
   column_spec(1, width = "3.5cm") %>%
-  column_spec(2:5, width = "1.4cm") %>%
+  column_spec(2:6, width = "1.4cm") %>%
   kable_styling(font_size = 7)
 ```
 
@@ -851,6 +864,23 @@ Here too, the negative correlation between the two metrics overall is quite low 
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_coauthors))`).
 
 Next on our list of comparisons is gender homophily (RQ4).
+The method we previously used to measure homophily, deviation from the expectation (FAR) produces two measures per field, one for men and one for women.
+We will focus on the latter, because the deviation from FAR for men is nearly negligible, because of the high number of men in the data.
+We instead look at "women's homophily", defined as the ratio between a subfield's probability for a woman in to coauthor with a woman and its FAR, but still find that is completely uncorrelated with FAR
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$whomo))`).
+This finding is explained by the low statistical probability of a woman (or anyone) to collaborate with a woman.
+
+This high skew also means we cannot use standardized metrics for homophily such as Krackhardt's E-I Index, defined simply as
+$EI=\frac{External - Internal}{External + Internal}$
+(where $Internal$ represents all the same-gender pairings in our dataset and $External$ all other pairings).
+In our data, this metric is strongly correlated with a subfield's FAR
+(`r tmp <- pairs_with_field %>% group_by(subfield) %>% summarize(ei_index = first(ei_index)) %>% right_join(subfield_summary); report_test(cor.test(tmp$FAR, tmp$ei_index))`),
+to the point of adding no valuable information.
+This finding also makes sense: if there are very few women in a field, most coauthor pairings will be internal male-male, all other things being equal.
+
+The upshot of these observations is that homophily measures appear to be much more the result of a skewed FAR than its cause.
+In other words, gender homophily appears to have little role in explaining variations in FAR, at least when it deviates significantly from 50% as it does in our dataset.
+
 
  * Do normalized productivity as well: divided by the number of coauthors per paper, so each author gets a fraction.
 

@@ -15,25 +15,14 @@ roles = load_csv_file(feature_fn("roles"))
 coauthors = []
 
 ##############################################################################
-# For a given pair of authors and a paper key, append pair to coauthors list
+# For a given pair of authors and a paper key, append pair to coauthors list.
 def append_pair(name1, email1, name2, email2, paper_key):
     global coauthors
 
-    if name1 == name2:
-        return
-
-    if name1 < name2:
-        pair = { 'name1' : name1, 'gs_email1' : email1,
-                 'name2' : name2, 'gs_email2' : email2,
-                 'paper_key' : key }
-    else:
-        pair = { 'name1' : name2, 'gs_email1' : email2,
-                 'name2' : name1, 'gs_email2' : email1,
-                 'paper_key' : key }
-
+    pair = { 'name1' : name1, 'gs_email1' : email1,
+             'name2' : name2, 'gs_email2' : email2,
+             'paper_key' : key }
     coauthors.append(pair)
-
-
 
 ##############################################################################
  # Create a tidy data file with all coauthor pairs
@@ -73,8 +62,9 @@ for r in roles:
 # Then, find all distinct pairs of authors for every paper:
 for key, alist in authors.items():
     for i in range(0, len(alist)):
-        for j in range(i, len(alist)):
-            append_pair(alist[i][0], alist[i][1], alist[j][0], alist[j][1], key)
+        for j in range(0, len(alist)):
+            if i != j:
+                append_pair(alist[i][0], alist[i][1], alist[j][0], alist[j][1], key)
 
 
 ### Done, save outputs

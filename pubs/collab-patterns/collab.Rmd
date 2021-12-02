@@ -379,7 +379,7 @@ In CS, original scientific results are typically first published in peer-reviewe
 * Choice of conferences.
 Our dataset evolved from our previous study of conferences related to one major subfield, computer systems [@frachtenberg20:survey].
 The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast.
-For this specific study, we decided to expand the analysis to include some of the most influential conferences in most subfields of CS, based on the same measures.
+For this specific study, we decided to expand the analysis to include some of the most influential conferences in most subfields of CS, based on the same measures, for a total of `r n_distinct(full_auths$key)` papers acorss CS.
 Obviously, not all subfields have equal numbers of participants or conferences, and we had no set quota for either to be included in our dataset.
 Instead, we tried to ensure that each subfield is represented by at least a few hundred authors for statistical power.
 
@@ -497,6 +497,7 @@ gen_auths %>%
   ggplot(aes(x = fct_reorder(subfield, FAR), y = FAR, fill = field)) +
     geom_bar(stat = "identity") +
     geom_text(aes(x = fct_reorder(subfield, FAR), y = 0.42, label = paste0(subfield, "  N=", fmt(N))), hjust = 1, angle = 0, size = 3) +
+    scale_y_continuous(labels = scales::percent) +
     xlab("Subfield") +
     ylab("Female author ratio") +
     labs(fill = "") +
@@ -618,12 +619,12 @@ gen_auths %>%
 
 Women in our dataset average
 <!--excludes solo authors: `r coauthor_count <- all_pairs %>% group_by(paper_id, name1, gender1) %>% summarize(.groups = "keep", n = n()); round(mean(filter(coauthor_count, gender1 == "F")$n), 2)` -->
-`r round(mean(filter(gen_auths, gender == "F")$coauthors) - 1, 2)`
-coauthors, while men average
-`r round(mean(filter(gen_auths, gender == "M")$coauthors) - 1, 2)`
+`r round(mean(filter(gen_auths, gender == "F")$coauthors), 2)`
+coauthors per paper, while men average
+`r round(mean(filter(gen_auths, gender == "M")$coauthors), 2)`
 (`r report_test(t.test(filter(gen_auths, gender == "F")$coauthors, filter(gen_auths, gender == "M")$coauthors))`).
 This metric appears to show no significant differences in the aggregate.
-Breaking it down by field (Figure \@ref(fig:coauthors-by-subfield)) shows that the gender differences remain minimal almost throughout.
+Breaking it down by field (Figure \@ref(fig:coauthors-by-subfield)) shows that the gender differences still remain minimal throughout almost all of CS.
 The largest difference appear in the subfields of computer architecture
 (`r report_test(t.test(filter(gen_auths, subfield == "Computer Architecture", gender == "F")$coauthors, filter(gen_auths, subfield == "Computer Architecture", gender == "M")$coauthors))`)
 and operating systems
@@ -635,7 +636,7 @@ fewer coauthors for women than for men
 
 
 The second measure is how many distinct authors each person collaborates with across all of their papers---in other words, the size of the network of all a person's collaborators.
-In our dataset, women average
+Again, we observe only a small gender gap, where women average
 `r cohorts <- all_pairs %>% group_by(name1, gender1) %>% summarize(.groups = "keep", cohort = n_distinct(name2, gender2)); round(mean(filter(cohorts, gender1 == "F")$cohort), 2)`
 total cohort size, while men average
 `r round(mean(filter(cohorts, gender1 == "M")$cohort), 2)`
@@ -704,84 +705,80 @@ Note, however, that since most authors are men and therefore overall FAR is most
 
 ## RQ5: Do women publish fewer single-author papers?
 
-Next we'll look at all of the solo-authored papers in our data set and compute the proportion of those that are male and female.
+Next, we turn our attention to single-author papers.
+In our dataset, there is a total of
+`r nrow(filter(full_auths, coauthors == 0))`
+such papers, of which
+`r nrow(filter(full_auths, coauthors == 0, gender == "F"))`
+were written by a woman,
+`r nrow(filter(full_auths, coauthors == 0, gender == "M"))`
+by a man, and the rest unknown.
+The ratio of women among single authors with known gender is
+`r pct(nrow(filter(gen_auths, coauthors == 0, gender == "F")), nrow(filter(gen_auths, coauthors == 0)))`%,
+which is significantly lower than that of the overall
+`r pct(nrow(filter(gen_auths, gender == "F")), nrow(filter(gen_auths)))`% FAR
+(`r report_test(chisq.test(table(gen_auths$gender == "F", gen_auths$coauthors == 0)))`).
 
-```{r solo-props-by-gender, echo=F, warning=F, message=F, cache=T}
-
-prop_solo_table <- gen_auths %>% 
-  add_count(key) %>% 
-  filter(n == 1) %>% 
-  group_by(gender) %>% 
-  summarise(n = n()) %>% 
-  mutate(prop = round(n/sum(n), 3)) 
-
-total_solo <- prop_solo_table$n[1] + prop_solo_table$n[2]
-
-prop_solo_table %>% 
-  knitr::kable(format = "latex",
-               booktabs = T,
-               align = "llrrr",
-               linesep = "") 
-
+```{r solo-props-by-subfield-and-gender, eval=F, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Percentage of papers in each subfield that were written by a single author, grouped by the gender of the first author. Triangles demote overall ratio of single-author papers in the subfield irrespective of gender."}
+full_auths %>%
+  group_by(subfield) %>%
+  mutate(N = n(), avg_solo = sum(coauthors == 0) / n_distinct(key)) %>%
+  ungroup() %>%
+  group_by(key) %>%
+  mutate(first_gender = first(gender)) %>%
+  ungroup() %>%
+  filter(!is.na(first_gender)) %>%
+  group_by(subfield, field, avg_solo, first_gender, N) %>%
+  summarize(.groups = "keep", pct_solo = sum(coauthors == 0) / n_distinct(key)) %>%
+  ggplot(aes(x = fct_reorder(subfield, avg_solo), y = pct_solo, fill = field, color = first_gender)) +
+    geom_col(stat= "identity", position = "dodge", size = 1) +
+    geom_point(aes(y = avg_solo), color = "black", shape = 2) +
+    geom_text(aes(x = fct_reorder(subfield, avg_solo), y = 0.18, label = paste0("N=", fmt(N))), hjust = 1, angle = 0, size = 3, color = "black") +
+    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(
+      fill = guide_legend(direction = 'horizontal', title = "Gender"),
+      color = guide_legend(direction = 'horizontal', title = "Field")
+      ) +
+    labs(y = "Percent of papers written by single authors", x = "Subfield") +
+    scale_y_continuous(labels = scales::percent) +
+    scale_fill_brewer(palette = "Paired") +
+    coord_flip()
 ```
 
-
-
-
-```{r, echo = F, warning=F, message=F, cache=T}
-solo_prop_test <- prop.test(x= c(prop_solo_table$n[1], prop_solo_table$n[2]), n = c(total_solo, total_solo))
+```{r solo-props-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap = "Percentage of papers in each subfield that were written by a single author."}
+full_auths %>%
+  group_by(subfield) %>%
+  mutate(N = n(), avg_solo = sum(coauthors == 0) / n_distinct(key)) %>%
+  ungroup() %>%
+  group_by(key) %>%
+  ungroup() %>%
+  group_by(subfield, field, avg_solo, N) %>%
+  summarize(.groups = "keep", pct_solo = sum(coauthors == 0) / n_distinct(key)) %>%
+  ggplot(aes(x = fct_reorder(subfield, avg_solo), y = avg_solo, fill = field)) +
+    geom_col(stat= "identity", size = 1) +
+    geom_text(aes(x = fct_reorder(subfield, avg_solo), y = 0.13, label = paste0("N=", fmt(N))), hjust = 1, angle = 0, size = 3) +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(color = guide_legend(direction = 'horizontal', title = "Field")) +
+    labs(y = "Percent of papers written by single authors", x = "Subfield") +
+    scale_y_continuous(labels = scales::percent) +
+    scale_fill_brewer(palette = "Paired") +
+    coord_flip()
 ```
 
-We find that `r prop_solo_table$prop[1]*100`% of all solo authors in our data set are Female while `r prop_solo_table$prop[2]*100`% of them are Male ($\chi=$ `r round(solo_prop_test$statistic, 3)`, $p <$ `r solo_prop_test$p.value`). Notably this value is lower than the FAR we found of `r pct(sum(gen_auths$gender == "F"), nrow(gen_auths))`%.
+Another way to look at the same data is from the perspective of papers instead of authors.
+Fig. \@ref(fig:solo-props-by-subfields) shows for each subfield what percentage of all papers was written by single authors, which is lower than 5% for most subfields.
+For this metric, breakding down the data by gender makes little sense, because a multi-author paper has no "gender" and because the numbers of single-author papers per subfield are too small for statistical significance.
+In fact, the numbers of single-authors papers are so low, as is the number of women authors overall, that their intersection is actually empty for most subfields.
+That said, women publish fewer single-author papers than men in all but three of the subfields: WWW, Data Science, and Storage.
+In the latter, there was only one paper written by a single author, which happens to be a woman.
 
-Next we'll investigate what percentage of papers that men/women write are solo authored.
-
-```{r solo-props-by-subfield, echo = F, warning=F, message=F, cache=T, fig.height = 6.5,out.width='0.75\\textwidth', fig.cap = "For each gender within each subfield we divided the number solo authorships of that gender by the total number of author contributions for that gender. So the bar at the top of this plot can be interpreted as saying that in Computer Science Education, around 5.5\\% of male contributions are solo authorships."}
-solo_by_subfield <- gen_auths %>% 
-  add_count(key) %>% 
-  filter(n == 1) %>% 
-  group_by(gender, subfield, .drop = F) %>% 
-  summarise(n = n())
-
-field_subfield <- gen_auths %>% 
-  distinct(field, subfield)
-
-prop_by_subfield <- gen_auths %>%
-  group_by(gender, subfield, .drop = F) %>%
-  distinct(name, .keep_all = T) %>%
-  summarise(total = sum(as_author)) %>%
-  ungroup() %>% 
-  left_join(solo_by_subfield, by = c("subfield", "gender")) %>% 
-  mutate(prop = n/total) %>% 
-  left_join(field_subfield, by = "subfield") %>% 
-  group_by(subfield) %>% 
-  mutate(avg_solo = mean(prop, na.rm = T)) %>% 
-  ungroup() %>% 
-  mutate(subfield = fct_reorder(subfield, avg_solo))
-
-
-prop_by_subfield  %>% 
-  ggplot(aes(x = subfield, y = prop, fill = field, color = gender)) +
-  geom_col(stat= "identity", position = "dodge", size = 1) +
-  geom_point(aes(y = avg_solo), color = "black", shape = 2) +
-  scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
-  theme_classic() +
-  theme(legend.position = "bottom", legend.box = "vertical") +
-  guides(
-    fill = guide_legend(direction = 'horizontal', title = "Gender"),
-    color = guide_legend(direction = 'horizontal', title = "Field")
-    ) +
-  labs(y = "Percent of Authorships that are Solo", x = "Subfield") +
-  scale_y_continuous(labels = scales::percent) +
-  scale_fill_brewer(palette = "Paired") +
-  coord_flip()
-```
-
-
-Fig. \@ref(fig:solo-props-by-subfield) shows that in subfields with a lower percentage of solo authorships (below `r round(pull(select(distinct(filter(prop_by_subfield, subfield == "Concurrency"), subfield, .keep_all =T), avg_solo))*100, 3)`%), male solo authorships account for a larger percent of male authorships than female solo authorships do of female authorships. But when we look above `r round(pull(select(distinct(filter(prop_by_subfield, subfield == "Concurrency"), subfield, .keep_all =T), avg_solo))*100, 3)`% we see more variety in which gender is made up of more solo authorships. Notably, there are a few subfields in which solo authorships account for more of total authorships for Female authors than they do for Male authors. These are World-Wide-Web, Data Science, Storage, Multimedia, and Graphics.
-
-
-
+It is also worth noting that in many of the systems subfield the percentage of single-author papers is extremely low, and is zero in five of those.
+This obersvation may be another indication that the systems field in particular depends on larger collaboration teams for published research.
+What is it about this field that requires such collaborations?
+We hypothesize that the emphasis on complex implementations and experimental platforms requires larger teams to pull off, which we address in the next research question.
 
 ---
 

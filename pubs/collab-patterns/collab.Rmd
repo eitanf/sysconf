@@ -379,10 +379,9 @@ In CS, original scientific results are typically first published in peer-reviewe
 * Choice of conferences.
 Our dataset evolved from our previous study of conferences related to one major subfield, computer systems [@frachtenberg20:survey].
 The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast.
-For this specific study, we decided to expand the analysis to include some of the most influential conferences in most subfields of CS, based on the same measures, for a total of `r n_distinct(full_auths$key)` papers acorss CS.
+For this specific study, we decided to expand the analysis to include some of the most influential conferences in most subfields of CS, based on the same measures, for a total of `r n_distinct(full_auths$key)` papers across CS.
 Obviously, not all subfields have equal numbers of participants or conferences, and we had no set quota for either to be included in our dataset.
 Instead, we tried to ensure that each subfield is represented by at least a few hundred authors for statistical power.
-
 * Limit data to a single year.
 Many fields and researchers shift characteristics over time, complicating collaboration analyses.
 To control for these effects, all of the conferences in our dataset are from a single year, 2017.
@@ -705,7 +704,7 @@ Note, however, that since most authors are men and therefore overall FAR is most
 
 ## RQ5: Do women publish fewer single-author papers?
 
-Next, we turn our attention to single-author papers.
+Next, we turn our attention to single-author papers (Table \@ref(tab:single-authors)).
 In our dataset, there is a total of
 `r nrow(filter(full_auths, coauthors == 0))`
 such papers, of which
@@ -718,6 +717,43 @@ The ratio of women among single authors with known gender is
 which is significantly lower than that of the overall
 `r pct(nrow(filter(gen_auths, gender == "F")), nrow(filter(gen_auths)))`% FAR
 (`r report_test(chisq.test(table(gen_auths$gender == "F", gen_auths$coauthors == 0)))`).
+
+```{r single-authors, eval=T, echo=T, warning=F, message=F, cache=T}
+tbl <- full_auths %>%
+  group_by(subfield) %>%
+  summarize(.groups = "keep",
+    Papers = n_distinct(key),
+    ratio = sum(coauthors == 0) / n_distinct(key),
+    single = sum(coauthors == 0),
+    Women = sum(coauthors == 0 & gender == "F", na.rm = T),
+    Men = sum(coauthors == 0 & gender == "M", na.rm = T),
+    Unknown = sum(coauthors == 0 & is.na(gender), na.rm = T)
+  ) %>%
+  arrange(desc(ratio))
+
+tbl <- bind_rows(tbl, data.frame(
+    subfield = "Total",
+    Papers = sum(tbl$Papers),
+    ratio = nrow(filter(full_auths, coauthors == 0)) / sum(tbl$Papers),
+    single = nrow(filter(full_auths, coauthors == 0)),
+    Women = nrow(filter(full_auths, coauthors == 0, gender == "F")),
+    Men = nrow(filter(full_auths, coauthors == 0, gender == "M")),
+    Unknown = nrow(filter(full_auths, coauthors == 0, is.na(gender)))
+  )) %>% 
+  mutate(ratio = paste0(round(100 * ratio, 2), "%")) %>%
+  rename(Subfield = subfield, "Number of Papers" = "Papers", "All single author" = single, "Percent single" = ratio)
+
+tbl %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "lrrrrrr",
+               linesep = c(rep("", nrow(tbl) - 2), "\\addlinespace"),
+               caption = "Number of papers by subfield and gender, sorted by the overall percentage of single-author papers.") %>%
+  column_spec(1, width = "3.5cm") %>%
+  column_spec(2:6, width = "1.1cm") %>%
+  kable_styling(font_size = 7)
+```
+
 
 ```{r solo-props-by-subfield-and-gender, eval=F, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Percentage of papers in each subfield that were written by a single author, grouped by the gender of the first author. Triangles demote overall ratio of single-author papers in the subfield irrespective of gender."}
 full_auths %>%
@@ -747,7 +783,7 @@ full_auths %>%
     coord_flip()
 ```
 
-```{r solo-props-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap = "Percentage of papers in each subfield that were written by a single author."}
+```{r solo-props-by-subfield, eval=F, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap = "Percentage of papers in each subfield that were written by a single author."}
 full_auths %>%
   group_by(subfield) %>%
   mutate(N = n(), avg_solo = sum(coauthors == 0) / n_distinct(key)) %>%
@@ -769,14 +805,16 @@ full_auths %>%
 ```
 
 Another way to look at the same data is from the perspective of papers instead of authors.
-Fig. \@ref(fig:solo-props-by-subfields) shows for each subfield what percentage of all papers was written by single authors, which is lower than 5% for most subfields.
-For this metric, breakding down the data by gender makes little sense, because a multi-author paper has no "gender" and because the numbers of single-author papers per subfield are too small for statistical significance.
-In fact, the numbers of single-authors papers are so low, as is the number of women authors overall, that their intersection is actually empty for most subfields.
-That said, women publish fewer single-author papers than men in all but three of the subfields: WWW, Data Science, and Storage.
-In the latter, there was only one paper written by a single author, which happens to be a woman.
+As the data in Table \@ref(tab:single-authors) shows, in most CS subfields, fewer than 5% of papers were written by a single author, averaging only `r tbl[nrow(tbl),4]`.
+(Contrast this, for example, with Astronomy, Physics, and Biology, where the rates of single-author papers average over 10% [@abt07:future].)
 
-It is also worth noting that in many of the systems subfield the percentage of single-author papers is extremely low, and is zero in five of those.
-This obersvation may be another indication that the systems field in particular depends on larger collaboration teams for published research.
+Breaking down the data by gender offers little information, because the numbers of single-author papers per subfield are too small for statistical significance.
+In fact, the numbers of single-author papers are so low, as is the number of women authors overall, that their intersection is actually empty for most subfields.
+That said, women published relatively fewer single-author papers than men (by percentage) in all but three of the subfields: WWW, Data Science, and Storage.
+In all three, the numbers are simply too small to draw any conclusive inferences.
+
+It is also worth noting that in much of the systems field the percentage of single-author papers is extremely low, and is zero in five of those.
+This observation may be another indication that the systems field in particular depends on larger collaboration teams for published research.
 What is it about this field that requires such collaborations?
 We hypothesize that the emphasis on complex implementations and experimental platforms requires larger teams to pull off, which we address in the next research question.
 
@@ -893,6 +931,9 @@ To test this hypothesis, we built a linear regression model using FAR as our res
 <!-------------------------------------------------------------------------------->
 
 # Conclusions {#sec:conclusion}
+
+CS is a collaborative discipline! Very few single-author papers
+So it is important to study collaboration patters as a potential source of explanations for the large gender gap in the field.
 
 Future work: network analyses, such as degree centrality; evolution of patterns over time.
 speculate on causality and "whysofew"

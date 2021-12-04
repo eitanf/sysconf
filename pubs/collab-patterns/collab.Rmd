@@ -163,20 +163,20 @@ gender_summary_table <- function(data)
 
 #######
 
-sys_auths <- roles %>% 
-  filter(role == "author") %>% 
-  left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>% 
-  dplyr::select(name, gender, key, as_author) %>% 
-  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key))) %>% 
-  left_join(all_confs, by = c("conf" = "conference")) %>% 
-  rename(key = key.x) %>% 
+sys_auths <- roles %>%
+  filter(role == "author") %>%
+  left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>%
+  dplyr::select(name, gender, key, as_author) %>%
+  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key))) %>%
+  left_join(all_confs, by = c("conf" = "conference")) %>%
+  rename(key = key.x) %>%
   dplyr::select(name, gender, key, field, subfield, as_author)
 
-nonsys_auths <- nonsys_authors %>% 
+nonsys_auths <- nonsys_authors %>%
   dplyr::select(-conf, -n_submissions) %>%
-  dplyr::select(name, gender, paper_id, field, subfield) %>% 
-  rename(key = paper_id) %>% 
-  add_count(name) %>% 
+  dplyr::select(name, gender, paper_id, field, subfield) %>%
+  rename(key = paper_id) %>%
+  add_count(name) %>%
   rename(as_author = n)
 
 full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
@@ -563,7 +563,7 @@ Both medians are naturally 1; but a Wilcoxon signed rank test still shows a sign
 (`r report_test(wilcox.test(filter(gen_auths, gender == "F")$as_author, filter(gen_auths, gender == "M")$as_author))`).
 
 
-```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=8, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
+```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
 gen_auths %>%
   group_by(subfield) %>%
   mutate(avg_prod = mean(as_author), N=n()) %>%
@@ -593,7 +593,7 @@ A few subfields show a small productivity advantage for women, such as programmi
 
 ## RQ3: Are productivity differences affected by collaboration size?
 
-```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=8, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
+```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
 gen_auths %>%
   group_by(subfield) %>%
   mutate(avg_prod = mean(fractional_prod), N=n()) %>%
@@ -664,7 +664,7 @@ Breaking it down by field (Figure \@ref(fig:coauthors-by-subfield)) shows that t
 The largest difference appear in the subfields of computer architecture
 (`r report_test(t.test(filter(gen_auths, subfield == "Computer Architecture", gender == "F")$coauthors, filter(gen_auths, subfield == "Computer Architecture", gender == "M")$coauthors))`)
 and operating systems
-(`r report_test(t.test(filter(gen_auths, subfield == "Operating systems", gender == "F")$coauthors, filter(gen_auths, subfield == "Operating Systems", gender == "M")$coauthors))`).
+(`r report_test(t.test(filter(gen_auths, subfield == "Operating Systems", gender == "F")$coauthors, filter(gen_auths, subfield == "Operating Systems", gender == "M")$coauthors))`).
 In general, the field of computer systems stands out with a an average gender gap of
 `r round(mean(filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors) -  mean(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors), 2)`
 fewer coauthors for women than for men
@@ -912,20 +912,41 @@ Other subfields exhibit a stronger opposite relationship, like theory one extrem
 
 ```{r subfield-aggregation, echo = F, cache = T}
 rounding = 3
-data.frame(Subfield = subfield_summary$subfield,
-           FAR = round(subfield_summary$FAR, rounding),
-           "Mean productivity" = round(subfield_summary$avg_prod, rounding),
-           "Productivity ratio" = round(subfield_summary$prod_ratio, rounding),
-           "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
-           "Women's homophily" = round(subfield_summary$whomo, rounding),
-           check.names = F) %>%
+
+tbl <- data.frame(
+    Subfield = subfield_summary$subfield,
+    FAR = round(subfield_summary$FAR, rounding),
+    "Mean productivity" = round(subfield_summary$avg_prod, rounding),
+    "Productivity ratio" = round(subfield_summary$prod_ratio, rounding),
+    "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
+    "Women's homophily" = round(subfield_summary$whomo, rounding),
+    check.names = F
+)
+
+tbl$Subfield = recode_factor(
+  tbl$Subfield,
+  "Artificial Intelligence" = "AI",
+  "Theoretical Computer Science" = "Theoretical CS",
+  "Computer Architecture" = "Architecture",
+  "Computer Science Education" = "CS Education",
+  "Computational Linguistics" = "CL",
+  "Data Science & Mining" = "DS & Mining",
+  "High-Performance Computing" = "HPC",
+  "Human-Computer Interaction" = "HCI",
+  "Information Retrieval" = "IR",
+  "Programming Languages" = "PL",
+  "Operating Systems" = "OS",
+  "Software Engineering" = "SE"
+)
+
+tbl %>%
   arrange(desc(FAR)) %>%
   knitr::kable(format = "latex",
                booktabs = T,
                align = "lrrrrr",
                linesep = "",
                caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), ratio of men's productivity to women's, mean total coauthors (with repeats), the ratio between a woman's probability to coauthor with a woman and FAR.") %>%
-  column_spec(1, width = "3.5cm") %>%
+  column_spec(1, width = "2.0cm") %>%
   column_spec(2:6, width = "1.4cm") %>%
   kable_styling(font_size = 7)
 ```

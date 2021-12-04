@@ -275,13 +275,15 @@ Specifically, in this article we address the following research questions:
  
  *  **RQ2**: Do women publish less than men?
 
- *  **RQ3**: Do women collaborate with fewer people than men?
+ *  **RQ3**: Are productivity differences affected by collaboration size?
 
- *  **RQ4**: Do authors exhibit gender homophily in their choice of coauthors?
+ *  **RQ4**: Do women collaborate with fewer people than men?
 
  *  **RQ5**: Do women publish fewer single-author papers?
 
  *  **RQ6**: Are team sizes (coauthor groups) larger in more experimental subfields?
+
+ *  **RQ7**: Do authors exhibit gender homophily in their choice of coauthors?
 
 To bring these questions into historical context, we next briefly survey some of the previous work in the area.
 
@@ -339,9 +341,7 @@ Finally, we conclude in Sec. \@ref(sec:conclusion) and suggest directions for fu
 To answer our research questions, we needed to collect expansive data on CS publications and their authors.
 Such data collection involves many choices, such as which publications to collect and how to assign gender to authors.
 The following list enumerates our main data decisions.
-Each choice necessarily involves trade-offs, and we attempt to justify our choices by explaining which aspects of the trade-off we prioritized.
-
-The data reflects a snapshot in time, not annual trend, to avoid complexities of gender differences in drop-out rates.
+Each choice necessarily involves trade-offs, and we attempt to justify our choices by explaining which aspects we prioritized.
 
 ```{r all-confs, echo=F, cache=T}
 # this is all nonsys conferences
@@ -376,10 +376,10 @@ full_table %>%
   kable_styling(latex_options = c("hold_position"), font_size = 7)
 ```
 
-* Conference data instead of journal data.
+**Conference data instead of journal data.**
 In CS, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences]. To increase the coverage and relevance of our dataset, we only looked at conference publications. The complete list of selected conference can be found in Table \@ref(tab:all-confs).
 
-* Choice of conferences.
+**Choice of conferences.**
 Our dataset evolved from our previous study of conferences related to one major subfield, computer systems [@frachtenberg20:survey].
 The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast.
 For this specific study, we decided to expand the analysis to include some of the most influential conferences in most subfields of CS, based on the same measures, for a total of `r n_distinct(full_auths$key)` papers across CS.
@@ -389,7 +389,8 @@ Instead, we tried to ensure that each subfield is represented by at least a few 
 Many fields and researchers shift characteristics over time, complicating collaboration analyses.
 To control for these effects, all of the conferences in our dataset are from a single year, 2017.
 
-* Focus on manual gender assignment. Most studies of author gender at scale use automated approaches to assign gender to authors, typically inferred from given names [@huang20:historical; @karimi16:gender].
+**Focus on manual gender assignment.**
+Most studies of author gender at scale use automated approaches to assign gender to authors, typically inferred from given names [@huang20:historical; @karimi16:gender].
 These statistical approaches can be reasonably accurate for names of Western origin, and especially for male names  [@cohoon11:cspapers; @mattauch20:bibliometric; @santamaria18:comparison].
 We opted instead to rely primarily on a manual approach that can overcome the limitations of name-based inference.
 Using web lookup, we assigned the gender of
@@ -405,7 +406,7 @@ This method provided more gender data and higher accuracy than automated approac
 Consequently, we have very few NA genders because of our manual approach, relative to comparable studies.
 We believe that when analyzing coauthorship networks in particular, omitting a large number of connected sub-networks (such as people from Asia) may distort our results.
 
-* Assignment of field and subfield.
+**Assignment of field and subfield.**
 We could find no comprehensive definition and delineation of fields and subfields of CS, so we had to come up with our own, which is necessarily subjective (Table \@ref(tab:subfield-mapping)).
 Moreover, conferences do not always fall neatly into a single subfield, and some papers may stray from the primary focus of the conference.
 We note, however, that in most of our analyses, papers subfields assigned to the same field often exhibited similar characteristics to each other and distinct from other subfields.
@@ -461,7 +462,7 @@ But the main limitation that arises from this manual process of data collection 
 Finally, the nature of the current analysis is more descriptive than prescriptive.
 Rather than presenting preconceived hypotheses and testing them with the data, we ask and answer open-ended research questions.
 In particular, the scope of this study excludes social network analysis, which is also important to understanding collaboration patterns [@whittington18:tie] and we hope to address in followup work.
-The open dataset we provide with this article should enable any interested researcher to perform such analyses as well.
+The open dataset we provide with this article should enable any interested researcher to perform such analyses.
 
 ## Statistics {-}
 
@@ -588,6 +589,10 @@ The field of AI and its subfields show the highest average productivity (and hig
 In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means $\delta$=`r productivity_diff("Theoretical Computer Science")`), followed by machine learning (`r productivity_diff("Machine Learning")`), benchmarking (`r productivity_diff("Benchmarking")`), HPC (`r productivity_diff("High-Performance Computing")`), security (`r productivity_diff("Security")`), and AI (`r productivity_diff("Artificial Intelligence")`).
 A few subfields show a small productivity advantage for women, such as programming languages (`r productivity_diff("Programming Languages")`), but none are statistically significant.
 
+---
+
+## RQ3: Are productivity differences affected by collaboration size?
+
 ```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=8, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
 gen_auths %>%
   group_by(subfield) %>%
@@ -613,16 +618,16 @@ Comparing raw productivity across subfields this way could be misleading, becaus
 If in some subfield, for example the typical number of authors per papers is larger than another field, we might also expect that each author's name would show up in more papers under otherwise equal assumptions.
 We therefore also look at the "fractional count" of publication instead, dividing each authorship event by the number of authors on the paper [@lee05:impact].
 
-This normalized productivity metric shows on the one hand smaller differences across fields, but on the other, larger differences across genders (fig. \@ref(fig:fractional-productivity)).
+This normalized productivity metric shows on the one hand smaller differences across fields, but on the other, larger differences across genders (Fig. \@ref(fig:fractional-productivity)).
 Both the medians and the means for men's fractional productivity are noticably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
 The ordering of the fields is also somewhat different, with theoretical computer science now exhibiting the highest mean fractional productivity.
 
-The modified productivity metric also segues into the next few research questions that examine in depth the differences in collaboration sizes in CS.
+The modified productivity metric also segues into the next three research questions that examine in depth the differences in collaboration sizes in CS.
 
 
 ---
 
-## RQ3: Do women collaborate with fewer people than men?
+## RQ4: Do women collaborate with fewer people than men?
 
 This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total coauthor network for each author.
 
@@ -680,60 +685,6 @@ Overall, men exhibit slightly higher collaboration metrics than women (more coau
 ---
 
 
-## RQ4: Do authors exhibit gender homphily?
-
-We follow the approach of Wang et al. to estimate whether authors collaborate with coauthors of the same gender at rates higher than expected [@wang21:trends].
-For this computation, we look at every pairing of coauthors as one coauthoring event (omitting single-author papers), and ask whether same-gender pairings occur at a higher frequency than we would observe from a random pairing.
-A random pairing is expected to follow the same overall statistics for gender distribution, i.e., the expected probability of any (co)author to be a woman should be the same as the overall FAR.
-
-As Wang's study has also found, our data suggests that is not the case for CS, and authors---especially women---are actually more likely to collaborate with coauthors of the same gender.
-Overall, the probability of a woman's coauthor to be a woman in our dataset is
-`r pct(nrow(filter(all_pairs, gender1 == "F", gender2 == "F")), nrow(filter(all_pairs, gender1 == "F")))`%,
-nearly ten percentage points above the overall FAR.
-For men, the probability to collaborate with a woman is 
-`r pct(nrow(filter(all_pairs, gender1 == "M", gender2 == "F")), nrow(filter(all_pairs, gender1 == "M")))`%,
-slightly below the overall FAR.
-
-```{r prob-female-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Probability of an author to coauthor with a woman (triangles denote overall probability for subfield, which is similar to FAR but excludes single authors). Women show gender homophily when their probability to coauthor with a woman is higher than the overall probability, and men exhibit homophily when their probability is lower than the overall's."}
-pairs_with_field %>%
-  group_by(subfield) %>%
-  mutate(.groups = "keep", avg_prob = sum(gender2 == "F") / n()) %>%
-  ungroup() %>%
-  group_by(subfield, avg_prob, gender1) %>%
-  summarize(.groups = "keep", Probability = sum(gender2 == "F") / n(), field = first(field), subfield = first(subfield)) %>%
-    ggplot(aes(x = fct_reorder(subfield, avg_prob), y = Probability, color = gender1, fill = field)) +
-    geom_bar(stat = "identity", position = "dodge", size = 1) +
-    geom_point(aes(y = avg_prob), color = "black", shape = 2) +
-    xlab("Subfield") +
-    ylab("Probability of coauthor being female") +
-    theme_classic() +
-    theme(legend.position = "bottom", legend.box = "vertical") +
-    guides(color = guide_legend(direction = 'horizontal', title = "Gender"),
-           fill = guide_legend(direction = 'horizontal', title = "Field")) +
-    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
-    scale_fill_brewer(palette = "Paired") +
-    coord_flip()
-```
-
-
-
-We can also break down these probabilities by subfield (\@ref(fig:prob-female-by-subfield)).
-As a generalization, most subfields exhibit gender homophily, especially in the two subfields with the highest FAR (CS education and HCI).
-A few subfields exhibit gender heterophily, but typically very little.
-A curious exception is the subfield of programming languages, where women only have a probability of
-`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", subfield == "Programming Languages")), nrow(filter(pairs_with_field, gender1 == "F", subfield == "Programming Languages")))`%
-to collaborate with a woman, less than half the overall FAR for the field.
-Together with the subfield of software engineering, this field appears show consistent heterophily among its female authors.
-
-All other fields show fairly consistent gender homophily to varying degrees.
-For example, in the large field of computer systems, women have a probability of
-`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", field == "Computer Systems")), nrow(filter(pairs_with_field, gender1 == "F", field == "Computer Systems")))`%
-to collaborate with a woman, above the $\approx{10}\%$ FAR.
-In all cases, the more pronounced deviations from the expected probability is for women, suggesting that perhaps collaborating with same-gender authors is more important to women.
-Note, however, that since most authors are men and therefore overall FAR is mostly determined by men, we would expect men's deviations from FAR to be smaller than women's.
-
----
-
 ## RQ5: Do women publish fewer single-author papers?
 
 Next, we turn our attention to single-author papers (Table \@ref(tab:single-authors)).
@@ -750,7 +701,7 @@ which is significantly lower than that of the overall
 `r pct(nrow(filter(gen_auths, gender == "F")), nrow(filter(gen_auths)))`% FAR
 (`r report_test(chisq.test(table(gen_auths$gender == "F", gen_auths$coauthors == 0)))`).
 
-```{r single-authors, eval=T, echo=T, warning=F, message=F, cache=T}
+```{r single-authors, eval=T, echo=F, warning=F, message=F, cache=T}
 tbl <- full_auths %>%
   group_by(subfield) %>%
   summarize(.groups = "keep",
@@ -854,8 +805,7 @@ We hypothesize that the emphasis on complex implementations and experimental pla
 
 ## RQ6: Are team sizes larger in more experimental subfields?
 
-The data we collected on coauthorship (Fig. \@ref(fig:coauthors-by-subfield))
-shows that authorship norms vary significantly by field, if not by gender. 
+The data we collected on coauthorship size and single-authorship shows that authorship norms vary significantly by field, if not by gender. 
 The largest coauthorship groups appear in computer systems papers, averaging
 `r round(mean(filter(full_auths, field == "Computer Systems")$coauthors + 1), 2)`
 coauthors per paper, followed by HCI
@@ -877,10 +827,65 @@ This characterization extends to most computer systems subfields of research tha
 It appears indeed that the larger effort and resource requirement is associated with larger collaborations, as expressed in mean number of coauthors.
 
 On the opposite end, research in computer theory requires virtually no equipment and is often carried out by individuals, as we have previously observed.
-The characteristics of theory research are naturally very similar to those of mathematicians as a whole, so it is perhaps not surprising that the mean number of coauthors we found for theory is nearly identical to the one found for mathematicians [@mihaljevic16:effect].
+The characteristics of theory research are naturally very similar to those of mathematicians as a whole, so it is perhaps not surprising that the mean number of coauthors we found for theory is nearly identical to the one found for Mathematics [@mihaljevic16:effect].
 
 
 ---
+
+## RQ7: Do authors exhibit gender homphily?
+
+For our last research question, we follow the approach of Wang et al. to estimate whether authors collaborate with coauthors of the same gender at rates higher than expected [@wang21:trends].
+For this computation, we look at every pairing of coauthors as one coauthoring event (omitting single-author papers), and ask whether same-gender pairings occur at a higher frequency than we would observe from a random pairing.
+A random pairing is expected to follow the same overall statistics for gender distribution, i.e., the expected probability of any (co)author to be a woman should be the same as the overall FAR.
+
+As Wang's study has also found, our data suggests that is not the case for CS, and authors---especially women---are actually more likely to collaborate with coauthors of the same gender.
+Overall, the probability of a woman's coauthor to be a woman in our dataset is
+`r pct(nrow(filter(all_pairs, gender1 == "F", gender2 == "F")), nrow(filter(all_pairs, gender1 == "F")))`%,
+nearly ten percentage points above the overall FAR.
+For men, the probability to collaborate with a woman is 
+`r pct(nrow(filter(all_pairs, gender1 == "M", gender2 == "F")), nrow(filter(all_pairs, gender1 == "M")))`%,
+slightly below the overall FAR.
+
+```{r prob-female-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Probability of an author to coauthor with a woman (triangles denote overall probability for subfield, which is similar to FAR but excludes single authors). Women show gender homophily when their probability to coauthor with a woman is higher than the overall probability, and men exhibit homophily when their probability is lower than the overall's."}
+pairs_with_field %>%
+  group_by(subfield) %>%
+  mutate(.groups = "keep", avg_prob = sum(gender2 == "F") / n()) %>%
+  ungroup() %>%
+  group_by(subfield, avg_prob, gender1) %>%
+  summarize(.groups = "keep", Probability = sum(gender2 == "F") / n(), field = first(field), subfield = first(subfield)) %>%
+    ggplot(aes(x = fct_reorder(subfield, avg_prob), y = Probability, color = gender1, fill = field)) +
+    geom_bar(stat = "identity", position = "dodge", size = 1) +
+    geom_point(aes(y = avg_prob), color = "black", shape = 2) +
+    xlab("Subfield") +
+    ylab("Probability of coauthor being female") +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender"),
+           fill = guide_legend(direction = 'horizontal', title = "Field")) +
+    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_fill_brewer(palette = "Paired") +
+    coord_flip()
+```
+
+
+
+We can also break down these probabilities by subfield (\@ref(fig:prob-female-by-subfield)).
+As a generalization, most subfields exhibit gender homophily, especially in the two subfields with the highest FAR (CS education and HCI).
+A few subfields exhibit gender heterophily, but typically very little.
+A curious exception is the subfield of programming languages, where women only have a probability of
+`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", subfield == "Programming Languages")), nrow(filter(pairs_with_field, gender1 == "F", subfield == "Programming Languages")))`%
+to collaborate with a woman, less than half the overall FAR for the field.
+Together with the subfield of software engineering, this field appears show consistent heterophily among its female authors.
+
+All other fields show fairly consistent gender homophily to varying degrees.
+For example, in the large field of computer systems, women have a probability of
+`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", field == "Computer Systems")), nrow(filter(pairs_with_field, gender1 == "F", field == "Computer Systems")))`%
+to collaborate with a woman, above the $\approx{10}\%$ FAR.
+In all cases, the more pronounced deviations from the expected probability is for women, suggesting that perhaps collaborating with same-gender authors is more important to women.
+Note, however, that since most authors are men and therefore overall FAR is mostly determined by men, we would expect men's deviations from FAR to be smaller than women's.
+
+---
+
 
 <!-------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------->

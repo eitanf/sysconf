@@ -166,18 +166,17 @@ gender_summary_table <- function(data)
 sys_auths <- roles %>%
   filter(role == "author") %>%
   left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>%
-  dplyr::select(name, gender, key, as_author) %>%
+  dplyr::select(name, gender, key, gs_email) %>%
   mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key))) %>%
   left_join(all_confs, by = c("conf" = "conference")) %>%
   rename(key = key.x) %>%
-  dplyr::select(name, gender, key, field, subfield, as_author)
+  dplyr::select(name, gender, key, field, subfield)
 
 nonsys_auths <- nonsys_authors %>%
   dplyr::select(-conf, -n_submissions) %>%
   dplyr::select(name, gender, paper_id, field, subfield) %>%
   rename(key = paper_id) %>%
-  add_count(name) %>%
-  rename(as_author = n)
+  mutate(gs_email = NA)
 
 full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
   group_by(key) %>%
@@ -185,7 +184,7 @@ full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
 
 full_auths <- full_auths %>%
   group_by(name, gender) %>%
-  mutate(fractional_prod = sum(1 / (coauthors + 1)))
+  mutate(prod = n(), fractional_prod = sum(1 / (coauthors + 1)))
 
 full_auths$subfield = recode_factor(full_auths$subfield,
                                     "Heterogeneous Computing" = "Computer Architecture",
@@ -223,8 +222,8 @@ productivity_diff <- function(sf)
 {
   men <- filter(gen_auths, gender == "M", subfield == sf)
   women <- filter(gen_auths, gender == "F", subfield == sf)
-  paste0(round(mean(men$as_author) - mean(women$as_author), 2), "; ",
-         report_test(t.test(men$as_author, women$as_author)))
+  paste0(round(mean(men$prod) - mean(women$prod), 2), "; ",
+         report_test(t.test(men$prod, women$prod)))
 }
 
 #### Summary table of properties of subfields.
@@ -234,13 +233,12 @@ tmp <- pairs_with_field %>%
 
 subfield_summary <- gen_auths %>%
   group_by(subfield) %>%
-  mutate(FAR = sum(gender == "F") / n(), avg_prod = mean(as_author), avg_coauthors = mean(coauthors)) %>%
-  ungroup() %>%
-  group_by(subfield, gender, FAR, avg_coauthors, avg_prod) %>%
-  summarize(.groups = "keep", aa = mean(as_author), co = mean(coauthors)) %>%
-  group_by(subfield, FAR, avg_coauthors, avg_prod) %>%
   summarize(.groups = "keep",
-            prod_ratio = nth(aa, 2) / nth(aa, 1)) %>%
+            FAR = sum(gender == "F") / n(),
+            avg_prod = mean(prod),
+            avg_frac = mean(fractional_prod),
+            avg_coauthors = mean(coauthors)) %>%
+  ungroup() %>%
   left_join(tmp) %>%
   mutate(whomo = wprob / FAR)
 ```
@@ -487,7 +485,7 @@ Summarizing across all `r fmt(nrow(full_auths))` authors (with repeats for multi
 `r pct(sum(gen_auths$gender == "F"), nrow(gen_auths))`% across authors (with repeated counts for multiple publications).
 This result is on the low end of previously reported statistics in the range of 15--30% [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 Keep in mind, however, the differences between those studies and this one, both in data and in methodology.
-Our data is modest in size when compared to most other studies, and includes only conferences and only from one year.
+Our data is modest in size when compared to some other studies, and includes only conferences and only from one year.
 Our selection of conferences is by no means exhaustive or objective, and is likely to be overweight in some areas of CS and underweight in others.
 However, the smaller sample size allowed us to apply a primarily manual approach to gender assignment, which provides higher accuracy and coverage of researchers.
 In contrast, most comparable studies use a gender inference approach based on given names, which can fail for names with unclear or no gender association at all, as are many East Asian names, and tend to misidentify women in particular [@cohoon11:cspapers; @mattauch20:bibliometric; @santamaria18:comparison].
@@ -535,7 +533,7 @@ Here, we continue our exploration of the data by looking at the productivity rat
 
 ```{r productivity-dist, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author"}
 gen_auths %>%
-  ggplot(aes(x = as_author, fill = gender)) +
+  ggplot(aes(x = prod, fill = gender)) +
     geom_histogram(position = "dodge", binwidth = 1) +
     scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
     theme_classic() +
@@ -548,27 +546,27 @@ Fig. \@ref(fig:productivity-dist) shows the overall distributions of paper produ
 Aside from the now-obvious observation that men far outnumber women authors, we can also observe a longer tail for the men's distribution overall.
 The interpretation is that the most prolific authors are especially skewed male.
 On the opposite tail, we find that
-`r pct(nrow(filter(gen_auths, gender == "F", as_author == 1)), nrow(filter(gen_auths, gender == "F")))`%
+`r pct(nrow(filter(gen_auths, gender == "F", prod == 1)), nrow(filter(gen_auths, gender == "F")))`%
 of female authors published only one paper in our dataset, compared to
-`r pct(nrow(filter(gen_auths, gender == "M", as_author == 1)), nrow(filter(gen_auths, gender == "M")))`%
+`r pct(nrow(filter(gen_auths, gender == "M", prod == 1)), nrow(filter(gen_auths, gender == "M")))`%
 of men.
 
 Overall, men average
-`r round(mean(filter(gen_auths, gender == "M")$as_author), 2)`
+`r round(mean(filter(gen_auths, gender == "M")$prod), 2)`
 papers per author, compared to women's
-`r round(mean(filter(gen_auths, gender == "F")$as_author), 2)`
-(`r report_test(t.test(filter(gen_auths, gender == "F")$as_author, filter(gen_auths, gender == "M")$as_author))`).
+`r round(mean(filter(gen_auths, gender == "F")$prod), 2)`
+(`r report_test(t.test(filter(gen_auths, gender == "F")$prod, filter(gen_auths, gender == "M")$prod))`).
 Looking at medians---to attempt to attenuate the large effect of the long tail on means---does not help much.
 Both medians are naturally 1; but a Wilcoxon signed rank test still shows a significant difference
-(`r report_test(wilcox.test(filter(gen_auths, gender == "F")$as_author, filter(gen_auths, gender == "M")$as_author))`).
+(`r report_test(wilcox.test(filter(gen_auths, gender == "F")$prod, filter(gen_auths, gender == "M")$prod))`).
 
 
 ```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
 gen_auths %>%
   group_by(subfield) %>%
-  mutate(avg_prod = mean(as_author), N=n()) %>%
+  mutate(avg_prod = mean(prod), N = n()) %>%
   ungroup() %>%
-  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = as_author, fill = gender, color = field)) +
+  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = prod, fill = gender, color = field)) +
     geom_boxplot(lwd = 0.5) +
     geom_point(aes(y = avg_prod), color = "black", shape = 2) +
 #    geom_text(aes(x = fct_reorder(subfield, avg_prod), y = 21, label = paste0("N=", N)), hjust = 1.1) +
@@ -586,17 +584,30 @@ gen_auths %>%
 
 Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
 The field of AI and its subfields show the highest average productivity (and highest outliers, for men), while software engineering, programming languages, and CS education exhibit the lowest average papers per author.
-In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means $\delta$=`r productivity_diff("Theoretical Computer Science")`), followed by machine learning (`r productivity_diff("Machine Learning")`), benchmarking (`r productivity_diff("Benchmarking")`), HPC (`r productivity_diff("High-Performance Computing")`), security (`r productivity_diff("Security")`), and AI (`r productivity_diff("Artificial Intelligence")`).
-A few subfields show a small productivity advantage for women, such as programming languages (`r productivity_diff("Programming Languages")`), but none are statistically significant.
+In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means $\Delta$=`r productivity_diff("Theoretical Computer Science")`), followed by machine learning ($\Delta$=`r productivity_diff("Machine Learning")`), benchmarking ($\Delta$=`r productivity_diff("Benchmarking")`), HPC ($\Delta$=`r productivity_diff("High-Performance Computing")`), AI ($\Delta$=`r productivity_diff("Artificial Intelligence")`), and security ($\Delta$=`r productivity_diff("Security")`).
+A few subfields show a small productivity advantage for women, such as programming languages ($\Delta$=`r productivity_diff("Programming Languages")`), but none are statistically significant.
 
 ---
 
 ## RQ3: Are productivity differences affected by collaboration size?
 
+
+Comparing raw productivity across subfields this way could be misleading, because the typical collaboration size is also related to productivity, but varies by subfield.
+If in some subfield, for example the typical number of authors per papers is larger than another field, we might also expect that each author's name would show up in more papers under otherwise equal assumptions.
+We therefore also look at the "fractional count" of publication instead, dividing each authorship event by the number of authors on the paper [@lee05:impact].
+
+Overall, men average a total of
+`r round(mean(filter(gen_auths, gender == "M")$fractional_prod), 2)`
+fractional papers per author, compared to women's
+`r round(mean(filter(gen_auths, gender == "F")$fractional_prod), 2)`,
+which is statistically significant.
+(`r report_test(t.test(filter(gen_auths, gender == "F")$fractional_prod, filter(gen_auths, gender == "M")$fractional_prod))`).
+
+
 ```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
 gen_auths %>%
   group_by(subfield) %>%
-  mutate(avg_prod = mean(fractional_prod), N=n()) %>%
+  mutate(avg_prod = mean(fractional_prod), N = n()) %>%
   ungroup() %>%
   ggplot(aes(x = fct_reorder(subfield, avg_prod), y = fractional_prod, fill = gender, color = field)) +
     geom_boxplot(lwd = 0.5) +
@@ -613,13 +624,8 @@ gen_auths %>%
     coord_flip()
 ```
 
-
-Comparing raw productivity across subfields this way could be misleading, because the typical collaboration size is also related to productivity, but varies by subfield.
-If in some subfield, for example the typical number of authors per papers is larger than another field, we might also expect that each author's name would show up in more papers under otherwise equal assumptions.
-We therefore also look at the "fractional count" of publication instead, dividing each authorship event by the number of authors on the paper [@lee05:impact].
-
-This normalized productivity metric shows on the one hand smaller differences across fields, but on the other, larger differences across genders (Fig. \@ref(fig:fractional-productivity)).
-Both the medians and the means for men's fractional productivity are noticably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
+This normalized productivity metric exhibits on the one hand smaller differences across fields, but on the other, larger differences across genders (Fig. \@ref(fig:fractional-productivity)).
+Both the medians and the means for men's fractional productivity are noticeably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
 The ordering of the fields is also somewhat different, with theoretical computer science now exhibiting the highest mean fractional productivity.
 
 The modified productivity metric also segues into the next three research questions that examine in depth the differences in collaboration sizes in CS.
@@ -893,22 +899,26 @@ Note, however, that since most authors are men and therefore overall FAR is most
 # Discussion {#sec:discussion}
 
 In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics, summarized in Table \@ref(tab:subfield-aggregation).
-The first relationship we investigate is between productivity (RQ2) and FAR.
+The first relationship we investigate is between productivity (RQ3) and FAR.
 In other words, can the higher observed productivity of men explain why we observe so many more male authors than females?
 
 The answer appears to be "mostly not."
-Obviously, the observation that men publish more than women implies that we would find more names of men on papers than we would of women, but the modest advantage in overall productivity for men
-(`r round(mean(100 * filter(gen_auths, gender == "M")$as_author) / mean(filter(gen_auths, gender == "F")$as_author) - 100, 2)`%) cannot fully explain the nearly 9:1 ratio of male-to-female authorship.
-In fact, if we ignore repeated publications altogether and look simply at the ratio of unique women among all unique authors, we still observe a ratio of
-`r tmp <- gen_auths %>% group_by(gender) %>% summarize(.groups = "keep", names = n_distinct(name)); pct(filter(tmp, gender=="F")$names, sum(tmp$names))`% women overall.
-While this ratio represents a significant improvement over the non-unique FAR, it is still far from parity, suggesting that higher productivity alone cannot fully explain the gender gap.
-Aggregating the data on a subfield basis confirms that the correlation between a subfield's FAR and the mean productivity of its practitioners is fairly weak
+Obviously, the observation that men publish more than women implies that we would find more names of men on papers than we would of women, leading to lower FAR.
+When aggregating the data on a subfield basis we do indeed find a moderate negative correlation between a subfield's FAR and the mean productivity of its practitioners
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_prod))`).
+This correlation is even lower when using the fractional paper count for productivity (RQ4), since the slightly larger team sizes for men attenuate some of their productivity advantage
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_frac))`).
 
-The correlation between FAR and male productivity advantage, defined as the ratio between the mean productivity of men and women, is even weaker overall
-(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$prod_ratio))`).
-Some subfields show no apparent relationship between the metrics, like information retrieval and computer vision, which have nearly identical FARs but very dissimilar productivity gaps.
-Other subfields exhibit a stronger opposite relationship, like theory one extreme of the FAR data, with both a high male-to-female productivity ratio and low FAR, and vice-versa, like CS education on the other extreme.
+Overall, the relatively modest advantage in overall productivity for men
+(`r round(mean(100 * filter(gen_auths, gender == "M")$prod) / mean(filter(gen_auths, gender == "F")$prod) - 100, 2)`% more papers per author) does not directly translate to the nearly 9:1 ratio of male-to-female authorship.
+In fact, if we ignore repeated publications altogether and look simply at the ratio of unique women among all unique authors, we still observe a ratio of
+`r tmp <- gen_auths %>% group_by(gender) %>% summarize(.groups = "keep", names = n_distinct(name)); pct(filter(tmp, gender=="F")$names, sum(tmp$names))`%
+women overall.
+While this ratio represents a slight improvement over the non-unique FAR, it is still far from parity, suggesting that higher productivity alone cannot fully explain the gender gap.
+
+
+Some subfields show no apparent relationship between the FAR and productivity, like storage and machine learning, which have very similar FARs but very dissimilar productivity gaps.
+Other subfields exhibit a stronger opposite relationship, like HCI and compilers, with similar productivity metrics but very dissimilar FARs.
 
 ```{r subfield-aggregation, echo = F, cache = T}
 rounding = 3
@@ -917,7 +927,7 @@ tbl <- data.frame(
     Subfield = subfield_summary$subfield,
     FAR = round(subfield_summary$FAR, rounding),
     "Mean productivity" = round(subfield_summary$avg_prod, rounding),
-    "Productivity ratio" = round(subfield_summary$prod_ratio, rounding),
+    "Fractional productivity" = round(subfield_summary$avg_frac, rounding),
     "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
     "Women's homophily" = round(subfield_summary$whomo, rounding),
     check.names = F
@@ -951,12 +961,15 @@ tbl %>%
   kable_styling(font_size = 7)
 ```
 
-These two subfields on the extreme also serve as a good counter-example to a hypothetical relationship between FAR and the typical collaboration size in the subfield (RQ3).
-Both exhibit a relatively low metric for mean coauthors per paper, but with very different FAR metrics.
-Here too, the negative correlation between the two metrics overall is quite low and even less significant.
+A hypothetical relationship between FAR and the typical collaboration size in a subfield (RQ4) can also be easily refuted with counter examples.
+Consider the subfields of Algorithms and Architecture.
+Although their FAR values are nearly identical, they are on extreme ends of the average team sizes.
+The overall correlation between the two metrics is indeed negative, but too close to zero for significance.
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_coauthors))`).
 
-Next on our list of comparisons is gender homophily (RQ4).
+
+
+Last on our list of comparisons is gender homophily (RQ6).
 The method we previously used to measure homophily, deviation from the expectation (FAR) produces two measures per field, one for men and one for women.
 We will focus on the latter, because the deviation from FAR for men is nearly negligible, because of the high number of men in the data.
 We instead look at "women's homophily", defined as the ratio between a subfield's probability for a woman in to coauthor with a woman and its FAR, but still find that is completely uncorrelated with FAR
@@ -974,8 +987,6 @@ This finding also makes sense: if there are very few women in a field, most coau
 The upshot of these observations is that homophily measures appear to be much more the result of a skewed FAR than its cause.
 In other words, gender homophily appears to have little role in explaining variations in FAR, at least when it deviates significantly from 50% as it does in our dataset.
 
-
- * Do normalized productivity as well: divided by the number of coauthors per paper, so each author gets a fraction.
 
  * Theoretical CS is an extreme point by almost all metrics, and matches what [@mihaljevic16:effect] found for math.
 

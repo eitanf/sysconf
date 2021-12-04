@@ -173,7 +173,7 @@ sys_auths <- roles %>%
   dplyr::select(name, gender, key, field, subfield, as_author)
 
 nonsys_auths <- nonsys_authors %>% 
-  dplyr::select(-conf, -n_submissions) %>% 
+  dplyr::select(-conf, -n_submissions) %>%
   dplyr::select(name, gender, paper_id, field, subfield) %>% 
   rename(key = paper_id) %>% 
   add_count(name) %>% 
@@ -183,8 +183,13 @@ full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
   group_by(key) %>%
   mutate(coauthors = n() - 1)
 
+full_auths <- full_auths %>%
+  group_by(name, gender) %>%
+  mutate(fractional_prod = sum(1 / (coauthors + 1)))
+
 full_auths$subfield = recode_factor(full_auths$subfield,
                                     "Heterogeneous Computing" = "Computer Architecture",
+                                    "Network" = "Communications",
                                     "Virtualization" = "Operating Systems",
                                     "Energy" = "Computer Architecture",
                                     "Architecture" = "Computer Architecture")
@@ -294,8 +299,6 @@ In the social sciences, one study has found that women generally publish fewer p
 In mathematics, women also publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
 Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
 There is even a gap in recognition, as women are also less likely to receive tenure the more they coauthor [@sarsons17:recognition].
-
-
 
 
 CS researchers in particular tend to collaborate more than researchers in other fields, regardless of gender, and there are no gender-specific differences in how collaborative behavior impacts scientific success [@jadidi18:gender].
@@ -580,15 +583,44 @@ gen_auths %>%
 ```
 
 
-
 Fig. \@ref(fig:productivity-by-subfield) shows the breakdown of productivity distribution by gender, field, and subfield.
 The field of AI and its subfields show the highest average productivity (and highest outliers, for men), while software engineering, programming languages, and CS education exhibit the lowest average papers per author.
 In terms of gender, the largest differences in productivity exhibit in the subfield of theoretical CS (difference in means $\delta$=`r productivity_diff("Theoretical Computer Science")`), followed by machine learning (`r productivity_diff("Machine Learning")`), benchmarking (`r productivity_diff("Benchmarking")`), HPC (`r productivity_diff("High-Performance Computing")`), security (`r productivity_diff("Security")`), and AI (`r productivity_diff("Artificial Intelligence")`).
 A few subfields show a small productivity advantage for women, such as programming languages (`r productivity_diff("Programming Languages")`), but none are statistically significant.
 
+```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=8, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Dots denote outlier points outside the 5--95\\% range."}
+gen_auths %>%
+  group_by(subfield) %>%
+  mutate(avg_prod = mean(fractional_prod), N=n()) %>%
+  ungroup() %>%
+  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = fractional_prod, fill = gender, color = field)) +
+    geom_boxplot(lwd = 0.5) +
+    geom_point(aes(y = avg_prod), color = "black", shape = 2) +
+#    geom_text(aes(x = fct_reorder(subfield, avg_prod), y = 21, label = paste0("N=", N)), hjust = 1.1) +
+    xlab("Subfield") +
+    ylab("Fractional paper count per author") +
+    theme_classic() +
+    theme(legend.position = "bottom", legend.box = "vertical") +
+    guides(fill = guide_legend(direction = 'horizontal', title = "Gender"),
+           color = guide_legend(direction = 'horizontal', title = "Field")) +
+    scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_color_brewer(palette = "Paired") +
+    coord_flip()
+```
+
+
+Comparing raw productivity across subfields this way could be misleading, because the typical collaboration size is also related to productivity, but varies by subfield.
+If in some subfield, for example the typical number of authors per papers is larger than another field, we might also expect that each author's name would show up in more papers under otherwise equal assumptions.
+We therefore also look at the "fractional count" of publication instead, dividing each authorship event by the number of authors on the paper [@lee05:impact].
+
+This normalized productivity metric shows on the one hand smaller differences across fields, but on the other, larger differences across genders (fig. \@ref(fig:fractional-productivity)).
+Both the medians and the means for men's fractional productivity are noticably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
+The ordering of the fields is also somewhat different, with theoretical computer science now exhibiting the highest mean fractional productivity.
+
+The modified productivity metric also segues into the next few research questions that examine in depth the differences in collaboration sizes in CS.
+
 
 ---
-
 
 ## RQ3: Do women collaborate with fewer people than men?
 

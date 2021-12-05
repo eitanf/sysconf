@@ -626,7 +626,9 @@ gen_auths %>%
 
 This normalized productivity metric exhibits on the one hand smaller differences across fields, but on the other, larger differences across genders (Fig. \@ref(fig:fractional-productivity)).
 Both the medians and the means for men's fractional productivity are noticeably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
-The ordering of the fields is also somewhat different, with theoretical computer science now exhibiting the highest mean fractional productivity.
+
+Although this productivity metric appears to accentuate gender gaps in productivity, it does not appear to affect the relative rankings of subfields by productivity very much.
+Of the fields that are more affected by this metric, the most notable perhaps is theoretical computer science, which now exhibits the highest mean fractional productivity.
 
 The modified productivity metric also segues into the next three research questions that examine in depth the differences in collaboration sizes in CS.
 
@@ -708,7 +710,7 @@ which is significantly lower than that of the overall
 (`r report_test(chisq.test(table(gen_auths$gender == "F", gen_auths$coauthors == 0)))`).
 
 ```{r single-authors, eval=T, echo=F, warning=F, message=F, cache=T}
-tbl <- full_auths %>%
+df <- full_auths %>%
   group_by(subfield) %>%
   summarize(.groups = "keep",
     Papers = n_distinct(key),
@@ -720,10 +722,10 @@ tbl <- full_auths %>%
   ) %>%
   arrange(desc(ratio))
 
-tbl <- bind_rows(tbl, data.frame(
+df <- bind_rows(df, data.frame(
     subfield = "Total",
-    Papers = sum(tbl$Papers),
-    ratio = nrow(filter(full_auths, coauthors == 0)) / sum(tbl$Papers),
+    Papers = sum(df$Papers),
+    ratio = nrow(filter(full_auths, coauthors == 0)) / sum(df$Papers),
     single = nrow(filter(full_auths, coauthors == 0)),
     Women = nrow(filter(full_auths, coauthors == 0, gender == "F")),
     Men = nrow(filter(full_auths, coauthors == 0, gender == "M")),
@@ -732,11 +734,11 @@ tbl <- bind_rows(tbl, data.frame(
   mutate(ratio = paste0(round(100 * ratio, 2), "%")) %>%
   rename(Subfield = subfield, "Number of Papers" = "Papers", "All single author" = single, "Percent single" = ratio)
 
-tbl %>%
+df %>%
   knitr::kable(format = "latex",
                booktabs = T,
                align = "lrrrrrr",
-               linesep = c(rep("", nrow(tbl) - 2), "\\addlinespace"),
+               linesep = c(rep("", nrow(df) - 2), "\\addlinespace"),
                caption = "Number of papers by subfield and gender, sorted by the overall percentage of single-author papers.") %>%
   column_spec(1, width = "3.5cm") %>%
   column_spec(2:6, width = "1.1cm") %>%
@@ -794,7 +796,7 @@ full_auths %>%
 ```
 
 Another way to look at the same data is from the perspective of papers instead of authors.
-As the data in Table \@ref(tab:single-authors) shows, in most CS subfields, fewer than 5% of papers were written by a single author, averaging only `r tbl[nrow(tbl),4]`.
+As the data in Table \@ref(tab:single-authors) shows, in most CS subfields, fewer than 5% of papers were written by a single author, averaging only `r df[nrow(df),4]`.
 (Contrast this, for example, with Astronomy, Physics, and Biology, where the rates of single-author papers average over 10% [@abt07:future].)
 
 Breaking down the data by gender offers little information, because the numbers of single-author papers per subfield are too small for statistical significance.
@@ -923,18 +925,19 @@ Other subfields exhibit a stronger opposite relationship, like HCI and compilers
 ```{r subfield-aggregation, echo = F, cache = T}
 rounding = 3
 
-tbl <- data.frame(
+df <- data.frame(
     Subfield = subfield_summary$subfield,
     FAR = round(subfield_summary$FAR, rounding),
     "Mean productivity" = round(subfield_summary$avg_prod, rounding),
     "Fractional productivity" = round(subfield_summary$avg_frac, rounding),
     "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
-    "Women's homophily" = round(subfield_summary$whomo, rounding),
+    "Women's homophily" = round(subfield_summary$wprob, rounding),
     check.names = F
-)
+) %>%
+  arrange(desc(FAR))
 
-tbl$Subfield = recode_factor(
-  tbl$Subfield,
+df$Subfield = recode_factor(
+  df$Subfield,
   "Artificial Intelligence" = "AI",
   "Theoretical Computer Science" = "Theoretical CS",
   "Computer Architecture" = "Architecture",
@@ -949,13 +952,28 @@ tbl$Subfield = recode_factor(
   "Software Engineering" = "SE"
 )
 
-tbl %>%
-  arrange(desc(FAR)) %>%
+df <- bind_rows(
+  df,
+  data.frame(check.names = F,
+    "Subfield" = c("Overall mean", "FAR correlation"),
+    "FAR" = c(round(sum(gen_auths$gender == "F") / nrow(gen_auths), rounding), 1.0),
+    "Mean productivity" = c(round(mean(full_auths$prod), rounding),
+                            round(cor(subfield_summary$FAR, subfield_summary$avg_prod), rounding)),
+    "Fractional productivity" = c(round(mean(full_auths$avg_frac), rounding),
+                                  round(cor(subfield_summary$FAR, subfield_summary$avg_frac), rounding)),
+    "Mean coauthors" = c(round(mean(full_auths$coauthors + 1), rounding),
+                         round(cor(subfield_summary$FAR, subfield_summary$avg_coauthors), rounding)),
+    "Women's homophily" = c(round(mean(subfield_summary$wprob), rounding),
+                            round(cor(subfield_summary$FAR, subfield_summary$wprob), rounding))
+  )
+)
+
+df %>%
   knitr::kable(format = "latex",
                booktabs = T,
                align = "lrrrrr",
-               linesep = "",
-               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), ratio of men's productivity to women's, mean total coauthors (with repeats), the ratio between a woman's probability to coauthor with a woman and FAR.") %>%
+               linesep = c(rep("", nrow(df) - 3), "\\addlinespace"),
+               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), fractional paper total, mean total coauthors (with repeats), the ratio between a woman's probability to coauthor with a woman and FAR.") %>%
   column_spec(1, width = "2.0cm") %>%
   column_spec(2:6, width = "1.4cm") %>%
   kable_styling(font_size = 7)

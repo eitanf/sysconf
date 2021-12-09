@@ -171,6 +171,10 @@ def add_conf_stats(tidy, conf):
             "Ratio of papers (out of 100%) that have at least one author who is a PC member")
 
 
+    # Full name
+    tidy.add("full_name", "string", conf['conference'],
+            "Long name of the conference")
+
 
 #########################################################################
 #########################################################################

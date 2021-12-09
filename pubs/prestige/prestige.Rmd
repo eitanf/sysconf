@@ -1,5 +1,6 @@
 ---
-title: Metrics and methods in prestige bias evaluation
+title: Metrics and methods in the evaluation of prestige bias in peer review
+runtitle: Measuring prestige bias in peer review
 author:
   - name: Eitan Frachtenberg
     email: eitan@reed.edu
@@ -21,10 +22,11 @@ output:
 csl: plos.csl
 abstract: |
  The integrity of peer review is essential for modern science. Numerous studies have therefore focused on identifying, quantifying, and mitigating biases in peer review. One of these better-known biases is prestige bias, where the recognition of a famous author or affiliation leads reviewers to subconsciously treat their submissions preferentially.
+ A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. However, studies on the effectivness of this mitigation are mixed and are rarely directly comparable to each other, leading to difficulty in generalization of their results.
 
- A common mitigation approach for prestige bias is double-blind reviewing, where the identify of authors is hidden from reviewers. Studies on prestige bias often compare article acceptance statistics between single- and double-blind reviews, under the assumption that increased acceptance of famous authors in single-blind reviews implies prestige bias. Some such studies, both experimental and observational, have found strong associations between famous authors and single-blind reviewing, while others found no such association or even a negative association. Additionally, these studies are rarely directly comparable, leading to difficulty in generalization of their results.
+ In this paper, we explore the design space for such studies in an attempt to reach common ground. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, control variables, and outlier treatments. We show that depending on these choices, the data can lead to contradictory conclusions with high statistical significance. For example, authors with higher h-index often preferred to publish in competitive conferences which are also typically double-blind, whereas authors with higher paper counts often preferred the single-blind conferences.
 
- In this paper, we explore the design space for such studies. Using an observational approach with a large dataset of peer-reviewed papers in computer systems, we systematically evaluate the effects of different prestige metrics, aggregation methods, control variables, and outlier treatments. We show that depending on these choices, the data can lead to contradictory conclusions with high statistical significance. The main practical implication of our analyses is that a narrow evaluation may lead to unreliable results. A thorough evaluation of prestige bias requires a careful inventory of assumptions, metrics, and methodology, often requiring a more detailed sensitivity analysis than is normally undertaken.
+ The main practical implication of our analyses is that a narrow evaluation may lead to unreliable results. A thorough evaluation of prestige bias requires a careful inventory of assumptions, metrics, and methodology,  often requiring a more detailed sensitivity analysis than is normally undertaken. Importantly, two of the most commonly used metrics for prestige evaluation, past publication count and h-index, are not independent from the choice of publishing venue, which must be accounted for when comparing authors prestige across conferences.
 ---
 
 ```{r code = readLines("../load_data.R"), echo=F, message=F}
@@ -83,7 +85,9 @@ cleaning_imputation <- function(dat, ratio = THRESH_RATIO, s2_limit = S2_THRESH)
   dat_train <- dat %>%
   filter(!imp, !is.na(s2npubs), s2npubs/npubs < ratio, s2npubs < s2_limit) %>%
   group_by(name, gs_email) %>%    # Since many authors are in the dataset several times
-  summarize(npubs = first(npubs), s2npubs = first(s2npubs),
+  summarize(.groups = "keep",
+            npubs = first(npubs),
+            s2npubs = first(s2npubs),
             hindex = first(hindex)) %>%
     ungroup()
 
@@ -123,7 +127,7 @@ ppl.lead <- ppl.lead %>%
 any_pc <- ppl %>%
   filter(!imp) %>%
   group_by(as.factor(key)) %>%
-  summarize(conf = as.character(first(conf)), any_pc = sum(as_pc) > 0) %>%
+  summarize(.groups = "keep", conf = as.character(first(conf)), any_pc = sum(as_pc) > 0) %>%
   left_join(select(all_confs, c(key, double_blind)), by = c("conf" = "key"))
 
 db_confs = filter(all_confs, double_blind)
@@ -136,7 +140,8 @@ compute_experience <- function(who, fame_percentile = 0.9)
   who %>%
     mutate(key = as.factor(key)) %>%
     group_by(key) %>%
-    summarize(conf = as.character(first(conf)),
+    summarize(.groups = "keep",
+              conf = as.character(first(conf)),
               coauthors = n(),
               top_university = any(top_university),
               top_company = any(top_company),
@@ -229,7 +234,7 @@ report_db <- function(exper = experience, aggr = "max", metric = "npubs")
 
 ########################
 # compute_glm: for a given population and metric, return a vector with different statistics on
-# the regression of the metric by double-blindess (linear and logistic and linear mixed model).
+# the regression of the metric by double-blindness (linear and logistic and linear mixed model).
 # The function can take an optional additional predictor variable to include in the model.
 compute_glm <- function(exper = experience.all, predictor = "", metric = "npubs")
 {
@@ -337,7 +342,7 @@ Finally, we review related work and provide some conclusions and recommendations
 
 The primary dataset we analyze comes from a hand-curated collection of `r nrow(all_confs)` peer-reviewed systems and systems-related conferences from a single publication year (2017).
 In computer science, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
-The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs)).
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs), with additional details in the supplementary information).
 We chose to focus on a large cross-sectional set of conferences from a single publication year (2017), to reduce variations in time.
 Our choice of which conferences belong to "systems" is necessarily subjective.^[For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.]
 Not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
@@ -345,18 +350,21 @@ However, we believe that our cross-sectional set is both wide enough to represen
 In total, our sample includes `r sum(all_confs$npapers)` accepted peer-reviewed papers.
 
 ```{r sys-confs, echo=F, message=F, warning=F, cache=T}
-tmp <- all_confs %>%
+df <- all_confs %>%
+  arrange(acceptance_rate) %>%
   mutate(Conference = gsub("_\\d*", "", conference)) %>%
-  rename("Start date" = postdate, Papers = npapers, Authors = authors_num, Country = country) %>%
-  mutate("Acceptance rate" = round(acceptance_rate, 2)) %>%
-  select(Conference, "Start date", Papers, Authors, "Acceptance rate") %>%
-  arrange(Conference)
+  mutate("Double-blind" = ifelse(double_blind, "Yes", "No")) %>%
+  mutate("Acceptance rate" = ifelse(is.na(acceptance_rate), "Unknown", round(acceptance_rate, 2))) %>%
+  mutate("Submissions" = ifelse(is.na(submissions), "Unknown", submissions)) %>%
+  rename("Age" = age) %>%
+  mutate("Citations/paper" = ifelse(is.na(mean_historical_citations), "Unknown", round(mean_historical_citations, 1))) %>%
+  select(Conference, "Double-blind", "Acceptance rate", "Submissions", "Age", "Citations/paper")
 
 #cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
-tmp %>%
+df %>%
     knitr::kable(booktabs = T, linesep = "",
-               align = c("|l", "c", "r", "r", "r|"),
-               caption = "System conferences, including start date, number of published papers, total number of named authors, and acceptance rate.") %>%
+               align = c("llrrr"),
+               caption = "System conferences and review policy with four reputation or prestige metrics: acceptance rate, total number of paper submissions in 2017, age of conference in years, and mean historical citations per paper, which are all correlated ($p<0.01$). Conferences are sorted by descending acceptance rate.") %>%
   kable_styling(font_size = 8)
 ```
 
@@ -377,11 +385,37 @@ For each author and PC member, we collected all metrics in their GS profile, suc
 Note that we found no GS profile for about a third of the researchers
 (`r pct(sum(is.na(authors$hindex)), nrow(authors), 2)`%),
 and these researchers appear to be less experienced than researchers with a GS profile.
-We therefore also considered a proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database [@fricke18:semantic].
+We therefore also considered a proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar (S2) database [@fricke18:semantic], which is how we discovered that most missing GS profiles represent inexperienced authors.
 
 In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
 These data included review policies, the composition of its technical PC, and the number of submitted papers.
 On these conferences, we also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar websites, including past citations, age, and total publications.
+
+<!-------------------------------------------------------------------------------------------->
+## Limitations {-}
+
+Perhaps the most significant limitation of this study (and many similar studies) is a noisy dataset.
+In fact, addressing missing and erroneous data is one of the major focal points of this study.
+We collected most reputation metrics from the Google Scholar database because it includes many metrics and allows for manual verification of the identity of each author by linking to their homepage.
+This database is not without its limitations, however.
+It does not always disambiguate author names correctly, and it tends to overcount publications and citations [@halevi17:suitability; @harzing16:google; @martin18:google; @sugimoto18:measuring].
+
+We have attempted to mitigate these limitations as follows:
+
+* For the number of past publications metric, we also include data from the Semantic Scholar (S2) database, which has near-perfect coverage.
+This metric is strongly correlated across these two databases, suggesting that authors that are "famous" according to GS are likely also independently "famous" based on the S2 database.
+Since we only care about relative "fame", GS's exaggerated metric values do not affect our analysis.
+Indeed the choice of database did not materially change our results for or against prestige bias in each case.
+
+* We addressed the name disambiguation challenge by manually verifying the GS profiles of all researchers and ensuring that they include the papers from our dataset and do not mix together multiple researchers from different fields. Ambiguous profiles were omitted from our dataset.
+
+* Virtually all databases are expected to have some missing data, which is a methodological concern we address in the paper in the section on data imputation. Specifically, because most missing GS profiles were of relatively inexperienced researchers (based on S2 metrics), we were able to impute or extrapolate experience metrics for all missing profiles and show that they do not significantly change the evaluation of prestige bias in our dataset.
+
+An additional limitation of our methodology is that it is constrained by the manual collection of data.
+We chose to collect each conference and author statistics manually to control its quality and alleviate some of the concerns around name disambiguation.
+However, the effort involved in compiling all the necessary data limits the scalability of our approach to additional conferences or years.
+In particular, limiting our dataset to a single publication year means that it cannot be used to evaluate prestige bias over time, for example as authors’ names grow more recognizable with experience.
+But it does eliminate time-based variance within and across conferences.
 
 <!-------------------------------------------------------------------------------------------->
 ## Statistics
@@ -391,17 +425,17 @@ For statistical testing, group means were compared pairwise using Welch's two-sa
 <!-------------------------------------------------------------------------------------------->
 ## Code and data availability
 
-All analysis was conducted in the statistical software package `R`[@rteam13:r]. For reproducibility, all of the data and source code files we used can be found in the supporting information and at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/).
+All analysis was conducted in the statistical software package `R`[@rteam13:r]. For reproducibility, all of the data and source code files we used can be found in the supporting information and at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/) [@frachtenberg:github-repo].
 The specific statistical analyses for this study can be found in the file
 `pubs/prestige/prestige.Rmd` and the relevant `R` packages in the file `pubs/dependencies.R`.
-<!--A Docker image with the complete software environment for reproduction of this analysis can be found at \url{https://hub.docker.com/repository/docker/eitanf/sysconf} under the `prestige` tag. -->
+A Docker image with the complete software environment for reproduction of this analysis can be found at \url{https://hub.docker.com/repository/docker/eitanf/sysconf} under the `prestige` tag.
+
+<!-------------------------------------------------------------------------------------------->
 
 ## Ethics statement {-}
 
 The data collected for this study was sourced from public-use datasets such as conference and academic web pages.
-The informed consent requirement was waived for this secondary analysis.
-This study was conducted under Reed College's IRB approval.
-
+This study was exempted from the informed consent requirement under Exempt Category 4: the use of secondary data by Reed College's Institutional Review Board (No. 2021-S26).
 
 
 <!-------------------------------------------------------------------------------------------->
@@ -437,7 +471,9 @@ metrics.summary <- ppl %>%
                                 i10index = "i10-index", hindex5y = "h-index (5 years)",
                                 i10index5y = "i10-index (5 years)")) %>%
   group_by(name, gs_email, Metric) %>%
-  summarize(Metric = first(Metric), value = first(value), .groups = "keep") %>%
+  summarize(.groups = "keep",
+            Metric = first(Metric),
+            value = first(value)) %>%
   group_by(Metric) %>%
   mutate(count = paste0("n = ", sum(!is.na(value)))) %>%
   ungroup()
@@ -463,7 +499,7 @@ Counting the number of past publications is ostensibly the most straightforward 
  * Rising researchers may be receiving significant name recognition without having yet accumulated a long publication record.
  * The decision of what counts as a "publication" can be subjective and vary from database to database. For example, do patents count? preprints? blog posts?
  * Accurate collection of even the raw data is complicated by factors such as author name disambiguation, paper disambiguation, and noisy or crowd-sourced data.
- * Systems papers in particular, like in other experimental fields, vary significantly in number of coauthors because some implementations take a large team effort. Credit attribution therefore becomes particularly tricky in this field, even when using h-index [@koltun21:hindex].
+ * Systems papers in particular, like in other experimental fields, vary significantly in number of coauthors because some implementations take a large team effort. Credit attribution therefore becomes particularly tricky in this field, also when using the h-index [@koltun21:hindex].
 
 With these limitations in mind, we start our analysis by looking at the count of previous publications for each author.
 For each accepted paper, we looked at the publication count of the most prolific coauthor to capture the potential name recognition for the paper as a whole.
@@ -472,7 +508,7 @@ In our dataset, authors in SB conferences average a higher GS publication count 
 <!-- Also holds when we impute GS (`r report_db(experience.all, "max", "npubs_imp")`) -->
 <!-- Also holds when we impute GS (`r report_db(experience.all, "max", "npubs_flat")`) -->
 This relationship appears to support a hypothesis of prestige bias for these conferences (to reiterate, there is insufficient evidence for a conclusive causal relationship).
-When we compare the publication counts from our other data source, S2, which covers all authors, we find similar evidence, albeit weaker:
+When we compare the publication counts from our other data source, Semantic Scholar, which covers all authors, we find similar evidence, albeit weaker:
 (`r report_db(experience.all, "max", "s2npubs")`).
 
 We can also use a third source of paper counts to differentiate between active and mostly inactive researchers, using only current statistics.
@@ -485,7 +521,7 @@ The evidence based on publication counts alone is inconclusive.
 <!---------------------------------------------------->
 ### Citation-based metrics
 
-We next turn our attention to another set of commonly used metrics, those incorporating citation count, which is one measure of impact.
+We next turn our attention to another set of commonly used metrics, those incorporating citation count, which is how academic impact is typically measured.
 Citation-based metrics try to capture the fact that not all publications have the same influence on other researchers, and indirectly, on the author's reputation.
 Note that the correlation between total past citations and total past papers is not particularly high, leading potentially to divergent results when evaluating prestige bias
 (Pearson correlation of
@@ -524,7 +560,7 @@ From GS, we collected for each author with an identifiable profile their total n
 We omit the last two metrics from our discussion because of their high correlation with h-index and i10-index, respectively (Fig. \@ref(fig:metric-corrs)).
 We also computed another metric from these statistics, citations per paper, by dividing total GS citations with total GS publications.
 
-Once more, we look at the most senior coauthor in each paper group, and compare the averages across SB and DB papers.
+Once more, we look at the most experienced coauthor in each paper group, and compare the averages across SB and DB papers.
 Of these, the citations-per-paper metric shows the strongest association with DB reviewing
 (`r report_db(experience.all, "max", "paper_cites")`).
 The h-index metric also strongly indicated higher values in DB conferences
@@ -546,9 +582,9 @@ A researcher's participation in these PCs is related to their reputation in two 
 
 First, to be invited to serve in a PC, a researcher is usually regarded as an authority in the field.
 We can extend this intuition to reputation metrics, either as a quantitative one---how many PCs in our set an author belongs to---or a qualitative one, simply noting whether they participate in any PC at all.
-For the former, we observe that the most senior coauthors in each paper group (by PC participation) average marginally more PC roles in DB conferences
+For the former, we observe that the coauthors with the highest PC participation in each paper group average marginally more PC roles in DB conferences
 (`r report_db(experience.all, "max", "as_pc")`).
-For the latter, we observe an opposite indication: the ratio of papers authored by at least one member of a PC in our set is actually lower for DB conferences than for SB
+For the latter, we observe a null result: the ratio of papers authored by at least one member of a PC in our set is actually lower for DB conferences than for SB
 (`r pct(nrow(filter(any_pc, double_blind, any_pc)), nrow(filter(any_pc, double_blind)))`% vs.
 `r pct(nrow(filter(any_pc, !double_blind, any_pc)), nrow(filter(any_pc, !double_blind)))`%;
 `r report_test(chisq.test(table(any_pc$any_pc, any_pc$double_blind)))`).
@@ -575,7 +611,7 @@ Then, we look at qualitative (categorical) classifications of a paper's potentia
 
 The typical systems paper has a large number of coauthors compared to other disciplines, perhaps because of its emphasis on concrete systems that can require significant team effort to implement.
 In our dataset, papers average
-`r co <- group_by(ppl, key) %>% summarize(nauthors = n()); round(mean(co$nauthors), 2)` authors per paper
+`r co <- group_by(ppl, key) %>% summarize(.groups = "keep", nauthors = n()); round(mean(co$nauthors), 2)` authors per paper
 (SD: `r round(sd(co$nauthors), 2)`).
 We have assumed so far that a paper is most likely to be recognized based solely on the author with the highest reputation metric.
 But other authors may play an important role in name recognition, as well as the whole group.
@@ -685,7 +721,7 @@ rep.all %>%
 
 
 
-Comparing Fig. \@ref(fig:mean-diffs) and Fig. \@ref(fig:median-diffs) shows that many of the metrics and paper aggregations agree in direction (sign) whether looking at the mean values across SB/DB or medians, although confidence levels vary significantly between the two.
+Comparing Fig. \@ref(fig:mean-diffs) and Fig. \@ref(fig:median-diffs) shows that many of the metrics and paper aggregations agree in direction (sign) whether looking at the mean values across SB/DB or medians, although confidence levels vary greatly between the two.
 Observe for example how the total-citations metric went from nonsignificant means to highly significant medians, perhaps because this metric's values are the most widely distributed and right-skewed, thereby creating large differences between means and medians.
 
 The implication from this comparison is, again, that there exist combinations of metrics and aggregations, all arguably representing reasonable choices, that can change the outcome from statistical significance to nonsignificance.
@@ -791,9 +827,9 @@ They demonstrate once more how critically the conclusion for or against prestige
 
 
 <!---------------------------------------------------->
-### Banded classification of seniority
+### Banded classification of experience
 
-Another related approach to categorize seniority and experience was described in the original h-index study [@hirsch05:index]. It proposed that researchers may fall into experience bands, roughly corresponding to novice/assistant professor, mid-career/associate professor, and experienced/full professor. Based on his observations in the field of physics, Hirsch proposed h-index limits of under 11, between 12 and 17, and 18+ to distinguish among these bands.
+Another related approach to categorize experience was described in the original h-index study [@hirsch05:index]. It proposed that researchers may fall into experience bands, roughly corresponding to novice/assistant professor, mid-career/associate professor, and experienced/full professor. Based on his observations in the field of physics, Hirsch proposed h-index limits of under 11, between 12 and 17, and 18+ to distinguish among these bands.
 
 ```{r seniority, echo = F, message = F, out.width='0.75\\textwidth', fig.height=3, fig.cap = "Experience bands of papers' authors by review policy. Each paper is counted exactly once, based on the highest h-index among its coauthors."}
 e_with_seniority <-
@@ -810,14 +846,14 @@ e_with_seniority %>%
     theme(legend.position = "bottom") +
     #scale_fill_brewer(breaks = c("Novice", "Mid-career", "Experienced"), palette = "Greens", direction = -1) +
     scale_fill_viridis_d(breaks = c("Novice", "Mid-career", "Experienced"), option = "D") +
-    guides(fill = guide_legend(title = "Most senior author's experience")) +
+    guides(fill = guide_legend(title = "Highest author experience")) +
     scale_x_discrete(name = "Review policy", labels = c("Single", "Double")) +
     coord_flip()
 ```
 
-When we apply these (admittedly arbitrary) limits to our dataset (Fig. \@ref(fig:seniority)), we find a slight advantage to senior researchers in DB reviewed papers
+When we apply these (admittedly arbitrary) limits to our dataset (Fig. \@ref(fig:seniority)), we do not find a statistically significant difference in the distribution of senior author experience between the reviewing policies
 (`r report_test(chisq.test(table(e_with_seniority$Experience, e_with_seniority$double_blind)))`).
-This anti-prestige bias is consistent with the evidence we uncovered in previous sections using maximum h-index, both for quantitative and qualitative aggregations.
+This null result is consistent with the evidence we uncovered in previous sections using maximum h-index, both for quantitative and qualitative aggregations.
 
 
 <!---------------------------------------------------->
@@ -926,7 +962,7 @@ reg.all %>%
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
     geom_text(aes(label = paste0(round(linear_c, 2), format_p_value(linear_p, p_option = "stars")))) +
-    ylab("Additional conference predictor variable") +
+    ylab("Additional predictor variable") +
     xlab("Reputation metric (max per paper)") +
     labs(fill = "DB coefficient") +
     theme_minimal() +
@@ -943,7 +979,7 @@ reg.all %>%
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
     geom_text(aes(label = paste0(round(linear_m_c, 2), format_p_value(linear_m_p, p_option = "stars")))) +
-    ylab("Additional conference predictor variable") +
+    ylab("Additional predictor variable") +
     xlab("Reputation metric (max per paper)") +
     labs(fill = "DB coefficient") +
     theme_minimal() +
@@ -983,7 +1019,7 @@ Every one of the conference variables we tested could potentially serve as a bet
 Next, we revisit the treatment of an author's prestige as a categorical variable, rather than a continuous variable.
 If we treat fame as a Boolean factor instead, i.e., an author's name is either recognized or not, then we can repeat our analysis with mixed-effects logistic regression.
 We can do so by picking a "fame threshold," above which we consider an author's name to be recognized.
-As discussed earlier, senior authors show the same preference for DB or SB conferences regardless of the threshold selected to define seniority, at least for h-index and publication count.
+As discussed earlier, senior (more experienced) authors show the same preference for DB or SB conferences regardless of the threshold selected to define seniority, at least for h-index and publication count.
 We will therefore use an arbitrary binary threshold of "top 10%" for each reputation metric to classify those authors who are most likely to be recognized.
 
 
@@ -996,7 +1032,7 @@ reg.all %>%
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
     geom_text(aes(label = paste0(round(logistic_c, 2), format_p_value(logistic_p, p_option = "stars")))) +
-    ylab("Additional conference predictor variable") +
+    ylab("Additional predictor variable") +
     xlab("Reputation metric in top 10% of authors") +
     labs(fill = "DB coefficient") +
     theme_minimal() +
@@ -1013,7 +1049,7 @@ reg.all %>%
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
     geom_text(aes(label = paste0(round(logistic_m_c, 2), format_p_value(logistic_m_p, p_option = "stars")))) +
-    ylab("Additional conference predictor variable") +
+    ylab("Additional predictor variable") +
     xlab("Reputation metric in top 10% of authors") +
     labs(fill = "DB coefficient") +
     theme_minimal() +
@@ -1070,7 +1106,7 @@ missing_props <- count(ppl_blind, double_blind, is.na(npubs)) %>%
 
 
 On the lower tail, note that `r round(mean(is.na(ppl$npubs)) * 100, digits = 2)`% of the values for the GS measures are missing for authors for whom we could not uniquely identify a GS profile.  Proportionally, these authors are distributed almost evenly between SB and DB publications.
-Since the median number of publications from S2 is only `r filter(ppl, is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those without GS measures---compared to `r filter(ppl, !is.na(npubs)) %>% summarize(median(s2npubs)) %>% pull()` for those with GS measures---these authors with missing values are likely less experienced and therefore would contribute to the lower tail of the author-level prestige metric distributions.
+Since the median number of publications from S2 is only `r filter(ppl, is.na(npubs)) %>% summarize(.groups = "keep", median(s2npubs)) %>% pull()` for those without GS measures---compared to `r filter(ppl, !is.na(npubs)) %>% summarize(.groups = "keep", median(s2npubs)) %>% pull()` for those with GS measures---these authors with missing values are likely less experienced and therefore would contribute to the lower tail of the author-level prestige metric distributions.
 The variation in S2 publications between those with and without GS profiles provides evidence that the missing values are not missing at random and that we should determine how sensitive our results are to how the missingness is treated.
 
 
@@ -1231,7 +1267,7 @@ db_ratios <- roles %>%
   filter(role == "author") %>%
   left_join(all_confs, by = c("conf" = "conference")) %>%
   group_by(name, gs_email) %>%
-  summarize(db2sb_ratio = sum(double_blind) / n(), n = n())
+  summarize(.groups = "keep", db2sb_ratio = sum(double_blind) / n(), n = n())
 
 ppl %>%
   left_join(db_ratios) %>%
@@ -1254,7 +1290,7 @@ Some researchers exhibit relatively high h-index and some exhibit relatively hig
 
 Observe that the authors below the regression line (relatively high h-index) tend to publish more often in DB conference, whereas the opposite is true for authors with relatively many publications.
 This implied dichotomy suggests two broad types of researchers, which we dub as "impact" and "prolificity", respectively.
-Double-blind conferences probably attract more of the "impact"-type researchers because these conferences are also correlated with higher reputation metrics, including citations.
+Double-blind conferences probably attract more of the "impact"-type researchers because these conferences are also associated with higher reputation metrics, including citations (Table \@ref(tab:sys-confs)).
 On the other hand, "prolificity"-type researchers probably publish more in the SB, less-competitive conferences, which would statistically lead to more accepted papers but likely also to a lower relative h-index.
 As another data point for venue preference, early-career researchers were found in a related study to actually prefer higher-impact journals and were influential in the team's choice of where to publish [@nicholas17:early].
 
@@ -1285,7 +1321,7 @@ is also quite significant
 (`r report_test(wilcox.test(db_cites, sb_cites))`).
 These statistics provide additional evidence that DB conferences in our dataset are the more prestigious ones, and support the notion that "impact"-type researchers would choose to publish in them.
 It also lends additional support to the idea that prestige-bias evaluation should account for venue prestige when comparing across venues or across years, for example, using a mixed-effects model.
-Indeed, when we attempt to control for conference prestige using using the proxy of mean citations per paper, most of the previously found differences in bias lose statistical significance (Fig. \@ref(fig:linear-mixed-regression)).
+Indeed, when we attempt to control for conference prestige using the proxy of mean citations per paper, most of the previously found differences in bias lose statistical significance (Fig. \@ref(fig:linear-mixed-regression)).
 
 
 <!-------------------------------------------------------------------------------------------->
@@ -1308,7 +1344,7 @@ The upshot of such constraints is that there are relatively few studies on peer-
 A literature survey from 15 years ago on the question of prestige bias found mixed results [@snodgrass06:single], as have we in the literature since then.
 
 In one famous study, for example, Fisher et al. performed a randomized trial on 57 consecutive submissions to the Journal of Development and Behavioral Pediatrics.
-Each paper received 2 SB and 2 DB reviews, and acceptance decisions were compared to the number of publications of each paper's lead author and most-senior author.
+Each paper received 2 SB and 2 DB reviews, and acceptance decisions were compared to the number of publications of each paper's lead author and most-experienced author.
 The paper concludes that SB reviewing favors authors with higher publication counts.
 
 A similar but more recent example experimented on the submissions to the WSDM'17 conference on data mining [@tomkins17:reviewer].
@@ -1405,6 +1441,37 @@ We must also acknowledge that "reputation" and "name recognition" are not purely
 Perhaps a better approach for experimental studies might be to ask reviewers to rank the "reputation" of the authors they reviewed, but only after all papers have been reviewed, to reduce priming effects.
 We hope further that this paper provides a guideline and a roadmap to studies on bias on how to carefully address methodological issues that could limit the generalization or credibility of their results.
 
+
+### S1 Detailed conference list {-}
+
+```{r confs-data, echo=F, message=F, warning=F}
+cfs <- all_confs %>%
+  left_join(countries, by = c("country" = "code")) %>%
+  arrange(key)
+str <- ""
+for (i in 1:nrow(cfs))
+{
+  t <- cfs[i,]
+  str = paste0(
+    str,
+    "\\item ",
+    gsub("_\\d*", "", t$conference), "'17: ",
+    t$full_name, ", ",
+    t$country.y, ", ",
+    t$postdate, ". ",
+    ifelse(is.na(t$submissions), "", paste(t$submissions, " submissions, ")),
+    t$npapers, " papers accepted ",
+    "(", ifelse(t$double_blind, "double-blind", "single-blind"), " reviews). ",
+    t$authors_num, " total authors and ",
+    t$pc_size, " total PC members. ",
+    "homepage: \\url{", t$url, "}",
+    "\n")
+}
+```
+
+\begin{enumerate}
+`r str`
+\end{enumerate}
 
 # References {-}
 

@@ -237,7 +237,9 @@ subfield_summary <- gen_auths %>%
             FAR = sum(gender == "F") / n(),
             avg_prod = mean(prod),
             avg_frac = mean(fractional_prod),
-            avg_coauthors = mean(coauthors)) %>%
+            avg_coauthors = mean(coauthors),
+            single_ratio = sum(coauthors == 0) / n_distinct(key)
+            ) %>%
   ungroup() %>%
   left_join(tmp) %>%
   mutate(whomo = wprob / FAR)
@@ -294,7 +296,7 @@ Instead, we limit our focus to the relevant literature on collaboration patterns
 For example, a recent study of differences in collaboration patterns across disciplines found that female scientists have a lower probability of repeating previous coauthors than males.
 It also found that female faculty have significantly fewer distinct coauthors over their careers than males, but that this difference can be fully accounted for by females’ lower publication rate and shorter career lengths [@zeng16:differences].
 
-This productivity gap, which we observed in our dataset as well, has been thoroughly explored in a different study [@symonds06:gender].
+This productivity gap, which we observed in our dataset as well, has been thoroughly explored in several other studies [@abramo09:gender; @huang20:historical; @kyvik96:child; @lariviere13:bibliometric; @symonds06:gender].
 In the social sciences, one study has found that women generally publish fewer papers than men, and that two thirds of the single-author papers were written by men [@schucan11:women].
 In mathematics, women also publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
 Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
@@ -304,9 +306,9 @@ There is even a gap in recognition, as women are also less likely to receive ten
 CS researchers in particular tend to collaborate more than researchers in other fields, regardless of gender, and there are no gender-specific differences in how collaborative behavior impacts scientific success [@jadidi18:gender].
 This study also found that gender homophily in CS has been increasing over the past few years.
 
-Related, another study of collaboration patterns across sciences found that CS papers average 2.84 coauthors, and electrical engineering papers average 3.04 [@ghiasi15:compliance], similar to what we have found in this study.
+Related, another study of collaboration patterns across sciences found that CS papers average 2.84 coauthors, and electrical engineering papers average 3.04 [@ghiasi15:compliance], somewhat lower than what we have found in this study.
 It also found that generally in engineering, female-female collaborations accounted for only 7% of all total pairs.
-In CS, the percentage is even lower (5%).
+In CS, the percentage was even lower (5%).
 Since 1990, there have been even more same-gender (gender homophily) coauthorships than expected [@wang21:trends].
 But this property can vary across CS fields, necessitating more nuanced analysis.
 For example, in the field of data visualization, women collaborated with substantially more women than men [@tovanich21:gender].
@@ -317,11 +319,14 @@ There are also fewer women "stars", which we also found to hold specifically for
 A surprising result came from a survey of 1,714 scientists in 2011, finding that when accounting for various confounding factors, women actually have more collaborators then men [@bozeman11:men].
 The paper also reported that regression models that take into account different collaboration strategies are better at predicting a researcher's number of collaborators.
 
+Research in computer science, and in particular in its more applied and experimental fields, can sometimes require expensive resources.
+Several studies have found that the gender gap in research tends to be higher in disciplines with expensive barriers to entry [@duch12:possible; @elsevier17:gender; @head13:differences; @lariviere13:bibliometrics], which appears to agree with our findings for CS fields.
+
 Several studies analyzed the gender gap by aggregating the coauthors of each paper into one "gender".
 One study analyzed different aggregations based the proportion of female authors, gender of most senior authors, and single-author papers [@hengel17:publishing].
 Looking at author position for aggregation, another study found that there are fewer women in first and last author positions in science overall, as well as in single-author papers [@west13:role].
 Other ways to aggregate genders including counting all papers that have at least one female author, and those where at least half the authors are female.
-
+In this study, we do not aggregate papers by gender, unless they have a single author, in which case there is only one gender.
 
 ## Organization {-}
 
@@ -625,9 +630,8 @@ gen_auths %>%
 ```
 
 This normalized productivity metric exhibits on the one hand smaller differences across fields, but on the other, larger differences across genders (Fig. \@ref(fig:fractional-productivity)).
-Both the medians and the means for men's fractional productivity are noticeably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
-
-Although this productivity metric appears to accentuate gender gaps in productivity, it does not appear to affect the relative rankings of subfields by productivity very much.
+The medians for men's fractional productivity appear noticeably higher in most subfields, and men exhibit much larger and more numerous outliers on the prolific tail of the spectrum.
+However, fractional productivity does not appear to affect the relative rankings of subfields very much.
 Of the fields that are more affected by this metric, the most notable perhaps is theoretical computer science, which now exhibits the highest mean fractional productivity.
 
 The modified productivity metric also segues into the next three research questions that examine in depth the differences in collaboration sizes in CS.
@@ -796,7 +800,7 @@ full_auths %>%
 ```
 
 Another way to look at the same data is from the perspective of papers instead of authors.
-As the data in Table \@ref(tab:single-authors) shows, in most CS subfields, fewer than 5% of papers were written by a single author, averaging only `r df[nrow(df),4]`.
+As the data in Table \@ref(tab:single-authors) shows, in most CS subfields, fewer than 5% of papers were written by a single author, adding up to only `r df[nrow(df),4]` papers.
 (Contrast this, for example, with Astronomy, Physics, and Biology, where the rates of single-author papers average over 10% [@abt07:future].)
 
 Breaking down the data by gender offers little information, because the numbers of single-author papers per subfield are too small for statistical significance.
@@ -900,27 +904,28 @@ Note, however, that since most authors are men and therefore overall FAR is most
 
 # Discussion {#sec:discussion}
 
-In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics, summarized in Table \@ref(tab:subfield-aggregation).
-The first relationship we investigate is between productivity (RQ3) and FAR.
+In this section we dive deeper into the data by exploring the relationships between the different measurements and metrics across subfields, summarized in Table \@ref(tab:subfield-aggregation).
+Our goal is to see whether the variations in any of the separate metrics we collected can help explain higher---or lower---values of FAR in the field, possibly providing hints to causal relationships.
+
+The first relationship we investigate is between productivity and FAR.
 In other words, can the higher observed productivity of men explain why we observe so many more male authors than females?
 
 The answer appears to be "mostly not."
 Obviously, the observation that men publish more than women implies that we would find more names of men on papers than we would of women, leading to lower FAR.
 When aggregating the data on a subfield basis we do indeed find a moderate negative correlation between a subfield's FAR and the mean productivity of its practitioners
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_prod))`).
-This correlation is even lower when using the fractional paper count for productivity (RQ4), since the slightly larger team sizes for men attenuate some of their productivity advantage
+This correlation is even weaker when using fractional paper counts, since the slightly larger team sizes for men attenuate their productivity advantage
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_frac))`).
+Some subfields show no apparent relationship between FAR and productivity, like storage and machine learning, which have very similar FARs but very dissimilar productivity gaps.
+Other subfields exhibit a stronger opposite relationship, like HCI and compilers, with similar productivity metrics but very dissimilar FARs.
 
-Overall, the relatively modest advantage in overall productivity for men
+Overall, the relatively modest advantage in productivity for men
 (`r round(mean(100 * filter(gen_auths, gender == "M")$prod) / mean(filter(gen_auths, gender == "F")$prod) - 100, 2)`% more papers per author) does not directly translate to the nearly 9:1 ratio of male-to-female authorship.
 In fact, if we ignore repeated publications altogether and look simply at the ratio of unique women among all unique authors, we still observe a ratio of
 `r tmp <- gen_auths %>% group_by(gender) %>% summarize(.groups = "keep", names = n_distinct(name)); pct(filter(tmp, gender=="F")$names, sum(tmp$names))`%
 women overall.
 While this ratio represents a slight improvement over the non-unique FAR, it is still far from parity, suggesting that higher productivity alone cannot fully explain the gender gap.
 
-
-Some subfields show no apparent relationship between the FAR and productivity, like storage and machine learning, which have very similar FARs but very dissimilar productivity gaps.
-Other subfields exhibit a stronger opposite relationship, like HCI and compilers, with similar productivity metrics but very dissimilar FARs.
 
 ```{r subfield-aggregation, echo = F, cache = T}
 rounding = 3
@@ -931,6 +936,7 @@ df <- data.frame(
     "Mean productivity" = round(subfield_summary$avg_prod, rounding),
     "Fractional productivity" = round(subfield_summary$avg_frac, rounding),
     "Mean coauthors" = round(subfield_summary$avg_coauthors, rounding),
+    "Single-author ratio" = round(subfield_summary$single_ratio, rounding),
     "Women's homophily" = round(subfield_summary$wprob, rounding),
     check.names = F
 ) %>%
@@ -959,10 +965,12 @@ df <- bind_rows(
     "FAR" = c(round(sum(gen_auths$gender == "F") / nrow(gen_auths), rounding), 1.0),
     "Mean productivity" = c(round(mean(full_auths$prod), rounding),
                             round(cor(subfield_summary$FAR, subfield_summary$avg_prod), rounding)),
-    "Fractional productivity" = c(round(mean(full_auths$avg_frac), rounding),
+    "Fractional productivity" = c(round(mean(full_auths$fractional_prod), rounding),
                                   round(cor(subfield_summary$FAR, subfield_summary$avg_frac), rounding)),
     "Mean coauthors" = c(round(mean(full_auths$coauthors + 1), rounding),
                          round(cor(subfield_summary$FAR, subfield_summary$avg_coauthors), rounding)),
+    "Single-author ratio" =c(round(mean(subfield_summary$single_ratio), rounding),
+                            round(cor(subfield_summary$FAR, subfield_summary$single_ratio), rounding)),
     "Women's homophily" = c(round(mean(subfield_summary$wprob), rounding),
                             round(cor(subfield_summary$FAR, subfield_summary$wprob), rounding))
   )
@@ -971,49 +979,70 @@ df <- bind_rows(
 df %>%
   knitr::kable(format = "latex",
                booktabs = T,
-               align = "lrrrrr",
+               align = "lrrrrrr",
                linesep = c(rep("", nrow(df) - 3), "\\addlinespace"),
-               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), fractional paper total, mean total coauthors (with repeats), the ratio between a woman's probability to coauthor with a woman and FAR.") %>%
+               caption = "Comparison of subfields by different gender metrics, ordered by FAR. Metrics include mean productivity (papers per author), fractional paper total, mean total coauthors (with repeats), ratio of papers written by a single author, and the ratio between a woman's probability to coauthor with a woman and FAR.") %>%
   column_spec(1, width = "2.0cm") %>%
-  column_spec(2:6, width = "1.4cm") %>%
+  column_spec(3:7, width = "1.5cm") %>%
   kable_styling(font_size = 7)
 ```
 
-A hypothetical relationship between FAR and the typical collaboration size in a subfield (RQ4) can also be easily refuted with counter examples.
+We can extend this analysis of correlation with FAR to three other research questions we asked.
+
+A hypothetical relationship between FAR and the typical collaboration size in a subfield can also be easily refuted with counter examples.
 Consider the subfields of Algorithms and Architecture.
 Although their FAR values are nearly identical, they are on extreme ends of the average team sizes.
 The overall correlation between the two metrics is indeed negative, but too close to zero for significance.
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$avg_coauthors))`).
 
+From the related perspective of single-author papers, a similar hypothesis would be that subfields with more single-author papers would have lower FAR, because single-author papers have an even lower FAR than the overall sample population.
+But the small number of single-author papers and their minuscule weight in computing FAR present a statistical obstacle to testing this hypothesis.
+As a matter of fact, our data shows a positive but nonsignificant correlation between the two
+(`r report_test(cor.test(subfield_summary$FAR, subfield_summary$single_ratio))`), so we must reject this hypothesis.
 
-
-Last on our list of comparisons is gender homophily (RQ6).
-The method we previously used to measure homophily, deviation from the expectation (FAR) produces two measures per field, one for men and one for women.
-We will focus on the latter, because the deviation from FAR for men is nearly negligible, because of the high number of men in the data.
-We instead look at "women's homophily", defined as the ratio between a subfield's probability for a woman in to coauthor with a woman and its FAR, but still find that is completely uncorrelated with FAR
+Our last metric for comparison is gender homophily.
+The method we previously used to measure homophily, deviation from the expectation (FAR), produces two measures per field, one for men and one for women.
+We focus on the latter because the deviation from FAR for men is nearly negligible, owing to the high ratio of men in the data.
+We therefore look at "women's homophily", defined as the ratio between a subfield's probability for a woman in to coauthor with a woman and its FAR.
+This variable too appears uncorrelated with FAR
 (`r report_test(cor.test(subfield_summary$FAR, subfield_summary$whomo))`).
 This finding is explained by the low statistical probability of a woman (or anyone) to collaborate with a woman.
 
-This high skew also means we cannot use standardized metrics for homophily such as Krackhardt's E-I Index, defined simply as
+This high skew towards men also means we cannot use standardized metrics for homophily such as Krackhardt and Stern's E-I Index [@krackhardt88:informal], defined simply as
 $EI=\frac{External - Internal}{External + Internal}$
 (where $Internal$ represents all the same-gender pairings in our dataset and $External$ all other pairings).
 In our data, this metric is strongly correlated with a subfield's FAR
 (`r tmp <- pairs_with_field %>% group_by(subfield) %>% summarize(ei_index = first(ei_index)) %>% right_join(subfield_summary); report_test(cor.test(tmp$FAR, tmp$ei_index))`),
 to the point of adding no valuable information.
 This finding also makes sense: if there are very few women in a field, most coauthor pairings will be internal male-male, all other things being equal.
-
-The upshot of these observations is that homophily measures appear to be much more the result of a skewed FAR than its cause.
+The upshot here is that homophily measures appear to be much more the result of a skewed FAR than its cause.
 In other words, gender homophily appears to have little role in explaining variations in FAR, at least when it deviates significantly from 50% as it does in our dataset.
 
 
- * Theoretical CS is an extreme point by almost all metrics, and matches what [@mihaljevic16:effect] found for math.
+In summary, none of the collaboration metrics we collected in the various research questions can produce a satisfactory explanation for FAR in a given subfield.
+For productivity (RQ2, RQ3), the correlation we found can only explain a small fraction of the large gender gap.
+For team sizes (RQ4, RQ5, RQ6) we found no correlation with FAR.
+And for gender homophily (RQ7), the strong correlation suggests, if anything, an opposite-direction causal relationship, i.e., low FAR causing high homophily, and not the other way around.
 
- * Linear regression / decision tree model predicting subfield FAR from the others. Possibly mixed-effects with field.
 
-Although none of these metrics in isolation is strongly associated with subfield's FAR, it is possible that in combination they can explain a significant part of the variance in the representation of women.
-To test this hypothesis, we built a linear regression model using FAR as our response variable and all other metrics as predictors.
-<!-- To account for the fact that some characteristics of an entire field are not captured by our choice of metrics, such as their experimental nature (RQ6), we also include the field as a random effect in the model.-->
- 
+Despite these negative results, we can still draw some interesting general observations on specific CS fields.
+One such example is theoretical computer science, which shows values on one extreme or another in many of the metrics we collected.
+Not only does it exhibit the lowest FAR, but also the lowest average team size, highest single-author ratio, and the highest fractional productivity.
+In these metrics it matches the observations of Mihaljevic for mathematicians, which is not surprising, given the thematic similarity of the two fields [@mihaljevic16:effect].
+Theoretical CS is an extreme point by almost all metrics, and matches what  found for math.
+
+Another example is the field of systems, which also generally exhibits very low FAR.
+Systems is a large and influential field, with many industrial and technological applications [@frachtenberg20:survey].
+It is therefore particularly of interest to try to expplain and reduce the large gender gap, as this could have far-reaching societal impact [@nielsen17:opinion].
+As discussed in RQ6, one possible explanation for the large gender gap is the high cost in participation in experimental fields such as systems, which has been associated with lower inclusivity [@duch12:possible].
+It is also possible that the combination larger team sizes, fewer single-author papers, and stronger gender homophily makes systems a particularly unwelcoming field because of self-reinforcing network effects [@araujo17:specific].
+Teams are large but mostly-male, which discourage women seeking female collaborators from participating, which in turns worsens the problem for the next woman.
+
+It has also been suggested that women are more likely to work in human-centered fields [@diekman13:navigating; @fisher02:unlocking; @sax19:disciplinary].
+We can certainly observe corroboration for this hypothesis in our data, with CS education and HCI as the top two fields in FAR, followed by WWW and multimedia, which also put the himan in the center of the research.
+Our FAR figure for CS education is in fact is remarkably similar to the one found by West et al. for the field of education as a whole [@west13:role].
+
+
 <!-------------------------------------------------------------------------------->
 <!-------------------------------------------------------------------------------->
 

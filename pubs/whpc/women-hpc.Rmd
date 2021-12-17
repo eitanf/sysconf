@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 ```{r code=readLines("../load_data.R"), echo=F, message=F}
 ```
 
@@ -209,7 +214,7 @@ None of our observations were subsequently changed in either direction or statis
 
 We analyze the conferences in our set through the lens of the ratio of women in different roles (Fig. \@ref(fig:female-ratios)). In this section, we first look at the ratio of women across all conferences and papers in our set, and then focus on the flagship HPC conferences only.
 
-```{r female-ratios, fig.fullwidth=T, echo=F, cache=T, message=F, out.width='0.5\\textwidth', fig.height=11, fig.cap="Representation of women across conference roles."}
+```{r female-ratios, fig.fullwidth=T, echo=F, cache=T, warning = F, message=F, out.width='0.5\\textwidth', fig.height=11, fig.cap="Representation of women across conference roles."}
 hpc_people %>%
   drop_na(gender) %>%
   mutate(role = recode(role, "PC chair" = "PC and area chair")) %>%
@@ -223,7 +228,7 @@ hpc_people %>%
     facet_wrap(. ~ role, ncol = 1) +
     theme_minimal() +
     theme(axis.text = element_text(size = 7)) +
-    guides(fill = F)
+    guides(fill = "none")
 ```
 
 ## Authors

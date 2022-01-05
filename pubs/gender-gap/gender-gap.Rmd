@@ -217,7 +217,7 @@ json_to_df <- function(conf_name, gender_mapping) {
 
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
 nonsys_confs <-
-  c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM", "ITICSE", "FOCS", "TACAS")
+  c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "ITICSE", "FOCS", "TACAS")
 
 nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders))
@@ -235,13 +235,13 @@ CS is an expansive and diverse discipline with different characteristics in each
 Treating CS as one homogeneous area risks missing some of the gender disparity phenomena that show up more acutely in specific fields.
 In this paper, we focus on one such field, computer systems (or "systems" for short).
 Systems is a large research field with numerous applications, used by some of the largest technology companies in the world.
-For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.
+For this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.
 
 This field stands out from other areas of CS in that it emphasizes scientific exploration through system implementation and combines engineering, experimentation, simulation, and mathematical rigor.
 The United States (US) currently dominates the field, both in terms of affiliated researchers and of hosted conferences, so we take particular interest in the gender gap in the US.
 
 <!-- There exists sporadic evidence of an acute gender gap in specific subareas of systems [@destefano18:micro; @jerger17:gender; @mattauch20:bibliometric], but we were unable to find a systematic examination of the entire field. -->
-To measure this gap accurately, we manually curated gender data from a large and representative cross section of the field.
+To measure this gap accurately, we manually curated gender data from a large and representative cross-section of the field.
 We estimate the rate of women's participation in systems research by using the proxy metric of female author ratio (FAR) in a set of peer-reviewed systems conferences.
 This approach has been previously tested in numerous researcher populations, typically using automated gender inference from given names [@elsevier17:gender; @lariviere13:bibliometrics; @mattauch20:bibliometric; @west19:discriminating].
 Because our methodology relies primarily on manually curated data, it has better coverage and accuracy than that of studies based on automated gender-inference approaches.
@@ -250,17 +250,17 @@ In addition to computing gender ratios, we also collected and analyzed conferenc
 Our dataset includes `r nrow(sys_confs)` systems conferences, totaling `r fmt(sum(sys_confs$npapers))` papers and `r fmt(nrow(persons))` unique researchers across different conference roles, as detailed in the next section.
 
 
-This expansive dataset allows us to explore a number of research questions.
+This expansive dataset allows us to explore several research questions.
 The most important of these is the accurate quantification of the ratio of women in systems, which to the best of our knowledge, had never been computed for the entire field.
 To understand the extent of the gender gap in the field, and to benchmark our future progress in addressing it, it is vital that we start with a baseline measurement.
 
 A related important question is, how does the representation of women in systems compare to other fields on CS?
-In order to understand whether the representation of women in systems is different than in other CS fields, and if so, why, we must compare gender statistics across fields.
+To understand whether the representation of women in systems is different than in other CS fields and if so, why, we must compare gender statistics across fields.
 We review the limited literature on the topic, as well as data we collected ourselves from other conferences, to provide additional evidence and hypotheses of the differences across fields.
 
 The third and broadest subject we consider is the relationship between this ratio and various potential explanatory variables, including geography, researcher experience, and policies explicitly designed to improve diversity in CS conferences.
 Understanding the factors associated with the gender gap may offer clues to its causes and non-causes, eventually establishing a path towards addressing it.
-To this end, we compare gender statistics across multiple explanatory variables we collected, and use these variables to build a multivariate mixed-effects model of women's underrepresentation in systems.
+To this end, we compare gender statistics across multiple explanatory variables we collected and use these variables to build a multivariate mixed-effects model of women's underrepresentation in systems.
 
 <!----------------------------------------------------------------------------------------------------->
 <!----------------------------------------------------------------------------------------------------->
@@ -291,7 +291,7 @@ tmp %>%
 To answer these research questions, we sought data on participants in a large cross-section of the entire research field of computer systems, as well as some non-systems CS conferences for comparison.
 The primary dataset we analyze comes from a hand-curated collection of `r nrow(sys_confs)` peer-reviewed systems conferences from a single publication year (2017).
 
-In CS, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
+In CS, and especially in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
 The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast, shown in Table \@ref(tab:sys-confs).
 To reduce time-related variance, we chose to focus on a large cross-sectional set of conferences from a single publication year.
 
@@ -329,7 +329,7 @@ and session chairs
 who have no direct influence on the population of authors, but represent the "face" of the conference to attendees. The visibility of women for such role models may have an indirect impact or appeal for women practitioners [@destefano18:micro; @davenport14:studying].
 
 For this study, the most critical piece of information on these researchers is their \emph{perceived gender}.
-Gender is a complex, multifaceted identity, but most bibliometric studies still rely on binary genders---either collected by the journal, or inferred from first name---because that is the only designator available to them [@bhagat18:data; @cohoon11:cspapers; @holman18:gender; @national20:science; @wang21:trends; @way16:gender; @zweben18:taulbee].
+Gender is a complex, multifaceted identity, but most bibliometric studies still rely on binary genders---either collected by the journal or inferred from forename---because that is the only designator available to them [@bhagat18:data; @cohoon11:cspapers; @holman18:gender; @national20:science; @wang21:trends; @way16:gender; @zweben18:taulbee].
 In the absence of self-identified gender information for our authors, we also necessarily compromised on using binary gender designations.
 We therefore use the gender terms "women" and "men" interchangeably with the sex terms "female" and "male".
 The conferences in our dataset did not collect or share specific gender information, so we had to collect this information from other public sources.
@@ -359,8 +359,8 @@ Note that we found no GS profile for about a third of the researchers
 and these researchers appear to be less experienced than researchers with a GS profile.
 We therefore collected another proxy metric for author experience (total number of past publications) from another source, the Semantic Scholar database.
 
-We also looked up each author's affiliation institute on GS to find their country of residence and work sector whenever they could be clearly inferred using hand-coded regular expressions.
-Many authors also included their email address in the full text of the paper, from which we inferred more timely affiliation and country information when available.
+We also looked up each author's affiliation institute on GS to find their country of residence and work sector whenever they could be unambiguously inferred using hand-coded regular expressions.
+Many authors also included an email address in the full text of the paper, from which we inferred more timely affiliation and country information when available.
 
 From authors' affiliations, we broadly categorized their work sector as either "COM" for industry
 (`r pct(nrow(filter(demographics, sector == "COM")), nrow(filter(demographics, !is.na(sector))), 1)`% of all unique authors and PC members),
@@ -373,9 +373,9 @@ or "GOV" for government and national labs
 In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
 We collected data about review policies, important dates, the composition of its technical PC, and the number of submitted papers, among others.
 We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, age, and total publications, and downloaded all `r fmt(nrow(sys_papers))` papers.
-Finally, from each conference's web site and proceedings we collected information on any explicit policies the conference made to increase attendance diversity (Table \@ref(tab:diversity-policy)), so that we could measure their effects, if any, on the gender gap.
+Finally, from each conference's website and proceedings we collected information on any explicit policies the conference made to increase attendance diversity (Table \@ref(tab:diversity-policy)), so that we could measure their effects, if any, on the gender gap.
 
-The focus group of this study is computer systems researchers, but to provide a more accurate picture of where this field stands in comparison to other in CS, we needed to collect additional information on non-systems conferences.
+The focus group of this study is computer systems researchers, but to provide a more accurate picture of where this field stands in comparison to others in CS, we needed to collect additional information on non-systems conferences.
 We selected `r nrow(nonsys_confs)` conferences in other CS fields from the same year, primarily based on their ranking on Google Scholar metrics as leaders in their respective fields (Table \@ref(tab:nonsys-confs)).
 
 ```{r nonsys-confs, echo=F, message=F, warning=F, cache=T}
@@ -414,15 +414,14 @@ The overall gender statistics for these conferences are shown in Table \@ref(tab
 
 ## Statistics {-}
 
-For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and correlations between two numerical variables were evaluated with Pearson's product moment correlation coefficient.
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and correlations between two numerical variables were evaluated with Pearson's product-moment correlation coefficient.
 All statistical tests are reported with their p-values.
 Mixed-effects logistic regression models were assessed with Satterthwaite's degrees of freedom method for hypothesis testing on model coefficients.
 
 ## Code and data availability {-}
 
-The complete dataset and source code necessary to reproduce this analysis can be found in the supplementary materials, as well as at [https://github.com/eitanf/sysconf](https://github.com/eitanf/sysconf).
-The specific analyses of this article are in the file `pubs/gender-gap/gender-gap.Rmd`.
-<!--A Docker image with the complete software and data environment to reproduce these results is available at [https://hub.docker.com/repository/docker/eitanf/sysconf](https://hub.docker.com/repository/docker/eitanf/sysconf), using the `gender-gap` tag.-->
+The complete dataset and source code necessary to reproduce this analysis is openly available [@frachtenberg21:github-repo].
+A Docker image with the complete software and data environment to reproduce these results is available at [https://hub.docker.com/repository/docker/eitanf/sysconf](https://hub.docker.com/repository/docker/eitanf/sysconf), using the `gender-gap` tag.
 
 
 ## Ethics statement {-}
@@ -495,7 +494,7 @@ The ratio of female PC members (FPR) is significantly higher than the ratio of f
 [`r filter(role_genders, Role=="PC member")$Women` vs. `r filter(role_genders, Role=="Author")$Women`, `r tst <- chisq.test(gender_table); paste0("$\\chi{}^2=", round(tst$statistic, 3), "$, degrees of freedom (df) $=1$, $p<10^{-6}$")`].
 The large difference in ratios raises the question: which of the two is more representative of women's true participation rate in systems research?
 
-We chose the typical bibliometric approach to estimating participation by gender, namely to look at published authors, or FAR [@cohoon11:cspapers; @mattauch20:bibliometric].
+We chose the typical bibliometric approach to estimate participation by gender, namely to look at published authors, or FAR [@cohoon11:cspapers; @mattauch20:bibliometric].
 This metric is not always accurate: it ignores researchers with limited access to publishing, and potentially undercounts female scientists because they tend to publish less than men in many fields [@elsevier20:journey; @ghiasi15:compliance; @lariviere13:bibliometrics; @morgan21:unequal; @symonds06:gender], possibly owing to a higher service load [@guarino17:faculty; @misra12:gender; @omeara17:asked].
 Confirming this past finding, women published only
 `r faa <- filter(sys_authors, gender == "F")$as_author; round(mean(faa, na.rm = T), 2)`
@@ -516,9 +515,9 @@ or when it was prominent in the first author position
 An author survey also found that the reviews women received in the single-blind conferences in our dataset showed similar or higher grades than men's [@frachtenberg20:survey].
 
 Contrariwise, our data suggests that it is the selection-by-invitation process that exhibits gender bias.
-Unlike women's underrepresentation in the editorial boards of many journals [@amrein11:editorial; @lerback17:journals; @mauleon13:assessing; @topaz16:gender], in our dataset women PC roles outnumber women author roles by some 75%.
+Unlike women's underrepresentation in the editorial boards of many journals [@amrein11:editorial; @lerback17:journals; @mauleon13:assessing; @topaz16:gender], in our dataset, women PC roles outnumber women author roles by some 75%.
 We hypothesize that this difference stems from an affirmative effort by conference chairs to bring gender closer to parity.
-This hypothesis, and our consequent reliance of FAR instead of FPR, is supported by three observations.
+This hypothesis, and our consequent reliance on FAR instead of FPR, are supported by three observations.
 
 
 First, if chairs are indeed oversampling women for PC roles, we would expect to see differences in experience statistics across genders.
@@ -527,7 +526,7 @@ Our data corroborates this prediction (Fig. \@ref(fig:bibliometrics)).
 For example, the mean (median) h-index of women PC members,
 `r round(mean(filter(demographics, role == "pc", gender == "F")$hindex, na.rm = T), 2)`,
 (`r round(median(filter(demographics, role == "pc", gender == "F")$hindex, na.rm = T), 2)`),
-is significantly lower than mens'
+is significantly lower than men's
 `r round(mean(filter(demographics, role == "pc", gender == "M")$hindex, na.rm = T), 2)`
 (`r round(median(filter(demographics, role == "pc", gender == "M")$hindex, na.rm = T), 2)`);
 `r report_test(gendiff("pc", "h-index"), show_df = T)`;
@@ -569,7 +568,7 @@ mean PC assignments (member and chair) per woman, compared to
 `r mpc <- filter(sys_pcs, gender == "M") %>% summarize(mean(as_pc + as_pc_chair)); round(mpc, 2)`
 per man
 (`r report_test(t.test(filter(sys_pcs, gender == "F")$tot_pc, filter(sys_pcs, gender == "M")$tot_pc), show_df = T)`).
-Conceivably, the additional time committed to PC service explains some of the reduced publication rate we observed among women.
+Conceivably, the additional time committed to PC service explains some of the reduced publication rates we observed among women.
 However, authors who serve as PC members also tend to publish more papers
 (Pearson's `r report_test(cor.test(sys_authors$as_pc, sys_authors$as_author))`), suggesting that a relative overrepresentation of women in PCs is not commensurate with underrepresentation among authors.
 
@@ -626,9 +625,9 @@ The ratio of women among authors represents only a fraction of the ratio in the 
 This gap surfaces the question of whether it stems from differences across CS fields or from differences in measurement.
 
 To answer this question, we collected more gender data on non-systems conferences from the same year.
-Although our comparison data is necessarily constrained by the scalability of our manual collection approach, it still includes `r fmt(nrow(nonsys_authors))` non-unique authors from `r fmt(length(nonsys_confs))` of the top-cited non-systems CS conferences, based on GS metrics.
+Although our comparison data is necessarily constrained by the scalability of our manual collection approach, it still includes `r fmt(nrow(nonsys_authors))` nonunique authors from `r fmt(length(nonsys_confs))` of the top-cited non-systems CS conferences, based on GS metrics.
 Despite the breadth limitations of this additional dataset (not all conferences in all fields are represented), it should be directly comparable to the systems dataset, and large enough to produce statistically significant results.
-The data is also limited in depth, including only one year, but there is evidence that the underrepresentation of women in systems  did not vary much across a five-year period including 2017, at least for the subfield of high-performance computing [@frachtenberg21:whpc].
+The data is also limited in depth, including only one year, but there is evidence that the underrepresentation of women in systems did not vary much across a five-year period including 2017, at least for the subfield of high-performance computing [@frachtenberg21:whpc].
 
 The results across fields are mixed, as expected (Table \@ref(tab:nonsys-confs)).
 The fields of CS education and human-computer interaction exhibit the highest FARs, with the SIGCSE'17 conference approaching gender parity
@@ -642,7 +641,7 @@ The remaining three broad fields we evaluated show moderately higher FAR values 
 The overall FAR in the non-systems conferences we sampled was
 `r pct(nrow(filter(nonsys_authors, gender == "F")), nrow(filter(nonsys_authors, !is.na(gender))), 2)`%,
 which is significantly higher than the systems-only FAR
-(`r f_sys <- sum(authors$gender == "F", na.rm = T); all_sys <- sum(!is.na(authors$gender)); f_nonsys <- sum(nonsys_authors$gender == "F", na.rm = T); all_nonsys <- sum(!is.na(nonsys_authors$gender)); report_test(chisq.test(data.frame(sys = c(f_sys, all_sys), nonsys = c(f_nonsys, all_nonsys))))`)
+(`r ppl <- filter(roles, role == "author") %>% left_join(persons) %>% drop_na(gender); f_sys <- nrow(filter(ppl, gender == "F")); all_sys <- nrow(ppl); f_nonsys <- sum(nonsys_authors$gender == "F", na.rm = T); all_nonsys <- sum(!is.na(nonsys_authors$gender)); report_test(chisq.test(data.frame(sys = c(f_sys, all_sys), nonsys = c(f_nonsys, all_nonsys))))`)
 The ratio of women in CS across *all* systems- and non-systems authors in our dataset is
 `r pct(f_sys + f_nonsys, all_sys + all_nonsys, 2)`%.
 This ratio is lower than most estimates for women in CS in previous studies, and we look at some possible explanations for this difference in the related work section.
@@ -667,7 +666,7 @@ We then explore the association (or lack thereof) between a conference's FAR and
 
 ### Conference size {-}
 
-Averaging the ratio of women by conferences, as opposed to by authors or papers (both computed in Table \@ref(tab:pct-by-role)), could produce different results, because smaller conferences receive the same weight as conferences with many more authors and papers.
+Averaging the ratio of women by conferences, as opposed to by authors or papers (both computed in Table \@ref(tab:pct-by-role)), could produce different results because smaller conferences receive the same weight as conferences with many more authors and papers.
 This choice does not appear to affect the gender gap in our dataset, as all three means are within 0.53% of each other, with the conference mean at the center of the other two.
 As shown in Fig. \@ref(fig:women-rep-author-vs-PC), the ratio of women among authors appears to be independent of the size of the conference (papers published), as well as its double-blind review policy, and its ratio of female PC members.
 Statistically, there appears to be no correlation between a conference's size and its FAR
@@ -690,7 +689,6 @@ Women are again far from parity in the composition of most PCs in our dataset, b
 Nevertheless, we found no correlation between higher FPR and higher FAR values
 (`r report_test(cor.test(conf_gender$PC, conf_gender$author))`).
 We also looked at other visible conference roles: keynote speakers, session chairs, and panelists.
-These roles offer additional indication of the field's diversity, and may play a part in the diversity of conference attendees [@destefano18:micro; @davenport14:studying; @ford18:gender; @le20:ISCB].
 However, the correlations between FAR and these roles reveal no such relationships here
 (`r report_test(cor.test(conf_gender$keynote, conf_gender$author))`; `r report_test(cor.test(conf_gender$session, conf_gender$author))`; and `r report_test(cor.test(conf_gender$panel, conf_gender$author))`, respectively).
 
@@ -796,7 +794,7 @@ model <- glm(data = all_features, family = "binomial", gender ~ is_org_ACM + is_
 summary(model)
 ```
 
-The largest correlation we did observe, between FAR and ratio of authors from the PC, is still nonsignificant and small.
+The largest correlation we did observe, between FAR and the ratio of authors from the PC, is still nonsignificant and small.
 This correlation is unlikely to reveal a causal relationship, i.e., that inviting more women to the PC necessarily leads to increased FAR.
 As we have seen, there is no real correlation between the two, but since conferences generally exhibit higher FPR than FAR, it makes sense that conferences with higher PC participation in the authorship would also exhibit higher relative FAR.
 
@@ -853,7 +851,7 @@ As a proxy metric for research experience, we collected the h-index of each rese
 (`r fmt(nrow(filter(hindex, role == "author")))` unique authors and
 `r fmt(nrow(filter(hindex, role == "pc")))` unique PC members).
 As Fig. \@ref(fig:bibliometrics) shows, female PC members exhibit a significantly lower mean and median h-index than males, but for authors, the differences across gender are not so large.
-Comparing authors' total past publication count as another proxy metric for experience also reveals nonsignificant difference in means, medians, 1^st^, and 3^rd^ quartiles.
+Comparing authors' total past publication count as another proxy metric for experience also reveals nonsignificant differences in means, medians, 1^st^, and 3^rd^ quartiles.
 The only significant gender difference shown in Fig. \@ref(fig:bibliometrics) for authors is in the tail of the distribution, with men composing the majority of the top percentile
 (`r top1 <- filter(demographics, role == "author", !is.na(hindex)) %>% slice_max(prop = 0.01, order_by = hindex); pct(sum(top1$gender == "M"), nrow(top1), 2)`%).
 
@@ -895,7 +893,7 @@ is higher than their FAR by some
 but for industry and government, FPR values are higher than FAR values by
 `r round(100 * pct(nrow(filter(dp, sector == "COM", gender == "F")), sum(dp$sector == "COM")) / pct(nrow(filter(da, sector == "COM", gender == "F")), sum(da$sector == "COM")) - 100, 0)`% and
 `r round(100 * pct(nrow(filter(dp, sector == "GOV", gender == "F")), sum(dp$sector == "GOV")) / pct(nrow(filter(da, sector == "GOV", gender == "F")), sum(da$sector == "GOV")) - 100, 0)`%, respectively.
-It is possible that conference chairs may be more intentional about balancing gender diversity in the two sectors that already show low representation.
+Conceivably, conference chairs may be more intentional about balancing gender diversity in the two sectors that already show low representation.
 But it is unclear whether this actually hurts women's retention in the field, since the evaluation of job performance in industry may be less favorable for academic service tasks, so overburdening industry women without proper recognition could be hurting their future representation further.
 
 ### Geographical factors {-}
@@ -957,7 +955,7 @@ US-based authors also exhibit higher FAR compared to the rest of the world
 About half of the total US-based CS researchers (and in our data) are likely foreign-born [@frachtenberg20:survey; @national20:science], but this distinction does not appear to explain differences in the gender gap [@frachtenberg20:survey; @goyette99:intersection; @hango13:gender; @tong10:place].
 
 One hypothesis for the higher FAR in the US is that as the host of most systems conferences, the US might be more appealing to researchers who prefer domestic travel, such as parents of young children.
-In conferences in all countries except South Korea and Italy, we found significantly higher representation of local-affiliated authors.
+In conferences in all countries except South Korea and Italy, we found a significantly higher representation of local-affiliated authors.
 <!-- `r a_with_c<-repeat_authors %>% drop_na(country) %>% left_join(sys_confs, by = c("conf" = "key")); code_ <- "JP"; pct(nrow(filter(a_with_c, country.x == code_)), nrow(a_with_c)); pct(nrow(filter(a_with_c, country.x == code_, country.y == code_)), nrow(filter(a_with_c, country.y == code_)))` -->
 However, we found no evidence of a gender difference in this preference---not in the US, where there are actually fewer women in US-hosted conferences---and not more generally, where the correlation between a country's FAR by affiliation and by hosted conference is nonexistent
 (`r report_test(cor.test(parse_number(cntry$a_by_conf), parse_number(cntry$a_by_affil)))`).
@@ -979,7 +977,7 @@ in the rest of the world
 Again, the fact that the US attracts many foreign scientists does not appear to explain the higher FPR in the US, since most of the foreign-born authors appear to be students [@frachtenberg20:survey], who are less likely to serve on PCs.
 With few exceptions, most countries exhibit significantly higher FPR than FAR, as in the overall statistics.
 Moreover, except for the US and Spain, all countries exhibit an even higher FPR for hosted conferences, unlike FAR.
-It is also worth noting that for researchers with unknown country affiliation, both FAR and FPR are very similar to the overall statistics, which suggests that any selection bias based on availability of country and gender information is limited.
+It is also worth noting that for researchers with unknown country affiliation, both FAR and FPR are very similar to the overall statistics, which suggests that any selection bias based on the availability of country and gender information is limited.
 
 <!----------------------------------------------------------------------------------------------------->
 
@@ -1006,8 +1004,8 @@ modelLMER <- glmer(data = scaled_af, family = "binomial", gender ~ is_org_ACM + 
 ```
 
 
-To round up our exploratory data analysis analysis, we computed a logistic-regression mixed-effects model to surface the factors most strongly associated with gender.
-The model combines the 27 conference-related factors and 3 author factors (work sector, h-index, and number of papers in this set) as predictor variables.
+To round up our exploratory data analysis, we computed a logistic-regression mixed-effects model to surface the factors most strongly associated with gender.
+The model combines the 27 conference-related factors and 3 author factors (work sector, h-index, and the number of papers in this set) as predictor variables.
 Each data point comprises one author and accepted paper pair, with the author's gender as the outcome variable.
 All of the predictors were treated as fixed effects, and each numeric predictor was scaled to the range 0--1.
 Because many of these factors may be correlated or confounded by conference, the model also included the conference name for each paper as a random effect.
@@ -1024,7 +1022,7 @@ In other words, since most of the prolific outliers were men, they produced an o
 
 The ratio of papers with a PC member author in a conference is also linked with a higher likelihood of an author being female
 ($p=`r round(coef(summary(modelLMER))["pc_paper_ratio",][4], 2)`$).
-Since conference FPR values are higher that FAR values, it follows that more papers from the PC would be associated with more female authors.
+Since conference FPR values are higher than FAR values, it follows that more papers from the PC would be associated with more female authors.
 The only other factor with $p<.05$ is for conferences organized by USENIX, where men published at a slightly higher rate than other conferences, but this correlation is not likely to be causal.
 
 <!----------------------------------------------------------------------------------------------------->
@@ -1036,10 +1034,10 @@ The only other factor with $p<.05$ is for conferences organized by USENIX, where
 A number of prior studies have analyzed the representation of women in various academic fields, including CS.
 Fewer studies have looked at specific fields of CS, and in particular, the large and influential field of computer systems.
 Here, we review recent studies and compare their data sources, metrics, methodologies, and findings to our own.
-We also briefly discuss some possible explanations of this gender gap that have been proposed in the literature for CS and as a whole, and frame them in the context of computer systems.
+We also briefly discuss some possible explanations of this gender gap that have been proposed in the literature for CS and as a whole, framing them in the context of computer systems.
 
 One of the most expansive studies of gender representation in CS authorship was recently published by Wang et al. [@wang21:trends].
-It examined Semantic Scholar authorship data from the 1940s to 2019, and looked at 151M publications, including 11.8M in CS alone.
+It examined Semantic Scholar authorship data from the 1940s to 2019 and looked at 151M publications, including 11.8M in CS alone.
 This study used the Gender API tool to infer genders from given names, omitting any rare or initialed names.
 Instead of assigning binary genders, however, the authors derived a gender probability distribution for each name from the accuracy estimates returned by Gender API.
 In the 2017 timeframe, FAR in overall CS was around 25%, significantly higher than FAR for systems alone.
@@ -1056,17 +1054,17 @@ For all but one of these conferences (VEE), the estimated FAR values were within
 
 Another study exploring some of our conferences, but earlier in time (1966--2009), was conducted by Cohoon et al. [@cohoon11:cspapers].
 Generally, the FAR values they computed, even for the same conferences, tend to be higher than those we computed, with an overall CS number of $\approx{25\%}$ by 2007.
-The discrepancy could be partially explained by the different time periods under observation, although we doubt that a decade would lead to significantly decreased representation of women, based on the trends exhibited in the other studies.
+The discrepancy could be partially explained by the different periods under observation, although we doubt that a decade would lead to significantly decreased representation of women, based on the trends exhibited in the other studies.
 We do note, however, that Cohoon's study used a very different gender-assignment methodology, which could explain most of the difference.
 For 70% of papers, it used the same name-inference technique as the previous two studies using genderizer.io.
 For the others, it used a statistical approach that assigned a gender of female to authors with ambiguous genders with a probability of 40%--45%.
 Based on our experience with inferred and looked-up genders for both systems and non-systems papers, we believe this probability tends to overestimate the actual ratio of women.
 
 In contrast, Way et al. used a hand-curated dataset in their study of tenure-track faculty [@way16:gender].
-Their analysis used a list of 5032 tenure-track faculty from 205 CS academic institutes in the US and Canada, and found only about 15% of CS faculty were women.
-Note, however, that the study was limited to North America and excluded students, which in our dataset comprised over one third of the authors [@frachtenberg20:survey].
+Their analysis used a list of 5032 tenure-track faculty from 205 CS academic institutes in the US and Canada and found only about 15% of CS faculty were women.
+Note, however, that the study was limited to North America and excluded students, which in our dataset comprised over one-third of the authors [@frachtenberg20:survey].
 
-A good source of data on students in our timeframe comes from the Taulbee report [@zweben18:taulbee], which found the ratio of women among fresh CS PhD awardees in 2017 to be about 18%.
+A good source of data on students in our timeframe comes from the Taulbee report [@zweben18:taulbee], which found the ratio of women among fresh CS Ph.D. awardees in 2017 to be about 18%.
 Notably, in the discipline of computer engineering---which is perhaps closer in research topics to computer systems---the ratio was only about 11%.
 
 Another complementary statistic also comes from the US-based National Science Board, which recently found women to represent just under 30% of the overall CS workforce [@national20:science].
@@ -1076,9 +1074,9 @@ Most of these sources point to a significantly worse gap in systems than the res
 From the FAR statistics alone it is not immediately clear why this should be the case, but we can look at some of the expansive literature on the gender gap for clues.
 Many causes for women's underrepresentation in science and technology have been posited, and we briefly describe a few of these next, in the specific context of our data for systems.
 
-One important factor that was associated with gender differences in publication rate and impact was the possible role of resource requirements [@head13:funding].
+One important factor that was associated with gender differences in publication rate and citations was the possible role of resource requirements [@head13:funding].
 Many of the subfields of computer systems, such as high-performance computing, do indeed require expensive experimental platforms, which may partially explain their gender gap [@frachtenberg21:whpc; @frantzana19:women].
-But high resource requirement cannot fully explain lower FAR metrics, as evident in the data on CS theory conferences we collected.
+But high resource requirements cannot fully explain lower FAR metrics, as evident in the data on CS theory conferences we collected.
 The lack of association between a country's FAR and its economic development also weakens this explanation for systems as a whole.
 High resource requirement has also been associated with a gender gap in productivity [@duch12:possible].
 Although we found no significant differences in productivity across genders for systems authors (as measured by h-index), the high resource requirements of some systems subfields could explain some of the larger gender gap we found in productivity for PC members, or in the long tail of the author distribution.
@@ -1092,19 +1090,19 @@ coauthors per paper, which is some 50% higher than the mean $\approx{3.0}$ autho
 We hypothesize that this difference stems from the large emphasis on systems implementation in this field, requiring larger team efforts.
 
 The difference in collaboration may also offer clues to the larger gender gap in computer systems.
-In past studies, women's collaborative research networks have been found to be smaller than mens [@fox06:engineering; @whittington09:networks].
+Some past studies found that women's collaborative research networks were smaller than men's [@fox06:engineering; @whittington09:networks].
 The overall lack of female peers and mentors in systems can make collaboration even harder for women [@abbate12:recoding], leading to fewer or smaller collaborations, which would consequently lower their research output in systems.
 
 Finally, we must take into account that different fields attract or retain women at different rates.
 For example, a number of studies posited that women are more likely to work in human-centered fields [@diekman13:navigating; @fisher02:unlocking; @sax19:disciplinary].
-The higher FAR we observed in human-computer interaction and CS education appear to confirm this observation for CS fields.
+The higher FARs we observed in human-computer interaction and CS education appear to confirm this observation for CS fields.
 Systems in particular is perhaps most related to the field of electrical engineering.
 This field has also historically fared poorly in terms of women's underrepresentation, and exhibits FAR values hovering on 10%, similar to the one we observed for systems [@fox06:engineering; @nelson03:national].
 
-Another factor in choice of fields is pay and prestige.
+Another factor in the choice of fields is pay and prestige.
 For example, it is well known that higher-paying occupations still average higher ratios of men, both because of employers' preferences for men in these occupations and their devaluation of women's work in other occupations [@england10:gender; @levanon09:occupational].
 The large economic impact of systems research on the technology sector---and subsequently its influence on workers' pay---could also explain some of the gender gap we observed.
-Even within well-paid occupations there are gender gaps that can be partially explained by the prestige and gendered social expectations of each subfield.
+Even within well-paid occupations, there are gender gaps that can be partially explained by the prestige and gendered social expectations of each subfield.
 For example, despite the increase in the number of female doctors overall, relatively few women still practice surgery, especially complex surgery [@chen21:underemployment].
 
 Women are also underrepresented in fields where success is believed to require brilliance [@meyer15:brilliance], such as pure mathematics, or in our dataset, theoretical computer science and algorithms.
@@ -1130,7 +1128,7 @@ The large gender gap is not associated with almost any of the explanatory factor
 Importantly, variations in female author ratio cannot be explained by multiple conference factors, including policies that are explicitly designed to improve diversity.
 These variations are also not fully explained by demographic differences such as research experience or work sector.
 The data show larger gender-gap variations by country of affiliation, but these appear unrelated to geographical region, economic development, or gender gap index.
-The lack of significant correlations or strongly predictive factors in the linear models suggests that the low representation of women in computer system is endemic to the field, rather than an effect of conference factors or author demographics.
+The lack of significant correlations or strongly predictive factors in the linear models suggests that the low representation of women in computer systems is endemic to the field, rather than an effect of conference factors or author demographics.
 
 
 Inviting more women to visible conference roles and implementing diversity-focused policies likely contributes to more inclusive conferences, but is insufficient on its own to add women authors to the field.
@@ -1142,7 +1140,7 @@ Identifying the specific, endemic causes for this larger gender gap remains an o
 
 ### Acknowledgments {-}
 
-We thank Betsy Bizot, Brooke Cowan, Natalie Enright Jerger, Kathryn McKinley, Heather Metcalf, Anna Ritz, Aspen Russel, Kelly Shaw and Jonathan Wells for their insightful comments on earlier drafts. We also thank Josh Reiss, Alex Richter, and Josh Yamamoto for their assistance with gender data gathering, and Reed College Social Justice Research and Education Fund for their support. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
+We thank Betsy Bizot, Brooke Cowan, Natalie Enright Jerger, Kathryn McKinley, Heather Metcalf, Anna Ritz, Aspen Russel, Kelly Shaw, and Jonathan Wells for their insightful comments on earlier drafts. We also thank Josh Reiss, Alex Richter, and Josh Yamamoto for their assistance with gender data gathering, and Reed College Social Justice Research and Education Fund for their support. The funders had no role in study design, data collection and analysis, decision to publish, or preparation of the manuscript.
 
 ### S1 Source code and data {-}
 

@@ -26,6 +26,13 @@ Some conferences from fields other than 'Systems' are mostly empty, collecting o
 * `past_citations` (int): How many total citations have papers in this series received, at approximately the postdate. This information was also copied from ACM digital library or IEEE Xplore, where available. Note, however, that because of differences in methods of citation counting, they are likely not directly comparable to each other or to Google Scholar's count.
 * `h5_index` (int): The "H-index" of the conference in the past 5 years, taken from Google Scholar Metrics, where available, at approximately the postdate.
 * `h5_median (int)`: The median number of citations for papers in the h5 set, taken from Google Scholar Metrics, where available, at approximately the postdate.
+ * `scopus_metrics` (dictionary): A collection of metrics from Scopus on this year's conference:
+    - `citations` (int): Total citations to date.
+    - `pct_cited` (number): The proprotion of the document that have been cited at least once.
+    - `citeScore` (number): Mean citations per document in this conference.
+    - `SNIP` (number): Source-normalized impact per paper--citations per paper relative to the exected citations in the field.
+    - `SJR` (number): SCImago journal rank--conference citations weighted by subject field and prestige.
+    - `percentile` (int): citeScore relative ranking in subject field.
  * `field` (categorical string): The top-level category of the conference's topic.
  * `subfield` categorical string): The top-ocurring topic of interest for this conference (selected from `topics.json` for systems conferences).
 * `diversity_effort` (bool): Did the conference website describe some effort to improve diversity (with details in the `notes` field).

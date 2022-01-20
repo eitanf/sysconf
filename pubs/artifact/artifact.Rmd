@@ -1,5 +1,5 @@
 ---
-title: Software artifacts and citations in computer systems papers
+title: Research artifacts and citations in computer systems papers
 preprint: false
 author:
   - name: Eitan Frachtenberg
@@ -9,7 +9,7 @@ affiliation:
     address: Department of Computer Science, Reed College
 bibliography: ../sysconf.bib
 abstract: >
-  Research in computer systems often involves the engineering, implementation, and measurement of complex systems software. The availability of these software artifacts is critical to the reproducibility and replicability of the research results because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Artifact availability has also been previously associated with higher paper impact, as measured by citations counts. And yet, the sharing of research artifacts is still not as common as warranted by its importance.
+  Research in computer systems often involves the engineering, implementation, and measurement of complex systems software and data. The availability of these artifacts is critical to the reproducibility and replicability of the research results because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Artifact availability has also been previously associated with higher paper impact, as measured by citations counts. And yet, the sharing of research artifacts is still not as common as warranted by its importance.
 
   
   The primary goal of this study is to provide an exploratory statistical analysis of the artifact-sharing rates and associated factors in the research field of computer systems. To this end, we explore a cross-sectional dataset of papers from 56 contemporaneous systems conferences. In addition to extensive data on the conferences, papers, and authors, this dataset includes data on the release, ongoing availability, badging, and locations of research artifacts. We combine this manually curated data with recent citation counts to evaluate the relationships between different artifact properties and citation metrics. Additionally, we revisit previous observations from other fields on the relationships between artifact properties and various other characteristics of papers, authors, and venue and apply them to this field.
@@ -151,7 +151,7 @@ The study of these topics often involves the implementation, modification, and m
 System software is software that is not on its own a user-facing application, but rather software that manages system resources or facilitates development for the actual applications, such as compilers, operating system components, databases, and middleware.
 System software can be fairly complex and tightly coupled to the system it is designed to run on.
 
-Software artifacts are therefore paramount to the evaluation and reproduction of systems research.
+Research artifacts, and especially software artifacts, are therefore paramount to the evaluation and reproduction of systems research.
 Whereas in other fields of science---or even CS---research results can often be replicated from the original equations or datasets, systems software can embody countless unstated assumptions in the code and parameters.
 The significance is that reproducing research findings by recreating its artifacts from the terse descriptions in a paper is often unfeasible, rendering software artifacts all that more important.
 
@@ -159,7 +159,7 @@ The first hypothesis of this paper is therefore that because of its importance t
 Citations are not only a widely used metric of impact for papers and researchers but also an indirect measure of the work's quality and usefulness, which presumably are both helped by the availability of artifacts.
 Citations may also stand in as proxy metrics for the transparency, reusability, reproducibility, and credibility of papers---if we assume that any of these qualities encourage subsequent researchers to cite the original work.
 The main observational goal of this paper is to evaluate the quantitative association between artifacts availability and citations in the research field of computer systems.
-An additional goal of this study is an exploratory data analysis of associated factors to identify relationships between the availability of software artifacts in systems research papers and other statistical properties of these papers.
+An additional goal of this study is an exploratory data analysis of associated factors to identify relationships between the availability of research artifacts in systems research papers and other statistical properties of these papers.
 
 ## Study design and main findings {-}
 
@@ -185,7 +185,7 @@ These questions, and a short answer to each, are listed here and are elaborated 
 7. Are there any textual properties of the paper that can predict artifact availability? (Papers that share artifacts tend to be longer and incorporate a computer system moniker in their titles.)
 
 As a final contribution, this study provides a rich dataset of papers [@frachtenberg:github-repo], tagged with varied metadata from multiple sources, including for the first time artifact properties (described next).
-Since comprehensive data on papers with software artifacts is not always readily available, owing to the significant manual data collection involved, this dataset can serve as the basis of additional studies.
+Since comprehensive data on papers with artifacts is not always readily available, owing to the significant manual data collection involved, this dataset can serve as the basis of additional studies.
 
 The rest of this paper is organized as follows. The next section presents in detail the dataset, methodology, and limitations of our study.
 An extensive set of descriptive and explanatory statistics is presented in the results section and then used to build a mixed-effects multilevel regression model for citation count.
@@ -255,7 +255,7 @@ And from the host domain of the URL we can classify the location of the artifact
 
 In all, `r fmt(nrow(artifacts))` papers in our dataset
 (`r pct(nrow(artifacts), nrow(papers), 2)`%)
-had an identifiable or promised artifact, primarily source code but occasionally data, configuration, or benchmarking files.
+had an identifiable or promised artifact, predominantly as software but occasionally as data, configuration, or benchmarking files.
 Artifacts that had been included in previous papers or written by someone other than the paper's authors were excluded from this count.
 This statistic only reflects artifact availability, not quality, since evaluating artifact quality is both subjective and time-consuming.
 It is worth noting, however, that most of the source-code repositories in these artifacts showed no development activity---commits, forks, or issues---after the publication of their paper, suggesting limited activity for the artifacts alone.
@@ -274,7 +274,7 @@ The following list summarizes the data-collection process for reproducibility pu
 
 5. Record all papers with artifact badges. These are unique to the ACM conferences in our dataset and are clearly shown both in the ACM digital library and in the PDF copy of such papers.
 
-6. Collect and record GS citation counts for each paper as close to possible to exactly `r how_long` months after the conference's opening day. The dataset includes citation counts for each paper across multiple time points, but the analysis in this paper only uses one data point per paper, closest to to the selected duration.
+6. Collect and record GS citation counts for each paper as close to possible to exactly `r how_long` months after the conference's opening day. The dataset includes citation counts for each paper across multiple time points, but the analysis in this paper only uses one data point per paper, closest to the selected duration.
 
 7. Record artifact availability and links for papers. This is likely the most time-consuming and error-prone process in the preparation of the data specific to this study and involves the following steps: Using a search tool on each document ("pdfgrep") on each of the search terms listed above and perusing the results to identify any links or promises to artifacts; skimming or reading papers with negative results to ensure such a link was not accidentally missed; Finally, searching github.com for specific system names if a paper describes one, even if not linked directly from the paper.
 

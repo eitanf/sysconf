@@ -4,17 +4,17 @@ bibliography: ../sysconf.bib
 simplesummary: |
   Analyzing the differences in collaboration patterns across genders and subfields can
   help us understand and possibly address the factors associated with the
-  large gender gap in computer science research.
+  gender gap in computer science research.
 abstract: |
-  The research field of computer science (CS) has a well-publicized gender imbalance.
+  The research discipline of computer science (CS) has a well-publicized gender disparity.
   Multiple studies estimate the ratio of women among publishing researchers
   to be around 15%--30%. Many explanatory factors have been studied
   in association with this gender gap, including differences in collaboration patterns.
   Here, we extend this body of knowledge by looking at differences in collaboration
   patterns specific to various fields and subfields of CS.
   We curated a dataset of nearly 20,000 unique authors of some 7,000 top conference papers
-  from a single year. We manually assigned a field and subfield to each conference,
-  and a gender to most researchers. We then measured for each subfield the gender gap
+  from a single year. We manually assigned a field and subfield to each conference
+  and a gender to most researchers. We then measured the gender gap in each subfield
   as well as five other collaboration metrics, which we compared to the gender gap.
   Our main findings are that the gender gap varies greatly by field,
   ranging from 6% female authors in theoretical CS to 42% in CS education;
@@ -197,10 +197,11 @@ full_auths$subfield = recode_factor(full_auths$subfield,
                                     "Architecture" = "Computer Architecture")
 
 full_auths$field = recode_factor(full_auths$field,
-                                 "Systems" = "Computer Systems",
-                                 "Computer Science Education" = "CS Education",
+                                 "Knowledge Systems" = "Knowledge",
                                  "Artificial Intelligence" = "AI",
+                                 "Computer Science Education" = "CS Education",
                                  "Human-Computer Interaction" = "HCI",
+                                 "Systems" = "Systems",
                                  "Theory and Algorithms" = "Theory",
                                  "Software Engineering & Languages" = "SE/languages")
 
@@ -251,13 +252,13 @@ subfield_summary <- gen_auths %>%
 # Introduction
 
 The gender gap in science, technology, engineering and mathematics (STEM), and in particular in computer science (CS), is a well-known and well-studied problem.
-It carries significant societal effects, such as inequality in economic opportunities for women and an undersupply of researchers and engineers in the rapidly growing discipline [@nielsen17:opinion; @mattis07:upstream].
-The gender gap among researchers is particularly severe: the people who participate in research, publish about it, and have their research acknowledged for its value are predominantly men [@charman17:championing].
+It carries significant societal effects, such as inequality in economic opportunities for women and an undersupply of researchers and engineers in the rapidly growing discipline [@falkner15:gender; @nielsen17:opinion; @mattis07:upstream; @vitores16:trouble].
+The gender gap among researchers is particularly noteworthy: the people who participate in research, publish about it, and have their research acknowledged for its value are predominantly men [@charman17:championing].
 Numerous studies estimate that only about 15%--30% of the CS research community are women [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 Although some recent indications show these numbers could be growing, they remain low, and the rate of growth remains slow [@wang21:trends].
 
-The gender gap is a complex, multifaceted challenge [@avolio20:factors].
-Numerous approaches to understand and perhaps address the gender gap have focused on aspects such as resource availability, gender stereotypes, child care, structural barriers, gender differences, discrimination, and other factors.
+The gender gap, defined simply as the difference in participation between men and women, is nevertheless a complex, multifaceted societal phenomenon [@avolio20:factors].
+Numerous approaches to understand and perhaps increase the representation of women have focused on aspects such as resource availability, gender stereotypes, child care, structural barriers, gender differences, discrimination, and other factors.
 This article focuses on one of these factors: the collaboration patterns of paper coauthors across genders and CS fields.
 
 Scientific collaborations are the backbone of a successful career in science [@whittington18:tie].
@@ -265,7 +266,7 @@ For example, researchers with more collaborators have been found to publish more
 Consequently, many studies have investigated whether women and men collaborate at different rates across disciplines, and have often found significant differences [@bozeman04:scientists; @hunter08:collaborative; @kyvik96:child; @scott90:disadvantage].
 
 In CS, and in particular in its more experimental fields such as computer systems, graphics, and artificial intelligence, collaboration is crucial because the large-scale implementation efforts involved often require teams of researchers with various experience levels.
-In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS.
+In this article we focus on gender differences in collaboration patterns across the fields and subfields of CS, both experimental and theoretical.
 
 Our study design is descriptive and observational in nature.
 We did not start out with any preset hypotheses to validate.
@@ -301,8 +302,8 @@ It also found that female faculty have significantly fewer distinct coauthors ov
 
 This productivity gap, which we observed in our dataset as well, has been thoroughly explored in several other studies [@abramo09:gender; @huang20:historical; @kyvik96:child; @lariviere13:bibliometrics; @symonds06:gender].
 In the social sciences, one study has found that women generally publish fewer papers than men, and that two thirds of the single-author papers were written by men [@schucan11:women].
-In mathematics, women also publish less than men, especially early in their careers, and leave academia at a higher rate then men [@mihaljevic16:effect].
-Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of mean number of coauthors, women's statistics are similar to men's.
+In mathematics, women also publish less than men, especially early in their careers, and leave academia at a higher rate than men [@mihaljevic16:effect].
+Women are also underrepresented in the three top-ranked journals and publish fewer single-author papers. In terms of the mean number of coauthors, women's statistics are similar to men's.
 That being said, there is even a gap in recognition, as women are also less likely to receive tenure the more that they coauthor [@sarsons17:recognition].
 
 
@@ -326,10 +327,23 @@ Research in computer science, and in particular in its more applied and experime
 Several studies have found that the gender gap in research tends to be higher in disciplines with expensive barriers to entry [@duch12:possible; @elsevier17:gender; @head13:differences; @lariviere13:bibliometrics], which appears to agree with our findings for CS fields.
 
 Some studies analyzed the gender gap by aggregating the coauthors of each paper into one "gender".
-One study analyzed different aggregations based the proportion of female authors, gender of most senior authors, and single-author papers [@hengel17:publishing].
+One study analyzed different aggregations based on the proportion of female authors, gender of most senior authors, and single-author papers [@hengel17:publishing].
 Looking at author position for aggregation, another study found that there are fewer women in first and last author positions in science overall, as well as in single-author papers [@west13:role].
-Other ways to aggregate genders including counting all papers that have at least one female author, and those where at least half the authors are female.
+Other ways to aggregate genders include counting all papers that have at least one female author, and those where at least half the authors are female.
+
 In this study, we do not aggregate papers by gender, except for the trivial case when they have a single author.
+But we do examine the gender of the first and last authors.
+Papers in CS conferences tend to list the primary contributor in the leading (first) position and senior authors last.
+In our set of
+`r alpha <- group_by(full_auths, key) %>% summarize(.groups = "keep", n = n(), sorted = !is.unsorted(name)); fmt(nrow(alpha))` papers, the mean number of coauthors is
+`r round(mean(alpha$n), 2)`,
+and of the
+`r p3 <- filter(alpha, n > 2); fmt(nrow(p3))`
+papers with three or more coauthors, only
+`r pct(nrow(filter(p3, sorted)), nrow(p3), 2)`%
+ordered the author list alphabetically.
+Even some of these alphabetized papers may have ordered authors by their relative contributions.
+
 
 ## Organization {-}
 
@@ -383,7 +397,9 @@ full_table %>%
 ```
 
 **Conference data instead of journal data.**
-In CS, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences]. To increase the coverage and relevance of our dataset, we only looked at conference publications. The complete list of selected conference can be found in Table \@ref(tab:all-confs).
+In CS, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
+To increase the coverage and relevance of our dataset, we only looked at conference publications.
+The complete list of selected conferences can be found in Table \@ref(tab:all-confs).
 
 **Choice of conferences.**
 Our dataset evolved from our previous study of conferences related to one major field, computer systems [@frachtenberg20:survey].
@@ -450,8 +466,9 @@ One such limitation is that the data reflects a snapshot in time to avoid the co
 However, this choice precludes analyses of changes and trends in collaboration patterns over time.
 
 Another limitation is our choice of which conferences to include out of the hundreds or thousands of annual CS conferences.
-Our conference choices may not be not representative of all of CS or even a proportional representation of subfields with CS.
-The relative metrics we measured comparing different subfields are nevertheless meaningful, but metrics over the entire dataset should be taken with a grain of salt.
+Moreover, CS is a diverse discipline with significant multidisciplinary collaborations, and in some fields and subfields, journals are preferred to conferences.
+Consequently, Our choice of conferences may not be not representative of all of CS or even a proportional representation of subfields with CS.
+That said, The relative metrics we measured comparing different subfields are nevertheless meaningful, but metrics over the entire dataset should be taken with a grain of salt.
 We believe that the large number of authors we included in our analysis provides some statistical robustness and therefore does not significantly deviate from a representative sample of the field of CS as a whole.
 
 For this study, the most critical piece of information on these researchers is their \emph{perceived gender}.
@@ -495,7 +512,7 @@ Summarizing across all `r fmt(nrow(full_auths))` authors (with repeats for multi
 This result is on the low end of previously reported statistics in the range of 15--30% [@cohoon11:cspapers; @holman18:gender; @national20:science; @way16:gender; @zweben18:taulbee].
 It is quite possible that our results are on the low end because our choice of conferences, with its emphasis on computer systems, overrepresents fields with lower representation of women.
 Keep in mind, however, the differences between previous studies and the current one, both in data and in methodology.
-Our data includes only conferences and only from one year is by no means exhaustive.
+Our data includes only conferences and only from one year and is by no means exhaustive or necessarily representative of the entire discipline.
 On the other hand, the smaller sample size allowed us to apply a primarily manual approach to gender assignment, which provides higher accuracy and coverage of researchers.
 In contrast, most comparable studies use a gender inference approach based on given names, which can fail for names with unclear or no gender association at all, as are many East Asian names, and tend to misidentify women in particular [@cohoon11:cspapers; @mattauch20:bibliometric; @santamaria18:comparison].
 
@@ -506,7 +523,7 @@ gen_auths %>%
   ggplot(aes(x = fct_reorder(subfield, FAR), y = FAR, fill = field)) +
     geom_bar(stat = "identity") +
     geom_text(aes(x = fct_reorder(subfield, FAR), y = 0.42, label = paste0(subfield, "  N=", fmt(N))), hjust = 1, angle = 0, size = 3) +
-    scale_y_continuous(labels = scales::percent) +
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +
     xlab("Subfield") +
     ylab("Female author ratio") +
     labs(fill = "") +
@@ -569,23 +586,23 @@ Both medians are naturally 1; but a Wilcoxon signed rank test still shows a sign
 (`r report_test(wilcox.test(filter(gen_auths, gender == "F")$prod, filter(gen_auths, gender == "M")$prod))`).
 
 
-```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Triangles denote outlier points outside the 5--95\\% range."}
+```{r productivity-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=9.5, out.width='0.75\\textwidth', fig.cap="Distribution of number of distinct papers per author by gender, field, and subfield. Each boxplot shows the interquartile range (25--75th percentiles) in the filled box area, with veritcal notches denoting medians. The horizontal lines to the right represent the 75--95th percentile range. Dots further to the right denote outlier points above the 95th percentile. The top boxplot for each subfield shows the distribution for women, followed by the distribution for men. Triangles represent median values for both genders, which is used for sorting order."}
 gen_auths %>%
   group_by(subfield) %>%
   mutate(avg_prod = mean(prod), N = n()) %>%
   ungroup() %>%
-  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = prod, fill = gender, color = field)) +
-    geom_boxplot(lwd = 0.5) +
-    geom_point(aes(y = avg_prod), color = cavg, shape = 2) +
+  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = prod, color = fct_rev(gender), fill = field)) +
+    geom_boxplot(lwd = 0.7, outlier.size = 0.3) +
+    geom_point(aes(y = avg_prod), color = cavg, shape = 2, show_guide = FALSE) +
 #    geom_text(aes(x = fct_reorder(subfield, avg_prod), y = 21, label = paste0("N=", N)), hjust = 1.1) +
     xlab("Subfield") +
     ylab("Paper count per author") +
     theme_classic() +
     theme(legend.position = "bottom", legend.box = "vertical") +
-    guides(fill = guide_legend(direction = 'horizontal', title = "Gender"),
-           color = guide_legend(direction = 'horizontal', title = "Field")) +
-    scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
-    scale_color_brewer(palette = "Paired") +
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender", reverse = T),
+           fill = guide_legend(direction = 'horizontal', title = "Field")) +
+    scale_color_manual(values = c(cmen, cwomen), labels = c("Men", "Women")) +
+    scale_fill_brewer(palette = "Paired") +
     coord_flip()
 ```
 
@@ -612,23 +629,23 @@ which is statistically significant
 (`r report_test(t.test(filter(gen_auths, gender == "F")$fractional_prod, filter(gen_auths, gender == "M")$fractional_prod))`).
 
 
-```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Triangles denote means and veritcal notches denote medians. Triangles denote outlier points outside the 5--95\\% range."}
+```{r fractional-productivity, echo=F, warning=F, message=F, cache=T, fig.height=9.5, out.width='0.75\\textwidth', fig.cap="Distribution of fractional paper counts per author by gender, field, and subfield. Each boxplot shows the interquartile range (25--75th percentiles) in the filled box area, eith vertical notches denoting medians. The horizontal lines represent the 5--25th percentile range on the left and the 75--95th percentile range to the right. Dots further to the right denote outlier points above the 95th percentile. The top boxplot for each subfield shows the distribution for women, followed by the distribution for women. Triangles represent median values for both genders, which is used for sorting order."}
 gen_auths %>%
   group_by(subfield) %>%
   mutate(avg_prod = mean(fractional_prod), N = n()) %>%
   ungroup() %>%
-  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = fractional_prod, fill = gender, color = field)) +
-    geom_boxplot(lwd = 0.5) +
-    geom_point(aes(y = avg_prod), color = cavg, shape = 2) +
+  ggplot(aes(x = fct_reorder(subfield, avg_prod), y = fractional_prod, color = fct_rev(gender), fill = field)) +
+    geom_boxplot(lwd = 0.7, outlier.size = 0.3) +
+    geom_point(aes(y = avg_prod), color = cavg, shape = 2, show_guide = FALSE) +
 #    geom_text(aes(x = fct_reorder(subfield, avg_prod), y = 21, label = paste0("N=", N)), hjust = 1.1) +
     xlab("Subfield") +
     ylab("Fractional paper count per author") +
     theme_classic() +
     theme(legend.position = "bottom", legend.box = "vertical") +
-    guides(fill = guide_legend(direction = 'horizontal', title = "Gender"),
-           color = guide_legend(direction = 'horizontal', title = "Field")) +
-    scale_fill_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
-    scale_color_brewer(palette = "Paired") +
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender", reverse = T),
+           fill = guide_legend(direction = 'horizontal', title = "Field")) +
+    scale_color_manual(values = c(cmen, cwomen), labels = c("Men", "Women")) +
+    scale_fill_brewer(palette = "Paired") +
     coord_flip()
 ```
 
@@ -647,23 +664,23 @@ The modified productivity metric also segues into the next three research questi
 This question could be addressed by two distinct measures: the mean number of coauthors per paper and the size of the total coauthor network for each author.
 
 
-```{r coauthors-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Mean number of coauthors per person by gender and subfield (triangles denote overall mean for subfield)."}
+```{r coauthors-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Mean number of coauthors per person by gender and subfield. Triangles denote overall mean for subfield (for both genders), which is used for sorting order."}
 gen_auths %>%
   group_by(subfield) %>%
   mutate(avg_co = mean(coauthors)) %>%
   ungroup() %>%
   group_by(subfield, avg_co, gender) %>%
   summarize(.groups = "keep", Coauthors = mean(coauthors), field = first(field), subfield = first(subfield)) %>%
-    ggplot(aes(x = fct_reorder(subfield, avg_co), y = Coauthors, color = gender, fill = field)) +
+    ggplot(aes(x = fct_reorder(subfield, avg_co), y = Coauthors, color = fct_rev(gender), fill = field)) +
     geom_bar(stat = "identity", position = "dodge", size = 1) +
-    geom_point(aes(y = avg_co), color = cavg, shape = 2) +
+    geom_point(aes(y = avg_co), color = cavg, shape = 2, show_guide = FALSE) +
     xlab("Subfield") +
     ylab("Coauthor count per author") +
     theme_classic() +
     theme(legend.position = "bottom", legend.box = "vertical") +
-    guides(color = guide_legend(direction = 'horizontal', title = "Gender"),
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender", override.aes = list(fill = "white"), reverse = T),
            fill = guide_legend(direction = 'horizontal', title = "Field")) +
-    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_color_manual(values = c(cmen, cwomen), labels = c("Men", "Women")) +
     scale_fill_brewer(palette = "Paired") +
     coord_flip()
 ```
@@ -681,9 +698,9 @@ The largest differences appear in the subfields of computer architecture
 and operating systems
 (`r report_test(t.test(filter(gen_auths, subfield == "Operating Systems", gender == "F")$coauthors, filter(gen_auths, subfield == "Operating Systems", gender == "M")$coauthors))`).
 In general, the field of computer systems stands out with a an average gender gap of
-`r round(mean(filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors) -  mean(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors), 2)`
+`r round(mean(filter(gen_auths, field == "Systems", gender == "M")$coauthors) -  mean(filter(gen_auths, field == "Systems", gender == "F")$coauthors), 2)`
 fewer coauthors for women than for men
-(`r report_test(t.test(filter(gen_auths, field == "Computer Systems", gender == "F")$coauthors, filter(gen_auths, field == "Computer Systems", gender == "M")$coauthors))`).
+(`r report_test(t.test(filter(gen_auths, field == "Systems", gender == "F")$coauthors, filter(gen_auths, field == "Systems", gender == "M")$coauthors))`).
 
 
 The second measure is how many distinct authors each person collaborates with across all of their papers---in other words, the size of the network of all collaborators of a person.
@@ -752,7 +769,7 @@ df %>%
 ```
 
 
-```{r solo-props-by-subfield-and-gender, eval=F, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Percentage of papers in each subfield that were written by a single author, grouped by the gender of the first author. Triangles demote overall ratio of single-author papers in the subfield irrespective of gender."}
+```{r solo-props-by-subfield-and-gender, eval=F, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Percentage of papers in each subfield that were written by a single author, grouped by the gender of the first author. Triangles denote overall ratio of single-author papers in the subfield irrespective of gender."}
 full_auths %>%
   group_by(subfield) %>%
   mutate(N = n(), avg_solo = sum(coauthors == 0) / n_distinct(key)) %>%
@@ -765,7 +782,7 @@ full_auths %>%
   summarize(.groups = "keep", pct_solo = sum(coauthors == 0) / n_distinct(key)) %>%
   ggplot(aes(x = fct_reorder(subfield, avg_solo), y = pct_solo, fill = field, color = first_gender)) +
     geom_col(stat= "identity", position = "dodge", size = 1) +
-    geom_point(aes(y = avg_solo), color = cavg, shape = 2) +
+    geom_point(aes(y = avg_solo), color = cavg, shape = 2, show_guide = FALSE) +
     geom_text(aes(x = fct_reorder(subfield, avg_solo), y = 0.18, label = paste0("N=", fmt(N))), hjust = 1, angle = 0, size = 3, color = "black") +
     scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
     theme_classic() +
@@ -820,11 +837,11 @@ We suspect that the field's emphasis on complex implementations and experimental
 
 The data we collected on coauthorship size and single-authorship shows that authorship norms vary significantly by field, if not by gender. 
 The largest coauthorship groups appear in computer systems papers, averaging
-`r round(mean(filter(full_auths, field == "Computer Systems")$coauthors + 1), 2)`
+`r round(mean(filter(full_auths, field == "Systems")$coauthors + 1), 2)`
 coauthors per paper, followed by HCI
 (`r round(mean(filter(full_auths, field == "HCI")$coauthors + 1), 2)`),
 knowledge systems
-(`r round(mean(filter(full_auths, field == "Knowledge Systems")$coauthors + 1), 2)`),
+(`r round(mean(filter(full_auths, field == "Knowledge")$coauthors + 1), 2)`),
 software engineering and programming languages
 (`r round(mean(filter(full_auths, field == "SE/languages")$coauthors + 1), 2)`),
 AI
@@ -859,23 +876,23 @@ For men, the probability to collaborate with a woman is
 `r pct(nrow(filter(all_pairs, gender1 == "M", gender2 == "F")), nrow(filter(all_pairs, gender1 == "M")))`%,
 slightly below the overall FAR.
 
-```{r prob-female-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Probability of an author to coauthor with a woman (triangles denote overall probability for subfield, which is similar to FAR but excludes single authors). Women show gender homophily when their probability to coauthor with a woman is higher than the overall probability, and men exhibit homophily when their probability is lower than the overall's."}
+```{r prob-female-by-subfield, echo=F, warning=F, message=F, cache=T, fig.height=6.5, out.width='0.75\\textwidth', fig.cap="Probability of an author to coauthor with a woman (triangles denote overall probability for subfield, which is similar to FAR but excludes single authors). Women (top bars) show gender homophily when their probability to coauthor with a woman is higher than the overall probability, and men exhibit homophily when their probability is lower than the overall's."}
 pairs_with_field %>%
   group_by(subfield) %>%
   mutate(.groups = "keep", avg_prob = sum(gender2 == "F") / n()) %>%
   ungroup() %>%
   group_by(subfield, avg_prob, gender1) %>%
   summarize(.groups = "keep", Probability = sum(gender2 == "F") / n(), field = first(field), subfield = first(subfield)) %>%
-    ggplot(aes(x = fct_reorder(subfield, avg_prob), y = Probability, color = gender1, fill = field)) +
+    ggplot(aes(x = fct_reorder(subfield, avg_prob), y = Probability, color = fct_rev(gender1), fill = field)) +
     geom_bar(stat = "identity", position = "dodge", size = 1) +
-    geom_point(aes(y = avg_prob), color = cavg, shape = 2) +
+    geom_point(aes(y = avg_prob), color = cavg, shape = 2, show_guide = FALSE) +
     xlab("Subfield") +
     ylab("Probability of coauthor being female") +
     theme_classic() +
     theme(legend.position = "bottom", legend.box = "vertical") +
-    guides(color = guide_legend(direction = 'horizontal', title = "Gender"),
+    guides(color = guide_legend(direction = 'horizontal', title = "Gender", override.aes = list(fill = "white"), reverse = T),
            fill = guide_legend(direction = 'horizontal', title = "Field")) +
-    scale_color_manual(values = c(cwomen, cmen), labels = c("Women", "Men")) +
+    scale_color_manual(values = c(cmen, cwomen), labels = c("Men", "Women")) +
     scale_fill_brewer(palette = "Paired") +
     coord_flip()
 ```
@@ -892,7 +909,7 @@ Together with the subfield of software engineering, this field appears to show c
 
 All other fields show fairly consistent gender homophily to varying degrees.
 For example, in the large field of computer systems, women have a probability of
-`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", field == "Computer Systems")), nrow(filter(pairs_with_field, gender1 == "F", field == "Computer Systems")))`%
+`r pct(nrow(filter(pairs_with_field, gender1 == "F", gender2 == "F", field == "Systems")), nrow(filter(pairs_with_field, gender1 == "F", field == "Systems")))`%
 to collaborate with a woman, above the $\approx{10}\%$ FAR.
 In all cases, the more pronounced deviations from the expected probability is for women, suggesting that perhaps collaborating with same-gender authors is more important to women.
 Note, however, that since most authors are men and therefore overall FAR is mostly determined by men, we would expect men's deviations from FAR to be smaller than women's.
@@ -1032,17 +1049,18 @@ One such example is theoretical computer science, which shows extreme values in 
 Not only does it exhibit the lowest FAR, but also the lowest average team size, highest single-author ratio, and the highest fractional productivity.
 In these metrics it matches the observations of Mihaljevic for mathematicians, which is not surprising, given the thematic similarity of the two fields [@mihaljevic16:effect].
 Theoretical CS is an extreme point by almost all metrics, and resembles closely what has been found for mathematics.
+It is a broad and foundational subfield of CS, but also exhibits different characteristics from the rest of CS in some of its aspects, including the collaboration aspects discussed in this paper.
 
 Another example is the field of systems, which also generally exhibits very low FAR.
 Systems is a large and influential field, with many industrial and technological applications [@frachtenberg20:survey].
-It is therefore particularly of interest to try to explain and reduce the large gender gap, as this could have far-reaching societal impact [@nielsen17:opinion].
-As discussed in RQ6, one possible explanation for the large gender gap is the high cost in participation in experimental fields such as systems, which has been associated with lower diversity [@duch12:possible].
-It is also possible that the combination larger team sizes, fewer single-author papers, and stronger gender homophily makes systems a particularly unwelcoming field because of self-reinforcing network effects [@araujo17:specific].
-Teams are large but mostly-male, which discourage women seeking female collaborators from participating, which in turns worsens the problem for the next woman.
+It is therefore particularly of interest to try to explain and reduce the gender gap, as this could have far-reaching societal impact [@nielsen17:opinion].
+As discussed in RQ6, one possible explanation for the magnitude of the gender gap is the high cost in participation in experimental fields such as systems, which has been associated with higher gender disparity [@duch12:possible].
+It is also possible that the combination of larger team sizes, fewer single-author papers, and stronger gender homophily makes systems a particularly unwelcoming field because of self-reinforcing network effects [@araujo17:specific].
+Teams are large but mostly-male, which discourage women seeking female collaborators from participating, which in turn could drive more women away from the field, further exacerbating the challenge of finding female collaborators for the next woman to join the field.
 
 It has also been suggested that women are more likely to work in human-centered fields [@diekman13:navigating; @fisher02:unlocking; @sax19:disciplinary].
 We can certainly observe corroboration of this hypothesis in our data, with CS education and HCI as the two fields with the highest FAR, followed by WWW and multimedia, which also put the human in the center of the research.
-Our FAR figure for CS education is in fact is remarkably similar to the one found by West et al. for the field of education as a whole [@west13:role].
+Our FAR figure for CS education is in fact remarkably similar to the one found by West et al. for the field of education as a whole [@west13:role].
 
 
 <!-------------------------------------------------------------------------------->
@@ -1052,7 +1070,7 @@ Our FAR figure for CS education is in fact is remarkably similar to the one foun
 
 Computer science is a collaborative discipline.
 Many papers exhibit larger team sizes than is typical in most other scientific disciplines, and very few papers are written by single authors.
-Understanding collaboration patterns in CS authorship is therefore imperative to understanding related bibliometric and societal phenomena, such as the large gender gap in CS.
+Understanding collaboration patterns in CS authorship is therefore imperative to understanding related bibliometric and societal phenomena, such as the gender gap in CS.
 But research in CS is also highly heterogeneous across fields and subfields.
 Although a number of papers have studied collaboration patterns in CS and the sciences, and even more have studied the gender gap, this study may be the first to examine the two at a finer resolution of CS subfields, and with highly accurate gender data.
 
@@ -1061,14 +1079,14 @@ Our findings do confirm that some collaboration patterns appear indeed to be ass
 Fields that exhibit lower FAR than average also tend to exhibit larger team sizes, smaller cohort sizes for women, higher gender homophily, and higher author productivity.
 And although we found a significant productivity gap across genders, as has been measured in many other fields, it is too small to explain most of the overall gender gap across fields.
 
-All of these associations have exceptions, and perhaps the most notable is the subfield of theoretical CS, which stands alone in the extreme of most metrics, perhaps being better categorized as a subfield of mathematics than of CS.
+All of these associations have exceptions, and perhaps the most notable is the subfield of theoretical CS, which stands alone in the extreme of most metrics, perhaps because of the foundational, mathematical nature of theoretical CS, in contrast to many applied subfields of CS.
 On the opposite end, CS subfields that have increased focus on people rather than computers, such as CS education and HCI, show better overall representation of women and less extreme gaps across most metrics.
 On the other hand, many of the subfields of computer systems, which focuses on building, measuring, and improving the concrete implementation of computers and their tools, show larger gender gaps across most metrics.
 
 This last field of computer systems is of particular interest to us and the focus of our future work, because of its large size, its impact on technology and the economy, and its very low representation of women, at about 10%.
-We will therefore turn our attention next not just on statistical association with low FAR, but on causal association.
+We will therefore turn our attention next not just to statistical association with low FAR, but to causal association.
 We plan to collect and analyze additional data to try to address the question: why is the representation of women in computer systems lower than in most other CS fields?
-We have already presented a few hypotheses for this question in this article: the low representation could be partially explained to the higher cost of research in the field and the network effects that perpetuate the lack of female peers and mentors.
+We have already presented a few hypotheses for this question in this article: the low representation could be partially explained by the higher cost of research in the field and the network effects that perpetuate the lack of female peers and mentors.
 These hypotheses require additional data before we can accept or reject them.
 
 This dataset currently exposes facts and factors from a single year, 2017.

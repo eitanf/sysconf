@@ -9,10 +9,10 @@ affiliation:
     address: Department of Computer Science, Reed College
 bibliography: ../sysconf.bib
 abstract: >
-  Research in computer systems often involves the engineering, implementation, and measurement of complex systems software and data. The availability of these artifacts is critical to the reproducibility and replicability of the research results because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Artifact availability has also been previously associated with higher paper impact, as measured by citations counts. And yet, the sharing of research artifacts is still not as common as warranted by its importance.
+  Research in computer systems often involves the engineering, implementation, and measurement of complex systems software and data. The availability of these artifacts is critical to the reproducibility and replicability of the research results, because system software often embodies numerous implicit assumptions and parameters that are not fully documented in the research article itself. Artifact availability has also been previously associated with higher paper impact, as measured by citations counts. And yet, the sharing of research artifacts is still not as common as warranted by its importance.
 
   
-  The primary goal of this study is to provide an exploratory statistical analysis of the artifact-sharing rates and associated factors in the research field of computer systems. To this end, we explore a cross-sectional dataset of papers from 56 contemporaneous systems conferences. In addition to extensive data on the conferences, papers, and authors, this dataset includes data on the release, ongoing availability, badging, and locations of research artifacts. We combine this manually curated data with recent citation counts to evaluate the relationships between different artifact properties and citation metrics. Additionally, we revisit previous observations from other fields on the relationships between artifact properties and various other characteristics of papers, authors, and venue and apply them to this field.
+  The primary goal of this study is to provide an exploratory statistical analysis of the artifact-sharing rates and associated factors in the research field of computer systems. To this end, we analyze a cross-sectional dataset of papers from 56 contemporaneous systems conferences. In addition to extensive data on the conferences, papers, and authors, this dataset includes data on the release, ongoing availability, badging, and locations of research artifacts. We combine this manually curated dataset with citation counts to evaluate the relationships between different artifact properties and citation metrics. Additionally, we revisit previous observations from other fields on the relationships between artifact properties and various other characteristics of papers, authors, and venue and apply them to this field.
 
 
   The overall rate of artifact sharing we find in this dataset is approximately 30%, although it varies significantly with paper, author, and conference factors, and it is closer to 43% for conferences that actively evaluated artifact sharing. Approximately 20% of all shared artifacts are no longer accessible four years after publications, predominately when hosted on personal and academic websites. Our main finding is that papers with shared artifacts averaged approximately 75% more citations than papers with none. Even after controlling for numerous confounding covariates, the release of an artifact appears to increase the citations of a systems paper by some 34%. This metric is further boosted by the open availability of the paper's text.
@@ -129,10 +129,10 @@ by_conf <- by_paper %>%
 
 Many scientific experimental results cannot be successfully repeated or reproduced, leading to the so-called "reproducibility crisis" [@baker16:reproducibility; @van15:sluggish].
 An experimental result is not fully established unless it can be independently reproduced [@stodden08:legal], and an important step towards this goal is the sharing of artifacts associated with the work, including computer code [@ACM20:artifact; @collberg16:repeatability; @fehr16:best].
-The availability of experimental artifacts is not only crucial for reproducibility, but also directly contributes to the transparency, reusability, and credibility of the work [@feitelson15:repeatability].
+The availability of experimental artifacts is not only crucial for reproducibility, but it also directly contributes to the transparency, reusability, and credibility of the work [@feitelson15:repeatability].
 Artifacts additionally play an important role in drive toward open science, which has gained substantial momentum in computer science (CS) [@heumuller20:publish].
 
-Given the central role of research artifacts in reproducibility, it is not surprising to find major initiatives to increase artifact sharing evaluation. As Childers and Chrysanthis wrote in 2017:
+Given the central role of research artifacts in reproducibility, it is not surprising to find major initiatives to increase artifact sharing and evaluation. As Childers and Chrysanthis wrote in 2017:
 
 > Experimental computer science is far from immune [from the reproducibility crisis], although it should be easier for CS than other sciences, given the emphasis on experimental artifacts, such as source code, data sets, workflows, parameters, etc. The data management community pioneered methods at ACM SIGMOD 2007 and 2008 to encourage and incentivize authors to improve their software development and experimental practices. Now, after 10 years, the broader CS community has started to adopt Artifact Evaluation (AE) to review artifacts along with papers [@childers17:artifact].
 
@@ -155,7 +155,7 @@ Research artifacts, and especially software artifacts, are therefore paramount t
 Whereas in other fields of science---or even CS---research results can often be replicated from the original equations or datasets, systems software can embody countless unstated assumptions in the code and parameters.
 The significance is that reproducing research findings by recreating its artifacts from the terse descriptions in a paper is often unfeasible, rendering software artifacts all that more important.
 
-The first hypothesis of this paper is therefore that because of its importance to reproducibility, artifacts sharing in systems significantly increases a paper's influence, as measured by citations.
+The hypothesis of this paper is therefore that because of its importance to reproducibility, artifacts sharing in systems significantly increases a paper's influence, as measured by citations.
 Citations are not only a widely used metric of impact for papers and researchers but also an indirect measure of the work's quality and usefulness, which presumably are both helped by the availability of artifacts.
 Citations may also stand in as proxy metrics for the transparency, reusability, reproducibility, and credibility of papers---if we assume that any of these qualities encourage subsequent researchers to cite the original work.
 The main observational goal of this paper is to evaluate the quantitative association between artifacts availability and citations in the research field of computer systems.
@@ -178,7 +178,7 @@ These questions, and a short answer to each, are listed here and are elaborated 
 2. How many of these artifacts are actually linked from the paper? (Approximately `r pct(sum(artifacts$linked), nrow(artifacts), 0)`%.)
 3. How many of these artifacts have expired since publication? What characterizes these artifacts? (Approximately `r pct(sum(artifacts$expired), nrow(artifacts), 0)`% can no longer be found, mostly from academic and personal host pages.)
 4. What are the per-conference factors and differences that affect the ratio of artifact sharing? (The most influential factor appears to be an artifact evaluation process. Approximately `r round(100 * mean(filter(by_conf, conf %in% c("SC", "OOPSLA", "PPoPP", "PLDI", "SLE", "PACT"))$ratio), 0)`% of papers in these six conferences shared artifacts.)
-5. Does conference prestige affect artifact availability? (Papers that release artifacts tend to appear in significantly more competitive conferences.)
+5. Does conference prestige affect artifact availability? (Papers that release artifacts tend to appear in more competitive conferences.)
 5. What is the relationship between artifact accessibility and paper accessibility? (Papers with shared artifacts are also more likely to have an eprint version freely available online, and sooner than non-artifact papers.)
 6. What is the relationship between artifact accessibility and paper awards? (Approximately `r pct(nrow(filter(with_ar, award)), nrow(filter(by_paper, award)), 0)`% of papers with awards shared artifacts vs.
 `r pct(nrow(filter(with_ar, !award)), nrow(filter(by_paper, !award)), 0)`% in the rest.)
@@ -189,7 +189,7 @@ Since comprehensive data on papers with artifacts is not always readily availabl
 
 The rest of this paper is organized as follows. The next section presents in detail the dataset, methodology, and limitations of our study.
 An extensive set of descriptive and explanatory statistics is presented in the results section and then used to build a mixed-effects multilevel regression model for citation count.
-The discussion section presents potential implications from these findings and the linear model, as well as potential threats to the validity of this analysis.
+The discussion section presents potential implications from these findings, as well as potential threats to the validity of this analysis.
 These findings are then placed in historical and cross-disciplinary context in the related-work section.
 Finally, the concluding section summarizes the main findings of this study and suggests some future research directions.
 
@@ -222,24 +222,24 @@ cbind(tmp[1:(nrow(tmp)/2),], tmp[(1+nrow(tmp)/2):nrow(tmp),]) %>%
 ```
 
 A few of these conferences, such as MobiCom and SLE, specifically encouraged artifacts in their call-for-papers or websites.
-Four conferences---SC, OOPSLA, PLDI, SLE---archived their artifacts in the ACM's digital library.
+Four conferences---SC, OOPSLA, PLDI, and SLE---archived their artifacts in the ACM's digital library.
 In addition to general encouragement and archival, six conferences specifically offered to evaluate artifacts by a technical committee: OOPSLA, PACT, PLDI, PPoPP, SC, and SLE.
 
 For each conference, we gathered various statistics from its web page, proceedings, or directly from its chairs.
 We also collected historical conference metrics from the websites of the ACM, the Institute of Electrical and Electronics Engineers (IEEE), and Google Scholar (GS), including past citations, age, and total publications, and downloaded all papers in PDF format.
 The dataset includes extensive data on the authors and the textual properties of the papers, and the relevant features are discussed in the next section.
 
-We are also interested in measuring post-hoc impact of each paper, as approximated by its number of citations.
+We are also interested in measuring the post-hoc impact of each paper, as approximated by its number of citations.
 Citation metrics typically lag publication by a few months or years, allowing for the original papers to be discovered, read, cited, and then the citations themselves published and recorded.
 The time duration since these papers had been published, approximately 3.5 years, permits the analysis of their short-to-medium term impact in terms of citations.
 In practice, this duration is long enough that only
 `r top_cites <- group_by(citations, key) %>% summarize(.groups = "drop", max = max(citations)); sum(top_cites$max == 0)` papers
-(`r pct(sum(top_cites$max == 0), nrow(top_cites), 2)`%)
+(`r pct(sum(top_cites$max == 0), nrow(top_cites), 2)`%) have gathered no citations yet.
 
 For this study, the most critical piece of information on these papers is their artifacts.
 Unfortunately, most papers included no standardized metadata with artifact information, so it had to be collected manually from various sources, as detailed next.
 
-The only form of standardized artifact metadata was found for the subset of conferences organized by the ACM with artifact badge initiatives.
+The only existing form of standardized artifact metadata was for the subset of conferences organized by the ACM with artifact badge initiatives.
 In the proceedings page in the ACM's digital library of these conferences, special badges denote which papers made artifacts available, and which papers had artifacts evaluated (for conferences that supported either badge).
 In addition, the ACM digital library also serves as a repository for the artifacts, and all of these ACM papers included a link back to the appropriate web page with the artifact.
 
@@ -304,14 +304,14 @@ Of the `r nrow(artifacts)` papers with artifacts, we find that about
 `r pct(sum(artifacts$linked), nrow(artifacts))`%
 included an actual link to the artifact in the text.
 The ACM digital library marked
-`r sum(artifacts$badge)` of artifact papers (`r pct(sum(artifacts$badge), nrow(artifacts))`%)
+`r sum(artifacts$badge)` artifact papers (`r pct(sum(artifacts$badge), nrow(artifacts))`%)
 with an "Artifact available" badge, and
 `r sum(artifacts$evaluated)` papers (`r pct(sum(artifacts$evaluated), nrow(artifacts))`%)
 with an "Artifact evaluated" badge.
 The majority of artifact papers
 (`r pct(sum(!artifacts$expired), nrow(artifacts))`%)
 still had their artifacts available for download at the time of this writing.
-This ratio is somewhat similar to a comparable study that found that 73% of URLs in five open-access (OA) journals after five years [@saberi12:accessibility].
+This ratio is somewhat similar to a comparable study that found that 73% of URLs in five open-access (OA) journals were live after five years [@saberi12:accessibility].
 Of the `r nrow(artifacts)` papers that promised artifacts, `r sum(artifacts$unreleased)` appear to have never released them.
 The distribution of the location of the accessible artifacts is shown in Table \@ref(tab:location-dist), and is dominated by Github repositories.
 
@@ -349,7 +349,7 @@ SD: `r round(100 * sd(by_conf$ratio), 2)`%).
 Unsurprisingly, nearly all of the conferences where artifacts were evaluated are prominent in their relatively high artifact rates.
 Only PACT stands out as a conference that evaluated artifacts but had a lower-than-average overall ratio of papers with artifacts (`r round(filter(by_conf, conf=="PACT")$ratio, 2)`).
 The MobiCom conference also shows a distinctly low ratio, `r round(filter(by_conf, conf=="MobiCom")$ratio, 2)`, despite actively encouraging artifacts.
-It should be noted, however, that many papers in PACT and MobiCom are hardware-related, where artifacts are typically unfeasible.
+It should be noted, however, that many papers in PACT and MobiCom are hardware-related, where artifacts are often unfeasible.
 The same is true for a number of other conferences with low artifact ratios, such as ISCA, HPCA, and MICRO.
 Also worth noting is the fact that ACM conferences appear to attract many more artifacts than IEEE conferences, although the reasons likely vary on a conference-by-conference basis.
 
@@ -429,7 +429,7 @@ Curiously, the inclusion of a link in the paper, presumably making the artifact 
 Similarly counter-intuitive, papers that received an "Artifact evaluated" badge fared worse in citations than artifact papers who did not
 (`r report_test(t.test(with_ar_e$citations, with_ar_ne$citations))`;
 `r report_test(wilcox.test(with_ar_e$citations, with_ar_ne$citations))`).
-Papers who received an "Artifact available" badge did fared a little worse than artifact papers who did not
+Papers who received an "Artifact available" badge did fare a little worse than artifact papers who did not
 (`r report_test(t.test(with_ar_b$citations, with_ar_nb$citations))`;
 `r report_test(wilcox.test(with_ar_b$citations, with_ar_nb$citations))`).
 These findings appear to contradict the premise that such badges are associated with increased artifact sharing, as has been found in other fields [@baker16:digital].
@@ -496,7 +496,7 @@ A substantial proportion of the papers
 (`r pct(sum(by_paper$open_access), nrow(by_paper))`%)
 were published in `r sum(all_confs$open_access)` open-access conferences.
 Other papers have also been released openly as preprints or via other means.
-One way to gauge the availability of the paper's text is to look it up on GS and see if an accessible version (eprint) is linked, which is recorded in our dataset.
+One way to gauge the availability of the paper's text is to look it up on GS and see if an accessible version (eprint) is linked, which was recorded in our dataset.
 Of the `r nrow(papers)` papers,
 `r pct(sum(!is.na(by_paper$months_to_eprint)), nrow(by_paper))`%
 displayed at some point an accessible link to the full text on GS.
@@ -508,7 +508,7 @@ of the papers with no artifacts
 (`r report_test(chisq.test(table(by_paper$artifact_released, is.na(by_paper$months_to_eprint))))`).
 
 
-Moreover, our dataset includes not only the availability of an eprint link on GS, but also the approximate duration since publication (in months) that it took GS to display this link, offering a quantitative measure of accessibility speed as well.
+Moreover, our dataset includes not only the availability of an eprint link on GS, but also the approximate duration since publication (in months) that it took GS to display this link, offering a quantitative measure of accessibility speed.
 It shows that for papers with artifacts, GS averaged approximately
 `r round(mean(with_ar$months_to_eprint, na.rm = T), 1)`
 months post-publication to display a link to an eprint, compared to
@@ -608,12 +608,12 @@ One such factor affecting paper citations is time since publication, which we co
 Another crucial factor is the field of study---which we control for by focusing on a single field---while providing a wide cross-section of the field to limit the effect of statistical variability.
 
 There are also numerous less-obvious paper-related factors that have shown positive association with citations, such as review-type studies, fewer equations, more references, statistically significant *positive* results, papers' length, number of figures and images, and even more obscure features such as the presence of punctuation marks in the title.
-We can attempt to control for these confounding variables when evaluating associations by using a multilevel model.
+We can attempt to control for such confounding variables when evaluating associations by using a multilevel model.
 To this end, we fit a linear regression model of citations as a function of artifact availability, and then add predictor variables as controls, observing their effect on the main predictor.
-The response variable we model for is `r epsilon = 0` $ln(citations)$ instead of citations, because of the long tail of their distribution.
+The response variable we model for is $ln(citations)$ instead of citations, because of the long tail of their distribution.
 We also omit the `r sum(by_paper$citations == 0)` papers with zero citations to improve the linear fit with the predictors.
 
-`r clean <- filter(by_paper, citations > 0); model0 <- lm(data = clean, log(citations + epsilon) ~ artifact_released)`
+`r epsilon <- 0; clean <- filter(by_paper, citations > 0); model0 <- lm(data = clean, log(citations + epsilon) ~ artifact_released)`
 In the baseline form, fitting a linear model of the log-transformed citations as a function of only artifact released yields an intercept (baseline log citations) of
 `r round(coef(model0)[1], 2)`
 and a slope of
@@ -624,8 +624,8 @@ more citations to the paper, after exponentiation.
 The p-value for this predictor is exceedingly low (less than $2\times10^{-16}$)
 but the simplistic model only explains
 `r round(100 * summary(model0)$adj.r.squared, 2)`%
-of the variance in citations
-(Adjusted $R^2$=`r round(summary(model0)$adj.r.squared, 3)`).
+of the variance in citations (Adjusted
+$R^2$=`r round(summary(model0)$adj.r.squared, 3)`).
 The Bayesian Information Criterion (BIC) for this model is
 `r format(BIC(model0), scientific=F)`,
 with
@@ -660,8 +660,8 @@ It turns out that all these paper-level factors except award given have a statis
 and a BIC of
 `r round(BIC(modelBIC1), 2)` (df = `r fmt(summary(modelBIC1)$df[2])`).
 However, the coefficient for artifact released went down to
-`r round(coef(summary(modelBIC1))[2,1], 2)`
-(`r round(100 * (exp(coef(modelBIC1)[2]) - 1), 0)`% relative citation increase)
+`r round(coef(summary(modelBIC1))[2,1], 2)`  (`r round(100 * (exp(coef(modelBIC1)[2]) - 1), 0)`%
+relative citation increase)
 with an associated p-value of
 `r round(coef(summary(modelBIC1))[2,4], 14)`.
 
@@ -683,7 +683,7 @@ We next enhance our linear model with the following predictor variables (omittin
  * The sum of the total past publications of all coauthors of the paper [@bjarnason02:nordic].
  * The maximum h-index of all coauthors [@hurley14:deconstructing].
 
-Only the maximum h-index and top-university affiliation had statistically significant coefficients, but hardly affected the overall model.^[Note that the last publication counts and h-index are correlated
+Only the maximum h-index and top-university affiliation had statistically significant coefficients, but hardly affected the overall model.^[Note that the past publication counts and h-index are correlated
 (`r  report_test(cor.test(cleaner$max_h, cleaner$total_npubs))`),
 so one may cancel the other out.]
 These minimal changes may not justify the increased complexity and reduced data size of the new model (because of missing data), so for the remainder of the analysis, we ignore author-related factors and proceed with the previous model.
@@ -715,7 +715,7 @@ This last model does indeed reduce the relative effect of artifact release on ci
 `r round(confint(modelLMER, "artifact_releasedTRUE"), 2)[1]`--`r  round(confint(modelLMER, "artifact_releasedTRUE"), 2)[2]`).
 But this coefficient still represents a relative citation increase of about a third for papers with released artifacts
 (`r round(100 * (exp(coef(summary(modelLMER))[2, 1]) - 1), 0)`%),
-which is significant.
+which is substantial.
 We can approximate a p-value for this coefficient via Satterthwaite’s degrees of freedom method using R's `lmerTest` package [@kuznetsova17:lmertest], which is also statistically significant at
 `r round(coef(summary(modelLMER))[2, 5], 14)`.
 The parameters for this final model are enumerated in Table \@ref(tab:LMER-params).
@@ -753,7 +753,7 @@ Artifact sharing invariably accompanies the publication of a paper, while its ci
 It is therefore plausible to expect that citation counts are influenced by artifact sharing and not the other way around.
 
 If we do indeed assume causality between the two, then an important, practical implication also arises from this model, especially for authors wishing to increase their work's citations.
-There are numerous factors that authors cannot really control, such as their own demographic factors, but fortunately, these turn out to have insignificant effects on citations.
+There are numerous factors that authors cannot easily control, such as their own demographic factors, but fortunately, these turn out to have insignificant effects on citations.
 Even authors' choice of a venue to publish in, which does influence citations, can be constrained by paper length, scope match, dates and travel, and most importantly, the peer-review process that is completely outside of their control.
 But among the citation factors that authors can control, the most influential one turns out to be the sharing of research artifacts.
 
@@ -763,7 +763,7 @@ Presumably, authors attempting to maximize impact already work hard to achieve a
 The additional effort of planning for and releasing their research artifact should be a relatively minor incremental effort that could improve their average citation count.
 If we additionally assume causality in the link between higher artifact sharing rates and acceptance to more competitive conferences, the effect on citations can be compounded.
 
-Other potential implications of our findings mostly agree with our intuition and with previous findings in related studies, as described in the next section.
+Other potential implications of our findings mostly agree with our intuition and with previous findings in related studies, as described in the related-work section.
 For example, all other things being equal, papers with open access and with long-lasting artifacts receive more citations.
 
 Two factors that do not appear to have a positive impact on citations, at least in our dataset, are the receipt of artifact badges or the linking of artifacts in the paper.
@@ -772,7 +772,7 @@ This is unfortunate because it implicitly discourages standardized or searchable
 ## Threats to validity {-}
 
 Perhaps the greatest challenge in performing this study or in replicating it is the fact that good metadata on research artifacts is either nonexistent or nonstandard.
-There is currently no automated or even manual methodology to reliably discover which papers shared artifacts, how were they shared, and how long did they survive.
+There is currently no automated or even manual methodology to reliably discover which papers shared artifacts, how they were shared, and how long did they survive.
 There are currently several efforts underway to try to standardize artifact metadata and citation, but for this current study, the validity and scalability of the analysis hinge on the quality of the manual process of data collection.
 
 One way to address potential human errors in data collection and tagging is to collect a sizeable dataset---as was attempted in this dataset---so that such errors disappear in the statistical noise.
@@ -793,7 +793,7 @@ Assuming GS overcounts both classes of papers in the same way, it should not mat
 
 Our dataset also does not include data specific to self-citations.
 Although it is possible that papers with released artifacts have different self-citations characteristics, thus confounding the total citation count, there is no evidence to suggest such a difference.
-This possibility certainly opens up an interesting research question for future research, using a citation database with reliable self-citation information (unlike GS).
+This possibility certainly opens up an interesting question for future research, using a citation database with reliable self-citation information (unlike GS).
 
 <!----------------------------------------------------------------------------------------------------------->
 
@@ -814,7 +814,7 @@ Many such factors have been found to be associated with higher citation counts.
 Some examples relating to the author demographics include the authors' gender [@frachtenberg21:whpc; @tahamtan16:factors], country of residence [@gargouri10:self; @peng12:where; @puuska14:international], affiliation [@tomkins17:reviewer], and academic reputation metrics [@hurley14:deconstructing; @bjarnason02:nordic].
 Other factors were associated with the publishing journal or conference, such as the relative quality of the article and the venue [@mccabe15:availability] and others still related to the papers themselves, such as characteristics of the titles and abstracts, characteristics of references, and length of paper [@tahamtan16:factors].
 
-Among the many paper-related factors studied in relation to citations is the paper's text availability, which our data shows to be also linked with artifact availability.
+Among the many paper-related factors studied in relation to citations is the paper's text availability, which our data show to be also linked with artifact availability.
 there exists a rich literature examining the association between a paper's own accessibility and higher citation counts, the so-called "OA advantage" [@bernius09:open; @davis11:impact; @sotudeh15:citation; @wagner10:open].
 
 For example, Gargouri et al. found that articles whose authors have supplemented subscription-based access to the publisher's version with a freely accessible self-archived version are cited significantly more than articles in the same journal and year that have not been made open [@gargouri10:self].
@@ -851,11 +851,11 @@ Instead, authors and readers may want to focus on the clear and important benefi
 If increased citation counts are not enough to incent more systems authors to share their artifacts, perhaps conference organizers can leverage their substantial influence to motivate authors.
 Although artifact evaluation can represent a nontrivial additional burden on the program committee, our data shows that it does promote higher rates of artifact sharing.
 
-While many obstacles to the universal sharing of artifacts still remain, the field of computer systems does have the advantage that many----if not most---of its artifacts come in the form of software, which is much easier to share than artifacts in other experimental fields.
+While many obstacles to the universal sharing of artifacts still remain, the field of computer systems does have the advantage that many----if not most---of its artifacts come in the form of software, which is easier to share than artifacts in other experimental fields.
 It is therefore not surprising that we find the majority of shared and extant artifacts in computer systems hosted on github.com, a highly accessible source-code sharing platform.
-That said, a high artifact sharing rate is not enough for the goals of reproducible science, since many of the shared artifacts in our dataset have since expired or been difficult to locate.
+That said, a high artifact sharing rate is not enough for the goals of reproducible science, since many of the shared artifacts in our dataset have since expired or have been difficult to locate.
 
-Our analysis found that both the findability and accessibility of systems artifacts can decay significantly even after only a few years, especially when said artifacts are not hosted in dedicated open and free repositories.
+Our analysis found that both the findability and accessibility of systems artifacts can decay significantly even after only a few years, especially when said artifacts are not hosted on dedicated open and free repositories.
 Conference organizers could likely improve both aspects by requiring---and perhaps offering---standardized tools, techniques, and repositories, in addition to the sharing itself.
 The ACM has taken significant steps in this direction by not only standardizing various artifact badges but also offering its own supplementary material repository in its digital library.
 A few conferences in our dataset, like SC, are taking another step in this direction by also requesting a standardized artifact description appendix and review for every technical paper, including a citeable link to the research artifacts.

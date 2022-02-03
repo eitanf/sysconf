@@ -1,0 +1,45 @@
+\documentclass[12pt]{article}
+
+\usepackage[pdftex]{graphicx}
+\usepackage{times}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\topmargin 0.0cm
+\oddsidemargin 0.2cm
+\textwidth 16cm 
+\textheight 21cm
+\footskip 1.0cm
+
+\def\citep#1{\cite{#1}}
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\title{$title$}
+
+\author{Alexis Richter \and Josh Yamamoto \and Eitan Frachtenberg\thanks{corresponding author eitan@reed.edu}}
+\date{Reed College, Oregon, USA}
+
+
+\begin{document}
+%!!! \baselineskip24pt
+\maketitle
+
+%\begin{sciabstract}
+%  $abstract$
+%\end{sciabstract}
+
+$body$
+
+\newpage{}
+
+\bibliographystyle{ieeetr}
+\bibliography{$bibliography$}
+
+
+
+
+
+
+\end{document}

@@ -1,6 +1,5 @@
 ---
 title: Why So Few Women in Computer Systems Research?
-preprint: false
 author:
   - name: Alexis Richter
     affiliation: 1
@@ -16,15 +15,14 @@ author:
     email: eitan@reed.eud
 affiliation:
     address: Department of Computer Science, Reed College
+
 bibliography: ../sysconf.bib
-abstract: >
-
-
 output:
   bookdown::pdf_book:
-    base_format: rticles::peerj_article
-    keep_tex: true
+    template: main.tex
+    keep_tex: yes
     citation_package: natbib
+abstract: >
 ---
 
 ```{r code = readLines("../load_data.R"), echo = F, message = F}
@@ -34,152 +32,312 @@ output:
 ```{r setup, echo=F, message=F, warning=F, cache=F}
 library('tidyverse')
 library('rjson')
+library('kableExtra')
 
+# Colors:
+cwomen <- "#7704FF"
+cmen <- "#00C3AA"
+cmen <- "gray70"
+cwomen <- "gray30"
+cavg <- "#FF10F0"
+cavg <- "#CB00E6"
 
-inferred_gender_nonsys <-
-  read_csv("https://raw.githubusercontent.com/eitanf/sysconf/master/data/nonsys_inferred_gender_mapping.csv")
-
-verified_gender_nonsys <-
-  read_csv("https://raw.githubusercontent.com/eitanf/sysconf/master/data/nonsys_verified_gender_mapping.csv")
-
-inferred_gender_nonsys <- inferred_gender_nonsys %>%
-  select(-probability)
-
-
-# this is the dataframe that we will be joining with the .json conference files that we convert to .csvs
-all_genders <- rbind(inferred_gender_nonsys, verified_gender_nonsys, inferred_gender, verified_gender)
-
-all_genders <- all_genders %>%
-  distinct(name, .keep_all = T)
-
-# this function breaks an author's reference into their name and optionally their affiliation
-author_name <- function(name) {
-  m <- str_match(name, "([^\\(]*) \\((.*)\\)$")
-  if (is.na(m[,1])) {
-    orig <- name
-    affil <- NA
-  } else {
-    orig <- m[,2]
-    affil <- m[,3]
-  }
-  return(c(orig, affil))
-}
-
-# this function converts the author's name to title case, removes any titles, and formats their name to be 'lastname, firstname'
-normalized_author_name <- function(name) {
-
-  recased <- str_to_title(name)
-  recased <- str_replace(recased, "Jr\\.", "") %>%
-    str_replace("Sr\\.", "") %>%
-    str_replace("Dr\\.", "") %>%
-    str_replace("Prof\\.", "")
-
-  names <- author_name(recased)[1]
-  names <- str_split(names, " ")
-  names <- names[[1]]
-
-  if (length(names) == 1) {
-
-    return(names)
-
-  } else {
-
-    last <- tail(names, n = 1)
-    rest <- names[1:(length(names) - 1)]
-
-    if (length(rest) == 1) {
-
-      first <- rest
-
-    } else {
-
-      tot <- ""
-      for (i in seq_along(rest)) {
-        tot <- paste0(tot,' ', rest[i])
-      }
-
-      first <- tot
-
-    }
-
-    full <- paste0(last, ", ", first)
-    return(full)
-
-  }
-
-}
 
 # This function reads in a .json conference file and for each paper in the conference it extracts the author names, paper id,
 # field, and conference id into a data frame. It then normalizes the names using 'normalized_author_name' and moves
 # on to the next paper, stacking the new data frame with those that have already been created each time.
-# Finally it joins this dataframe with the csv of author names and corresponding genders.
+# Finally it normalizes the author names and joins with a gender mapping df to get the corresponding genders.
 
 json_to_df <- function(conf_name, gender_mapping) {
+  json_fpath <- paste0(toplevel, "data/conf/", conf_name, ".json")
+  conf <- rjson::fromJSON(file = json_fpath)
+  confname <- conf[[1]]
+  field <- conf[['field']]
+  subfield <- conf[['subfield']]
+  papers <- conf[['papers']]
+  submissions <- conf[['submissions']]
 
-  json_fpath <- paste0("https://raw.githubusercontent.com/eitanf/sysconf/master/data/conf/", conf_name, ".json")
-  json <- rjson::fromJSON(file = json_fpath)
-  json_sub <- json[['papers']]
+  conf_info_df <- data.frame()
 
-  df <- data.frame()
-  for (i in seq_along(json_sub)) {
+  for (i in seq_along(papers)) {
+    paper_id <- unlist(papers[[i]][1])
+    authors <- as.data.frame(papers[[i]][3]) %>%
+      mutate(conf = confname,
+             field = field,
+             subfield = subfield,
+             paper_id = paper_id,
+             n_submissions = submissions)
 
-    id <- json_sub[[i]][1]
-    authors <- as.data.frame(json_sub[[i]][3])
-
-    authors <- authors %>%
-      mutate(paper_id = str_sub(id, -3L, -1L)) %>%
-      mutate(conf = json[[1]])
-
-    if (length(json[['field']]) != 0) {
-
-      authors <- authors %>%
-        mutate(field = json[['field']])
-
-    } else {
-
-      authors <- authors %>%
-        mutate(field = "")
-
-    }
-
-    df <- rbind(df, authors)
-
+    conf_info_df <- bind_rows(conf_info_df, authors)
   }
 
-  names_vector <- df$authors
-  names_normed_df <- data.frame()
-  for (i in seq_along(names_vector)) {
+  conf_info_df <- conf_info_df %>%
+    mutate(authors = map_chr(authors, normalized_author_name)) %>%
+    mutate(authors = str_replace(authors, "\\s+", " ")) %>%
+    mutate(paper_id = as.factor(paper_id)) %>%
+    rename(name = authors)
 
-    new <- as.data.frame(str_replace(normalized_author_name(names_vector[i]), "\\s+", " "))
-    names_normed_df <- rbind(names_normed_df, new)
-
-  }
-
-  names(names_normed_df) <- "name"
-
-  if (nrow(df) == nrow(names_normed_df)) {
-
-    df_full <-
-      cbind(df, names_normed_df) %>%
-      select(-authors)
-
-    df_full %>%
-      left_join(gender_mapping, by = "name")
-
-  } else {
-    # this should never happen, but just in case we'll check for it
-    stop("lengths don't match")
-  }
-
+  conf_info_df %>%
+    left_join(gender_mapping, by = "name")
 }
 
+######################
 # Here we create a vector of the conference names and use the 'map_dfr' function to apply 'json_to_df' to each conference.
-nonsys_conf_names <-
-  c("AAAI", "ACL", "CHI", "CVPR", "ICML", "ICSE", "MM", "NIPS", "POPL","SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "SIGIR", "KDD", "ICDM")
+nonsys_confs <-
+  c("AAAI", "ACL", "CHI", "CVPR", "FSE", "ICML", "ICSE", "MM", "NIPS", "POPL", "SIGCSE", "SIGGRAPH", "SODA", "STOC", "WSDM", "WWW", "ITICSE", "FOCS", "TACAS")
 
-nonsys_confs <- nonsys_conf_names %>%
-  map_dfr(
-    ~json_to_df(.x, all_genders)
-  )
+nonsys_authors <- nonsys_confs %>%
+  map_dfr(~json_to_df(.x, all_genders)) %>%
+  mutate(across(.cols = everything(), na_if, "NA")) %>%
+  mutate(across(c(field, subfield, gender), factor))
+  
 
+###########
+name_combination_creator <- function(df)
+{
+  authors <- df$name
+  if (length(authors) <= 1) {
+    return (data.frame(name1 = c(), name2 = c()))
+  }
+
+  ret <- as.data.frame(t(combn(authors, 2)))
+  names(ret) <- c("name1", "name2")
+  ret <- rbind(ret, data.frame(name1 = ret$name2, name2 = ret$name1))
+  return(ret)
+}
+
+#######
+# All-to-all coauthor pairs for non-sys and for sys:
+nonsys_collaboration_pairs <- nonsys_authors %>%
+  group_by(paper_id) %>%
+  group_modify(~name_combination_creator(.x)) %>%
+  ungroup() %>%
+  left_join(all_genders, by = c("name2" = "name")) %>%
+  rename(gender2 = gender) %>%
+  left_join(all_genders, by = c("name1" = "name")) %>%
+  rename(gender1 = gender) %>%
+  dplyr::select(paper_id, name1, gender1, name2, gender2)
+
+sys_collaboration_pairs <- coauthors %>%
+  left_join(persons, by = c("name1" = "name", "gs_email1" = "gs_email")) %>%
+  rename(gender1 = gender, paper_id = paper) %>%
+  left_join(persons, by = c("name2" = "name", "gs_email2" = "gs_email")) %>%
+  rename(gender2 = gender) %>%
+  dplyr::select(paper_id, name1, gender1, name2, gender2) %>%
+  distinct(name1, name2, paper_id, .keep_all = T)
+
+all_pairs <- rbind(nonsys_collaboration_pairs, sys_collaboration_pairs)
+
+#####################
+gender_summary_table <- function(data)
+{
+  data %>%
+    summarise(.groups = "keep",
+      n_papers = n_distinct(paper_id, conf),
+      n_na = sum(is.na(gender)),
+      n_male = sum(gender == "M", na.rm = T),
+      n_female = sum(gender == "F", na.rm = T),
+      prop_female = n_female / (n_female + n_male)
+    ) %>%
+    arrange(desc(prop_female)) %>%
+    knitr::kable()
+}
+
+#######
+
+sys_auths <- roles %>%
+  filter(role == "author") %>%
+  left_join(persons, by = c("name" = "name", "gs_email" = "gs_email")) %>%
+  dplyr::select(name, gender, key, gs_email) %>%
+  mutate(conf = as.factor(gsub("_\\d\\d\\d$", "", key))) %>%
+  left_join(all_confs, by = c("conf" = "conference")) %>%
+  rename(key = key.x) %>%
+  dplyr::select(name, gender, key, field, subfield)
+
+nonsys_auths <- nonsys_authors %>%
+  dplyr::select(-conf, -n_submissions) %>%
+  dplyr::select(name, gender, paper_id, field, subfield) %>%
+  rename(key = paper_id) %>%
+  mutate(gs_email = NA)
+
+full_auths <- bind_rows(sys_auths, nonsys_auths) %>%
+  group_by(key) %>%
+  mutate(coauthors = n() - 1) %>%
+  mutate(last_gender = last(gender), is_last = name == last(name)) %>%
+  ungroup() %>%
+  group_by(name, gender) %>%
+  mutate(prod = n(), fractional_prod = sum(1 / (coauthors + 1))) %>%
+  ungroup()
+
+full_auths$subfield = recode_factor(full_auths$subfield,
+                                    "Heterogeneous Computing" = "Computer Architecture",
+                                    "Network" = "Communications",
+                                    "Virtualization" = "Operating Systems",
+                                    "Energy" = "Computer Architecture",
+                                    "Architecture" = "Computer Architecture")
+
+full_auths$field = recode_factor(full_auths$field,
+                                 "Knowledge Systems" = "Knowledge",
+                                 "Artificial Intelligence" = "AI",
+                                 "Computer Science Education" = "CS Education",
+                                 "Human-Computer Interaction" = "HCI",
+                                 "Systems" = "Systems",
+                                 "Theory and Algorithms" = "Theory",
+                                 "Software Engineering & Languages" = "SE/languages")
+
+gen_auths <- full_auths %>% drop_na(gender)
+
+########
+pairs_with_field <- full_auths %>%    # Add field and subfield to all_pairs
+  mutate(paper_id = key) %>%
+  group_by(paper_id) %>%
+  summarize(.groups = "keep", field = first(field), subfield = first(subfield)) %>%
+  right_join(all_pairs) %>%
+  ungroup() %>%
+  drop_na(gender1) %>%
+  drop_na(gender2) %>%
+  group_by(subfield) %>%
+  mutate(internal = sum(gender1 == gender2), external = sum(gender1 != gender2)) %>%
+  mutate(ei_index = (external - internal) / (external + internal)) %>%
+  mutate(w_prob = sum(gender1 == "F" & gender2 == "F") / sum(gender1 == "F"))
+  
+#######
+productivity_diff <- function(sf)
+{
+  men <- filter(gen_auths, gender == "M", subfield == sf)
+  women <- filter(gen_auths, gender == "F", subfield == sf)
+  paste0(round(mean(men$prod) - mean(women$prod), 2), "; ",
+         report_test(t.test(men$prod, women$prod)))
+}
+
+#### Summary table of properties of subfields.
+tmp <- pairs_with_field %>%
+  group_by(subfield, field) %>%
+  summarize(.groups = "keep", ei_index = first(ei_index), wprob = first(w_prob))
+
+subfield_summary <- gen_auths %>%
+  group_by(subfield) %>%
+  summarize(.groups = "keep",
+            FAR = sum(gender == "F") / n(),
+            avg_prod = mean(prod),
+            avg_frac = mean(fractional_prod),
+            avg_coauthors = mean(coauthors),
+            single_ratio = sum(coauthors == 0) / n_distinct(key)
+            ) %>%
+  ungroup() %>%
+  left_join(tmp) %>%
+  mutate(whomo = wprob / FAR)
 ```
+
+
+# Introduction {-}
+
+<!-------------------------------------------------------------------------------------------------------------->
+
+
+
+
+
+
+
+
+In a recent study we found that the ratio of female authors in computer systems conference papers is particularly low, even compared to the rest of computer science [@yamamoto21:collaboration]. This large underrepresentation cannot be fully explained by review bias, differences in collaboration patterns, and numerous other demographic and conference factors.
+The statistically significant difference raises the question then, why is the underrepresentation of women in computer systems authorship so high?
+
+This simple question likely has no simple answers.
+There are many other dimensions---societal, economical, historical, and structural---that influence this gender gap, [@avolio20:factors] and we may never be able to offer a complete explanation.
+But we can examine many of the factors that have been previously identified as possible contributors to the gender gap in computer science and other sciences in general, and attempt to assess whether their effect is exacerbated for computer systems in particular.
+
+In this article, we enumerate ten such factors and ask whether they have an outsize effect in computer systems research, backing our discussion with quantitative evidence where we can find any.
+Our main source of data is a manually curated dataset of `r nrow(sys_confs)` systems conferences, all from one year, 2017.
+Our dataset includes extensive information on the conferences, papers, and participants, including gender information.
+The methodological aspects of identifying and cleaning the appropriate dataset, as well as the main statistical findings about the underrepresentation of women in the field, can all be found in our original study [@].
+
+In the remainder of this article, we use this and other datasets to try to evaluate each of the ten potential factors for the increased gender gap in systems.
+We present each factor as a hypothesis for having an increased effect on systems in particular. 
+We divide our hypotheses into three groups, those where our dataset provide evidence for an increased effect, those where the data provided mixed or no evidence, and those for which we have no specific data but can speculate based on the characteristics of the field.
+For each factor, we briefly explain its observed effect on the gender gap in other fields, and then try to prove or 
+
+# Factors supported by the evidence {-}
+
+## H2: Too few women peers and mentors
+
+```{r compute_last_authors, echo=F}
+lf <- filter(full_auths, last_gender == "F")  # All authors in papers where the last author (senior) is female
+lm <- filter(full_auths, last_gender == "M")  # All authors in papers where the last author (senior) is male
+tot_fm <- nrow(filter(lm, gender == "F", !is_last))  # Total no. of nonsenior females in papers with senior male
+tot_ff <- nrow(filter(lf, gender == "F", !is_last))  # Total no. of nonsenior females in papers with senior female
+tot_mf <- nrow(filter(lf, gender == "M", !is_last))  # Total no. of nonsenior males in papers with senior female
+tot_mm <- nrow(filter(lm, gender == "M", !is_last))  # Total no. of nonsenior males in papers with senior male
+
+# Repeat these calculations but for systems papers only:
+sys_lf <- filter(lf, key %in% sys_auths$key)
+sys_lm <- filter(lm, key %in% sys_auths$key)
+nonsys_lf <- filter(lf, !(key %in% sys_auths$key))
+nonsys_lm <- filter(lm, !(key %in% sys_auths$key))
+```
+
+Perhaps the simplest explanation to a high gender gap in a field is the high gender gap in the field. The lack of female mentors, peers, and role models dissuades women from entering or remaining in a field where they can feel unsupported and singled-out [@heilbronner13:stem].
+In the `r fmt(n_distinct(full_auths$key))` papers we looked at, when the senior (last) author is a woman, nonsenior authors include
+`r pct(tot_ff, nrow(lf))`% women, compared to only
+`r pct(tot_fm, nrow(lm))`% when the senior author is a man.
+But of the `r fmt(nrow(papers))` papers in systems, only
+`r pct(nrow(sys_lf), nrow(sys_lf) + nrow(sys_lm))`%
+have a female senior author, compared to
+`r pct(nrow(nonsys_lf), nrow(nonsys_lf) + nrow(nonsys_lm))`%
+in the nonsystems papers.
+This suggests that junior women have about 50% better chance to find a senior woman to collaborate with outside of systems.
+
+
+## H4: Women have fewer collaborations
+
+## H5: Women are better represented in human-centered fields
+
+[@diekman13:navigating] or [@diekman15:new]
+
+## H8: Women are underrepresented in engineering fields
+
+
+# Factors not supported by the evidence {-}
+
+
+## H3: Women leave research careers at a higher rate than men
+
+## H10: Fewer women pursue research in industry
+
+# Factors for which we have no direct evidence {-}
+
+
+## H1: Systems research requires more pre-college programming experience
+
+## H6: Women are underrepresented in more competitive fields
+
+## H7: Women are underrepresented in more expensive fields
+
+## H9: A high salary premium for non-research careers leads to fewer women researchers
+
+[@kahn17:women]
+
+
+This list of possible explanations to the gender gap is not exhaustive. Other factors we didn’t discuss are more qualitative and subjective: e.g., stereotypes, discrimination, bias. We have no concrete evidence to point to an increased effect of these factors in systems research. But we have heard anecdotal complaints from women practitioners about toxic “bro culture” in systems labs and some systems conferences [@martonosi17:statement].
+
+<!-------------------------------------------------------------------------------------------------------------->
+
+
+
+
+TODO: Incorporate [this paper](https://case.edu/ideal-n/sites/case.edu.ideal-n/files/2018-04/Cheriyan-et-al-Gender-%26-Variability-in-STEM-Psych-Bulletin-2016.pdf)
+
+TODO: Women are not so underrepresented in education: [@west13:role].
+
+# Conclusion {-}
+
+In the list above, we identified a number of factors excluding women in sciences that appear to be especially accentuated for systems.
+But this list is not exhaustive.
+More factors have been suggested to explain the higher gender gap in systems, for example, the existence of a male-toxic atmosphere in certain systems research labs.
+In an attempt to limit our discussion to a manageable length, we focused only on factors for which we may have some information or ideas to contribute.
+But this focus by no means suggests that other factors are not as important or influential.
+We hope that this article not only engenders further detailed discussion of the factors listed here, but also fosters a more extensive conversation and research around all the factors that play a part in this large gender gap.
+All sciences benefit when they are open to diverse participants [@].
+Computer systems is a large and economically critical field, and the significant underrepresentation of women in this field harms not only women, but society as a whole.
+Let us work to understand this phenomenon better, so we can change its course.

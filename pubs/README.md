@@ -42,7 +42,8 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   journal =	 {{PeerJ Computer Science}},
   year =	 2020,
   mon =		 sep,
-  doi =		 {10.7717/peerj-cs.299}
+  doi =		 {10.7717/peerj-cs.299},
+  url =		 {https://peerj.com/articles/cs-299/}
 }
 
 @InProceedings{frachtenberg21:whpc,
@@ -54,7 +55,8 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   address =	 {St. Louis, {MO}},
   month =	 nov,
   year =	 2021,
-  url =	 {https://mail.easychair.org/publications/preprint_download/2nVv}
+  doi =		 {10.1145/3458817.3476164},
+  url =		 {https://dl.acm.org/doi/10.1145/3458817.3476164}
 }
 
 @Article{frachtenberg22:artifact,

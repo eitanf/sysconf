@@ -25,6 +25,7 @@ There are two ways to recreate the documents (which embed the analysis):
 
 ## List of completed and ongoing publications:
 
+  * `artifact`: "Research artifacts and citations in computer systems papers" (`docker run -ti eitanf/sysconf:artifact`).
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: Initial draft of paper on gender gap in systems.
   * `prestige`: paper draft: "Metrics and methods in prestige bias evaluation".
@@ -54,6 +55,18 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   month =	 nov,
   year =	 2021,
   url =	 {https://mail.easychair.org/publications/preprint_download/2nVv}
+}
+
+@Article{frachtenberg22:artifact,
+  author =	 {Eitan Frachtenberg},
+  title =	 {Research artifacts and citations in computer systems papers},
+  journal =	 {{PeerJ Computer Science}},
+  year =	 2022,
+  volume =	 8,
+  pages =	 {e887},
+  month =	 feb,
+  doi =		 {10.7717/peerj-cs.887},
+  url =		 {https://peerj.com/articles/cs-887/}
 }
 ```
 

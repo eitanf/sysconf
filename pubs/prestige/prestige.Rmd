@@ -1,12 +1,13 @@
 ---
-title: Metrics and methods in the evaluation of prestige bias in peer review
+title: |
+  Metrics and methods in the evaluation of prestige bias in peer review: A case study in computer systems conferences
 runtitle: Measuring prestige bias in peer review
 author:
   - name: Eitan Frachtenberg
     email: eitan@reed.edu
     affiliation: Reed-cs
     corresponding: eitan@reed.edu
-  - name: Kelly McConville
+  - name: Kelly S McConville
     email: mcconville@reed.edu
     affiliation: Reed-math
 address:
@@ -342,10 +343,10 @@ Finally, we review related work and provide some conclusions and recommendations
 
 The primary dataset we analyze comes from a hand-curated collection of `r nrow(all_confs)` peer-reviewed systems and systems-related conferences from a single publication year (2017).
 In computer science, and in particular in its more applied fields such as systems, original scientific results are typically first published in peer-reviewed conferences [@franceschet10:role; @freyne10:relative; @patterson99:evaluating; @vardi09:conferences], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
-The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs), with additional details in the supplementary information).
+The conferences we selected include some of the most prestigious systems conferences (based on indirect measurements such as Google Scholar's metrics), as well as several smaller or less-competitive conferences for contrast (Table \@ref(tab:sys-confs), with additional details in the S2 Appendix).
 We chose to focus on a large cross-sectional set of conferences from a single publication year (2017), to reduce variations in time.
-Our choice of which conferences belong to "systems" is necessarily subjective.^[For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.]
-Not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
+Our choice of which conferences belong to "systems" is necessarily subjective. For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as: operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.
+Obviously, not all systems papers from 2017 are included in our set, and some papers that are in our set may not necessarily be considered part of systems (for example, if they lean more towards algorithms or theory).
 However, we believe that our cross-sectional set is both wide enough to represent the field well and focused enough to distinguish it from the rest of computer science.
 In total, our sample includes `r sum(all_confs$npapers)` accepted peer-reviewed papers.
 
@@ -418,15 +419,12 @@ In particular, limiting our dataset to a single publication year means that it c
 But it does eliminate time-based variance within and across conferences.
 
 <!-------------------------------------------------------------------------------------------->
-## Statistics
+## Statistics and source code
 
 For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon Signed Rank Test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and comparisons between two numerical variables were evaluated with Pearson's product moment correlation coefficient.  In terms of statistical modeling, fixed-effects and mixed-effects generalized linear models were built and Satterthwaite's degrees of freedom method is used for hypothesis testing on model coefficients. All statistical tests are reported with their p-values.
 
-<!-------------------------------------------------------------------------------------------->
-## Code and data availability
-
-All analysis was conducted in the statistical software package `R`[@rteam13:r]. For reproducibility, all of the data and source code files we used can be found in the supporting information and at [https://github.com/eitanf/sysconf/](https://github.com/eitanf/sysconf/) [@frachtenberg:github-repo].
-The specific statistical analyses for this study can be found in the file
+All analyses were conducted in the statistical software package `R` [@rteam13:r].
+The specific code for this study can be found in the file
 `pubs/prestige/prestige.Rmd` and the relevant `R` packages in the file `pubs/dependencies.R`.
 A Docker image with the complete software environment for reproduction of this analysis can be found at \url{https://hub.docker.com/repository/docker/eitanf/sysconf} under the `prestige` tag.
 
@@ -463,9 +461,9 @@ We next describe these metrics and their characteristics in our dataset.
 metrics.summary <- ppl %>%
   pivot_longer(cols = c("npubs", "hindex", "citedby", "paper_cites", "hindex5y", "i10index", "i10index5y", "s2npubs", "as_author"), names_to = "Metric") %>%
   mutate(Metric = recode_factor(Metric,
-                                npubs = "Total publications (GS)", hindex = "h-index",
-                                citedby = "Total citations",
-                                s2npubs = "Total publications (S2)",
+                                npubs = "Publications (GS)", hindex = "h-index",
+                                citedby = "Citations (GS)",
+                                s2npubs = "Publications (S2)",
                                 as_author = "Papers in dataset",
                                 paper_cites = "Citations per paper",
                                 i10index = "i10-index", hindex5y = "h-index (5 years)",
@@ -487,6 +485,8 @@ ggplot(metrics.summary,
   xlab("Metric value") +
   ylab("Count") +
   facet_wrap( ~ Metric, scales = "free")
+
+# ggsave("Fig_1.eps", dpi = 600)
 ```
 
 
@@ -673,6 +673,8 @@ ggplot(rep.all, aes(x = metric, y = aggregation)) +
   theme_minimal() +
   guides(fill = "none") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# ggsave("Fig_3.eps", dpi = 600)
 ```
 
 
@@ -715,6 +717,8 @@ rep.all %>%
   theme_minimal() +
   guides(fill = "none") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# ggsave("Fig_4.eps", dpi = 600)
 ```
 
 
@@ -756,6 +760,8 @@ tbl %>%
     xlab("Publication count threshold") +
     ylab("Proportion of papers") +
     scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("orange", "blue"))
+
+# ggsave("Fig_5.eps", dpi = 600)
 ```
 
 ```{r, eval = FALSE, include = FALSE}
@@ -798,6 +804,8 @@ tbl %>%
     xlab("h-index threshold") +
     ylab("Proportion of papers")  +
     scale_color_manual(name = "Review Policy", labels = c("Double", "Single"), values = c("orange", "blue"))
+
+# ggsave("Fig_6.eps", dpi = 600)
 ```
 
 ```{r, eval = FALSE, include = FALSE}
@@ -849,6 +857,8 @@ e_with_seniority %>%
     guides(fill = guide_legend(title = "Highest author experience")) +
     scale_x_discrete(name = "Review policy", labels = c("Single", "Double")) +
     coord_flip()
+
+# ggsave("Fig_7.eps", dpi = 600)
 ```
 
 When we apply these (admittedly arbitrary) limits to our dataset (Fig. \@ref(fig:seniority)), we do not find a statistically significant difference in the distribution of senior author experience between the reviewing policies
@@ -968,6 +978,8 @@ reg.all %>%
     theme_minimal() +
     guides(fill = "none") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
+
+# ggsave("Fig_8.eps", dpi = 600)
 ```
 
 ```{r linear-mixed-regression, echo = F, warning = F, fig.height = 3, fig.width = 5.5, fig.cap="Mixed-effects linear regression models of various author prestige metrics as predicted by review policy and other conference variables with conference as a random effect. Values shown are the coefficient of the reviewing policy variable in the linear model and their associated p-values, estimated via Satterthwaite’s degrees of freedom method [@kuznetsova17:lmertest]. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
@@ -985,6 +997,8 @@ reg.all %>%
     theme_minimal() +
     guides(fill = "none") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
+
+# ggsave("Fig_9.eps", dpi = 600)
 ```
 
 
@@ -1038,6 +1052,8 @@ reg.all %>%
     theme_minimal() +
     guides(fill = "none") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
+
+# ggsave("Fig_10.eps", dpi = 600)
 ```
 
 ```{r logistic-mixed-regression, echo = F, warning = F, fig.height = 3, fig.width = 5.5, fig.cap="Mixed effects logistic regression of the top decile of various author prestige metrics as predicted by review policy and other conference variables with conference as a random effect. Values shown are the coefficient of DB reviewing in the logistic model and their associated p-values, estimated via Satterthwaite’s degrees of freedom method [@kuznetsova17:lmertest]. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
@@ -1055,11 +1071,13 @@ reg.all %>%
     theme_minimal() +
     guides(fill = "none") +
     theme(axis.text.x = element_text(angle = 45, hjust = 1), axis.text.y = element_text(angle = 45, hjust = 1))
+
+# ggsave("Fig_11.eps", dpi = 600)
 ```
 
 
 
-Figure \@ref(fig:logistic-mixed-regression) depicts the effects of this binary treatment of author prestige on the association with reviewing policy, corrected for conference prestige.
+Figures \@ref(fig:logistic-regression) and \@ref(fig:logistic-mixed-regression) depict the effects of this binary treatment of author prestige on the association with reviewing policy, corrected for conference prestige.
 Directionally, the results are similar to those of the linear regression.
 However, restricting name recognition to a specific quantile adds two desirable properties to the coefficient comparison: it normalizes all the coefficients to the same range from 0 to 1, and eliminates the outsized effect of high-prestige author outliers on the linear regression.
 Consequently, observing general trends becomes easier and less noisy.
@@ -1117,6 +1135,24 @@ This strategy likely inflates some paper aggregation metrics such as the mean, b
 On the opposite end of the spectrum, we also considered imputing the missing metrics with the minimum value for that metric.
 This imputation assumes that the missing values all represent new researchers and will pull down the mean paper aggregation metrics,
 but again will hardly influence the maximum metric.
+
+
+```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.height = 3.0, fig.width = 5.5, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and pointed where the GS metric is 3 times the S2 metric are highlighted in yellow."}
+ppl %>%
+  select(npubs, s2npubs, imp) %>%
+  filter(s2npubs < S2_THRESH) %>%
+  ggplot(aes(y = npubs, x = s2npubs)) +
+    geom_point(alpha = 0.2, mapping = aes(color = imp)) +
+    geom_smooth(method = lm, se = FALSE, color = "brown") +
+    guides(colour = FALSE) +
+    labs(x = "Publications (S2)", y = "Publications (GS)") +
+    theme_minimal() +
+    scale_color_manual(values = c("black", "goldenrod"))
+
+# ggsave("Fig_12.eps", dpi = 600)
+```
+
+
 
 Lastly, we considered imputing the missing values based on a linear regression model built on the total publications from S2, which is moderately correlated with the GS metrics (Fig. \@ref(fig:metric-corrs)).
 For the linear imputation, we also imputed the GS metrics if the ratio of the total publications from GS compared to S2 was greater than `r THRESH_RATIO`, which indicated a potential inflation of the values of GS metrics for those authors (Fig. \@ref(fig:imputation)).
@@ -1221,6 +1257,8 @@ dat %>%
   guides(fill = "none") +
   theme(axis.text.x = element_text(angle = 45, hjust = 0.5)) +
   facet_grid(test~metric_type, scales = "free")
+
+# ggsave("Fig_13.eps", dpi = 600)
 ```
 
 
@@ -1228,21 +1266,6 @@ Across these three strategies, the sign of the relationship between review polic
 The linear imputation method acts as a compromise by typically providing a test statistic and p-value that is between those provided by the other two methods.
 Generally, it appears that imputing the missing data has little impact on prestige-bias analysis because most of the missing data are for the less-experienced authors, who do not impact many of our aggregation metrics.
 However, researchers must remain cognizant of these choices and transparent about how they handle missing values.
-
-
-```{r imputation, echo = FALSE, message = FALSE, warning= FALSE, fig.height = 3.0, fig.width = 5.5, fig.cap = "Scatterplot of the relationship between the two author-level, total publication metrics.  The estimated linear regression line used for imputation is included in black and pointed where the GS metric is 3 times the S2 metric are highlighted in yellow."}
-ppl %>%
-  select(npubs, s2npubs, imp) %>%
-  filter(s2npubs < S2_THRESH) %>%
-  ggplot(aes(y = npubs, x = s2npubs)) +
-    geom_point(alpha = 0.2, mapping = aes(color = imp)) +
-    geom_smooth(method = lm, se = FALSE, color = "brown") +
-    guides(colour = FALSE) +
-    labs(x = "Publications (S2)", y = "Publications (GS)") +
-    theme_minimal() +
-    scale_color_manual(values = c("black", "goldenrod"))
-```
-
 
 
 <!-------------------------------------------------------------------------------------------->
@@ -1280,10 +1303,12 @@ ppl %>%
     scale_y_log10() +
     theme_minimal() +
     theme(legend.position = "bottom")
+
+# ggsave("Fig_14.eps", dpi = 600)
 ```
 
 
-Figure \@ref(fig:npubs-vs-hindex) compares these metrics across all authors with GS data, with the color of each point representing the percentage of papers in our set that each person published in SB or DB conferences.
+Fig. \@ref(fig:npubs-vs-hindex) compares these metrics across all authors with GS data, with the color of each point representing the percentage of papers in our set that each person published in SB or DB conferences.
 Despite the strong correlation between the two metrics, it is clear that they do not always agree.
 Some researchers exhibit relatively high h-index and some exhibit relatively high publication count, compared to the average population as represented by the regression line.
 
@@ -1441,8 +1466,11 @@ We must also acknowledge that "reputation" and "name recognition" are not purely
 Perhaps a better approach for experimental studies might be to ask reviewers to rank the "reputation" of the authors they reviewed, but only after all papers have been reviewed, to reduce priming effects.
 We hope further that this paper provides a guideline and a roadmap to studies on bias on how to carefully address methodological issues that could limit the generalization or credibility of their results.
 
+# Supporting information {-}
 
-### S1 Detailed conference list {-}
+# S1 Dataset. Complete data and source code {-}
+
+# S2 Appendix. Detailed conference list {-}
 
 ```{r confs-data, echo=F, message=F, warning=F}
 cfs <- all_confs %>%
@@ -1469,9 +1497,11 @@ for (i in 1:nrow(cfs))
 }
 ```
 
+<!--
 \begin{enumerate}
 `r str`
 \end{enumerate}
+-->
 
 # References {-}
 

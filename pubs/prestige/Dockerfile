@@ -14,7 +14,7 @@ RUN Rscript deps.R
 
 RUN git clone http://github.com/eitanf/sysconf
 WORKDIR sysconf/
-RUN git checkout prestige-submitted
+RUN git checkout prestige-final
 WORKDIR pubs/prestige
 RUN make
 

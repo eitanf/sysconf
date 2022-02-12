@@ -22,7 +22,8 @@ output:
     template: main.tex
     keep_tex: yes
     citation_package: natbib
-abstract: >
+abstract: |
+  Numerous explanations have been proposed for the underrepresentation of women in computer science (CS) research. Using an expansive dataset on CS conference authors, we ask which of these explanations apply even more to researchers in computer systems, where the representation of women is even lower.
 ---
 
 ```{r code = readLines("../load_data.R"), echo = F, message = F}
@@ -177,13 +178,14 @@ full_auths$subfield = recode_factor(full_auths$subfield,
                                     "Architecture" = "Computer Architecture")
 
 full_auths$field = recode_factor(full_auths$field,
-                                 "Knowledge Systems" = "Knowledge",
-                                 "Artificial Intelligence" = "AI",
-                                 "Computer Science Education" = "CS Education",
-                                 "Human-Computer Interaction" = "HCI",
-                                 "Systems" = "Systems",
-                                 "Theory and Algorithms" = "Theory",
-                                 "Software Engineering & Languages" = "SE/languages")
+                                 "Computer Science Education" = "Computer science education",
+                                 "Human-Computer Interaction" = "Human-computer interaction",
+                                 "Knowledge Systems" = "Knowledge systems",
+                                 "Software Engineering & Languages" = "Software engineering and languages",
+                                 "Artificial Intelligence" = "Artificial intelligence",
+                                 "Systems" = "Computer systems",
+                                 "Theory and Algorithms" = "Theory and algorithms"
+)
 
 gen_auths <- full_auths %>% drop_na(gender)
 
@@ -215,28 +217,52 @@ tmp <- pairs_with_field %>%
   group_by(subfield, field) %>%
   summarize(.groups = "keep", ei_index = first(ei_index), wprob = first(w_prob))
 
-subfield_summary <- gen_auths %>%
-  group_by(subfield) %>%
-  summarize(.groups = "keep",
-            FAR = sum(gender == "F") / n(),
-            avg_prod = mean(prod),
-            avg_frac = mean(fractional_prod),
-            avg_coauthors = mean(coauthors),
-            single_ratio = sum(coauthors == 0) / n_distinct(key)
-            ) %>%
-  ungroup() %>%
-  left_join(tmp) %>%
-  mutate(whomo = wprob / FAR)
+field_summary <- gen_auths %>%
+  group_by(field) %>%
+  summarize(.groups = "keep", Authors = n(), FAR = sum(gender == "F") / n()) %>%
+  ungroup()
+
+lf <- filter(full_auths, last_gender == "F")  # All authors in papers where the last author (senior) is female
+lm <- filter(full_auths, last_gender == "M")  # All authors in papers where the last author (senior) is male
+tot_fm <- nrow(filter(lm, gender == "F", !is_last))  # Total no. of nonsenior females in papers with senior male
+tot_ff <- nrow(filter(lf, gender == "F", !is_last))  # Total no. of nonsenior females in papers with senior female
+tot_mf <- nrow(filter(lf, gender == "M", !is_last))  # Total no. of nonsenior males in papers with senior female
+tot_mm <- nrow(filter(lm, gender == "M", !is_last))  # Total no. of nonsenior males in papers with senior male
+
+# Repeat these calculations but for systems papers only:
+sys_lf <- filter(lf, key %in% sys_auths$key)
+sys_lm <- filter(lm, key %in% sys_auths$key)
+nonsys_lf <- filter(lf, !(key %in% sys_auths$key))
+nonsys_lm <- filter(lm, !(key %in% sys_auths$key))
 ```
 
 
 # Introduction {-}
 
+
+```{r field-aggregation, echo = F, cache = T}
+data.frame(
+    Field = field_summary$field,
+    "Total authors" = field_summary$Authors,
+    "Female authors" = paste0(round(100 * field_summary$FAR, 1), "%"),
+    check.names = F
+) %>%
+  bind_rows(data.frame(check.names = F,
+    "Field" = "Overall",
+    "Total authors" = sum(field_summary$Authors),
+    "Female authors" = paste0(round(100 * sum(gen_auths$gender == "F") / nrow(gen_auths), 1.0), "%"))) %>%
+    knitr::kable(format = "latex",
+               booktabs = T,
+               align = "lrr",
+               linesep = c(rep("", 6), "\\addlinespace"),
+               caption = "Percentage of female authors in peer-reviewed conference papers across fields of computer science (CS).")
+#  column_spec(2, width = "2.5cm")
+#  kable_styling(font_size = 7)
+
+```
+
+
 <!-------------------------------------------------------------------------------------------------------------->
-
-
-
-
 
 
 
@@ -253,14 +279,14 @@ Our main source of data is a manually curated dataset of `r nrow(sys_confs)` sys
 Our dataset includes extensive information on the conferences, papers, and participants, including gender information.
 The methodological aspects of identifying and cleaning the appropriate dataset, as well as the main statistical findings about the underrepresentation of women in the field, can all be found in our original study [@].
 
-In the remainder of this article, we use this and other datasets to try to evaluate each of the ten potential factors for the increased gender gap in systems.
+Here, we use this and other data sources to try to evaluate each of the ten potential factors for the increased gender gap in systems.
 We present each factor as a hypothesis for having an increased effect on systems in particular. 
 We divide our hypotheses into three groups, those where our dataset provide evidence for an increased effect, those where the data provided mixed or no evidence, and those for which we have no specific data but can speculate based on the characteristics of the field.
 For each factor, we briefly explain its observed effect on the gender gap in other fields, and then try to prove or 
 
 # Factors supported by the evidence {-}
 
-## H2: Too few women peers and mentors
+## H2: Too few women peers and mentors {-}
 
 ```{r compute_last_authors, echo=F}
 lf <- filter(full_auths, last_gender == "F")  # All authors in papers where the last author (senior) is female
@@ -287,39 +313,57 @@ have a female senior author, compared to
 `r pct(nrow(nonsys_lf), nrow(nonsys_lf) + nrow(nonsys_lm))`%
 in the nonsystems papers.
 This suggests that junior women have about 50% better chance to find a senior woman to collaborate with outside of systems.
+ 
+
+## H4: Women have fewer collaborations {-}
+
+## H5: Women are better represented in human-centered fields {-}
+
+It has been shown that due to traditional social roles, women tend to be more people-centered and communally oriented than men and most STEM related careers are not perceived as focusing heavily on these values [@diekman15:new; @kahn17:women]. The underrepresentation of gender minorities in computer systems and other centered fields of CS can be seen through the oversaturation of human-centered subfields of CS such as human-computer interaction and computer education. This is likely due to the strong emphasis on benefiting one’s community and directly impacting individuals. Computer systems is not seen in the same light as the communal values are not as noticeable.
 
 
-## H4: Women have fewer collaborations
-
-## H5: Women are better represented in human-centered fields
-
-[@diekman13:navigating] or [@diekman15:new]
-
-## H8: Women are underrepresented in engineering fields
+## H8: Women are underrepresented in engineering fields {-}
 
 
 # Factors not supported by the evidence {-}
 
 
-## H3: Women leave research careers at a higher rate than men
+## H3: Women leave research careers at a higher rate than men {-}
 
-## H10: Fewer women pursue research in industry
+One thought as to why there are so few women in systems is that they start publishing in systems and then decide to leave academia for some reason. [Sentence here about why we look at retention rate?]. In examining the number of women compared to the number of men who stopped publishing after contributing to a systems paper, surprisingly, women did not leave academia at a higher rate than their male counterparts. Notably, in 2019 males left the field of computer systems research at a slightly higher rate with 7.5% more males last publishing in 2019 as opposed to their female counterparts.
+Furthermore, the ratio of female last authors in systems papers,
+`r pct(nrow(sys_lf), nrow(sys_lf) + nrow(sys_lm))`%,
+is actually closer to the ratio of all female authors in systems,
+`r pct (nrow(filter(gen_auths, gender=="F", field == "Computer systems")), nrow(filter(gen_auths, field == "Computer systems")))`% , compared to the ratios in nonsystem papers
+(`r pct(nrow(nonsys_lf), nrow(nonsys_lf) + nrow(nonsys_lm))`% and
+`r pct (nrow(filter(gen_auths, gender=="F", field != "Computer systems")), nrow(filter(gen_auths, field != "Computer systems")))`% respectively), suggesting a similar or lower attrition rate for women in systems.
+
+
+## H10: Fewer women pursue research in industry {-}
 
 # Factors for which we have no direct evidence {-}
 
 
-## H1: Systems research requires more pre-college programming experience
+## H1: Systems research requires more pre-college programming experience {-}
 
-## H6: Women are underrepresented in more competitive fields
+## H6: Women are underrepresented in more competitive fields {-}
 
-## H7: Women are underrepresented in more expensive fields
+Several studies have found that competitive pressures seem to deter women from entering certain fields, including CS [@kahn17:women]. The design and implementation of computer systems particularly emphasizes various performance metrics, and often pits one system against another. It is possible that elements of this competitive culture deter researchers who are risk- and conflict-averse or would rather focus on designing new capabilities.
 
-## H9: A high salary premium for non-research careers leads to fewer women researchers
+## H7: Women are underrepresented in more expensive fields {-}
+
+## H9: A high salary premium for non-research careers leads to fewer women researchers {-}
 
 [@kahn17:women]
 
 
-This list of possible explanations to the gender gap is not exhaustive. Other factors we didn’t discuss are more qualitative and subjective: e.g., stereotypes, discrimination, bias. We have no concrete evidence to point to an increased effect of these factors in systems research. But we have heard anecdotal complaints from women practitioners about toxic “bro culture” in systems labs and some systems conferences [@martonosi17:statement].
+This list of possible explanations to the gender gap is not exhaustive. Other factors we didn’t discuss are more qualitative and subjective, such as ability, stereotypes, demographics, discrimination, and bias. We have no specific reasons to believe these have an increased effect in systems research. But we have heard anecdotal complaints from women practitioners about toxic “bro culture” in systems labs and some systems conferences [@martonosi17:statement].
+
+
+
+
+
+
 
 <!-------------------------------------------------------------------------------------------------------------->
 

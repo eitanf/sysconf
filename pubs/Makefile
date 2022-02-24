@@ -12,7 +12,7 @@ endif
 export
 
 
-SUBDIRS=diversity-survey whpc gender-gap prestige collab-patterns whysofew # web survey-report
+SUBDIRS=diversity-survey whpc gender-gap prestige collab whysofew # web survey-report
 
 .PHONY: subdirs $(SUBDIRS) clean
 

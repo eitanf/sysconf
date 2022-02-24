@@ -26,9 +26,10 @@ There are two ways to recreate the documents (which embed the analysis):
 ## List of completed and ongoing publications:
 
   * `artifact`: "Research artifacts and citations in computer systems papers" (`docker run -ti eitanf/sysconf:artifact`).
+  * `collab`: "Gender differences in collaboration patterns in computer science" (`docker run -ti eitanf/sysconf:collab`).
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: Initial draft of paper on gender gap in systems.
-  * `prestige`: paper draft: "Metrics and methods in prestige bias evaluation".
+  * `prestige`: "Metrics and methods in prestige bias evaluation: A case study in computer systems conferences" (`docker run -ti eitanf/sysconf:prestige`).
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
   * `whpc`: "Representation of Women in HPC Conferences" (`docker run -ti eitanf/sysconf:whpc`).
@@ -49,9 +50,7 @@ The following lists in bibtex format the published peer-reviewed documents in pu
 @InProceedings{frachtenberg21:whpc,
   title =	 {Representation of Women in HPC Conferences},
   author =	 {Eitan Frachtenberg and Rhody Kaner},
-  booktitle =	 {Proceedings of the International Conference for High
-                  Performance Computing, Networking, Storage, and
-                  Analysis ({SC'21})},
+  booktitle =	 {Proceedings of the International Conference for High Performance Computing, Networking, Storage, and Analysis ({SC'21})},
   address =	 {St. Louis, {MO}},
   month =	 nov,
   year =	 2021,
@@ -70,6 +69,16 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   doi =		 {10.7717/peerj-cs.887},
   url =		 {https://peerj.com/articles/cs-887/}
 }
+
+@Article{frachtenberg22:prestige,
+  author =	 {Eitan Frachtenberg and Kelly McConville},
+  title =	 {Metrics and methods in the evaluation of prestige bias in peer review: A case study in computer systems conferences},
+  journal =	 {{PLOS ONE}},
+  year =	 2022,
+  month =	 feb,
+  doi =		 {10.1371/journal.pone.0264131}
+}
+
 ```
 
 ---

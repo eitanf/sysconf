@@ -72,13 +72,33 @@ The following lists in bibtex format the published peer-reviewed documents in pu
 
 @Article{frachtenberg22:prestige,
   author =	 {Eitan Frachtenberg and Kelly McConville},
-  title =	 {Metrics and methods in the evaluation of prestige bias in peer review: A case study in computer systems conferences},
+  title =	 {Metrics and methods in the evaluation of prestige
+                  bias in peer review: A case study in computer
+                  systems conferences},
   journal =	 {{PLOS ONE}},
+  volume =	 17,
+  number =	 2,
+  page =	 {e0264131},
   year =	 2022,
   month =	 feb,
-  doi =		 {10.1371/journal.pone.0264131}
+  doi =		 {10.1371/journal.pone.0264131},
+  url =
+                  {https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0264131}
 }
 
+@Article{yamamoto22:collab,
+  author =	 {Josh Yamamoto and Eitan Frachtenberg},
+  title =	 {Gender Differences in Collaboration Patterns in
+                  Computer Science},
+  journal =	 {Publications},
+  year =	 2022,
+  volume =	 10,
+  number =	 1,
+  pages =	 10,
+  month =	 feb,
+  doi =		 {10.3390/publications10010010},
+  url =		 {https://www.mdpi.com/2304-6775/10/1/10}
+}
 ```
 
 ---

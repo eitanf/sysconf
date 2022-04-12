@@ -28,7 +28,7 @@ There are two ways to recreate the documents (which embed the analysis):
   * `artifact`: "Research artifacts and citations in computer systems papers" (`docker run -ti eitanf/sysconf:artifact`).
   * `collab`: "Gender differences in collaboration patterns in computer science" (`docker run -ti eitanf/sysconf:collab`).
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
-  * `gender-gap`: Initial draft of paper on gender gap in systems.
+  * `gender-gap`: "Underrepresentation of women in computer systems research" (`docker run -ti eitanf/sysconf:gender-gap`).
   * `prestige`: "Metrics and methods in prestige bias evaluation: A case study in computer systems conferences" (`docker run -ti eitanf/sysconf:prestige`).
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
   * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
@@ -98,6 +98,21 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   month =	 feb,
   doi =		 {10.3390/publications10010010},
   url =		 {https://www.mdpi.com/2304-6775/10/1/10}
+}
+
+@Article{frachtenberg22:gender-gap,
+  author =	 {Eitan Frachtenberg and Rhody D. Kaner},
+  title =	 {Underrepresentation of women in computer systems
+                  research},
+  journal =	 {PLOS ONE},
+  volume =	 17,
+  number =	 4,
+  pages =	 {e0266439},
+  url =
+                  {https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0266439},
+  doi =		 {10.1371/journal.pone.0266439},
+  month =	 apr,
+  year =	 2022
 }
 ```
 

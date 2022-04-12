@@ -1,0 +1,272 @@
+% Template for PLoS
+% Version 3.5 March 2018
+%
+% % % % % % % % % % % % % % % % % % % % % %
+%
+% -- IMPORTANT NOTE
+%
+% This template contains comments intended
+% to minimize problems and delays during our production
+% process. Please follow the template instructions
+% whenever possible.
+%
+% % % % % % % % % % % % % % % % % % % % % % %
+%
+% Once your paper is accepted for publication,
+% PLEASE REMOVE ALL TRACKED CHANGES in this file
+% and leave only the final text of your manuscript.
+% PLOS recommends the use of latexdiff to track changes during review, as this will help to maintain a clean tex file.
+% Visit https://www.ctan.org/pkg/latexdiff?lang=en for info or contact us at latex@plos.org.
+%
+%
+% There are no restrictions on package use within the LaTeX files except that
+% no packages listed in the template may be deleted.
+%
+% Please do not include colors or graphics in the text.
+%
+% The manuscript LaTeX source should be contained within a single file (do not use \input, \externaldocument, or similar commands).
+%
+% % % % % % % % % % % % % % % % % % % % % % %
+%
+% -- FIGURES AND TABLES
+%
+% Please include tables/figure captions directly after the paragraph where they are first cited in the text.
+%
+% DO NOT INCLUDE GRAPHICS IN YOUR MANUSCRIPT
+% - Figures should be uploaded separately from your manuscript file.
+% - Figures generated using LaTeX should be extracted and removed from the PDF before submission.
+% - Figures containing multiple panels/subfigures must be combined into one image file before submission.
+% For figure citations, please use "Fig" instead of "Figure".
+% See http://journals.plos.org/plosone/s/figures for PLOS figure guidelines.
+%
+% Tables should be cell-based and may not contain:
+% - spacing/line breaks within cells to alter layout or alignment
+% - do not nest tabular environments (no tabular environments within tabular environments)
+% - no graphics or colored text (cell background color/shading OK)
+% See http://journals.plos.org/plosone/s/tables for table guidelines.
+%
+% For tables that exceed the width of the text column, use the adjustwidth environment as illustrated in the example table in text below.
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+%
+% -- EQUATIONS, MATH SYMBOLS, SUBSCRIPTS, AND SUPERSCRIPTS
+%
+% IMPORTANT
+% Below are a few tips to help format your equations and other special characters according to our specifications. For more tips to help reduce the possibility of formatting errors during conversion, please see our LaTeX guidelines at http://journals.plos.org/plosone/s/latex
+%
+% For inline equations, please be sure to include all portions of an equation in the math environment.
+%
+% Do not include text that is not math in the math environment.
+%
+% Please add line breaks to long display equations when possible in order to fit size of the column.
+%
+% For inline equations, please do not include punctuation (commas, etc) within the math environment unless this is part of the equation.
+%
+% When adding superscript or subscripts outside of brackets/braces, please group using {}.
+%
+% Do not use \cal for caligraphic font.  Instead, use \mathcal{}
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+%
+% Please contact latex@plos.org with any questions.
+%
+% % % % % % % % % % % % % % % % % % % % % % % %
+
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amssymb}
+
+% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
+
+% Use Unicode characters when possible
+\usepackage[utf8x]{inputenc}
+
+% textcomp package and marvosym package for additional characters
+\usepackage{textcomp,marvosym}
+
+% cite package, to clean up citations in the main text. Do not remove.
+% \usepackage{cite}
+
+% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref,hyperref}
+
+
+% ligatures disabled
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+% color can be used to apply background shading to table cells only
+\usepackage[table]{xcolor}
+
+% array package and thick rules for tables
+\usepackage{array}
+
+% create "+" rule type for thick vertical lines
+\newcolumntype{+}{!{\vrule width 2pt}}
+
+% create \thickcline for thick horizontal lines of variable length
+\newlength\savedwidth
+\newcommand\thickcline[1]{%
+  \noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+  \cline{#1}%
+  \noalign{\vskip\arrayrulewidth}%
+  \noalign{\global\arrayrulewidth\savedwidth}%
+}
+
+% \thickhline command for thick horizontal lines that span the table
+\newcommand\thickhline{\noalign{\global\savedwidth\arrayrulewidth\global\arrayrulewidth 2pt}%
+\hline
+\noalign{\global\arrayrulewidth\savedwidth}}
+
+
+% Remove comment for double spacing
+%\usepackage{setspace}
+%\doublespacing
+
+% Text layout
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
+
+% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+\renewcommand{\figurename}{Fig}
+
+% Use the PLoS provided BiBTeX style
+% \bibliographystyle{plos2015}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+
+
+% Header and Footer with logo
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+%\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+%\setlength{\headheight}{27.023pt}
+%\lhead{\includegraphics[width=2.0in]{PLOS-submission.eps}}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\today}
+
+%% Include all macros below
+
+\newcommand{\lorem}{{\bf LOREM}}
+\newcommand{\ipsum}{{\bf IPSUM}}
+
+
+% Pandoc citation processing
+
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+
+
+
+\usepackage{forarray}
+\usepackage{xstring}
+\newcommand{\getIndex}[2]{
+  \ForEach{,}{\IfEq{#1}{\thislevelitem}{\number\thislevelcount\ExitForEach}{}}{#2}
+}
+
+\setcounter{secnumdepth}{0}
+
+\newcommand{\getAff}[1]{
+  \getIndex{#1}{Reed-cs,Reed-math}
+}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+
+\begin{document}
+
+\hypertarget{s2-detailed-conference-list}{%
+\subsubsection*{S2 Appendix. Detailed conference list}\label{s2-detailed-conference-list}}
+\addcontentsline{toc}{subsubsection}{S2 Appensix. Detailed conference list}
+
+\begin{enumerate}
+\item ASPLOS'17: ACM International Conference on Architectural Support for Programming Languages and Operating Systems, China, 2017-04-08. 320  submissions, 56 papers accepted (double-blind reviews). 247 total authors and 49 total PC members. homepage: \url{http://novel.ict.ac.cn/ASPLOS2017/}
+\item ATC'17: Annual Technical Conference, United States, 2017-07-12. 277  submissions, 60 papers accepted (single-blind reviews). 279 total authors and 33 total PC members. homepage: \url{https://www.usenix.org/conference/atc17}
+\item CCGrid'17: IEEE/ACM CCGrid, Spain, 2017-05-14. 286  submissions, 72 papers accepted (single-blind reviews). 296 total authors and 221 total PC members. homepage: \url{https://www.arcos.inf.uc3m.es/wp/ccgrid2017/}
+\item CCS'17: Conference on Computer and Communications Security, United States, 2017-10-31. 836  submissions, 151 papers accepted (double-blind reviews). 589 total authors and 145 total PC members. homepage: \url{https://www.sigsac.org/ccs/CCS2017/}
+\item CIDR'17: The biennial Conference on Innovative Data Systems Research, United States, 2017-01-08. 78  submissions, 32 papers accepted (single-blind reviews). 213 total authors and 30 total PC members. homepage: \url{http://cidrdb.org/cidr2017/}
+\item CLOUD'17: International Conference on Cloud Computing, United States, 2017-06-25. 110  submissions, 29 papers accepted (single-blind reviews). 110 total authors and 129 total PC members. homepage: \url{http://www.thecloudcomputing.org/2017/}
+\item Cluster'17: Cluster, United States, 2017-09-05. 217  submissions, 65 papers accepted (single-blind reviews). 273 total authors and 133 total PC members. homepage: \url{https://cluster17.github.io/}
+\item CoNEXT'17: International Conference on Emerging Networking Experiments and Technologies, South Korea, 2017-12-13. 171  submissions, 32 papers accepted (single-blind reviews). 145 total authors and 48 total PC members. homepage: \url{http://conferences2.sigcomm.org/co-next/2017/#!/home}
+\item EuroPar'17: International European Conference on Parallel and Distributed Computing, Spain, 2017-08-30. 176  submissions, 50 papers accepted (single-blind reviews). 179 total authors and 86 total PC members. homepage: \url{http://europar2017.usc.es/}
+\item EuroSys'17: The European Conference on Computer Systems, Serbia, 2017-04-23. 188  submissions, 41 papers accepted (double-blind reviews). 169 total authors and 47 total PC members. homepage: \url{https://eurosys2017.github.io/}
+\item FAST'17: USENIX Conference on File and Storage Technologies, United States, 2017-02-27. 116  submissions, 27 papers accepted (double-blind reviews). 119 total authors and 34 total PC members. homepage: \url{https://www.usenix.org/conference/fast17/}
+\item HCW'17: International Heterogeneity in Computing Workshop, United States, 2017-05-29. 15  submissions, 7 papers accepted (single-blind reviews). 27 total authors and 21 total PC members. homepage: \url{http://hcw.eecs.wsu.edu/}
+\item HiPC'17: International Conference on High Performance Computing, Data, and Analytics, India, 2017-12-18. 184  submissions, 41 papers accepted (single-blind reviews). 168 total authors and 102 total PC members. homepage: \url{http://hipc.org/}
+\item HotCloud'17: Workshop in Hot Topics in Cloud Computing, United States, 2017-07-10. 58  submissions, 19 papers accepted (single-blind reviews). 64 total authors and 24 total PC members. homepage: \url{https://www.usenix.org/conference/hotcloud17}
+\item HotI'17: Annual Symposium on High-Performance Interconnects, United States, 2017-08-28. 39  submissions, 13 papers accepted (single-blind reviews). 44 total authors and 23 total PC members. homepage: \url{http://www.hoti.org/hoti25/archives/}
+\item HotOS'17: Workshop on Hot Topics in Operating Systems, Canada, 2017-05-07. 94  submissions, 29 papers accepted (single-blind reviews). 112 total authors and 9 total PC members. homepage: \url{https://www.sigops.org/hotos/hotos17/}
+\item HotStorage'17: Workshop on Hot Topics in Storage and File Systems, United States, 2017-07-10. 58  submissions, 21 papers accepted (single-blind reviews). 94 total authors and 21 total PC members. homepage: \url{https://www.usenix.org/conference/hotstorage17}
+\item HPCA'17: The IEEE Symposium on High Performance Computer Architecture, United States, 2017-02-04. 224  submissions, 50 papers accepted (single-blind reviews). 215 total authors and 46 total PC members. homepage: \url{http://hpca2017.org}
+\item HPCC'17: International Conference on High Performance Computing and Communications, Thailand, 2017-12-18. 176  submissions, 77 papers accepted (single-blind reviews). 287 total authors and 75 total PC members. homepage: \url{http://hpcl.seas.gwu.edu/hpcc2017/}
+\item HPDC'17: International Symposium on High Performance Parallel and Distributed Computing, United States, 2017-06-28. 100  submissions, 19 papers accepted (single-blind reviews). 76 total authors and 46 total PC members. homepage: \url{http://www.hpdc.org/2017/}
+\item ICAC'17: International Conference on Autonomic Computing, United States, 2017-07-18. 73  submissions, 14 papers accepted (single-blind reviews). 46 total authors and 63 total PC members. homepage: \url{http://icac2017.ece.ohio-state.edu/}
+\item ICDM'17: International Conference on Data Mining, United States, 2017-11-19. 778  submissions, 72 papers accepted (double-blind reviews). 269 total authors and 219 total PC members. homepage: \url{http://icdm2017.bigke.org/}
+\item ICPE'17: ACM/SPEC International Conference on Performance Engineering, Italy, 2017-04-22. 83  submissions, 29 papers accepted (single-blind reviews). 102 total authors and 42 total PC members. homepage: \url{https://icpe2017.spec.org/}
+\item ICPP'17: International Conference on Parallel Processing, United Kingdom, 2017-08-14. 210  submissions, 60 papers accepted (single-blind reviews). 234 total authors and 136 total PC members. homepage: \url{http://www.icpp-conf.org/2017/index.php}
+\item IGSC'17: International Green and Sustainable Computing Conference, United States, 2017-10-23. 23 papers accepted (single-blind reviews). 83 total authors and 48 total PC members. homepage: \url{http://igsc.eecs.wsu.edu/}
+\item IISWC'17: International Symposium on Workload Characterization, United States, 2017-10-02. 83  submissions, 31 papers accepted (double-blind reviews). 121 total authors and 27 total PC members. homepage: \url{http://www.iiswc.org/iiswc2017/index.html}
+\item IMC'17: Internet Measurement Conference, United Kingdom, 2017-11-01. 179  submissions, 28 papers accepted (single-blind reviews). 124 total authors and 39 total PC members. homepage: \url{http://conferences.sigcomm.org/imc/2017/}
+\item IPDPS'17: International Parallel and Distributed Processing Symposium, United States, 2017-05-29. 508  submissions, 116 papers accepted (single-blind reviews). 447 total authors and 286 total PC members. homepage: \url{http://www.ipdps.org/ipdps2017/}
+\item ISC'17: ISC High Performance, Germany, 2017-06-18. 66  submissions, 22 papers accepted (double-blind reviews). 99 total authors and 55 total PC members. homepage: \url{http://isc-hpc.com/id-2017.html}
+\item ISCA'17: International Symposium on Computer Architecture, Canada, 2017-06-24. 322  submissions, 54 papers accepted (double-blind reviews). 295 total authors and 70 total PC members. homepage: \url{http://isca17.ece.utoronto.ca/doku.php}
+\item ISPASS'17: IEEE International Symposium on Performance Analysis of Systems and Software, United States, 2017-04-24. 81  submissions, 24 papers accepted (double-blind reviews). 98 total authors and 39 total PC members. homepage: \url{http://www.ispass.org/ispass2017/}
+\item KDD'17: SIGKDD Conference on Knowledge Discovery and Data Mining, Canada, 2017-08-15. 747  submissions, 64 papers accepted (single-blind reviews). 237 total authors and 364 total PC members. homepage: \url{http://www.kdd.org/kdd2017/}
+\item MASCOTS'17: International Symposium on the Modeling, Analysis, and Simulation of Computer and Telecommunication Systems, Canada, 2017-09-20. 84  submissions, 20 papers accepted (single-blind reviews). 75 total authors and 61 total PC members. homepage: \url{http://mascots2017.cs.ucalgary.ca/}
+\item MICRO'17: International Symposium on Microarchitecture, United States, 2017-10-16. 327  submissions, 61 papers accepted (double-blind reviews). 306 total authors and 61 total PC members. homepage: \url{https://www.microarch.org/micro50/}
+\item Middleware'17: The Annual Middleware Conference, United States, 2017-12-11. 77  submissions, 20 papers accepted (double-blind reviews). 91 total authors and 53 total PC members. homepage: \url{http://2017.middleware-conference.org/}
+\item MobiCom'17: International Conference on Mobile Computing and Networking, United States, 2017-10-17. 186  submissions, 35 papers accepted (double-blind reviews). 164 total authors and 60 total PC members. homepage: \url{https://sigmobile.org/mobicom/2017/}
+\item NDSS'17: The Network and Distributed System Security Symposium, United States, 2017-02-26. 423  submissions, 68 papers accepted (double-blind reviews). 327 total authors and 63 total PC members. homepage: \url{https://www.ndss-symposium.org/ndss2017/}
+\item NSDI'17: USENIX Symposium on Networked Systems Design and Implementation, United States, 2017-03-27. 254  submissions, 42 papers accepted (double-blind reviews). 203 total authors and 42 total PC members. homepage: \url{https://www.usenix.org/conference/nsdi17/}
+\item OOPSLA'17: International Conference on Object-Oriented Programming, Systems, Languages and Applications, Canada, 2017-10-25. 223  submissions, 66 papers accepted (double-blind reviews). 232 total authors and 30 total PC members. homepage: \url{https://2017.splashcon.org/track/splash-2017-OOPSLA}
+\item PACT'17: International Conference on Parallel Architectures and Compilation Techniques, United States, 2017-09-11. 108  submissions, 25 papers accepted (double-blind reviews). 89 total authors and 33 total PC members. homepage: \url{https://parasol.tamu.edu/pact17/}
+\item PLDI'17: SIGPLAN Conference on Programming Language Design and Implementation, Spain, 2017-06-18. 322  submissions, 47 papers accepted (double-blind reviews). 173 total authors and 56 total PC members. homepage: \url{http://pldi17.sigplan.org/home}
+\item PODC'17: Symposium on Principles of Distributed Computing, United States, 2017-07-25. 154  submissions, 38 papers accepted (single-blind reviews). 101 total authors and 38 total PC members. homepage: \url{https://www.podc.org/podc2017/}
+\item PODS'17: Symposium on Principles of Database Systems, United States, 2017-05-14. 101  submissions, 29 papers accepted (single-blind reviews). 91 total authors and 21 total PC members. homepage: \url{http://sigmod2017.org/pods-program/}
+\item PPoPP'17: SIGPLAN Symposium on Principles and Practice of Parallel Programming, United States, 2017-02-04. 132  submissions, 29 papers accepted (double-blind reviews). 122 total authors and 44 total PC members. homepage: \url{http://ppopp17.sigplan.org/}
+\item SC'17: The International Conference for High Performance Computing, Networking, Storage and Analysis, United States, 2017-11-13. 327  submissions, 61 papers accepted (double-blind reviews). 325 total authors and 213 total PC members. homepage: \url{http://sc17.supercomputing.org/}
+\item SIGCOMM'17: SIGCOMM Conference, United States, 2017-08-21. 250  submissions, 36 papers accepted (double-blind reviews). 216 total authors and 50 total PC members. homepage: \url{http://conferences.sigcomm.org/sigcomm/2017/}
+\item SIGIR'17: International Conference on Research and Development in Information Retrieval, Japan, 2017-08-07. 362  submissions, 78 papers accepted (single-blind reviews). 264 total authors and 283 total PC members. homepage: \url{http://sigir.org/sigir2017/}
+\item SIGMETRICS'17: SIGMETRICS, United States, 2017-06-05. 203  submissions, 27 papers accepted (double-blind reviews). 101 total authors and 59 total PC members. homepage: \url{http://www.sigmetrics.org/sigmetrics2017}
+\item SIGMOD'17: International Conference on Management of Data, United States, 2017-05-14. 489  submissions, 96 papers accepted (double-blind reviews). 335 total authors and 176 total PC members. homepage: \url{http://sigmod2017.org/}
+\item SLE'17: International Conference on Software Language Engineering, Canada, 2017-10-23. 57  submissions, 24 papers accepted (single-blind reviews). 68 total authors and 28 total PC members. homepage: \url{http://www.sleconf.org/2017/}
+\item SOCC'17: Symposium on Cloud Computing, United States, 2017-09-25. 45 papers accepted (single-blind reviews). 195 total authors and 52 total PC members. homepage: \url{https://acmsocc.github.io/2017/}
+\item SOSP'17: Symposium on Operating Systems Principles, China, 2017-10-29. 232  submissions, 39 papers accepted (double-blind reviews). 217 total authors and 56 total PC members. homepage: \url{https://www.sigops.org/sosp/sosp17/}
+\item SP'17: Security and Privacy, United States, 2017-05-22. 419  submissions, 60 papers accepted (double-blind reviews). 287 total authors and 62 total PC members. homepage: \url{https://www.ieee-security.org/TC/SP2017/index.html}
+\item SPAA'17: Symposium on Parallelism in Alogirmths and Architectures, United States, 2017-07-24. 127  submissions, 31 papers accepted (single-blind reviews). 84 total authors and 40 total PC members. homepage: \url{http://spaa.acm.org/2017/index.html}
+\item SYSTOR'17: International Systems and Storage Conference, Israel, 2017-05-22. 47  submissions, 16 papers accepted (single-blind reviews). 64 total authors and 33 total PC members. homepage: \url{https://www.systor.org/2017/}
+\item VEE'17: International Conference on Virtual Execution Environments, China, 2017-04-09. 43  submissions, 18 papers accepted (double-blind reviews). 85 total authors and 19 total PC members. homepage: \url{http://conf.researchr.org/home/vee-2017}
+
+\end{enumerate}
+
+\end{document}
+

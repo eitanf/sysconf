@@ -14,7 +14,7 @@ RUN Rscript deps.R
 
 RUN git clone http://github.com/eitanf/sysconf
 WORKDIR sysconf/
-RUN git checkout 3c6922cf6c118b467e8f3595faacaeeaf0b03b52
+RUN git checkout gender-gap-final
 WORKDIR pubs/gender-gap
 COPY plos.csl .
 RUN make

@@ -240,8 +240,8 @@ For this study, we define systems as the study and engineering of concrete compu
 This field stands out from other areas of CS in that it emphasizes scientific exploration through system implementation and combines engineering, experimentation, simulation, and mathematical rigor.
 Since our data shows that the United States (US) currently dominates the field, both in terms of affiliated researchers and of hosted conferences, we take particular interest in the gender gap in the US.
 
-<!-- There exists sporadic evidence of an acute gender gap in specific subareas of systems [@destefano18:micro; @jerger17:gender; @mattauch20:bibliometric], but we were unable to find a systematic examination of the entire field. -->
-To measure this gap accurately, we manually curated gender data from a large and representative cross-section of the field.
+There exists sporadic evidence of an acute gender gap in specific subareas of systems [@bonifati22:inclusive; @destefano18:micro; @jerger17:gender; @mattauch20:bibliometric], but we were unable to find a systematic examination of the entire field.
+To measure the gender gap accurately, we manually curated gender data from a large and representative cross-section of the field.
 We estimate the rate of women's participation in systems research by using the proxy metric of female author ratio (FAR) in a set of peer-reviewed systems conferences.
 This approach has been previously tested in numerous researcher populations, typically using automated gender inference from given names [@elsevier17:gender; @lariviere13:bibliometrics; @mattauch20:bibliometric; @west19:discriminating].
 Because our methodology relies primarily on manually curated data, it has better coverage and accuracy than that of studies based on automated gender-inference approaches.
@@ -357,8 +357,8 @@ and session chairs
 `r filter(gens, role == "session", gender == "M") %>% dplyr::select(name, gs_email) %>% unique() %>% nrow() %>% fmt()` men).
 who have no direct influence on the population of authors, but represent the "face" of the conference to attendees. The visibility of women for such role models may have an indirect impact or appeal for women practitioners [@destefano18:micro; @davenport14:studying].
 
-For this study, the most critical piece of information on these researchers is their \emph{perceived gender at time of publication}.
-Gender is a complex, multifaceted identity [@lindqvist20:gender], but most bibliometric studies still rely on binary genders---either collected by the journal or inferred from forename---because that is the only designator available to them [@bhagat18:data; @cohoon11:cspapers; @holman18:gender; @national20:science; @wang21:trends; @way16:gender; @zweben18:taulbee].
+For this study, the most critical piece of information on these researchers is their \emph{perceived gender at time of publication} [@bonifati22:inclusive].
+Gender is a complex, multifaceted identity [@lindqvist20:gender], but most bibliometric studies still rely on binary genders---either collected by the journal or inferred from forename---because that is the only designator available to them [@bhagat18:data; @bonifati22:inclusive; @cohoon11:cspapers; @holman18:gender; @national20:science; @wang21:trends; @way16:gender; @zweben18:taulbee].
 In the absence of self-identified gender information for our authors, we also necessarily compromised on using binary gender designations.
 We therefore use the gender terms "women" and "men" interchangeably with the sex terms "female" and "male".
 The conferences in our dataset did not collect or share specific gender information, so we had to collect this information from other public sources.
@@ -399,7 +399,7 @@ or "GOV" for government and national labs
 (`r pct(nrow(filter(demographics, sector == "GOV")), nrow(filter(demographics, !is.na(sector))), 1)`%).
 
 
-In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs.
+In addition to researcher information, we gathered various statistics on each conference, either from its web page, proceedings, or directly from its chairs [@frachtenberg:github-repo].
 We collected data about review policies, important dates, the composition of its technical PC, and the number of submitted papers, among others.
 We also collected historical metrics from the Institute of Electrical and Electronics Engineers (IEEE), Association for Computing Machinery (ACM), and Google Scholar (GS) websites, including past citations, conference age in years, and total publications, and downloaded all `r fmt(nrow(sys_papers))` papers.
 Finally, from each conference's website and proceedings we collected information on any explicit policies the conference made to increase attendance diversity (Table \@ref(tab:diversity-policy)), so that we could measure their effects, if any, on the gender gap.
@@ -450,17 +450,11 @@ For the remaining `r fmt(sum(!is.na(verified_gender_nonsys$gender)))` authors, w
 `r fmt(sum(is.na(verified_gender_nonsys$gender)))` people for which we could not assign a gender manually or automatically.
 The overall gender statistics for these conferences are shown in Table \@ref(tab:nonsys-confs), and the full details on this auxiliary dataset are available in the original study of that data [@yamamoto22:collab].
 
-
 ## Statistics {-}
 
 For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon signed-rank test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and correlations between two numerical variables were evaluated with Pearson's product-moment correlation coefficient.
 All statistical tests are reported with their p-values.
 Mixed-effects logistic regression models were assessed with Satterthwaite's degrees of freedom method for hypothesis testing on model coefficients.
-
-## Code and data availability {-}
-
-The complete dataset and source code necessary to reproduce this analysis is openly available [@frachtenberg:github-repo].
-A Docker image with the complete software and data environment to reproduce these results is available at [https://hub.docker.com/repository/docker/eitanf/sysconf](https://hub.docker.com/repository/docker/eitanf/sysconf), using the `gender-gap` tag.
 
 
 ## Ethics statement {-}
@@ -714,7 +708,7 @@ Statistically, there appears to be no correlation between a conference's size an
 
 ### Double-blind reviewing {-}
 
-Several past studies have reported evidence of gender bias in the peer-review process, especially in single-blind reviews, although more recent surveys are inconclusive [@lee13:bias; @mcgillivray18:uptake; @squazzoni20:noevidence; @squazzoni21:peer].
+Several past studies have reported evidence of gender bias in the peer-review process, especially in single-blind reviews, although more recent surveys are inconclusive [@bonifati22:inclusive; @lee13:bias; @mcgillivray18:uptake; @squazzoni20:noevidence; @squazzoni21:peer].
 In our dataset (Fig. \@ref(fig:women-rep-author-vs-PC)), conferences with double-blind reviewing actually exhibit a lower FAR
 (`r round(100 * mean(filter(conf_gender, double_blind)$author), 1)`% mean vs.
 `r round(mean(100 * filter(conf_gender, !double_blind)$author), 1)`% for single-blind conferences,

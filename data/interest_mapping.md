@@ -1,6 +1,6 @@
 This file describes the fields in the `interest_mapping.csv` file, a tidy CSV table that maps from author interests to canonical interest names and topic group (kept consistent with authors with `src/compare_interests.csv` and edited manually for mappings.
 
-### Field description {-}
+### Field description
 
   * `interest` (string): The string of an author interest, as copied from the author GS 
 profile.

@@ -1,7 +1,7 @@
 This file is a simple mapping from author ID to the count of how many papers
 this author appeared in, in the Semantic Scholar DB dump dated 2018-05-03.
 
-### Field description {-}
+### Field description
 
   * `name` (string): Un-normalized author name (first, last).
   * `gs_email` (string): Author email suffix on Google Scholar.

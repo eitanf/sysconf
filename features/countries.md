@@ -1,4 +1,4 @@
-### Field description {-}
+### Field description
 
   * `code`: The two-letter international code of the country (also the top-level domain for the country).
   * `name`: String of country name.

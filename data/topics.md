@@ -1,7 +1,7 @@
 This file describes the fields in the `topics.csv` file, a tidy CSV 
 table that lists a few top-level subtopics of computer systems.
 
-### Field description {-}
+### Field description
 
   * `tag` (string): A single-word name for the topic (key field).
   * `areas` (string): A descriptive list of the areas covered by this topic.

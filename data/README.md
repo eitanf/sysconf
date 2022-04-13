@@ -2,7 +2,7 @@ The following describes the files in this subdirectory. Each file has a
 corresponding Markdown file (.md) with the codebook for the fields in the file.
 Each subdirectory has a README.md with the description of the files.
 
-## File description {-}
+## File description
 
   * `abstract/`: Text files (one per paper) with the plaintext abstracts of each paper.
   * `authors/`: A collection of JSON files, one per conference, with Google Scholar statistics about authors near the publication date of the conference.

@@ -258,7 +258,7 @@ data.frame(
                booktabs = T,
                align = "lrr",
                linesep = c(rep("", 6), "\\addlinespace"),
-               caption = "Percentage of female authors in peer-reviewed conference papers across fields of computer science \\cite{yamamoto22:collab}.")
+               caption = "Percentage of female authors in peer-reviewed conference papers across fields of computer science, omitting authors with ambiguous gender \\cite{yamamoto22:collab}.")
 #  column_spec(2, width = "2.5cm")
 #  kable_styling(font_size = 7)
 
@@ -272,19 +272,21 @@ data.frame(
 
 In a recent study, we found that the ratio of female-to-male authors in computer systems conferences is particularly low, even compared to the rest of CS [@yamamoto22:collab].
 The large underrepresentation cannot be fully explained by review bias, differences in collaboration patterns, and numerous other demographic and conference factors alone [@frachtenberg22:gender-gap].
-This statistically significant gender gap raises the question: why are there so few women in systems research?
 
+Having previously answered the question of "how many women in computer systems research?", we now ask "why so few?", expanding beyond measurable facts and venturing into the domain of hypothesis and speculation.
 This simple question likely has no simple answers.
 There are many other dimensions---economic, societal, historical, and structural---that influence this gender gap [@avolio20:factors; @singh13:stemming].
-We may never be able to explain it fully; however, we can examine many of the factors that have been previously identified as possible contributors to the gender gap in CS and other sciences, in an attempt to assess whether their effect is exacerbated for systems in particular.
+We may never be able to explain it fully; however, we can examine many of the factors that have been previously identified as possible contributors to the gender gap in CS and other sciences, in an attempt to assess whether they have an outsize effect on systems in particular.^[For this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.]
+Based on our experience in the field, our conversations with fellow female researchers about their experiences, and the existing literature on the gender gap on other fields, we attempt to examine possible contributors to the gender gap in CS and other sciences in the specific context of the systems field.
 
-In this article, we enumerate ten such factors and ask whether they have an outsize effect in systems research, supporting our discussion with quantitative evidence when possible.
-Our main source of data is a manually curated dataset of `r nrow(sys_confs)` systems conferences, all from 2017, which includes extensive information on the conferences, papers, and participants.
+In this viewpoint, we examine ten such factors, supporting our discussion with quantitative evidence when possible.
+Our main source of data is a manually curated dataset of `r nrow(sys_confs) + length(nonsys_confs)` reputable CS conferences (`r nrow(sys_confs)` specifically from systems), all from 2017.
+All `r fmt(n_distinct(full_auths$key))` peer-reviewed research-track papers in these conferences and their authors were included in the data.
 We manually matched most authors with a *perceived gender*, based on pronouns and photos, rather than using automated approaches using name-based inference, because the accuracy and recall of this inference can be quite low for some populations.
-The complete methodological aspects of identifying and cleaning the appropriate dataset, as well as the main statistical findings about the underrepresentation of women in the field, can be found in our original study [@yamamoto22:collab].
+In total, we analyzed `r fmt(length(full_auths$name))` authors (`r fmt(length(unique(full_auths$name)))` unique).
+The complete methodological aspects of identifying and cleaning the appropriate data, as well as the main statistical findings about the underrepresentation of women in the field, can be found in our original study [@yamamoto22:collab].
 
-Here, we use this and other data sources to try to evaluate the impact of each of the ten potential factors on the increased gender gap in systems.
-We present each factor as the hypothesis that the factor has a more significant effect on the gender gap in systems in particular.
+Here, we combine our current dataset with prior data sources to try to evaluate the impact of each of the ten potential factors on the increased gender gap in systems, each presented as a hypothesis that it has a more significant effect on the gender gap in systems in particular.
 The ten hypotheses are organized into two groups: six where our data provide evidence for or against an increased effect, and four for which we have no specific data but can speculate based on the characteristics of systems research.
 For each factor, we briefly explain its observed effects on the gender gap from previous studies, and then try to find support in the data (or lack thereof) for an increased effect of this factor in systems.
 
@@ -312,7 +314,7 @@ The lack of female mentors, peers, and role models dissuades women from entering
 Additionally, it appears that women in systems have a small but significant preference to publishing with other women---which are already scarce  [@yamamoto22:collab].
 This gender homophily has been observed in other fields as well.
 
-In the overall `r fmt(n_distinct(full_auths$key))` CS papers we looked at, when the senior (last) author is a woman, non-senior authors include
+Moreover, in the overall `r fmt(n_distinct(full_auths$key))` CS papers we looked at, when the senior (last) author is a woman, non-senior authors include
 `r pct(tot_ff, nrow(lf))`% women, compared to only
 `r pct(tot_fm, nrow(lm))`% when the senior author is a man.
 But of the `r fmt(nrow(papers))` papers in systems, only
@@ -339,7 +341,7 @@ in other fields), possibly because this field often requires large collaborative
 It has been shown that owing to traditional social roles, women tend to be more people-centered and communally oriented than men in their career choices [@beyer04:deterrents; @diekman15:new; @west13:role].
 On the other hand, most science and technology careers are not perceived as focusing heavily on these values [@frantzana19:women; @kahn17:women].
 Even within CS, the representation of women appears much higher in fields ostensibly centered on humans, such as human-computer interaction and computer education (Table \@ref(tab:field-aggregation)).
-Although many computer systems directly and indirectly benefit society, it could be perceived as a field that primarily focuses on machines, and not on societal or community benefits.
+Although many computer systems directly and indirectly benefit society, the field could be perceived as one that primarily focuses on machines, and not on societal or community benefits.
 That perception alone may further deter women’s entry into the field.
 
 
@@ -348,7 +350,7 @@ That perception alone may further deter women’s entry into the field.
 CS is a varied discipline that combines aspects from mathematics, algorithmics, and engineering.
 In particular, work in systems is very similar to other engineering disciplines, with its emphasis on efficiency, trade-off management, and practical applications.
 At least `r pct(218, nrow(papers), 0)`% of the systems papers in our dataset have one or more authors affiliated with an academic engineering department, although the percentage of authors with an electrical or computer engineering degree is potentially even higher.
-It is therefore not surprising that the representation of women we find in systems papers is very similar to some estimates for engineers in general [@fox06:engineering; @mattis07:upstream]
+It is therefore not surprising that the representation of women we find in systems papers is very similar to some estimates for engineers in general [@fox06:engineering; @mattis07:upstream].
 
 <!-- Percentage computed with the following command-line:
 pdfgrep -i -n engineering *.pdf | grep ':1:' | egrep -i 'department|school' | awk -F: ' {print $1;}' | sort | uniq | wc
@@ -362,36 +364,38 @@ As a field related to engineering, we might expect systems to exhibit similarly 
 In addition, since systems research and development is increasingly central to the success of both technology startups and large-scale companies such as Google, Amazon, and Microsoft, we might also expect the high demand for skilled workers in industry to amplify this factor.
 
 Despite our expectations, the hypothesis that an industry affiliation leads to a higher gender gap in research is only weakly supported by our data.
-By extracting the email address associated with each author in our systems paper, we roughly categorize each author with a uniquely identifiable affiliation as either in government, academia, or industry [@frachtenberg22:gender-gap].
+By extracting the email address associated with each author in our systems papers, we can roughly categorize each author with a uniquely identifiable affiliation as either in government, academia, or industry [@frachtenberg22:gender-gap].
 Of the 
 `r as <- filter(authors, !is.na(sector), !is.na(gender)); pct(nrow(filter(as, sector == "COM")), nrow(as), 1)`%
 authors with an industry affiliation, 
 `r pct(nrow(filter(as, sector == "COM", gender == "F")), nrow(filter(as, sector == "COM")), 1)`%
-were women, not much lower than the overall rate of women
-(`r report_test(chisq.test(table(as$gender, as$sector == "COM")), show_stat = F)`).
+were women, not much lower than the overall rate of women.
+<!--(`r report_test(chisq.test(table(as$gender, as$sector == "COM")), show_stat = F)`).-->
 
 
 ## H6: Women leave research careers at a higher rate than men {-}
 
 It is well-known that women in the sciences and CS leave academia at a higher rate than men (the so-called “leaky pipeline”) [ @kahn17:women; @singh13:stemming; @fox06:engineering; @camp02:incredible].
 Looking at the ratio of researchers in our dataset that appear to have stopped publishing by 2019, we find, surprisingly, that women did *not* leave research at a higher rate than their male counterparts; only 16.9% of women ostensibly stopped publishing, compared to 24.4% of men.
-Furthermore, the ratio of female last authors on systems papers,
-`r pct(nrow(sys_lf), nrow(sys_lf) + nrow(sys_lm))`%,
-is actually closer to the ratio of all female authors in systems,
+We can also look at the ratio of female last authors, since in CS and especially in systems, authors are often ordered by contribution, with the senior author at the last position.
+In our dataset, only 12.3% of systems papers with three or more authors have ordered them alphabetically.
+Women last authors appear in
+`r pct(nrow(sys_lf), nrow(sys_lf) + nrow(sys_lm))`% of our systems papers,
+which is actually closer to the ratio of all female authors in systems,
 `r pct (nrow(filter(gen_auths, gender=="F", field == "Computer systems")), nrow(filter(gen_auths, field == "Computer systems")))`%, compared to the ratios in non-systems papers
 (`r pct(nrow(nonsys_lf), nrow(nonsys_lf) + nrow(nonsys_lm))`% and
 `r pct (nrow(filter(gen_auths, gender=="F", field != "Computer systems")), nrow(filter(gen_auths, field != "Computer systems")))`% respectively), suggesting a similar or lower attrition rate for women in systems.
-Rather than having an attrition problem, it is possible that systems has a bigger challenge attracting women to the field in the first place.
+Rather than having an attrition problem, it is possible that the field has a bigger challenge attracting women to the field in the first place.
 
 # Factors for which we have no quantitative evidence {-}
 
 
 ## H7: Systems research requires more pre-college programming experience {-}
 
-The gender disparity in pre-college computing and programming experience has been studied extensively as a factor that could affect post-secondary participation in CS [@cheryan17:STEM; @cohoon06:critical].
-Systems research in particular may require an intimate understanding of programming systems and benefit from pre-college programming experience, as has been found for the systems subfield of high-performance computing [@frantzana19:women].
-Pre-college girls were also found to be less likely than boys to open up a computer [@beyer04:deterrents].
-Since women are less likely to learn about hardware and software at a young age, they may be less adept than men with the low-level programming tasks required in systems.
+The gender disparity in pre-college computing and programming experience has been studied extensively as a factor affecting post-secondary participation in CS [@cheryan17:STEM; @cohoon06:critical].
+Systems research in particular may require an intimate understanding of programming systems and may benefit from pre-college programming experience, as has been found for the systems subfield of high-performance computing [@frantzana19:women].
+Pre-college girls were also found to be less likely than boys to dissect a computer [@beyer04:deterrents].
+Since women are less likely to learn about hardware and software at a young age, they may be less experienced than men with the low-level programming tasks required in systems.
 
 ## H8: Women are underrepresented in more competitive fields {-}
 
@@ -407,10 +411,10 @@ It is therefore plausible that the higher cost of systems research leads to lowe
 
 ## H10: Systems research implies worse work-life balance {-}
 
-If systems research is indeed more competitive than some other academic fields, it may require a bigger commitment to work for success.
+If systems research is indeed more competitive than some other academic fields (for which we found no published evidence), it may require a bigger commitment to work for success.
 Similarly, many of the technology companies that attract skilled systems researchers have a reputation for long working hours.
 These factors could lead to a work-life balance that is worse for systems than it is for some other CS research fields.
-Some women may already feel that a CS career may be hard to reconcile with raising a family [@beyer04:deterrents], and the perception of systems careers as particularly demanding may exacerbate this problem.
+Some women may already feel that a CS career is to reconcile with raising a family [@beyer04:deterrents], and the perception of systems careers as particularly demanding may exacerbate this problem.
 
 
 ---
@@ -418,12 +422,22 @@ Some women may already feel that a CS career may be hard to reconcile with raisi
 
 With all the evidence pointing out the lack of support, mentorship, and peers for female systems researchers, it is little wonder that the first support group for women in computing, "systers", was created specifically in the systems field [@abbate12:recoding].
 The possible explanations for the gender gap we listed here are by all means not exhaustive.
-Other well-known factors we didn’t discuss include occupational stereotypes, ability, confidence, demographics, discrimination, and bias.
-We found no specific reasons to believe these have an increased effect in systems research.
+Other well-known factors we didn’t discuss include occupational stereotypes, ability, confidence, demographics, discrimination, bias, and a sense of belonging or of being valued.
+We found no specific reasons to believe these additional factors have an increased effect in systems research.
 However, we have heard anecdotal complaints from women practitioners about the toxic masculine culture in systems labs and some systems conferences^[Read for example Margaret Martonosi's statement on diversity in at the MICRO-50 conference in the ACM SIGARCH blog (https://www.sigarch.org/statement-on-diversity-at-micro-50/).].
 
-This short treatment also includes no suggestions for reducing the gender gap in systems.
-Many of the studies that shed light on the systemic causes of the gap in CS, engineering, and other sciences make concrete suggestions for improvements, which may similarly apply to the field of computer systems [@singh13:stemming; @cohoon06:critical; @mattis07:upstream].
+Attempting to generalize the ten specific factors we discussed is challenging because the observed aggregate gender gap is the result of many individual decisions based on individuals' circumstances and experiences.
+One common thread, however, is the chicken-and-egg nature of the problem.
+Most of the factors (causes) are themselves exacerbated by the current dearth of women in the field (effect), which has persisted for years.
+We therefore believe that addressing the bootstrapping problem cannot succeed with diversity initiatives in hiring or conferences alone [@frachtenberg22:gender-gap].
+Such initiatives are clearly welcome, as well as other interventions to reducing the gender gap in CS [@cohoon06:critical; @main17:underrepresentation].
+But for systems in particular, we think a concerted effort is warranted to significantly increase the number of women across the field, making it more welcoming to women and minorities in general and bootstrapping a long-term solution.
+
+At an institutional level, one approach may be to hire a cluster of women researchers together instead of piecemeal.
+Given the existing gender gap we described, this is admittedly easier said than done; but hiring one woman at a time may actually contribute to the problem rather than the solution, as we described.
+To address this challenge, an institute may take a long-term perspective of encouraging a large group of women to enter the field early in graduate school (or even undergraduate), offering them a clear career horizon with reasonable prospects of returning as faculty.
+At a national level, governments and large professional organizations such as the ACM could commit to long-term scholarships and grants for women in the field, starting perhaps as early as high school and continuing to support them through the formation of a research lab, perhaps all the way to tenure.
+At both levels, we suggest that a sustainable solution requires a large initial investment to reach a critical mass, thus helping to attract and retain future women in systems.
 
 ### Acknowledgements {-}
 

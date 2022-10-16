@@ -12,7 +12,8 @@ sudo apt-get upgrade
 sudo apt install g++ git python3-pip
 sudo apt install libcurl4-openssl-dev libfontconfig1-dev libgdal-dev \
     libgeos-dev libpoppler-cpp-dev libssl-dev \
-    libudunits2-dev libxml2-dev
+    libudunits2-dev libxml2-dev \
+    libharfbuzz-dev libfribidi-dev
 ```
 
 ## 2. Install R & pandoc

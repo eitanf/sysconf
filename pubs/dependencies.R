@@ -30,6 +30,7 @@ dependencies <- c(
                   "rticles",
                   "sf",
                   "slam",
+                  "sp",
                   "stringi",
                   "textclean",
                   "textstem",

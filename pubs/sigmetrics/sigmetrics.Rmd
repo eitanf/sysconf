@@ -1,0 +1,702 @@
+---
+title: "Multifactor citation analysis over five years: A case study of SIGMETRICS papers"
+bibliography: ../sysconf.bib
+abstract: |
+  Performance evaluation is a broad discipline within computer science, combining deep technical work in experimentation, simulation, and modeling.
+  The field's subjects encompass all aspects of computer systems, including computer architecture, networking, energy efficiency, and machine learning.
+  This wide methodological and topical focus can make it difficult to discern what attracts the community's attention and how this attention evolves over time.
+  As a first attempt to quantify and qualify this attention, using the proxy metric of paper citations, this study looks at the premier conference in the field, SIGMETRICS.
+  We analyze citation frequencies at monthly intervals over a five-year period and examine possible associations with myriad other factors, such as time since publication, comparable conferences, peer review, self-citations, author demographics, and textual properties of the papers.
+  We found that in several ways, SIGMETRICS is distinctive not only in its scope, but also in its citation phenomena: papers generally exhibit a strongly linear rate of citation growth over time, few if any uncited papers, a large gamut of topics of interest, and a possible disconnect between peer-review outcomes and eventual citations.
+  The two most-cited papers in the dataset also exhibit larger author teams, higher than typical self-citations, and distinctive citation growth curves.
+  These two papers, sharing some coauthors and a research focus, could either signal the area where SIGMETRICS had the most research impact, or they could represent outliers; their omission from the analysis reduces some of the otherwise distinctive observed metrics to nonsignificant levels.
+keywords: |
+  SIGMETRICS; bibliometrics; factors in citation
+authorcontributions: |
+  E.F collected the data, conceived and designed the experiments, performed experiments
+  and analysis, and wrote the paper.
+conflictsofinterest: |
+  The author declares no conflict of interest.
+funding: |
+  This research received no funding.
+institutionalreview: |
+  This study was exempted from the informed consent requirement under Exempt Category 4: the use of secondary data by Reed College's Institutional Review Board (No. 2021-S26).
+informedconsent: |
+  The data collected for this study was sourced from public-use datasets such as conference and academic web pages. The informed consent requirement was waived for this secondary analysis.
+dataavailability: |
+  All of the code and data for this article are publicly available at \url{https://github.com/eitanf/sysconf} \cite{frachtenberg:github-repo}
+output:
+  bookdown::pdf_book:
+    keep_tex: true
+    template: main.tex
+    citation_package: natbib
+    fig_caption: true
+---
+
+```{r code = readLines("../load_data.R"), echo = F, message = F}
+```
+
+```{r setup, echo=F, message=F, warning=F, cache=T}
+library('kableExtra')
+library('rjson')
+library('MASS')
+library('readtext')
+library('quanteda')
+library('quanteda.textplots')
+library('quanteda.textstats')
+
+# Colors:
+cwomen <- "#7704FF"
+cmen <- "#00C3AA"
+cmen <- "gray70"
+cwomen <- "gray30"
+cavg <- "#FF10F0"
+cavg <- "#CB00E6"
+
+max_months <- 60
+compare_months <- max_months - 6
+
+sig <- citations %>%
+  filter(grepl("SIGMETRICS", key)) %>%
+  filter(months <= max_months) %>%
+  group_by(key) %>%
+  mutate(final_cites = last(citations)) %>%
+  arrange(desc(final_cites)) %>%
+  ungroup() %>%
+  mutate(key = fct_reorder(key, desc(final_cites))) %>%
+  group_by(key) %>%
+  mutate(seq = cur_group_id()) %>%
+  ungroup() %>%
+  left_join(read.csv("60-month-self-citations.csv", colClasses = c("factor", "integer")))
+
+json_fpath <- paste0(toplevel, "data/conf/", "SIGMETRICS", ".json")
+conf <- rjson::fromJSON(file = json_fpath)
+sig_papers <- filter(papers, key %in% sig$key)
+sig_papers$title <- unlist(lapply(conf[['papers']], function(p) { p[2] }))
+sig_papers <- sig_papers %>%
+  left_join(filter(sig, months == max_months) %>% dplyr::select(c("key", "final_cites", "self"))) %>%
+  left_join(filter(roles, conf == "SIGMETRICS_17", role == "author") %>% group_by(key) %>% summarize(coauthors = n())) %>%
+  arrange(desc(final_cites)) %>%
+  mutate(seq = row_number())
+sig_papers$log_cites <- log1p(sig_papers$final_cites)
+
+sig_authors <- roles %>%
+  filter(role == "author", conf == "SIGMETRICS_17") %>%
+  left_join(persons) %>%
+  left_join(sig_papers)
+
+by_paper <- sig_authors %>% 
+  group_by(key) %>%
+  summarize(max_hindex = max(hindex, na.rm = T),
+            has_com = any(sector == "COM", na.rm = T),
+            has_pc = any(as_pc > 0, na.rm = T),
+            has_woman = any(gender == "F", na.rm = T),
+            has_us = any(country == "US", na.rm = T),
+            has_non_us = any(country != "US", na.rm = T))
+            
+sig_papers <- left_join(sig_papers, by_paper)
+
+comps <- c("SIGMETRICS", "ICPE", "IMC", "SIGCOMM", "SIGIR", "SIGMOD")
+
+comp_cites <- citations %>%
+  filter(months == compare_months) %>%
+  mutate(Conference = gsub("_17_\\d\\d\\d", "", key)) %>%
+  filter(Conference %in% comps)
+
+fulltext <- readtext(paste0(toplevel, "fulltext/SIGMETRICS_17_*.txt")) %>%
+  mutate(doc_id = factor(gsub(".txt", "", doc_id)))
+t_corpus <- corpus(fulltext)
+sw <- c(stopwords("english"), "can", "use", "fig", "figure", "ic", "sec")
+text_matrix <- dfm(t_corpus, remove = sw, stem = T, remove_punct = T, remove_symbols = T)
+
+just_cites <- dplyr::select(sig_papers, c(key, log_cites)) %>% rename("document" = "key")
+readability_cor <- function(metric)
+{
+  readability <- quanteda.textstats::textstat_readability(t_corpus, metric) %>%
+    left_join(just_cites)
+  return(cor.test(unlist(readability[,2]), unlist(readability[,3])))
+}
+```
+
+```{r readability.metrics, echo=F, message=F, warning=F, cache=T}
+rmetrics <- c("ARI", "ARI.simple", "Bormuth.MC", "Bormuth.GP", "Coleman", "Coleman.C2", "Coleman.Liau.ECP",
+              "Coleman.Liau.grade", "Coleman.Liau.short", "Dale.Chall", "Dale.Chall.old", "Dale.Chall.PSK",
+              "Danielson.Bryan", "Dickes.Steiwer", "DRP", "ELF", "Farr.Jenkins.Paterson", "Flesch", "Flesch.PSK",
+              "Flesch.Kincaid", "FOG", "FOG.PSK", "FOG.NRI", "FORCAST", "FORCAST.RGL", "Fucks", "Linsear.Write",
+              "LIW", "nWS", "nWS.2", "nWS.3", "nWS.4", "RIX", "SMOG", "SMOG.C", "SMOG.simple",
+              "SMOG.de", "Spache", "Spache.old", "Strain", "Traenkle.Bailer", "Wheeler.Smith",
+              "meanSentenceLength", "meanWordSyllables") 
+all_readability <- data.frame()
+for (m in rmetrics) {
+  tmp <- readability_cor(m)
+  all_readability <- rbind(all_readability,
+                           data.frame(metric = m, cor = tmp$estimate, p.value = tmp$p.value))
+}
+
+lowest <- as.character(filter(all_readability, p.value == min(all_readability$p.value))$metric)
+rs <- textstat_readability(t_corpus, lowest) %>% rename("key" = "document", "readability" = lowest)
+sig_papers <- left_join(sig_papers, rs)
+```
+
+# Introduction
+
+SIGMETRICS is the flagship conference of the eponymous Association for Computing Machinery's (ACM) special-interest group (SIG) on performance evaluation [@sigmetrics].
+First convened in 1973, SIGMETRICS is one of the longest-running conferences in computer science (CS) and has amassed some 2,000 published papers, each cited on average at least 28 times [@sigmetrics-metrics].
+Its scope centers on the relatively focused area of computer performance evaluation, but at the same time, its methods and techniques span a diverse field of analysis, simulation, experiment design, measurement, and observation.
+This duality is reflected in the content of SIGMETRICS's papers, spanning the gamut from mathematical proofs to practical measurement aspects and all scales from embedded processors to the largest compute clouds.
+Given the distinctive scope of the conference, as well as its long history, respectable citation rate, and diversity of methods, we may ask: what factors affect the citation count of SIGMETRICS papers?
+
+For better or worse, citations occupy a central role in the bibliometric evaluation of journals, conferences, institutes, and individual researchers [@moed06:citation].
+This study is not concerned with the merits and deficiencies of citation analysis.
+Instead, the aim of this study is to understand the specific citation patterns of this distinctive conference, and compare it to similar conferences.
+This paper starts with the assumption that citations are a widely used metric of scholarly impact and investigates variations in citations in the context of SIGMETRICS.
+Specifically, we address the following research questions:
+
+ *  RQ1: What is the distribution of paper citations after five years?
+ 
+ *  RQ2: How have citations evolved over this period?
+
+ *  RQ3: How many citations are self-citations?
+
+ *  RQ4: What SIGMETRICS keywords are associated with particularly high citations?
+ 
+ *  RQ5: What other factors are related to citations?
+
+The bibliometrics literature is rich with studies looking at these and similar questions in various other disciplines and fields, even within CS [@broch01:cite; @iqbal19:sigcomm; @iqbal19:bibliometric; @rahm05:citation].
+To the best of our knowledge, no prior study has looked at the field of performance evaluation, and in particular, the SIGMETRICS conference with its unique characteristics.
+
+As a case study in the field, we started measuring citations of SIGMETRICS and related conferences in a single publication year, 2017.
+This focus permitted both the collection of fine-grained citation data at monthly intervals and a retrospective look at citations five years since publication.
+This duration is long enough to allow papers to be discovered, read, cited, and even expanded upon by other scientists, and has therefore been used in a number of related studies [@johnson97:noticed; @lariviere09:decline; @rahm05:citation].
+
+This singular focus also permitted the labor-intensive manual collection of multiple associated conference and author factors, such as author demographics and research experience, cleanup of the papers' full text, and counting of self-citations.
+In the next section (Section \@ref(sec:data)), we describe in detail our data collection methodology, including the manual assignment of genders to authors to avoid the well-known issues of name-based gender inference.
+In the results section (Section \@ref(sec:results)), we enumerate our findings, organized by research question, and then summarize an answer to each of the questions in the context of the previous work related to each question.
+Finally, we discuss our results (Section \@ref(sec:discussion)) and offer some conclusions and directions for future research (Section \@ref(sec:conclusion)).
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Materials and Methods {#sec:data}
+
+To answer these research questions, we collected citation data at regular intervals from a set of 2017 conferences, on which we performed various statistical analyses.
+Our main dataset is the complete collection and full text of accepted research papers from SIGMETRICS'17.
+That year, the conference published `r nrow(sig_papers)` papers out of `r conf$submissions` submissions
+(`r pct(nrow(sig_papers), conf$submissions, 1)`% acceptance rate).
+Although the final conference proceedings were not published as open access, these papers were freely available during the week of the conference, and authors were permitted to post versions on personal web sites and preprint archives.
+All papers are still accessible as free e-prints via Google Scholar (GS), and this availability itself had been sometimes linked to higher citation counts [@bernius09:open; @mccabe14:identifying].
+
+Since SIGMETRICS'17 is not covered by the Scopus database, we collected all citation metrics from GS;
+every month, we recorded the number of citations of each paper, as well as the availability of an e-print.
+GS is an extensive database that contains not only peer-reviewed papers, but also preprints, patents, technical reports, and other sources of unverified quality [@halevi17:suitability].
+Its citation metrics therefore tend to be higher than those of databases such as Scopus and Web of Science, but not necessarily inferior for paper-to-paper comparisons [@harzing16:google; @martin18:google].
+As we are primarily interested in relative citation metrics, even if the GS metrics appear inflated compared to other databases, we should still be able to examine the relationship between relative citation counts and various other factors.
+And of course, the free availability of GS data makes our dataset (and that of comparable studies) easier to obtain, verify, and reproduce.
+
+In addition to paper data, we collected basic demographic data for all `r nrow(sig_authors)` SIGMETRICS'17 authors (`r sig_authors %>% dplyr::select(name, gs_email) %>% unique() %>% nrow()` unique).
+Conferences do not generally share (or even collect) demographic data on all authors, so we relied instead on a manual Web search of every author.
+From authors' email addresses and using regular expressions, we can roughly categorize each author as either affiliated with an education institution
+(`r nrow(filter(sig_authors, sector == "EDU"))`),
+industry (`r nrow(filter(sig_authors, sector == "COM"))`),
+government (`r nrow(filter(sig_authors, sector == "GOV"))`),
+or unknown (`r sum(is.na(sig_authors$sector))`).
+We can also guess their country of affiliation, with nearly half of the authors
+(`r sum(sig_authors$country %in% c("US", "CA"))`)
+from North America, some  from Europe
+(`r sum(sig_authors$country %in% c("CH", "DE", "FR", "NL", "UK"))`),
+some from East Asia
+(`r sum(sig_authors$country %in% c("CN", "HK", "KR", "SG"))`),
+and most of the rest unknown
+(`r sum(is.na(sig_authors$country))`).
+
+Another interesting demographic to observe is \emph{perceived gender} at time of publication [@bonifati22:inclusive].
+Gender is a complex, multifaceted identity [@lindqvist20:gender], but most bibliometric studies still rely on binary genders---either collected by the journal or inferred from forename---because that is the only designator available to them [@bhagat18:data; @bonifati22:inclusive; @cohoon11:cspapers; @holman18:gender; @national20:science; @wang21:trends; @way16:gender; @zweben18:taulbee].
+In the absence of self-identified gender information for our authors, we also necessarily compromised on using binary gender designations.
+We therefore use the gender terms "women" and "men" interchangeably with the sex terms "female" and "male".
+Using web lookup, we assigned all authors a gender whenever we found a recognizable gendered pronoun or absent that, a photo.
+This labor-intensive approach was chosen because it can overcome the limitations of automated gender-inference services, which tend to be less accurate for non-Western names and women [@cohoon11:cspapers; @mattauch20:bibliometric; @santamaria18:comparison].
+
+Finally, we also collected proxy metrics for author research experience.
+Conferences also do not generally offer this information, but we were able to unambiguously link 
+`r pct(sum(!is.na(sig_authors$gs_email)), nrow(sig_authors))` of the authors in our dataset to a GS author profile, from which we recorded their total prior publications and h-index near the time that SIGMETRICS'17 took place.
+
+## Statistics {-}
+
+For statistical testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon signed-rank test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and correlations between two numerical variables were evaluated with Pearson's product-moment correlation coefficient.
+The relative effect of different factors on citations has been evaluated using linear regression.
+All statistical tests are reported with their p-values.
+All computations were performed using the R programming language with the Quanteda and other packages, which can be found in the source code accompanying this paper.
+
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Results {#sec:results}
+
+This section explores our research questions in detail while bringing in the context of previous research and findings.
+Following the empirical results for the five research questions, we summarize and aggregate the various factors by using a linear regression model of paper citations.
+
+<!-------------------------------------------------------------------------------->
+
+## RQ1 What is the distribution of citations after five years
+
+```{r all-papers, echo = F, cache = T}
+data.frame("#" = sig_papers$seq, "Citations" = sig_papers$final_cites, "Authors" = sig_papers$coauthors, "Paper title" = sig_papers$title, check.names = F) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "rrrl",
+               table.envir = "table*",
+               linesep = c(rep("", nrow(sig_papers))),
+               caption = "All SIGMETRICS'17 research papers, ordered by citations after exactly five years.") %>%
+  column_spec(4, width = "9.5cm")
+#  kable_styling(latex_options = "scale_down")
+```
+
+Table \@ref(tab:all-papers) shows all `r nrow(sig_papers)` papers from SIGMETRICS'17 and their total citations exactly five years since publications, averaging `r round(mean(sig_papers$final_cites), 1)` citations per paper (median `r median(sig_papers$final_cites)`).
+The distribution of citations is also shown as a log-scale density plot in Fig. \@ref(fig:5yr-density).
+
+```{r 5yr-density, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Density plot for five-year citation counts distribution, logarithmic scale."}
+sig_papers %>%
+  ggplot(aes(x = final_cites)) +
+    geom_density() +
+    scale_x_log10() +
+    xlab("Citations") +
+    ylab("Density") +
+    theme_light()
+```
+
+Total citations exhibit a typical long-tailed distribution [@rahm05:citation; @redner98:popular; @wang21:science; @wu09:research], with two top papers (ostensibly from related research groups) picking up
+`r pct(sig_papers[1,]$final_cites + sig_papers[2,]$final_cites, sum(sig_papers$final_cites), 1)`%
+of the total citations.
+However, the adage that "most papers aren't cited at all" [@hamilton91:uncited; @jacques10:impact] does not appear to hold for this conference.
+Moreover, if we compare to five-year citations of papers in natural sciences and engineering only, where about a quarter of the papers remain uncited [@lariviere09:decline], SIGMETRICS'17 fared much better with no uncited papers---even when omitting self-citations.
+Although uncited papers are not are as rare as they used to be [@lariviere09:decline; @wu09:research], they are starkly absent from SIGMETRICS'17.
+
+We can compare SIGMETRICS's citations to some of its contemporaneous peer conferences.^[Since not all conferences have had their five-year anniversary yet, we use 54-month citations as the baseline for comparison.]
+Table \@ref(tab:conf-compare) shows the mean and median number of citations for two other performance-evaluation conferences from the same ACM special-interest group, IMC and ICPE, as well as three other well-cited flagship conferences for other ACM SIGs: SIGCOMM [@iqbal19:sigcomm; @iqbal19:bibliometric], SIGIR [@broch01:cite], and SIGMOD [@rahm05:citation].
+Within the relatively narrow field of performance evaluation, SIGMETRICS sits somewhere between ICPE and IMC in terms of mean citations.
+But in the flagship conferences of the much larger subfields of communications, information retrieval, and management of data, mean citations are much higher than in SIGMETRICS and display even longer tails.
+Indeed, the most-cited papers in these three conferences garnered 
+`r max(filter(comp_cites, Conference == "SIGCOMM")$citations)`,
+`r max(filter(comp_cites, Conference == "SIGIR")$citations)`, and
+`r max(filter(comp_cites, Conference == "SIGMOD")$citations)`
+54-month citations respectively, compared with SIGMETRICS's
+`r max(filter(comp_cites, Conference == "SIGMETRICS")$citations)`.
+Even their standard deviation is much higher, despite their larger sample sizes (number of papers).
+
+
+```{r conf-compare, echo = F, cache = T}
+comp_cites %>%
+  group_by(Conference) %>%
+  summarize(Papers = n(), Mean = round(mean(citations), 1), Median = median(citations), "Std Dev" = round(sd(citations), 1)) %>%
+  arrange(factor(Conference, levels = comps)) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "lrrrr",
+               linesep = c(rep("", 100)),
+               caption = "Mean and median citations after 54 months for SIGMETRICS and other contemporaneous conferences.")
+#  column_spec(2, width = "8cm") %>%
+  # kable_styling(font_size = 7)
+```
+
+
+<!-------------------------------------------------------------------------------->
+
+## RQ2: How have citations evolved over time?
+
+
+
+Observing the total citations of papers at a given time point offers only a static view of a metric that is inherently a moving target.
+Citations tend to follow different dynamics, often accelerating first as papers are discovered, and then decelerating as their novelty recedes and as different papers, disciplines, and fields, exhibit very different ageing curves [@pichappan99:skewness; @wang13:citation].
+
+After five years, all SIGMETRICS'17 papers likely had a chance to be discovered by fellow researchers, as evidenced by the fact all are cited by outside researchers.
+We can therefore ask questions such as: how are citations changing over time? what is the citation velocity of different papers? have any papers already peaked after five years and show a decrease in citation velocity?
+
+```{r citations-over-time, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Total citations over five years, sampled monthly."}
+sig %>%
+  ggplot(aes(x = months, y = citations, color = as_factor(seq))) +
+  geom_line() +
+  xlab("Months since publication") +
+  ylab("Citations") +
+  theme_bw() +
+  guides(color = guide_legend(title = "Paper seq #"))
+
+models = sig %>%
+  group_by(key) %>%
+  do(model = lm(data = ., citations ~ months))
+
+rs = unlist(lapply(models$model, function(mod) { summary(mod)$adj.r.squared}))
+```
+
+As Fig. \@ref(fig:citations-over-time) shows, different papers do indeed accumulate citations at different rates, ranging from about zero to three additional citations per month.
+Some papers even show temporary dips in citations, variations in counting which are not unusual for GS [@halevi17:suitability]. There is even a months-long gap for paper #3 when this paper could not be found at all on GS.
+
+An interesting observation is that citation velocity appears fairly constant for many papers, contradicting our expectation of accelerated growth.
+This observation can be noticed more readily when looking at the month-to-month difference in citation counts (Fig. \@ref(fig:citations-diff)).
+Papers #1 and #2 (the top-cited papers) both show rapid growth through the first fifteen months or so, and then diverge, with paper #2 showing a slow decline in citation growth.
+Papers #3 and #4 exhibit somewhat erratic growth over time, likely because of the temporary artifacts we observed in their GS data.
+Most other papers show a fairly stable growth rate hovering around one new citation per month or two.
+None of the papers appear to have clearly peaked yet, at least in the period examined.
+
+```{r citations-diff, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Monthly citation growth over five years using LOESS smoothing."}
+sig %>%
+  group_by(key) %>%
+  mutate(growth = citations - lag(citations)) %>%
+  ungroup() %>%
+  ggplot(aes(x = months, y = growth, color = as_factor(seq))) +
+  geom_smooth(se = F) +
+  xlab("Months since publication") +
+  ylab("Citation growth month-over-month") +
+  theme_bw() +
+  guides(color = guide_legend(title = "Paper seq #"))
+```
+
+As another verification of this constant growth rate, we modeled a simple linear regression to each paper using citations as the outcome variable and months-since-publication as the only predictor variable.
+All but the last two (least cited) papers measured an adjusted $R^{2}$ value above 0.9, averaging `r round(mean(rs), 2)` overall.
+This near-constant growth appears to be typical for the field.
+Looking at the other two sibling conferences (Fig. \@ref(fig:comp-evo)) shows a similar picture of linear growth.
+On the other hand, a few SIGMOD papers show accelerating citation growth, more in-line with our expectations from past results.
+It is possible that the smaller field of performance evaluation offers little opportunities for exponential growth, since results are likely disseminated to the entire research community at about the same time.
+
+```{r comp-evo, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Total citation growth for ICPE and IMC, sampled biannually."}
+citations %>%
+  mutate(Conference = gsub("_17_\\d\\d\\d", "", key)) %>%
+  filter(Conference %in% c("ICPE", "IMC")) %>%
+  ggplot(aes(x = months, y = citations, group = key, color = Conference)) +
+  geom_line(alpha = 0.5) +
+  xlab("Months since publication") +
+  ylab("Citations") +
+  scale_color_manual(values = c("orange", "green")) +
+  theme_bw()
+```
+
+<!-------------------------------------------------------------------------------->
+
+## RQ3: How many citations are self-citations?
+
+```{r self-citations, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Self citations as a fraction of total citations after 5 years."}
+self_cites <- sig %>%
+  filter(months == max_months) %>%
+  mutate(external = citations - self, pct = round(100 * self / citations, 1))
+
+self_cites %>%
+  rename("Total" = "external", "Self" = "self") %>%
+  pivot_longer(cols = c("Self", "Total"), names_to = "Citations") %>%
+  ggplot(aes(fill = fct_rev(Citations), x = reorder(seq, -seq), y = value)) +
+    geom_bar(position = "stack", stat = "identity") +
+    geom_text(aes(x = reorder(seq, -seq), y = 150, label = paste0(pct, "%")), color = "blue", size = 2.5, hjust = 1) +
+    scale_fill_manual(values = c("gray60", "purple")) +
+    coord_flip() +
+    ylab("Citations") +
+    xlab("Seq #") +
+    guides(fill = guide_legend(title = "Citation type  ")) +
+    theme_bw()
+```
+
+Self-citations are fairly common in the sciences, and have been estimated to comprise 10--40% of all scientific production, depending on field [@aksnes03:macro; @snyder98:patterns; @wolfgang04:bibliometric].
+On the one hand, self-citations represent a natural evolution of a research team's work, building upon their previous results, especially in systems projects that often involve incremental efforts of implementation, measurement, and analysis [@wolfgang04:bibliometric].
+On the other hand, self-citations can be problematic as a bibliometric measure of a work's impact, because they obscure the external reception of the work and are prone to manipulation [@waltman16:review].
+
+The amount of self-citations in SIGMETRICS'17 varies from `r min(self_cites$self)` to `r max(self_cites$self)`, averaging
+`r round(mean(self_cites$self), 2)`
+per paper
+(`r round(mean(100 * sig_papers$self / sig_papers$final_cites), 2)`% of all citations; SD: `r round(sd(self_cites$self), 2)`),
+agreeing perfectly with the 24% rate found for CS papers in Norway [@aksnes03:macro].
+The same study also found a high ratio of self-citing papers overall, agreeing with our data where all but `r sum(sig_papers$self == 0)` papers include at least one self-citation.
+
+At first blush, SIGMETRICS'17 self-citations appear to be strongly correlated with total citations
+(Pearson's `r report_test(cor.test(self_cites$citations, self_cites$self))`),
+suggesting that self-citations represent a meaningful fraction of total citations [@wolfgang04:bibliometric].
+But the high variance in this ratio across papers (right column) contradicts this hypothesis.
+A more likely explanation for this high correlation is that it is skewed by the heavy-tail papers.
+Omitting the top two papers alone weakens the correlation to nonsignificant levels
+(`r report_test(cor.test(self_cites[3:27,]$citations, self_cites[3:27,]$self))`).
+
+The two most-cited papers are also the two with the largest author teams, posing the question of whether this factor can better explain self-citations [@snyder98:patterns].
+After all, the more authors on a paper, the more likely it is that their total published research output would be larger, leading to higher outgoing references and consequently to higher self-citation counts, all other things being equal [@snyder98:patterns].
+As before, the correlation between the number of coauthors and self-citations is indeed high
+(`r report_test(cor.test(sig_papers$coauthors, sig_papers$self))`),
+until we omit the first two papers
+(`r report_test(cor.test(sig_papers[3:27,]$coauthors, sig_papers[3:27,]$self))`).
+Again, these two papers represent outliers both in terms of citations and self-citations, in contrast to prior findings that highly cited papers typically exhibit a lower rate of self-citations [@aksnes03:macro].
+
+<!-------------------------------------------------------------------------------->
+
+## RQ4: What keywords are associated with higher citations?
+
+In this section we look at the relationships between papers' citations and their text, specifically key terms.
+Extracting a meaningful list of words, or tokens, from each paper requires additional data preparation.
+First, the full-text must be converted from PDF format to text (ASCII), which involves first automated tools such as Linux's `pdf2txt` and then manual cleaning of poorly converted elements such as equations, tables, and formatting symbols.
+The references section, as well as conference and author details, are removed from the text since they contain many repeated and irrelevant keywords (such as "page").
+Finally, the text is filtered to remove symbols, punctuation, and English stop words, and the remaining words are stemmed.
+This step was accomplished with the R package Quanteda [@benoit18:quanteda].
+
+```{r wordcloud-tf, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Word cloud of top terms by frequency"}
+set.seed(1);
+tf <- dfm_weight(text_matrix, scheme = "prop")
+textplot_wordcloud(tf, random_order = F, color = RColorBrewer::brewer.pal(8,"Dark2"), max_words = 500, min_count = 0)
+
+# Modeling attempts, all useless:
+# log_cites <- data.frame(doc_id = sig_papers$key, logc = log1p(sig_papers$final_cites))
+# df.tf <- convert(tf, to = "data.frame") %>% left_join(log_cites)
+# model.glm <- glm(data = df.tf[,-1], logc ~ .)
+# high <- df.tf %>% mutate(logc = logc >= median(logc))
+# model.rpart <- rpart(data = high[,-1], logc ~ .)
+# model.nb <- naive_bayes(data = high[,-1], logc ~ .)
+```
+
+```{r wordcloud-tfidf, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Word cloud of top terms by TF-IDF"}
+set.seed(1);
+tfidf <- dfm_weight(text_matrix, weights = docfreq(text_matrix, scheme = "inverse"))
+textplot_wordcloud(tfidf, random_order = F, color = RColorBrewer::brewer.pal(8,"Dark2"), max_words = 500, min_count = 0)
+```
+
+To get a sense of the recurring terms in SIGMETRICS'17, Fig. \@ref(fig:wordcloud-tf) shows the most common terms across all papers, with the size of each word weighted by its appearance frequency.
+The three most frequent terms are "time", "model" and "network", which appeared in all papers, except three papers missing "network".
+If we turn our attention instead to terms that are central to specific papers only, and not universally across the corpus, we can multiply the overall frequency of each term by its inverse-document-frequency to achieve the TF-IDF transformation [@schutze08:IR].
+As shown in Fig. \@ref(fig:wordcloud-tfidf), the most focused term in the corpus is "DRAM", appearing 482 times in papers #1 and #2 and almost nowhere else, followed by "price", appearing 214 times across papers #4, #9, and #22.
+The contrast between these two metrics illuminates which keywords are more universal to SIGMETRICS'17 vs. central to specific papers.
+
+```{r wordcloud-tfidf-cites, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Word cloud of top terms by TF-IDF, weighted by log(citations + 1)"}
+set.seed(1);
+logcites = log1p(filter(citations, gsub("_17_\\d\\d\\d", "", key) == "SIGMETRICS", months == max_months)$citations)
+tfidf.matrix <- as.matrix(tfidf)
+tfidf.cites <- as.dfm(tfidf.matrix * logcites)
+textplot_wordcloud(tfidf.cites, random_order = F, color = RColorBrewer::brewer.pal(8,"Dark2"), max_words = 500, min_count = 0)
+```
+
+Finally, to bring citations into the picture, we multiply the TF-IDF weight of each term by the log-transformed sum of citations of the papers containing each term:
+$$
+\displaystyle\sum_{papers-with-term}{log(citations(paper) + 1)}.
+$$
+The logarithm function is used to attenuate the long-tail nature of five-year citations, transforming the distribution to a more linear weight [@webster09:hot].
+As Fig. \@ref(fig:wordcloud-tfidf-cites) shows, there are fewer influential terms overall now, because there are few highly cited papers.
+The two most cited papers, #1 and #2, are also the ones that focus on DRAM, so not surprisingly, this term retains the highest weight.
+The term "price" is mostly split among three papers, some better-cited than others, which leads to a small reduction in its weighting.
+Overall, it appears from the figure that the most cited topics in SIGMETRICS'17 relate to memory, energy consumption, and security.
+This set has nearly no intersection with the most common terms from Fig. \@ref(fig:wordcloud-tf), such as "network", "model", "time", "data", "system", "server", and "algorithm", which are typical of performance evaluation, as we'd expect.
+The implication here is that while these latter terms may well characterize SIGMETRICS papers overall, they do not differentiate well between highly cited and moderately cited papers.
+
+Other approaches to discerning key terms influencing citations include linear regression of citations by terms or classification of highly cited papers using Naive Bayes or decision trees.
+Unfortunately, none of these methods yielded useful insights on SIGMETRICS topics, fixating instead on nonspecific terms such as "region" and "relevance".
+
+<!-------------------------------------------------------------------------------->
+ 
+## RQ5: What other factors are related to citations?
+
+<!-- sig_papers %>% dplyr::select(-c(key, final_cites, entities, title, seq)) %>% ggpairs() -->
+We next turn our attention to various other metrics we can extract about the papers and compare them to citations.
+Some of these factors have been previously linked to higher citations, so we measured the Pearson correlation of each of these factors against the log-transformed citation count after five years.
+
+For example, the open availability of papers can sometimes make a difference in citations, as alluded to in the introduction.
+Observing the duration it took GS to discover each paper or to publish a link to its e-print, there was very little variance between the papers in our dataset, which means we cannot validate this hypothesis for SIGMETRICS.
+However, there are multiple other hypotheses on factors that affect citations that we are able to test for our dataset.
+
+### Textual features
+
+In a large meta-analysis from 2019 [@xie19:correlation], Xie et al. observed a moderate correlation of $r=0.31$ between paper length and citations.
+In our SIGMETRICS'17 dataset, the correlation between number of words in a paper and its log-transformed citations is somewhat higher
+(`r report_test(cor.test(sig_papers$words, sig_papers$log_cites))`).
+Our dataset is much smaller, which could partially explain the larger effect size, but it also controls for some influential external factors such as publication year, reviewer composition, and journal quality.
+We can speculate on causal arguments for this correlation, such as longer papers having more citeable statements or a greater diversity of data and ideas [@fox16:citations].
+But it's also quite possible that there are hidden confounding variables that themselves affect citations.
+
+One such factor is the number of outgoing references per paper [@fox16:citations], which in our dataset is positively correlated with both paper length
+(`r report_test(cor.test(sig_papers$words, sig_papers$references))`) and with citations
+(`r report_test(cor.test(sig_papers$references, sig_papers$log_cites))`).
+A 2009 study found a similar correlation of 0.44 in evolutionary psychology papers [@webster09:hot].
+The same study also found a weak ($r=0.2$) correlation between citations and the number of coauthors, as did Fox in 2016 [@fox16:citations], and we observed as well (`r report_test(cor.test(sig_papers$coauthors, sig_papers$log_cites))`).
+
+Another such factor is the readability of a paper, as measured by various statistics.
+For example, a 2019 study found that the Linsear-Write readability metric is negatively associated with the top quintile of cited Economics papers [@mccannon19:readability].
+Recall that lower readability scores mean that the text is *more* readable, which implies that difficult-to-read articles may discourage citations.
+To measure the readability of SIGMETRICS papers, we again turn to the Quanteda R package, which offers at least `r length(rmetrics)` readability metrics.
+Of these, the metric that empirically correlated most strongly with log citations was "FOG.NRI" [@kincaid75:derivation].
+In our dataset, the overall correlation with citations is weak and positive
+(`r report_test(cor.test(sig_papers$readability, sig_papers$log_cites))`);
+the least readable quintile does not show significantly fewer citations than the other 80% either
+(`r report_test(t.test(filter(sig_papers, readability >= quantile(sig_papers$readability, 0.8))$log_cites,                       filter(sig_papers, readability  < quantile(sig_papers$readability, 0.8))$log_cites))`).
+It's possible, however, that standard readability heuristics are not readily applicable to SIGMETRICS text because most papers include mathematical symbols, equations, figures, and tables that are not typically handled gracefully by such methods.
+For example, many of these heuristics assume that the shorter "words" between punctuation in mathematical formulae represent more readable text.
+
+Even more esoteric textual features have been found to correlate with higher citations counts, such as the length of the title and its inclusion of a colon, either positively [@jacques10:impact] or negatively [@jamali11:article].
+In the SIGMETRICS dataset, neither title length
+(`r report_test(cor.test(sig_papers$title_length, sig_papers$log_cites))`),
+nor a colon in the title
+(`r yes_c <- filter(sig_papers, subtitle)$log_cites; no_c <- filter(sig_papers, !subtitle)$log_cites; report_test(t.test(yes_c, no_c))`).
+are correlated with citations.
+
+### Peer-review features
+
+We may also expect that papers that were rated highly enough in the peer-review process as to receive an award would fare well in citations, although rarely at the top [@coupe13:peer; @lee19:predictive; @wainer15:peer].
+SIGMETRICS'17 awarded a "Best Paper" award to paper no.
+`r bp <- filter(sig_papers, title == "Accelerating Performance Inference over Closed Systems by Asymptotic Methods"); bp$seq`
+and a "Kenneth C. Sevcik Outstanding Student Paper" award to paper no.
+`r bsp <- filter(sig_papers, title == "Security Game with Non-additive Utilities and Multiple Attacker Resources"); bsp$seq`.
+As can be inferred from their relative rankings, these two papers fared well below the median SIGMETRICS'17 paper, with five-year citations at `r bp$final_cites` and `r bsp$final_cites`, respectively.
+
+<!-- filter(survey, conf == "SIGMETRICS") %>% left_join(sig_papers, by = c("paper_id" = "key")) -->
+This peer-review perspective segues naturally to examining aspects of the review process itself.
+In an author survey we conducted in 2019 [@frachtenberg20:survey], authors from eight different SIGMETRICS'17 papers shared details about their reviews and the reviewing process.
+Although survey responses remain confidential, and the low number of responses is insufficient to draw statistically significant conclusions, we can still observe four trends in the responses.
+First, all eight papers received at least four reviews, and some as many as six, which is much high than the typical CS journal [@publons18:peer]; the mean number of reviews per paper at SIGMETRICS'17, `r round(conf$total_reviews / conf$submissions, 1)`, is even higher.
+Second, most respondents spent seven or more months on their projects prior to submitting to SIGMETRICS, and most chose SIGMETRICS as their first submission venue.
+Third, authors generally viewed the double-blind reviews favorably, labeling only two reviews of 23 as "unhelpful" and "missing major points", and labeling none as "unfair".
+And finally, perhaps the most salient anecdote is that there appears to be no correlation between the reviewers' mean overall paper grade and the paper's eventual citations. We speculate on possible reasons for this last point in the discussion section.
+
+### Demographic features
+
+Finally, we look at authors and examine the four demographic factors we collected on authors: gender, country, sector, and experience.
+The literature on the relationship between an author's gender and their eventual citations is mixed [@tahamtan16:factors].
+Of our `r nrow(sig_authors)` authors, `r sum(sig_authors$gender == "F")` are women
+(`r pct(sum(sig_authors$gender == "F"), nrow(sig_authors), 1)`%).
+This low ratio is regrettably not unusual for systems conferences [@frachtenberg22:gender-gap].
+Comparing the median of citations across the two genders yields no significant differences
+(`r report_test(wilcox.test(filter(sig_authors, gender == "F")$final_cites, filter(sig_authors, gender == "M")$final_cites))`),
+and neither does comparing the means of log-citations
+(`r report_test(t.test(filter(sig_authors, gender == "F")$log_cites, filter(sig_authors, gender == "M")$log_cites))`).
+We also found no evidence that men cite themselves more than women
+(`r report_test(t.test(filter(sig_authors, gender == "F")$self, filter(sig_authors, gender == "M")$self))`),
+unlike the findings in previous studies [@king17:men; @tahamtan16:factors].
+
+These nonsignificant differences repeat for geography when we compare log-citations of the nearly half of authors based in the US to the rest
+(`r report_test(t.test(filter(sig_authors, country == "US")$log_cites, filter(sig_authors, country != "US")$log_cites))`).
+There is also no apparent correlation between an author's citations and their research experience as expressed in past publications
+(`r report_test(cor.test(sig_authors$npubs, sig_authors$log_cites))`),
+past citations
+(`r report_test(cor.test(sig_authors$citedby, sig_authors$log_cites))`),
+or h-index
+(`r report_test(cor.test(sig_authors$hindex, sig_authors$log_cites))`).
+We could also compare paper citations only to the highest h-index per paper to control for variance within a research team, but even then, the correlation is nonexistent
+(`r report_test(cor.test(sig_papers$max_hindex, sig_papers$log_cites))`)
+
+It is possible that the double-blind review process of SIGMETRICS---which ostensibly focuses on merit and limits the amount of variance in review outcomes based on author demographics---also limits the amount of variance in citation outcomes based on demographics.
+
+
+The only significant difference in demographics-based citations in our dataset appears to be based on sector.
+The median citations for authors affiliated with industry
+(`r median(filter(sig_authors, sector == "COM")$final_cites)`)
+is more than double that of authors affiliated with academia
+(`r median(filter(sig_authors, sector == "EDU")$final_cites)`)
+and the difference is statistically significant
+(`r report_test(wilcox.test(filter(sig_authors, sector == "COM")$final_cites, filter(sig_authors, sector == "EDU")$final_cites))`),
+as is the difference in mean log-citations
+(`r report_test(t.test(filter(sig_authors, sector == "COM")$log_cites, filter(sig_authors, sector == "EDU")$log_cites))`).
+These statistics may not be as powerful as they sound, because after all, there are only `r nrow(filter(sig_authors, sector == "COM"))` verified industry authors in this set.
+But it is nevertheless worth noting that half of these industry authors appear on papers #1 and #2 and none appear in a paper ranked #15 or lower in total citations.
+Conceivably, the perspective or resources brought to performance-evaluation research by industry representatives receives an outsize proportion of the overall SIGMETRICS citations.
+
+
+## Regression model {#subsec:regression}
+
+To summarize and aggregate our empirical findings, we can build a generalized linear regression model with log-citations as the response variable and various features we explored as predictor variables.
+The factors we included and their associated coefficients in the model are summarized in Table \@ref(tab:regression).
+
+
+```{r regression, echo = F, cache = T, message = F, warning = F}
+model.all <- glm(data = sig_papers, log_cites ~ words + references + title_length + subtitle + award +
+                   months_to_gs + months_to_eprint + self + max_hindex + has_com + has_woman + has_us)
+df <- data.frame(Feature = c("Intercept line", "Paper length (words)", "No. of references", "Title length (words)", "Colon in title", "Award winner", "Months to GS discovery", "Months to e-print", "Self-citations", "Maximum h-index of coauthors", "Any coauthor from industry", "Any woman coauthor", "Any coauthor from the US"),
+                 Coefficient = round(model.all$coefficients, 4),
+                 "p-value" = round(coef(summary(model.all))[,4], 3),
+                 check.names = F,
+                 row.names = NULL)
+
+model.aic <- stepAIC(model.all, k = log(nrow(df)), trace = 0)
+model.partial <- glm(data = filter(sig_papers, seq > 2),
+                     log_cites ~ words + references + title_length + subtitle + award +
+                     months_to_gs + months_to_eprint + self + max_hindex + has_com + has_woman + has_us)
+
+
+df %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "lrr",
+               linesep = c(rep("", nrow(sig_papers))),
+               caption = "Generalized linear model of log-citations as a function of paper factors.")
+```
+
+This model has a McFadden $R^{2}$ value of `r round(with(summary(model.all), 1 - deviance / null.deviance), 2)`, suggesting that it can explain about two thirds of the variance in citations. Nevertheless, none of the factors on their own exhibits a p-value below $0.1$.
+Since some of these covariates are interdependent or collinear, we can try to improve the model and reduce the number of dependent factors using stepwise model selection [@garcia-portugues21:modeling].
+The resulting model explains a little less of the variability in citations
+(McFadden $R^{2}$=`r round(with(summary(model.aic), 1 - deviance / null.deviance), 2)`),
+but it captures it with fewer parameters: only paper length, no. of references, colon in the title, maximum h-index, and having a woman among the coauthors.
+Of these, the first two exhibit a p-value of under 0.05, and the third of 0.08.
+These three factors have been implicated by previous research findings as potentially linked with higher citations, which is encouraging to corroborate.
+
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Discussion {#sec:discussion}
+
+Perhaps the most extraordinary finding about SIGMETRICS's citations is how ordinary they are, compared to similar contemporaneous conferences.
+The extremes on either end of the distribution are not so extreme and the variance is low, exhibiting a citation distribution that is more uniform than the other conferences'.
+None of the papers appear to have achieved the runaway exponential growth or slow decay in citations that are typical in so many fields, and most papers exhibit an atypical near-constant linear growth with no clear peak in the first five years.
+Additionally, aside from the top-two cited papers, most papers did not exhibit significant self-citations or focus on singularly highly cited terms.
+
+In fact, if we treat the top-two cited papers as outliers and omit them, the citation picture appears more pedestrian still: the average citation count drops from
+`r round(mean(sig_papers$final_cites), 2)`
+to
+`r round(mean(filter(sig_papers, seq > 2)$final_cites), 2)`, 
+their growth drops from an average of
+`r round(mean(sig_papers$final_cites / max_months), 2)`
+citations per month to 
+`r round(mean(filter(sig_papers, seq > 2)$final_cites / max_months), 2)`, 
+and the average fraction of self citations drops from
+`r round(mean(sig_papers$self / sig_papers$final_cites), 2)`
+to
+`r round(mean(filter(sig_papers, seq > 2)$self / filter(sig_papers, seq > 2)$final_cites), 2)`.
+On the last point, it should be noted that four of the top-five cited papers in our dataset exhibit a significantly higher self-citations ratio compared to other papers.
+Without additional data on self citations from other SIGMETRICS years or other conferences, it remains unclear how characteristic this phenomenon is, a question we plan to investigate in a future study.
+
+Most other perspectives we examined, including author demographics and paper readability, surfaced mostly negative findings, that is, a lack of relationship between these factors and the paper's five-year citations.
+Notable exceptions were some linguistic features, like the length of a paper or of its reference list, and the number of coauthors.
+These factors have all been associated with higher citations in past studies of other fields, so may not necessarily suggest that SIGMETRICS is unique in this way.
+The one positive association that may be unique to SIGMETRICS, at least in its magnitude, is the beneficial contribution of industry authors to a paper's eventual citations.
+
+Another interesting anecdotal observation in our dataset is that citations show no strong association with review scores (and related, with paper awards, which in turn imply high review scores).
+This ostensible independence between the two is surprising not only because it contradicts previous research findings, but also because we might expected well-reviewed papers to exhibit the originality and interest that eventually translates to higher citations.
+The intuition behind this expectation is that both review scores and citations are quantities that try to approximate the same ephemeral, impalpable quality, the "goodness" of a paper.
+
+Several hypothetical explanations to this discrepancy come to mind, including the small sample size, the notorious difficulty in trying to evaluate the "goodness" or "citeability" of a paper, the inherent noise in the review process [@francois15:arbit], or that the two metrics measure different qualities after all.
+It is also possible that SIGMETRICS program committees explicitly value qualities other than perceived or predicted citeability.
+Investigating these hypotheses is another interesting venue for future research, but it may require a much larger dataset that includes information on rejected paper, which isn't readily available.
+
+
+## Threats to validity {-}
+
+Because of the time it takes to stabilize citation statistics, we opted not to include additional data from more recent years in our dataset. Undoubtedly, more data could strengthen the statistical validity of our observations; but it could also weaken any conclusions based on the inherent delays of the citation process and in variation over time.
+Moreover, our methodology is constrained by the manual collection of data.
+The effort involved in compiling all the necessary data and additional factors limits the scalability of our approach to additional conferences or years.
+Furthermore, the manual assignment of genders is particularly prone to human error.
+Nevertheless, such errors appear to be smaller in quantity and bias than those of automated approaches, as verified in our prior work on gender [@frachtenberg22:gender-gap].
+
+# Conclusion and future work {#sec:conclusion}
+
+We set out to explore five research questions on the citation behavior of SIGMETRICS's papers, focusing on a case study from 2017.
+These questions cover disparate perspectives, including textual features, author demographics, peer review, self-citations, and evolution over time.
+In the order of the questions, our main findings were:
+
+* *All* SIGMETRICS'17 papers collected some citations from external sources, compared to other related conferences and more generally, scientific papers, where a sizeable proportion of papers remains uncited.
+
+* On the flip side, *none* of the SIGMETRICS'17 papers achieved runaway success in terms of citations, especially compared to other contemporaneous conferences on the same topic.
+
+* Most papers exhibited a near-constant citation velocity, again defying the common expectation of an accelerating increase in citations followed by a gradual decline.
+
+* With the exception of the two most-cited papers, self-citations do not appear to be a significant source of citations for SIGMETRICS'17 papers.
+
+* There appears to be no particular "buzzwords" among this set of papers that are associated with a particularly high citation rate.
+* Among multiple factors examined in a linear regression model, none were found to be significant predictors of higher citation on their own. With all factors combined, however, the model predicts approximately two thirds of the variance in citations.
+
+This work can be extended in many directions.
+As mentioned in the previous section, The interesting question of self-citations across fields and conferences remains open, as does the question of the ostensible discrepancy between review scores and citations.
+Additionally, we could look deeper into demographic factors of authors, such as their career stage or self-identified gender (and more generally, authors' intersectional identities).
+We could also compare conferences to journals, which typically exhibit slower initial exposure and citation, and are less commonly preferred in computer science.
+
+Another extension of this work, one that should prove much easier, would be to observe the same dataset over longer periods of time, in an attempt to identify citation peaks and eventual changes in citation rates.
+We plan to follow up by updating the data repository with fresh citation data at regular intervals, and once we identify enough significant changes (or their absence), analyze and report these as well.
+
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->

@@ -1,0 +1,10 @@
+options(Ncpus = parallel::detectCores())
+install.packages('devtools')
+library('devtools')
+
+devtools::install_version('kableExtra', version = '1.3.2')
+devtools::install_version('quanteda', version = '3.2.1')
+devtools::install_version('quanteda.textplots', version = '0.94.1')
+devtools::install_version('quanteda.textstats', version = '0.95')
+devtools::install_version('readtext', version = '0.81')
+devtools::install_version('rjson', version = '0.2.20')

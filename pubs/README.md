@@ -30,8 +30,9 @@ There are two ways to recreate the documents (which embed the analysis):
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: "Underrepresentation of women in computer systems research" (`docker run -ti eitanf/sysconf:gender-gap`).
   * `prestige`: "Metrics and methods in prestige bias evaluation: A case study in computer systems conferences" (`docker run -ti eitanf/sysconf:prestige`).
+  * `sigmetrics`: "Multifactor Citation Analysis over Five Years: A Case Study of SIGMETRICS Papers" (`docker run -ti eitanf/sysconf:sigmetrics`).
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
-  * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/).
+<!--  * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/). -->
   * `whpc`: "Representation of Women in HPC Conferences" (`docker run -ti eitanf/sysconf:whpc`).
 
 The following lists in bibtex format the published peer-reviewed documents in publication order:
@@ -116,6 +117,18 @@ The following lists in bibtex format the published peer-reviewed documents in pu
 }
 ```
 
+@Article{frachtenberg22:sigmetrics,
+  author =	 {Eitan Frachtenberg},
+  title =	 {Multifactor citation analysis over five years: A case study of {SIGMETRICS} papers},
+  journal =	 {Publications},
+  year =	 2022,
+  volume =	 10,
+  number =	 4,
+  pages =	 47,
+  month =	 dec,
+  doi =		 {10.3390/publications10040047},
+  url =		 {https://www.mdpi.com/2304-6775/10/4/47},
+}
 ---
 
 Steps to create a reproducible Docker image for a paper:

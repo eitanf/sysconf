@@ -39,13 +39,15 @@ The following lists in bibtex format the published peer-reviewed documents in pu
 
 ```
 @Article{frachtenberg20:survey,
-  author =	 {Eitan Frachtenberg and Noah Koster},
   title =	 {A Survey of Accepted Authors in Computer Systems Conferences},
+  author =	 {Eitan Frachtenberg and Noah Koster},
   journal =	 {{PeerJ Computer Science}},
   year =	 2020,
   mon =		 sep,
+  volume =	 6,
+  pages =	 {e299},
   doi =		 {10.7717/peerj-cs.299},
-  url =		 {https://peerj.com/articles/cs-299/}
+  publisher =	 {{PeerJ}}
 }
 
 @InProceedings{frachtenberg21:whpc,
@@ -67,6 +69,7 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   volume =	 8,
   pages =	 {e887},
   month =	 feb,
+  publisher =	 {{PeerJ}},
   doi =		 {10.7717/peerj-cs.887},
   url =		 {https://peerj.com/articles/cs-887/}
 }
@@ -83,6 +86,7 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   year =	 2022,
   month =	 feb,
   doi =		 {10.1371/journal.pone.0264131},
+  publisher =	 {{PLOS}},
   url =
                   {https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0264131}
 }
@@ -92,6 +96,7 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   title =	 {Gender Differences in Collaboration Patterns in
                   Computer Science},
   journal =	 {Publications},
+  publisher =	 {MDPI},
   year =	 2022,
   volume =	 10,
   number =	 1,
@@ -112,6 +117,7 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   url =
                   {https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0266439},
   doi =		 {10.1371/journal.pone.0266439},
+  publisher =	 {{PLOS}},
   month =	 apr,
   year =	 2022
 }
@@ -120,7 +126,8 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   author =	 {Eitan Frachtenberg},
   title =	 {Multifactor citation analysis over five years: A case study of {SIGMETRICS} papers},
   journal =	 {Publications},
-  year =	 2022,
+  publisher =	 {MDPI},
+  year =	 2021,
   volume =	 10,
   number =	 4,
   pages =	 47,

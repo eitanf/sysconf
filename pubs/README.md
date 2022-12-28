@@ -30,7 +30,7 @@ There are two ways to recreate the documents (which embed the analysis):
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: "Underrepresentation of women in computer systems research" (`docker run -ti eitanf/sysconf:gender-gap`).
   * `prestige`: "Metrics and methods in prestige bias evaluation: A case study in computer systems conferences" (`docker run -ti eitanf/sysconf:prestige`).
-  * `sigmetrics`: "Multifactor Citation Analysis over Five Years: A Case Study of SIGMETRICS Papers" (`docker run -ti eitanf/sysconf:sigmetrics`).
+  * `sigmetrics`: "Multifactor Citation Analysis over Five Years: A Case Study of SIGMETRICS Papers"
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
 <!--  * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/). -->
   * `whpc`: "Representation of Women in HPC Conferences" (`docker run -ti eitanf/sysconf:whpc`).
@@ -146,3 +146,7 @@ Steps to create a reproducible Docker image for a paper:
   5. Run `docker login` followed by `docker push dockeruser/sysconf:tag`.
 
   6. Verify image is on docker.com and optionally test it by pulling it on a different computer.
+
+To verify the document was created susccessfuly, run: `docker run -t dockeruser/sysconf:tag ls -l`.
+
+To log in to the container, look at files, and possibly rebuild the document, run: `docker run -t dockeruser/sysconf:tag bash`.

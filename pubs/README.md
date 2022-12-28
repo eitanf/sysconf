@@ -115,7 +115,6 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   month =	 apr,
   year =	 2022
 }
-```
 
 @Article{frachtenberg22:sigmetrics,
   author =	 {Eitan Frachtenberg},
@@ -129,6 +128,8 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   doi =		 {10.3390/publications10040047},
   url =		 {https://www.mdpi.com/2304-6775/10/4/47},
 }
+```
+
 ---
 
 Steps to create a reproducible Docker image for a paper:

@@ -149,6 +149,17 @@ def add_s2_features(key, s2):
 
 
 #########################################################################
+# Record one citations count entry
+def record_citations(key, source, exclude_self, months, cites):
+        tidy_cites.start_record()
+        tidy_cites.add("key", "string", key, "Paper ID")
+        tidy_cites.add("source", "string", source, "Database from which citation data is sourced")
+        tidy_cites.add("exclude_self", "bool", exclude_self, "Whether citation count excludes self-citations")
+        tidy_cites.add("months", "int", months, "Months since publiucation")
+        tidy_cites.add("citations", "int", cites, "Total citations for this paper on this date")
+
+
+#########################################################################
 # Add GS statistics from the data/papers record
 def add_gs_features(key, record, post):
     pf = record['paper_found']
@@ -160,10 +171,24 @@ def add_gs_features(key, record, post):
             "Months from publication till GS found an e-print")
 
     for date, cites in record['citedby'].items():
-        tidy_cites.start_record()
-        tidy_cites.add("key", "string", key, "Paper ID")
-        tidy_cites.add("months", "int", month_diff(date, post), "Months since publiucation")
-        tidy_cites.add("citations", "int", cites, "Total citations for this paper on this date")
+        record_citations(key, "GS", False, month_diff(date, post), cites)
+
+
+#########################################################################
+# Add citation data from Scopus record
+def add_scopus_features(key, record, post):
+    for date, cites in record['citedby'].items():
+        record_citations(key, "Scopus", False, month_diff(date, post), cites)
+
+    acc = 0
+    for year, cites in record['total'].items():
+        acc += cites
+        record_citations(key, "Scopus", False, month_diff(year+"-12-31", post), acc)
+
+    acc = 0
+    for year, cites in record['excluding_self'].items():
+        acc += cites
+        record_citations(key, "Scopus", True, month_diff(year+"-12-31", post), acc)
 
 
 #########################################################################
@@ -200,7 +225,7 @@ def add_paper_record(key, record):
 # Extract all variables available from conference file.
 # The fields are grouped (in the source-code only) based on the main
 # variable in the data/conf/ file that is responsible to generate them.
-def add_paper_vars(conf, s2data, papers):
+def add_paper_vars(conf, s2data, papers, scopus):
     post = conf['postdate']
 
     for p in conf['papers']:
@@ -213,6 +238,10 @@ def add_paper_vars(conf, s2data, papers):
 
         # GS record stats:
         add_gs_features(key, papers[key], post)
+
+        # Scopus record stats:
+        if key in scopus:
+            add_scopus_features(key, scopus[key], post)
 
         # Features related to the title of the paper:
         add_title_features(p['title'])
@@ -235,8 +264,9 @@ for conf in sys.argv[1:]:
     confdata = load_json_file(data_fn('conf', conf))
     s2data = load_json_file("data/s2papers.json")
     paperdata = load_json_file(data_fn('papers', conf))
+    scopusdata = load_json_file("data/papers/scopus.json")
 
-    add_paper_vars(confdata, s2data, paperdata)
+    add_paper_vars(confdata, s2data, paperdata, scopusdata)
 
 tidy_papers.save()
 tidy_cites.save()

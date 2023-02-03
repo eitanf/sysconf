@@ -106,7 +106,7 @@ sys_papers <- papers %>%
   filter(conf %in% sys_confs$key)
 
 citations <- read.csv(paste0(toplevel, "features/citations.csv"), na.strings = "",
-                      colClasses = c("factor", "integer", "integer"))
+                      colClasses = c("factor", "factor", "logical", "integer", "integer"))
 
 #### topics:
 topic_tags <- read.csv(paste0(toplevel, "data/topics.csv"), colClasses = c("factor", "character", "character", "character"), na.strings = "")

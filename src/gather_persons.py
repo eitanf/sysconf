@@ -409,8 +409,8 @@ def  save_all_authors(genderdata):
             country, sector, uni, com = parse_email(row['gs_email'])
         tidy.add("country", "categorical string", country, "Two-letter country code from email affiliation (either paper or GS)")
         tidy.add("sector", "categorical string", sector, "Employer sector from email affiliation (either paper or GS)")
-        tidy.add("top_university", "Boolean", uni, "Author is affiliated with a top university")
-        tidy.add("top_company", "Boolean", com, "Author is affiliated with a top company")
+        tidy.add("top_university", "bool", uni, "Author is affiliated with a top university")
+        tidy.add("top_company", "bool", com, "Author is affiliated with a top company")
 
 
         tidy.add("npubs", "int", row['npubs'], "Author's total publications (minimum across all conferences)")

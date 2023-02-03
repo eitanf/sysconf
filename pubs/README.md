@@ -157,4 +157,4 @@ Steps to create a reproducible Docker image for a paper:
 
 To verify the document was created susccessfuly, run: `docker run -t dockeruser/sysconf:tag ls -l`.
 
-To log in to the container, look at files, and possibly rebuild the document, run: `docker run -t dockeruser/sysconf:tag bash`.
+To log in to the container, look at files, and possibly rebuild the document, run: `docker run -it dockeruser/sysconf:tag bash`.

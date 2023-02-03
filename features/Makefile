@@ -48,6 +48,10 @@ papers.csv: $(wildcard ${SYSCONF_HOME}/data/papers/*.json) ${SYSCONF_HOME}/src/g
 	cd ${SYSCONF_HOME}; \
 	python3 ${SRC}/gather_papers.py ${CONFS}
 
+ref_counts.csv: ${SYSCONF_HOME}/src/gather_refs.py ${SYSCONF_HOME}/src/shared_utils.py
+	cd ${SYSCONF_HOME}; \
+	python3 ${SRC}/gather_refs.py ${CONFS}
+
 interests.csv: persons.csv
 	touch interests.csv
 

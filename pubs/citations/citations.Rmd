@@ -1,0 +1,914 @@
+---
+title: "Citation Analysis of Computer Systems Papers"
+preprint: false
+author:
+  - name: Eitan Frachtenberg
+    corresponding: true
+    email: eitan@reed.edu
+affiliation:
+    address: Department of Computer Science, Reed College
+keywords: Citation analysis, computer systems, self-citations
+bibliography: ../sysconf.bib
+abstract: |
+  Citation analysis is used extensively in the bibliometrics literature to assess the impact of individual works, researchers, institutions, and even entire fields of study.
+  In this paper, we analyze citations in one large and influential field within computer science, namely computer systems.  Using citation data from a cross-sectional sample of 2,088 papers in 50 systems conferences from 2017, we examine four research questions: overall distribution of systems citations; their evolution over time; the differences between databases (Google Scholar and Scopus) for systems papers, and; the characteristics of self-citations in the field.
+  
+  We find that only 1.5% of papers remain uncited after five years, while 12.8% accrued at least 100 citations, both statistics comparing favorably to many other scientific fields.
+  The most cited subfields and conference areas within systems were security, databases, and computer architecture.
+  Most papers achieved their first citation within a year from publication, and the median citation count continued to grow at an almost linear rate over five years, with only a few papers peaking before that.
+  We also find that early citations could be linked to papers with a freely available preprint, or may be primarily composed of self-citations.
+  The ratio of self-citations to total citations starts relatively high for most papers but appears to stabilize by 12--18 months, at which point highly cited papers revert to predominately external citations.
+  Past self-citation count (taken from each paper's reference list) appears to bear little if any relationship with the future self-citation count of each paper.
+  The choice of citation database also makes little difference in relative citation comparisons, despite marked differences in absolute counts.
+output:
+  bookdown::pdf_book:
+    keep_tex: true
+    base_format: rticles::arxiv_article
+    fig_caption: true
+---
+
+```{r code=readLines("../load_data.R"), echo=F, message=F, warning=F}
+```
+
+```{r setup, echo=F, message=F, warning=F, cache=T}
+library('kableExtra')
+library('MASS')
+library('ggrepel')
+
+# Colors:
+cwomen <- "#7704FF"
+cmen <- "#00C3AA"
+cmen <- "gray70"
+cwomen <- "gray30"
+cavg <- "#FF10F0"
+cavg <- "#CB00E6"
+
+nstr <- "n="
+meanstr <- "mean="
+mdnstr <- "median="
+modestr <- "mode="
+
+max_months <- 60
+
+
+cites <- citations %>%
+  mutate(conf = as.factor(gsub("_17_\\d\\d\\d$", "", key))) %>%
+  filter(!conf %in% c("ICDM", "SIGIR", "KDD", "OOPSLA", "SLE", "PLDI")) %>%
+  arrange(desc(citations))
+
+scopus_groups <- cites %>%
+  filter(source == "Scopus", exclude_self == F) %>%
+  group_by(key) %>%
+  filter(months == max(months)) %>%
+  ungroup() %>%
+  distinct(key, months, .keep_all = T) %>%
+  mutate(group = as.factor(ntile(citations, 4))) %>%
+  dplyr::select(key, group)
+
+my_confs <- unique(cites$conf)
+acceptance = data.frame(conf = gsub("_17", "", all_confs$conference), rate = all_confs$acceptance_rate)
+
+gs5y <- cites %>%
+  filter(months == max_months, source == "GS") %>%
+  group_by(conf) %>%
+  add_count() %>%
+  mutate(avg = mean(citations), mdn = median(citations)) %>%
+  ungroup() %>%
+  left_join(acceptance)
+
+h5index <- function(conference)
+{
+  papers <- filter(gs5y, conf==conference)
+  for (i in 1:nrow(papers)) {
+    if (sum(papers$citations >= i) < i) {
+      return(i - 1)
+    }
+  }
+}
+
+h5stats <- data.frame(conf = unique(gs5y$conf))
+h5stats$n <- rep(0, nrow(h5stats))
+h5stats$h5index <- rep(0, nrow(h5stats))
+h5stats$rate <- rep(0, nrow(h5stats))
+
+for (i in 1:nrow(h5stats)) {
+  h5stats[i,]$n = first(filter(gs5y, conf == h5stats[i,]$conf)$n)
+  h5stats[i,]$h5index = h5index(h5stats[i,]$conf)
+  h5stats[i,]$rate = first(filter(gs5y, conf == h5stats[i,]$conf)$rate)
+}
+```
+
+
+# Introduction
+
+Citation analysis plays a central role in bibliometric evaluation of journals, conferences, institutes, and individual researchers [@moed06:citation].
+The advent of web-based citation databases has led to faster growth in their importance and use [@meho07:rise].
+Nonetheless, citation analysis remains challenging when comparing citations across years [@varga19:shorter], types of scholarly communication [@martins10:assessing], or fields of study [@adam02:citation; @patience17:citation].
+
+In this study, we explore a multifaceted citation analysis that circumvents these challenges by focusing on papers from a single year, from conferences only, and from a single large field within computer science (CS), namely, computer systems (or just "systems" for short).
+
+The bibliometrics literature is rich with studies analyzing citations in various disciplines and fields, including CS as a whole [@devarakonda20:viewing; @hirst77:computer; @mattauch20:bibliometric].
+Even within CS, several fields, subfields, and specific venues have received bibliometric analyses [@broch01:cite; @frachtenberg22:sigmetrics; @iqbal19:sigcomm; @iqbal19:bibliometric; @lister08:citation; @rahm05:citation; @wang16:cloud].
+To the best of our knowledge, this study is the first systematic analysis of a wide cross-section of computer systems research.
+
+Systems is a large research field with numerous applications, used by some of the largest technology companies in the world.
+For the purpose of this study, we define systems as the study and engineering of concrete computing systems, which includes research topics such as operating systems, computer architectures, data storage and management, compilers, parallel and distributed computing, and computer networks.
+The goal of this study is to characterize, for the first time, the citation behavior of this large and important CS field, while controlling for year, venue type, and research area.
+Specifically, we examine: total citations after five years and how they compare across subfields and against other disciplines and fields; the dynamics of citation counts over time; the effect of the source of the citation database; and the characteristics of self-citations in computer systems. 
+
+
+### Study design and main findings {-}
+
+This study uses an observational, cross-sectional approach, analyzing `r fmt(length(unique(cites$key)))` papers from a large subset of leading systems conferences.
+The study population came from a hand-curated collection of `r length(unique(cites$conf))` peer-reviewed systems conferences from a single publication year (2017).
+Among other characteristics, the dataset includes paper citation counts at regular intervals for at least five years from the publication date, by which time many citation statistics stabilize [@lariviere09:decline].
+Using this dataset, this study addresses the following high-level research questions:
+
+**RQ1: What is the distribution of paper citations in systems conferences after five years?**
+We find the typical skewed distributions with most papers accruing a few citations, a handful of papers racking up thousands of citations, and a dearth of uncited papers. According to one comparison, citation counts of top-cited papers put the field of systems among the top ten scientific fields. However, citations are distributed unevenly across and within conferences and subfields, with security, databases, and computer architecture conferences ranking the highest median citations.
+
+
+**RQ2: How have citations evolved over this period?**
+In our dataset, the median number of citations per paper grows at a nearly constant rate, with few papers peaking before the five-year mark, and few papers achieving "runaway" citation growth.
+Most papers are first cited within 9--12 months since publications, and the average time to have to wait to reach at least $n$ citations grows almost linearly with $n$.
+
+**RQ3: How do Google Scholar and Scopus compare for these conferences?**
+We find, as have other studies before, that the Google's inclusive policy of counting many document types as potential citation sources does inflate the absolute citation counts compared to Scopus' counts.
+However, the two counts are nearly perfectly correlated and provide similar relative comparisons across papers, conferences, and years.
+
+**RQ4: How many citations are self-citations, and how do they evolve over time?**
+The main finding emerging from the dataset is that self-citations are more prevalent among early citations and among papers that are less cited overall after five years.
+However, the average ratio of self-citations to total citations appears to stabilize for most papers about 12--18 months after publication.
+This dataset shows no clear relationship between a paper's eventual self-citations and the number of self-citations it contains in its own reference list.
+
+### Contributions {-}
+
+In addition to answering these research questions, this study makes the following contributions:
+
+  * A critical view of H-index as a metric for conferences or journals.
+  
+  * A discussion of the relationship between acceptance rates and citations.
+  
+  * A characterization of papers that are cited relatively early.
+
+As a final contribution, this study provides the dataset of papers and citations over time, tagged with rich metadata from multiple sources [@frachtenberg:github-repo].
+Since comprehensive data on papers and conferences with citations are not always readily available, owing to the significant manual data collection involved, this dataset can serve as the basis of additional studies.
+
+### Organization {-}
+
+The remainder of this paper is organized as follows.
+In the next section (Section \@ref(sec:methods)), we describe the data collection and processing methodology in detail.
+In the results section (Section \@ref(sec:results)), we enumerate our findings, organized by research question.
+In Section \@ref(sec:discussion), we combine results on raw citation statistics to explore three higher-level topics.
+Related work is surveyed in Section \@ref(sec:related), and in Section \@ref(sec:conclusion), we summarize our results and suggest directions for future research.
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Materials and Methods {#sec:methods}
+
+
+The most time-consuming aspect of this study was the collection and cleaning of data.
+This section describes the data selection and cleaning process for conference, paper, and citation data.
+
+The dataset we analyze comes from a hand-curated collection of `r length(unique(cites$conf))` peer-reviewed systems conferences from a single publication year (2017) to reduce time-related variance.
+Conference papers were preferred over journal articles because in CS, and in particular, in its more applied fields, such as systems, original scientific results are typically first published in peer-reviewed conferences [@patterson99:evaluating; @patterson04:health], and then possibly in archival journals, sometimes years later [@vrettas15:conferences].
+These conferences (detailed in Appendix A) were selected to represent a large cross-section of the field with different sizes, competitiveness, and subfields.
+Such choices are necessarily subjective, based on the author's experience in the field.
+But they are aspirationally both spread enough to represent the field well and focused enough to distinguish it from the rest of CS.
+For each conference, we gathered various statistics from its web page, proceedings, or directly from its program chairs, and downloaded all papers in PDF format.
+
+Since we are primarily interested in measuring the posthoc impact of each paper, as approximated by its number of citations, we regularly collected citation data from two databases, Google Scholar (GS) and Scopus.
+GS is an extensive database with excellent coverage of CS conferences that contains not only peer-reviewed papers, but also preprints, patents, technical reports, and other sources of unverified quality [@halevi17:suitability].
+Consequently, its citation counts tend to be higher than those of databases such as Scopus and Web of Science, but not necessarily inferior when used in paper-to-paper comparisons [@harzing16:google; @martin18:google].
+Since we are mostly comparing relative citation metrics, even if the GS metrics appear inflated compared to other databases, we should still be able to examine the relationship between relative citation counts of papers and conferences.
+Nevertheless, for papers covered in the Scopus database, we compare both sources of citations in RQ3 to ensure that both metrics are in relative agreement with each other.
+
+## Statistics {-}
+
+For hypothesis testing, group means were compared pairwise using Welch's two-sample t-test and group medians using the Wilcoxon signed-rank test; differences between distributions of two categorical variables were tested with the $\chi^{2}$ test; and correlations between two numerical variables were evaluated using Pearson's product-moment correlation coefficient.
+All statistical tests are reported with their p-values.
+All computations were performed using the R programming language and can be found in the source code accompanying this paper.
+
+## Ethics statement {-}
+
+All data for this study were collected from public online sources and therefore did not require the informed consent of the authors.
+No funding was received to assist with the preparation of this manuscript.
+
+## Code and data availability {-}
+
+The complete dataset and metadata are available online [@frachtenberg:github-repo].
+
+## Limitations {-}
+
+To control for the effect of time on citations, we opted not to include additional data from more recent conference years in our dataset. Undoubtedly, more data could strengthen the statistical validity of our observations; but it could also weaken any conclusions based on the inherent delays in the citation process and in variation over time.
+Our methodology is also constrained by the manual collection of data, such as conference statistics; paper downloading and text conversion; cleanup and verification; etc.
+The effort involved in compiling all necessary data limits the scalability of our approach to additional conferences or years.
+
+Our focus on citations as a primary metric of interest has also received significant criticism in the bibliometrics literature because of its own limitations.
+First, there are limitations stemming from the sources of citation data, such as inflated metrics in GS and partial coverage in Scopus, as previously mentioned.
+Second, even accurate citation counts present a variety of limitations, such as references expressing negative sentiments [@parthasarathy14:sentiment] or researchers and venues gaming their own citation counts [@biagioli16:watch].
+Nevertheless, citations are arguably the most popular method to evaluate research impact, either as raw counts or as inputs to compound metrics, such as the H-index.
+As such, this initial analysis of citation behavior in a previously unexplored and important field could further our understanding of both the particular field and bibliometrics as a whole.
+
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Results {#sec:results}
+
+
+## RQ1: Citation distribution
+
+We begin by describing the distribution of citations in the field.
+In addition to observing summary statistics, such as means, medians, and outliers, focusing our attention on distributions can increase transparency when comparing citation metrics because of their typical skewness [@lariviere16:simple].
+To better understand the distribution of 5-year citations, we start top-down by looking at the overall distribution and characteristics of all cited papers and then zoom in on distributions by conference and by paper topics.
+We then fill in the missing piece by describing the distribution of uncited papers.
+
+### Overall distribution
+
+```{r citation-histogram, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="citation distribution after five years of all cited papers. Also shown are the number of samples (papers), mean, and median citations per paper."}
+breaks <- c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20, 30, 50, 100, 200, 500, 1000, 2000, 5000, 10000)
+gs5y %>%
+  filter(citations > 0) %>%
+  add_count() %>%
+  ggplot(aes(x=citations)) +
+    geom_histogram(color="black") +
+    stat_function(fun=dlnorm, args=list(meanlog=3.1, sdlog=1.308), color="cyan") +
+    scale_x_log10("Citations (log scale)", breaks=breaks, labels=breaks) +
+    ylab("Papers") +
+    geom_hline(yintercept=0, colour="white") +
+    geom_text(aes(y=190, x=5000, label=paste0(nstr, fmt(nn))), hjust=1) +
+    geom_text(aes(y=180, x=5000, label=paste0(meanstr, round(mean(gs5y$citations), 1))), hjust=1) +
+    geom_text(aes(y=170, x=5000, label=paste0(mdnstr, fmt(median(gs5y$citations)))), hjust=1) +
+    theme_bw()
+```
+
+
+ Figure \@ref(fig:citation-histogram) shows the overall distribution of cited papers exactly five years from their publication date.
+It is indeed skewed and long-tailed (note the logarithmic scale) and resembles a log-normal distribution [@rahm05:citation; @redner98:popular; @wang21:science; @wu09:research].
+Consequently, the mean number of citations, `r round(mean(gs5y$citations), 0)`, is much higher than the median,
+`r quantile(gs5y$citations, 0.5)`, and even higher than the $75^{th}$ percentile, `r quantile(gs5y$citations, 0.75)`.
+The mean is pushed this high by a handful of outlier papers: there are just `r nrow(filter(gs5y, citations >= 1000))` papers with over 1,000 citations each, one as high as `r max(gs5y$citations)`!
+Similarly, we find as many as `r nrow(filter(gs5y, citations >= 100))` papers (or
+`r pct(nrow(filter(gs5y, citations >= 100)), nrow(gs5y))`% of the dataset) with at least 100 citations.
+This large group of papers would probably no longer be considered an outlier, and 100 citations are likely a reliable signal of notable impact, again suggesting that the field as a whole may be quite influential.
+
+If we follow Patience's method [@patience17:citation] to attenuate the outliers and compute the mean number of five-year citations among the top-cited 31--500 papers, we get an average of `r mean(gs5y[31:500,]$citations)`.
+That same study also compared this statistic across 236 science categories.
+So, using their data for comparison would rank systems as one of the top ten categories in citation count (but keep in mind that the original comparison used less-inflated citations counts from the Web of Science database.)
+
+### Citations by conference
+
+```{r citation-histogram-by-conf, echo=F, warning=F, message=F, cache=T, fig.height=7.5, fig.width=5, fig.cap="Citation distribution of all cited papers by conference. Also shown are the number of samples (papers), mean, and median citations per paper. Conferences ordered by median and showing acceptance rate in parenthesis next to their names."}
+
+cors <- gs5y %>%
+  group_by(conf, rate, n) %>%
+  summarize(avg=mean(citations), mdn=median(citations), .groups="keep")
+
+outlier <- 500
+
+breaks <- c(1, 2, 5, 10, 50, 500, 5000, 10000)
+sz <- 2
+gs5y %>%
+  mutate(conf = ifelse(is.na(rate), paste0(conf, "(unknown)"), paste0(conf, " (", rate * 100, "%)"))) %>%
+  ggplot(aes(x=citations)) +
+    geom_histogram(color="red") +
+    scale_x_log10("Citations (log scale)", breaks=breaks, labels=breaks) +
+    ylab("Papers") +
+    geom_hline(yintercept=0, colour="white") +
+    geom_text(aes(y=20, x=5000, label=paste0(nstr, fmt(n))), hjust=1, size=sz) +
+    geom_text(aes(y=16, x=5000, label=paste0(meanstr, round(avg, 1))), hjust=1, size=sz) +
+    geom_text(aes(y=12, x=5000, label=paste0(mdnstr, mdn)), hjust=1, size=sz) +
+    theme_bw() +
+    theme(text=element_text(size=9), strip.text=element_text(size=7)) +
+    facet_wrap(~fct_reorder(conf, mdn), ncol=5)
+```
+
+Although overall citation counts for computer systems appear high compared to other fields, keep in mind that not all conferences within the field are equally well cited.
+Figure \@ref(fig:citation-histogram-by-conf) shows the same kind of histogram, but this time broken down by conference and sorted by median citation per conference.
+We can observe the following relationships from the data:
+
+ * Citations vary widely between conferences, ranging from an average of about `r round(min(filter(gs5y, conf=="HCW")$avg))` for HCW papers to about `r round(min(filter(gs5y, conf=="SIGCOMM")$avg))` for SIGCOMM papers.
+ * Even within conferences, some outlier papers push the mean far from the median. For example, SP and ISCA exhibit long tails, with a few papers having thousands of citations, whereas NDSS, an equally well-cited conference, exhibits nearly identical mean and median.
+ * The likelihood of a conference containing an outlier paper with at least `r outlier` citations increases with conference size. Papers with over `r outlier` citations were published in conferences averaging `r round(mean(filter(gs5y, citations >= outlier)$n), 1)` accepted papers, vs. an average of `r round(mean(filter(gs5y, citations < outlier)$n), 1)` for papers with fewer than `r outlier` citations (`r report_test(t.test(filter(gs5y, citations >= outlier)$n, filter(gs5y, citations < outlier)$n))`). Furthermore, a conference's size is weakly but positively correlated with its average paper citations (`r report_test(cor.test(cors$n, cors$avg))`), suggesting a random variable in the citation count of a paper.
+ * Median citations, on the other hand, do not appear to be significantly correlated with a conference's number of accepted papers (`r report_test(cor.test(cors$n, cors$mdn))`). However, conferences with higher median citations are generally more competitive (i.e., lower acceptance rates). These two factors exhibit a strong negative correlation (`r report_test(cor.test(cors$rate, cors$mdn))`). Likewise, mean citations per conference is also negatively correlated with the conference's acceptance rate (`r report_test(cor.test(cors$rate, cors$avg))`).
+ * Different conferences have different skews: the distribution can be wide or narrow; some have long right tails and some have none; and the modes appear at different locations, not always near the median. In other words, despite all conferences belonging to the same overall systems field, citation distributions still vary significantly with other factors including size, acceptance rate, and specific subfield.
+ * Related, some conferences sharing subfields of systems appear to be also clustered together in citation metrics. For example, NDSS, CCS, and SP---all focused on computer security---are similarly ranked in terms of median citations (although the means vary much more). Likewise, NSDI/SIGCOMM (focusing on networking), HPCA/MICRO and ASPLOS/ISCA (focusing on computer architecture) also pair with similar median citations.
+ 
+ This last observation naturally leads to the question of the relationship between a research subfield and its typical citations.
+To answer this question, we next look at research topics at the individual paper level rather than at the conference's broad scope.
+
+### citations by Subfield
+
+The definition of subfields in computer systems, like the definition of the field itself, is necessarily fluid and subjective.
+Based on research experience in the field, we made a best-effort attempt to categorize all papers by reading every single abstract and tagging each paper with one or more subfields.
+The list of selected tags is presented in Table \@ref(tab:topic-tags).
+Naturally, experts would differ in their opinions on this list and possibly on tag assignments to papers, but the current assignment provides a starting point for comparison across systems subfields.
+
+```{r topic-tags, echo=F, cache=T, echo=F, message=F}
+tags <- read.csv(paste0(toplevel, "data/topics.csv"))
+
+wtopics <- inner_join(topics, gs5y) %>%
+  group_by(topic) %>%
+  mutate(n = n(), avg = mean(citations), mdn=median(citations), .groups="keep") %>%
+  ungroup()
+
+tags %>%
+  rename(Tag = tag, "Subfield description" = areas) %>%
+  dplyr::select(c(1,2)) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "ll",
+               linesep = "",
+               caption = "List of selects systems subfields")
+```
+
+Papers in our dataset are generally focused on one or two of these topics, averaging
+`r round(mean(summarize(group_by(wtopics, key),n = n())$n), 1)` topics per paper.
+There are a total of `r fmt(length(unique(filter(wtopics, citations > 0)$key)))` (`r pct(length(unique(filter(wtopics, citations > 0)$key)), nrow(gs5y))`% of all papers)
+cited papers with at least one topic assigned.
+The remainder either had no citations or did not fit well with any of the tags.
+Figure \@ref(fig:citation-by-topic) shows the distribution of citations by topic in these tagged papers (with multitopic papers repeated).
+
+```{r citation-by-topic, echo=F, warning=F, message=F, cache=T, fig.height=3.5, fig.width=5, fig.cap="Citation distribution for all cited papers by paper's topic. Papers with multiple topics appear in multiple histograms. Also shown are the number of samples (papers), mean, and median citations per paper. Topics ordered by median citations per paper."}
+
+cors <- wtopics %>%
+  group_by(topic, n) %>%
+  summarize(mdn=median(citations), .groups="keep")
+
+breaks <- c(1, 2, 5, 10, 50, 500, 5000, 10000)
+sz <- 2
+wtopics %>%
+  ggplot(aes(x=citations)) +
+    geom_histogram(color="purple") +
+    scale_x_log10("Citations (log scale)", breaks=breaks, labels=breaks) +
+    ylab("Papers") +
+    geom_hline(yintercept=0, colour="white") +
+    geom_text(aes(y=50, x=5000, label=paste0(nstr, fmt(n))), hjust=1, size=sz) +
+    geom_text(aes(y=45, x=5000, label=paste0(meanstr, round(avg, 1))), hjust=1, size=sz) +
+    geom_text(aes(y=40, x=5000, label=paste0(mdnstr, mdn)), hjust=1, size=sz) +
+    theme_bw() +
+    theme(text=element_text(size=9), strip.text=element_text(size=7)) +
+    facet_wrap(~fct_reorder(topic, mdn), ncol=5)
+```
+
+Again, there appears to be a positive relationship between quantity---the number of papers published on a topic---and "quality"---how well cited these papers generally are (`r report_test(cor.test(cors$n, cors$mdn))`).
+This could again indicate a random element leading to a higher probability of outlier papers in large subfields, or it could indicate that these topics were both sufficiently popular at the time to attract multiple submissions and popular over time to attract eventual citations.
+
+Nevertheless, this correlation should also be considered with a grain of salt because of the subjective process of conference selection for this study.
+For example, if more conferences and workshops on virtualization had been chosen, the number of papers on the topic would have obviously increased, whereas the relatively large conferences on security skew topic counts from the other end.
+At any rate, in 2017, the broad research topics that resulted in the highest median citations appear to be security, databases and data management, computer architecture, and networks.
+
+
+### Uncited papers
+
+Owing to the logarithmic citation scale, the preceding histograms omitted papers with zero citations.
+Some early studies claimed that, generally, most scientific papers are not cited at all [@hamilton91:uncited; @jacques10:impact; @meho07:rise].
+More recent research found that the rate of uncited papers keeps decreasing, and estimates it to be less than 10% [@wu09:research].
+For example, one study computed the percentage of uncited papers in physics (11%), chemistry (8%), and biomedical sciences (4%) [@lariviere09:decline].
+Another large-scale estimate for the entire CS discipline found that 44.8% of CS papers remained uncited after five years [@chakraborty15:categorization].
+In our dataset of systems papers, only `r sum(gs5y$citations == 0)` papers remain uncited after five years
+(`r pct(sum(gs5y$citations == 0), nrow(gs5y))`%).
+Of these, the conference with the most uncited papers was HPCC, followed by IPDPS and EuroPar (Table \@ref(tab:uncited-conf)).
+Both in absolute terms and in percentage terms, the number of uncited papers remains very low for most conferences.
+
+```{r uncited-conf, echo=F, cache=T, echo=F, message=F}
+gs5y %>%
+  add_count() %>%
+  filter(citations == 0) %>%
+  group_by(conf) %>%
+  summarize(Count = n(), Percent = paste0(round(100 * n() / n, 2), "%")) %>%
+  distinct(conf, Count, Percent) %>%
+  arrange(desc(Count)) %>%
+  rename(Conference = conf) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "lrr",
+               linesep = "",
+               caption = "Uncited papers by conference, as paper count and percentage of all accepted papers.")
+```
+
+```{r uncited-topics, echo=F, cache=T, echo=F, message=F}
+wtopics %>%
+  filter(citations == 0) %>%
+  group_by(topic) %>%
+  summarize(Count = n()) %>%
+  arrange(desc(Count)) %>%
+  rename(Topic = topic) %>%
+  knitr::kable(format = "latex",
+               booktabs = T,
+               align = "ll",
+               linesep = "",
+               caption = "Uncited papers by topic tags")
+```
+
+
+The topic tags with the most uncited papers were Benchmark, Storage, and HPC, followed by GPGPU and Concurrency (Table \@ref(tab:uncited-topics)).
+It is not surprising that the two distributions appear to be related.
+Many papers in the top six uncited conferences were tagged with some of the top six uncited topics.
+
+Having examined the citation distribution at a fixed point in time, we can now examine how it evolved to this point from the date of publication.
+
+## RQ2: Citation dynamics
+
+Observing the total citations of papers at a fixed time point offers only a static view of a metric that is inherently a moving target.
+Citations tend to follow different dynamics as different papers, disciplines, and fields exhibit very different aging curves [@pichappan99:skewness; @wang13:citation].
+After five years, all the papers in our dataset likely had a chance to be discovered by fellow researchers, as evidenced by the fact that nearly all are cited by outside researchers.
+We can therefore concentrate next on citation dynamics.
+
+For our second research question, we examine three aspects of the time dimension: general distribution over time, time to first citation, and citation velocity.
+Since different conferences publish in different months, causing nearly a year's gap between the first and the last, we normalize time for all three aspects by counting the number of months passed from the date it was published, rather than a fixed start day in 2017.
+
+
+### Citation distribution
+
+```{r citation-over-time, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Citation distribution for all cited papers over time. Center bars show median value; lower and upper hinges correspond to the 25th and 75th percentile; upper points show high-citation outliers; and diamonds show means for all citations, including uncited papers. Also shown in gray is a linear regression line for the median values."}
+gs <- filter(citations, source=="GS", months %% 6 == 0) %>%
+  group_by(months) %>%
+  mutate(avg=mean(citations), mdn=median(citations)) %>%
+  ungroup()
+
+fit <- glm(mdn~months, data=gs)
+gs$pred <- predict(fit)
+
+breaks <- c(1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000)
+
+gs %>%
+  ggplot(aes(x=months, y=citations, group=months)) +
+    geom_boxplot(alpha=0.7, fill="darkgreen") +
+    scale_x_continuous(breaks=seq(6, max(gs$months), 6)) +
+    scale_y_log10(breaks=breaks, labels=breaks) +
+    geom_point(aes(y=avg), size=3, shape=23, fill="red", color="black", show.legend=F) +
+    geom_line(aes(group=1, y=pred), size=1, color="gray", alpha=0.75) +
+    xlab("Months since publication") +
+    ylab("Citations (log scale)") +
+    theme_bw() +
+    guides(fill="none")
+```
+
+Looking at the citation distribution at six-month intervals (Figure \@ref(fig:citation-over-time)), three observations can be made.
+First, we can see that the spread---difference across papers---grows over time (note the logarithmic scale), as some papers accelerate at a faster rate than others, creating a larger range of citation values.
+
+overall citations, as expressed by the 25th, 50th, and 75th quantiles grow at a rapid clip over time without showing signs of slowing down.
+In fact, if we fit the median with a simple linear regression model, shown as a gray line,
+we match the median citation values after the first year nearly perfectly
+(intercept: `r round(fit$coefficients[1], 2)`, slope: `r round(fit$coefficients[2], 2)` citations per month).
+Linear models for the 25th and 75th percentiles would have different slopes, because of the increasing spreads, but still fit quite well.
+
+In contrast, mean citation soutpace medians' growth because of the disproportionate pull of outlier papers.
+Except for the first six months (when the difference between the mean and the median is less than half a citation), the presence of highly cited papers pushes the mean increasingly higher than the median.
+In the first six months, the presence of many
+(`r fmt(nrow(filter(gs, months==6, citations==0)))`)
+uncited papers is pulling the mean to
+$\approx{}$ `r round(mean(filter(gs, months==6)$citations), 1)`
+citations.
+However, as papers gain enough time to be discovered, cited, peer-reviewed, and then published, the mean quickly catches up.
+By 12 months, the mean number of uncited papers drops to
+`r nrow(filter(gs, months==12, citations==0))`, and by 18 months to
+`r nrow(filter(gs, months==18, citations==0))`.
+
+This observation naturally leads us to the next aspect of time: how long does it take papers to be cited?
+
+### Time to first citation
+
+Our dataset includes citation data at monthly intervals during the first year from publication, then quarterly for the second year, and then every six months for the remaining three years.
+This resolution allows us to estimate with near-monthly accuracy the first time that GS detected a citation for each paper.
+Figure \@ref(fig:first-citation-histogram) shows the distribution of the approximate time in months it took GS to first detect any citations for each paper (compared to Figure \@ref(fig:citation-histogram), two papers briefly showed citations before reverting back to zero).
+
+```{r first-citation-histogram, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Distribution of time to first citation for all cited papers. Also shown are the number of samples (papers), mean, and median times in months."}
+breaks <- seq(0,60,5)
+first <- cites %>%
+  filter(citations > 0, source == "GS") %>%
+  group_by(key) %>%
+  summarize(Months = min(months))
+
+first %>%
+  add_count() %>%
+  ggplot(aes(x=Months)) +
+    geom_histogram(color="pink", binwidth=1) +
+    scale_x_continuous("Months to first citation", breaks=breaks, labels=breaks) +
+    ylab("Papers") +
+    geom_hline(yintercept=0, colour="white") +
+    geom_text(aes(y=300, x=60, label=paste0(nstr, fmt(n))), hjust=1) +
+    geom_text(aes(y=285, x=60, label=paste0(meanstr, round(mean(first$Months), 1))), hjust=1) +
+    geom_text(aes(y=270, x=60, label=paste0(mdnstr, fmt(median(first$Months)))), hjust=1) +
+    theme_bw()
+```
+
+Assuming that the first citation is external, i.e., not a self-citation, we can think of this moment of first being cited as a paper's "discovery event."
+In our dataset, it averages about `r round(mean(first$Months))` months.
+(As we see later in RQ4, this assumption is invalid for many papers, which may postpone the discovery time by a few months.)
+Discovery time can be longer than subsequent citations because it requires the paper to be published and discovered by another researcher, who must then wait till their citing document is peer-reviewed and published, a process that can take several months.
+
+To illustrate this point, Figure \@ref(fig:time-to-n-citations) shows the mean time it takes for papers to reach `n` citations.
+Note that the average growth from the first citation to the next and then the next takes about the same time across the range (about 2--3 months for each additional citation, slowly decreasing).
+However, going from zero citations to the first citation takes on average about twice as long.
+This observation leads us to the next and final question of time, namely, how fast and how long do citations grow?
+
+```{r time-to-n-citations, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Average time to reach n citations for increasing values of n. Only papers with at least 10 citations after five years are included."}
+
+max_n <- 10
+breaks <- seq(1, max_n)
+
+keys <- filter(gs5y, citations >= max_n)$key
+
+mean_time_to_n <- function(n) {
+  tmp <- filter(cites, source == "GS", key %in% keys, citations >= n) %>%
+    group_by(key) %>%
+    summarize(min_time=min(months))
+  return (mean(tmp$min_time))
+}
+
+df <- data.frame(Citations=seq(1, max_n))
+df$Mean <- unlist(lapply(df$Citations, mean_time_to_n))
+
+df %>%
+  ggplot(aes(x=Citations, y=Mean)) +
+    geom_line(color="darkgreen") +
+    geom_point(shape=23, fill="red") +
+    scale_x_continuous("Minimum citation count", breaks=breaks) +
+    ylab("Mean time to reach citations (months)") +
+    ylim(0, 30) +
+    theme_bw()
+```
+
+
+### Citation velocity
+
+As we have just observed, the mean time across papers to receive the first citation
+(`r round(df[1, 2], 2)` months)
+is longer than the time to add the second citation
+(`r round(df[2, 2] - df[1, 2], 2)` months).
+It continues to decrease slowly such that it only takes
+`r round(df[10, 2] - df[9, 2], 2)` months on average to add the $10^{th}$ citation.
+Intuitively, this makes sense as papers are discovered by an increasingly larger network of researchers and pick up more and more citations during their growth phase.
+However, this phase cannot grow indefinitely, as the size of the potential network is bounded by the systems research community size, and the impact of systems papers is often limited to a few years until newer systems replace them.
+To visualize these growth patterns, we can plot the citation velocity of every paper (Figure \@ref(fig:citation-velocity)).
+
+
+```{r citation-velocity, echo=F, warning=F, message=F, cache=T, fig.height=7.5, fig.width=5, fig.cap="Citation velocity of every paper. Y-axis is clipped to show the bulk of the data with higher resolution, but some papers exceed 100 citations per month. Conferences ordered again by increasing median citations after five years."}
+
+veloc <- cites %>%
+  arrange(key, months) %>%
+  filter(source == "GS") %>%
+  group_by(key) %>%
+  mutate(mdiff = months - lag(months, default=0)) %>%
+  mutate(velocity = (citations - lag(citations, default=0)) / mdiff) %>%
+  ungroup() %>%
+  filter(mdiff > 0) %>%
+  left_join(dplyr::select(gs5y, c(key, mdn)))
+
+veloc %>%
+  ggplot(aes(x=months, y=velocity, group=key)) +
+    geom_line(alpha=0.15) +
+    facet_wrap(~fct_reorder(conf, mdn), ncol=5) +
+    guides(color="none") +
+    ylab("Citation velocity (citations per month)") +
+    xlab("Months since publication") + ylim(0, 15) +
+    theme_bw()
+
+```
+
+The first observation we can make from the figure is that the citation growth for most papers is nearly flat.
+It hovers close to zero for conferences with low median citations and remains mostly below five citations per month even for  better-cited conferences.
+The second observation is that a few papers do achieve runaway growth, sometimes exceeding the plot limit of 15 citations per month---even reaching `r round(max(veloc$velocity))` in one instance---but their overall number is small.
+Only `r nrow(filter(veloc, velocity > 10, months==60))` papers exceed ten citations per month at the end of the five years.
+
+This brings us to the last observation and provides an answer to the question we first posed.
+There were actually slightly more papers exceeding ten citations per month at the four-year mark (`r nrow(filter(veloc, velocity > 10, months==48))` papers), meaning that a few of those peaked before reaching five years.
+Looking at the graphs (ignoring some sharp peaks and dips caused by noise from GS), we can observe the occasional paper that reached maximum velocity and then started to slow down.
+Again, the overall number of these appears small, suggesting that most papers in systems take longer than five years to peak.
+
+
+## RQ3: Comparison of GS and Scopus citations
+
+The citation criteria employed by GS tend to be more inclusive than those of other databases, sometimes resulting in inflated citation counts [@harzing16:google; @martin18:google].
+Moreover, different fields tend to be covered to different degrees by different databases, and not all databases cover conferences equally well (we did get 100% coverage for our systems conferences in GS).
+Because of this criticism of GS and as a way to add a measure of control to our findings, we can examine citation data from another database, Springer's Scopus.
+
+We collected two types of statistics from Scopus: total citations exactly five years from each paper's publication and total citations at the end of each year (with and without self-citations).
+We first focus on the former statistic, which is directly comparable to the one we collected from GS, and
+explore the latter in the next research question.
+
+```{r gs-vs-scopus, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Comparison of GS and Scopus citations after five years. Orange line denotes a 1:1 mapping."}
+csc <- cites %>%
+  filter(months == 60, exclude_self == F, source == "Scopus") %>%
+  distinct(key, months, .keep_all = T)
+
+cgs <- cites %>%
+  filter(months == 60, exclude_self == F, source == "GS") %>%
+  distinct(key, months, .keep_all = T)
+
+both5y <- inner_join(csc, cgs, by=c("key"))
+
+both5y %>%
+  ggplot(aes(x=citations.x, y=citations.y)) +
+    geom_abline(slope=1, intercept=0, color="orange", size=2) +
+    geom_point(alpha=0.3) +
+    geom_text(aes(x=2, y=4000), label=paste0(nstr, fmt(nrow(both5y)))) +
+    guides(color="none") +
+    scale_x_log10("Citations in Scopus (log scale)") +
+    scale_y_log10("Citations in Google Scholar (log scale)") +
+    theme_bw()
+```
+
+Note that Scopus coverage for these systems conferences is incomplete, missing a total of `r nrow(cgs) - nrow(csc)` papers relative to GS.
+For the remaining `r nrow(csc)` papers, Figure \@ref(fig:gs-vs-scopus) shows a scatter plot of every paper's citation count in Scopus (x-axis) and GS (y-axis).
+The vast majority of points lie above the 1:1 intercept line, confirming that GS citation counts tend to be higher than those of Scopus.
+But the difference in magnitudes appears to be remarkably constant, with near-perfect correlation
+(`r report_test(cor.test(both5y$citations.x, both5y$citations.y))`, $R^{2}=$ `r round(cor(both5y$citations.x, both5y$citations.y)^2, 2)`).
+The implication here is that all the relative observations we have drawn so far on GS citations should generalize to Scopus citations as well, up to a constant factor.
+Other studies have found that Google Scholar citations are strongly correlated with those from Web of Science as well [@kousha07:google].
+
+## RQ4: Effect of self-citations
+
+Self-citations are fairly common in the sciences and have been estimated to comprise 10--40% of all scientific production, depending on the field [@aksnes03:macro; @snyder98:patterns; @wolfgang04:bibliometric].
+On the one hand, self-citations represent a natural evolution of a research team's work, building upon their previous results, especially in systems projects that often involve incremental efforts of implementation, measurement, and analysis [@wolfgang04:bibliometric].
+On the other hand, self-citations can be problematic as a bibliometric measure of a work's impact because they obscure the external reception of the work and are prone to manipulation [@waltman16:review].
+
+For our final research question, we would like to quantify the degree to which self-citations affect the overall citation metrics in computer systems and how well self-citations can be predicted from the papers' references themselves.
+To this end, we examine how self-citations evolve over time, how they relate to self-citations in the original papers, and how common they are overall.
+
+### Ratio of self-citations over time
+
+```{r self-citation-ratio, echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Mean ratio of self-citations out of total citations as a function of months since publication. Trend lines are smoothed using LOESS. Data are divided into four quartiles based on how many total citations the paper had after 5 years (Q4 means most cited papers)."}
+exclude <- filter(cites, source == "Scopus", exclude_self==T, months > 0)
+with_self <- filter(cites, source == "Scopus", exclude_self==F, months > 0) %>%
+  distinct(key, months, .keep_all=T) %>%
+  left_join(scopus_groups) %>%
+  left_join(papers, by = c("key"))
+
+both <- left_join(exclude, with_self, by=c("key", "source", "months", "conf")) %>%
+  mutate(ratio=1 - (citations.x / citations.y))
+
+last <- both %>%
+  group_by(key) %>%
+  filter(months == max(months)) %>%
+  mutate(self_cites = citations.y - citations.x)
+
+mostlyself <- filter(last, ratio > 0.5)
+
+both %>%
+  group_by(months, group) %>%
+  summarize(ratio=mean(ratio, na.rm=T), .groups="keep") %>%
+  ggplot(aes(x=months, y=ratio, color=group)) +
+    geom_smooth(se=F) +
+    geom_label_repel(aes(label=ifelse(months==max_months, paste0("Q", group), NA)), x=50, na.rm=T, force=1) +
+    scale_x_continuous("Months since publication", breaks=seq(0, 60, 10), limits=c(0,60)) +
+    scale_y_continuous("Mean ratio of self-citations to total citations", breaks=seq(0, 1, 0.1)) +
+    scale_color_manual(guide="none", values=c("dark turquoise", "darkgreen", "red", "orange")) +
+    theme_bw()
+```
+
+We start by computing the ratio of self-citations for every paper at every measurement time point (the end of each calendar year between 2017 and 2022, which represents different ages in months for each paper depending on the month they were published in).
+We then average these ratios across all papers with the same measurement age, and divide those into four quartiles based on the total citations they had at the time.
+The results of this computation are shown in Figure \@ref(fig:self-citation-ratio).
+A few notable observations emerged from the data:
+
+ * In the first few months after publication, most of the detected citations appear to be self-citations for all groups. A distinct transition to majority external citations starts about a year after publication.
+ * Highly cited papers (e.g., Q3 and Q4) are also cited earlier.
+ * The more a paper is cited overall, the lower the ratio of self-citations. Conversely, for Q1 and Q2, nearly all early citations were self-citations.
+ * That said, even in the fourth quartile, self-citations still comprise some 10% of all five-year citations on average.
+
+Overall, it appears that self-citations are more characteristic of early citations, either because a paper has not had enough time to be well-known by almost anyone other than its authors, or as an attempt by the authors to increase its visibility [@chakraborty15:categorization].
+But as time passes and papers are evaluated by the community, highly cited papers accrue citations primarily from external researchers.
+
+
+### Backward and forward self-citations
+
+These self-citation distributions inspire another curious question: Is there a pattern of specific self-citation behavior that affects both forward and backward citations?
+In other words, can we predict the number of self-citations a paper would receive after five years by counting self-citations in its own bibliography?
+
+To answer this question, we estimated the total number of backward self-citations, as follows:
+First, we converted the reference list from each PDF file to a text file for every single paper and manually cleaned up conversion artifacts such as two-column papers breaking down the reference list.
+Then, we searched for the last names of all authors in every single reference.
+Any reference that matched one or more names was counted as a self-citation.
+Clearly, this method is imperfect because some last names may match different authors, and some last names may even represent a word in a paper's title.
+Nevertheless, manual inspection of several dozen papers has revealed very few inaccuracies.
+
+```{r ref-correlations,  echo=F, warning=F, message=F, cache=T, out.width='0.75\\textwidth', fig.cap="Relationship between five-year self-citations and self-citation count in each paper's own references. Orange line denotes a  1:1 mapping."}
+refs <- read.csv(file=paste0(toplevel, "features/ref_counts.csv"), na.strings = "")
+with_ref <- left_join(both, refs) %>%
+  mutate(past_ratio = self_refs / total_refs)
+
+last_with_ref <- with_ref %>%
+  group_by(key) %>%
+  filter(months == max(months)) %>%
+  ungroup() %>%
+  distinct(key, .keep_all=T)
+
+no_outliers <- last_with_ref %>%
+  filter(past_ratio > 0, ratio > 0, ratio < 1)
+
+few_refs <- with_ref %>%
+  group_by(key) %>%
+  arrange(citations.y) %>%
+  filter(citations.y > 5) %>%
+  summarize(ratio=first(ratio), past_ratio=first(past_ratio))
+  
+last_with_ref %>%
+  ggplot(aes(x=past_ratio, y=ratio)) +
+  geom_point(alpha=0.25) +
+  geom_text(aes(x = 0.6, y = 0.9, label=paste0("n=", nrow(last_with_ref)))) +
+  xlab("Ratio of self-citatiotions in paper's references") +
+  ylab("Ratio of self-citatiotions in paper's 5-year citations") +
+  geom_abline(intercept=0, slope=1, color="orange", size=2) +
+  theme_bw()
+#+ guides(color="none")
+```
+
+The self-reference counts were converted to ratios by dividing by the total number of references in each paper and then compared to eventual (5-year) self-citations.
+Figure \@ref(fig:ref-correlations) shows the relationship between these two measures.
+We can make out several horizontal bands for low-cited papers with fixed ratios of eventual citations (0%, 50%, 100%, etc.), and one clear vertical band for papers with zero backward self-references.
+But overall, it shows little discernible patterns.
+
+Likewise, the Pearson correlation between backward and forward self-citation ratios is nominal
+(`r report_test(cor.test(last_with_ref$ratio, last_with_ref$past_ratio))`).
+Removing some of the outliers (the top and bottom horizontal bands, as well as the leftmost band) does little to increase the correlation
+(`r report_test(cor.test(no_outliers$ratio, no_outliers$past_ratio))`).
+Even if we look only at the temporal subset of data when papers first exceed five citations (which typically comprise of a higher ratio of self-citations),
+the observed correlation is not particularly strong
+(`r report_test(cor.test(few_refs$ratio, few_refs$past_ratio))`).
+It appears that we reached a mostly negative result for our question.
+
+### Overall self-citation ratios
+
+One anecdotal observation we can make from Figure \@ref(fig:ref-correlations) is that most papers appear above the orange 1:1 line.
+In other words, a majority of papers
+(`r fmt(sum(last_with_ref$ratio > last_with_ref$past_ratio, na.rm=T))` or
+`r pct(sum(last_with_ref$ratio > last_with_ref$past_ratio, na.rm=T), nrow(last_with_ref))`%
+to be exact) had a higher self-citation ratio after five years than their backward self-citation ratio in their reference list.
+
+Moreover, the mean self-citation ratio after five years,
+`r round(100 * mean(last_with_ref$ratio, na.rm=T), 1)`%,
+is on the one hand higher than the 15% rate found for physical sciences (and 9% over all sciences) in an earlier study on self-citation patterns across disciplines [@snyder98:patterns]; but on the other hand, is in close agreement with the 24% rate found for CS papers in Norway [@aksnes03:macro].
+The Norway study also found a high ratio of self-citing papers overall, agreeing with our data where `r pct(sum(last_with_ref$ratio > 0, na.rm = T), nrow(last_with_ref))`%
+of papers had at least one self-citation after five years.
+
+In terms of outliers, hidden in these ratios and averages are several papers whose total citations were predominantly self-citations.
+In their final citation count, `r nrow(mostlyself)` papers had over 50% self-citations, of which `r nrow(filter(mostlyself, group==4))` papers were in Q4 with dozens of citations each.
+Four of the six most self-cited papers in relative terms were in architecture conferences, suggesting that research in this area often builds primarily on past research from the same group.
+That said, the overall correlation between a paper's total citations and self-citations after five years is low
+(`r report_test(cor.test(last$self_cites, last$citations.x))`),
+suggesting that for this dataset as a whole, self-citations are not typically a dominant component of overall citations.
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Discussion {#sec:discussion}
+
+In this section, we integrate results from the previous section to explore three topics beyond raw citation counts: the use of H-index as a measure of conference quality, the relationship between a conference's acceptance rate and its eventual citations, and the characteristics of papers with early citations.
+
+## Conference H-index
+
+One derivative aspect of citations that we can calculate is a conference's H-index.
+H-index was developed by Hirsch to measure the impact of individual researchers [@hirsch05:index]. 
+It is defined as the maximum integer $n$ such that there exist $n$ papers published in a given time window that received at least $n$ citations.
+GS also reports the H-index and five-year H-index of conferences and journals and ranks them accordingly [@patience17:citation].
+With our dataset of 2017 papers, we can compute a similar measure based on papers from that single year, if nothing else, to illustrate the weakness of this metric when applied to conferences.
+
+Our partial H5-index metric ranges from
+`r h1 <- min(h5stats$h5index); h1` for `r filter(h5stats, h5index == h1)$conf` to
+`r h2 <- max(h5stats$h5index); h2` for `r filter(h5stats, h5index == h2)$conf`.
+It correlates strongly with the size of the conference
+(`r report_test(cor.test(h5stats$n, h5stats$h5index))`),
+suggesting that a conference's mere number of accepted papers, largely a policy decision, has a significant impact on its H-index metric.
+Moreover, recall the observation that the larger a conference, the more likely it is to have a "runaway" successful paper.
+This suggests that among all the factors that impact a conference's total citations (and consequently its H-index), there is also a non-negligible element of chance.
+In other words, a conference's steering committee could conceivably increase its H-index (and average citations) by simply increasing the size of the conference.
+Obviously, size is not the most important factor, and an overly permissive acceptance policy is likely to admit papers that would lower the overall citation average.
+As demonstrated in our dataset, the partial H5-index metric is clearly negatively correlated with acceptance rate
+(`r report_test(cor.test(h5stats$h5index, h5stats$rate))`).
+Nevertheless, this finding weakens the case for the use of these metrics as reliable indicators of conference quality.
+
+## Conference acceptance rate
+
+The strong correlation between a conference's acceptance rate and its median citation counts could suggest a causal relationship, that is, that competitive peer review selects for high-impact papers.
+However, the peer-review process is notoriously unreliable when it comes to selecting highly cited papers, which may not always even be the reviewers' goal [@coupe13:peer; @lee19:predictive; @wainer15:peer].
+Moreover, even if a causal relationship does exist, its direction is unclear.
+That is to say, researchers who predict that their paper will have a relatively low citation impact may self-select to submit it to a less competitive conference to increase its chances of acceptance.
+Since we regrettably cannot design a randomized controlled trial where some papers are randomly accepted in a given conference, and since we cannot accurately predict the citation impact of rejected papers, we do not have the necessary tools to evaluate the strength and direction of any such causal link.
+That said, even if the peer-review process has little predictive or selective power for high-impact papers, we could surmise that successfully publishing in competitive conferences increases the likelihood of eventual citations because intuitively, prestigious conferences increase the post-publication visibility and credibility of their papers.
+
+## Early cited papers
+
+Although we expect several months to pass before a paper is first discovered and cited by external scientists,
+some "early" papers were cited within six months of publication.
+Our dataset provides evidence for two possible explanations.
+
+First, many of these citations could be self-citations, which do not require discovery.
+As we have seen for RQ4, more early citations are indeed self-citations.
+For example, the 
+`r early <- filter(both, months <= 6, citations.y > 0); nrow(early)`
+"early" papers that were cited within six months of publication (Scopus data) averaged
+`r round(100 * mean(early$ratio, na.rm=T), 2)`%
+self-citations.
+In contradistinction, in the
+`r late <- filter(both, months > 6, months <= 12, citations.y > 0); nrow(late)`
+papers first cited in the following six-month period (months 7--12), this proportion was significantly lower at
+`r round(100 * mean(late$ratio, na.rm=T), 2)`%
+(`r report_test(t.test(early$ratio, late$ratio))`).
+
+Second, the availability of preprints or other freely accessible versions of the paper *before* publication could accelerate the discovery process.
+We measured the time (in months) it took GS to discover a freely available e-print version of each paper.
+For the "early" papers, this time averaged
+`r round(mean(early$months_to_eprint, na.rm = T), 2)`
+months, compared to
+`r round(mean(late$months_to_eprint, na.rm = T), 2)`
+months for the slow papers
+(`r report_test(t.test(early$months_to_eprint, late$months_to_eprint))`).
+For a frame of reference, this average was close to the overall average time to e-print across all papers
+(`r round(mean(last$months_to_eprint, na.rm = T), 2)` months). 
+From this perspective, therefore,
+the papers cited within the second half-year are indistinguishable from all later-to-cite papers, as opposed to the distinct "early" papers cited in the first half-year.
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Related work {#sec:related}
+
+Citation analysis is an active area of research in bibliometrics, with many studies looking at it both quantitatively---examining citation distributions, as this study does---or qualitatively, examining the strengths, weaknesses, and characteristics of citations as a metric of scholarly impact.
+This study does not aim to debate the merits of citation-based metrics, so we will not review here the qualitative aspects.
+The interested reader is referred to the recent book "The Science of Science" for an overview of this debate [@wang21:science].
+
+On the quantitative side, we find several studies that examine some of the metrics we discussed in this paper, as well as others.
+Tsay and Shu analyzed citations in one journal and found that the most cited documents were journal articles, followed by books and book chapters, electronic resources, and conference proceedings [@tsay11:journal].
+As mentioned in the introduction, in computer science, conference papers take precedence to journal articles [@goodrum01:scholarly; @vrettas15:conferences].
+
+Citation analyses collect data from different databases, primarily Google Scholar, Scopus, and Web of Science.
+Other studies have evaluated these databases for their validity and reliability in citation analysis.
+Several of those concluded that Google Scholar both has higher coverage and more liberal policies for defining what constitutes a citation [@halevi17:suitability], resulting in higher citation counts overall, as we have also found [@kousha07:google].
+This difference can make it difficult to argue about absolute numbers of citations since they vary significantly by database.
+However, as most of these studies also found---and ours agrees---the citation counts from the three databases appear to be strongly correlated [@harzing16:google; @martin18:google].
+The implication is that comparing citations across papers, conferences, and years should produce similar conclusions, regardless of which reputable database is used for citation data.
+
+Numerous studies examined specific aspects of citation analysis, such as the type of citing document or type of cited document.
+For example, Harter measured the citation counts and impact factor of early electronic journals to compare them with traditional journals [@harter96:impact].
+A related study looked at how often electronic resources are cited in electronic journals [@herring02:use].
+Various other studies have found a potential link between the open sharing of research artifacts and increased citations [@frachtenberg22:artifact; @heumuller20:publish].
+
+There also exist many citation analyses for various disciplines and venues, too numerous to enumerate here.
+Of particular relevance, however, we can find similar studies for other fields of computer science [@broch01:cite; @lister08:citation; @wang16:cloud].
+Even specific systems subfields and systems conferences were analyzed, such as performance evaluation [@frachtenberg22:sigmetrics], networking [@iqbal19:sigcomm; @iqbal19:bibliometric], cloud computing [@khan22:cloud], and databases [@rahm05:citation].
+To the best of our knowledge, this study is the first to analyze citation characteristics across the entire field of computer systems research.
+
+
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Conclusion and future work {#sec:conclusion}
+
+This work examined, for the first time, the citation characteristics of an important field of computer science, namely computer systems.
+It found that compared to other fields and disciplines, systems papers are very well cited: the top-cited papers rank the field among the highest scientific disciplines in citation counts, and only a few papers remain uncited after five years.
+
+The overall ratio of five-year self-citations (24.1%) appears to be higher than in other scientific fields but agrees with the 24% rate found for all computer science papers in Norway.
+Interestingly, most papers exhibit some self-citations, especially within the first few months since publication (when the free availability of e-print versions of a paper also increases its early citation count).
+Over time, the self-citation ratio remains above 30% for papers with relatively few citations, while for the most cited 25% of papers, this ratio drops below 10%.
+
+Competitive conferences with a low acceptance rate tend to higher citations per paper on average.
+On the other hand, conferences that accept many papers overall (independent of the acceptance ratio) also exhibit more "runaway success" papers that lift their average citation counts, suggesting the possibility of a random factor.
+It also suggests that the H5-index metric for conferences is particularly prone to manipulation, as increasing the number of accepted papers is correlated with higher H5-index values on average.
+Whether the citation count comes from Google Scholar or Scopus did not matter much, as both were strongly correlated (Pearson's r=0.99), leading to similar findings for all relative comparisons across papers and conferences.
+
+This work can be extended in several directions.
+Two obvious extensions along the time axis are to continue collecting citation metrics for the same conferences and to look at additional conference years in order to verify the generalization of these results.
+A more intricate proposal is to move from the "how many"-type questions on citations in this study to the "why"-type questions.
+The goal of such an investigation would be to identify which among dozens of factors are most closely associated with increased citation counts in the field of computer systems and hypothesize potential explanations.
+We plan to follow up with a study that analyzes the myriad factors that could be associated with citation counts: conference-related, paper-related, and author-related.
+
+<!-------------------------------------------------------------------------------->
+<!-------------------------------------------------------------------------------->
+
+# Appendix A. Detailed conference list {-}
+
+```{r confs-data, echo=F, message=F, warning=F}
+cfs <- all_confs %>%
+  filter(gsub("_\\d*", "", conference) %in% cites$conf) %>%
+  left_join(countries, by = c("country" = "code")) %>%
+  arrange(key)
+
+str <- ""
+for (i in 1:nrow(cfs))
+{
+  t <- cfs[i,]
+  str = paste0(
+    str,
+    "\\item ",
+    gsub("_\\d*", "", t$conference), ": ",
+    t$full_name, ", ",
+    t$postdate, ". ",
+    t$npapers, " papers, ",
+    "acceptance rate: ",
+    ifelse(is.na(t$acceptance), "unknown", paste0(100 * t$acceptance, "\\%")), ". ",
+    "Homepage: \\url{", t$url, "}",
+    "\n")
+}
+```
+
+Each conference is described by its initialism, full name, commencement date, size (number of published papers), acceptance rate (if known), and the homepage containing the program.
+
+\begin{enumerate}
+`r str`
+\end{enumerate}

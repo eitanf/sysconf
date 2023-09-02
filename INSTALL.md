@@ -18,6 +18,8 @@ sudo apt install libcurl4-openssl-dev libfontconfig1-dev libgdal-dev \
 
 ## 2. Install R & pandoc
 
+Make sure the installed version of R is at least 4.3.
+
 ```
 sudo apt install pandoc pandoc-citeproc r-base-core \
     texlive-latex-recommended texlive-latex-extra
@@ -44,7 +46,7 @@ Run R from the command line, and in the interpreter, type:
 
 ```
 source("pubs/dependencies.R")
-install.packages(dependencies)
+install.packages(dependencies, Ncpus=16)  # Or however many cores you have
 ```
 Answer `yes` to the questions on local installation.
 

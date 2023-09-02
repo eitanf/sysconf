@@ -138,9 +138,10 @@ pct <- function(nominator, denominator, precision = 1) {
 # Create a dataframe with counts and proprotions of a variable
 freq_and_prop <- function(x, usena = "no") {
   tbl <- table(x, useNA = usena)
-  df <- left_join(as.data.frame(tbl), data.frame(x = names(tbl), prop = paste0(round(prop.table(tbl) * 100, 1), "%")), by = "x")
-  names(df) <- c("Response", "Count", "Ratio")
-  df
+  df <- as.data.frame(tbl)
+  row.names(df) <- NULL
+  names(df) <- c("Response", "Count")
+  df %>% mutate(Ratio = paste0(round(Count / sum(Count) * 100, 1), "%"))
 }
 
 

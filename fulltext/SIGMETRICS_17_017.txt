@@ -1,0 +1,684 @@
+Using Burstable Instances in the Public Cloud: Why, When and How?
+
+ABSTRACT
+---
+Amazon EC2 and Google Compute Engine (GCE) have recently introduced a new class of virtual machines called “burstable”
+instances that are cheaper than even the smallest traditional/regular instances. These lower prices come with reduced average
+capacity and increased variance. Using measurements from both EC2 and GCE, we identify key idiosyncrasies of resource
+capacity dynamism for burstable instances that set them apart from other instance types. Most importantly, certain resources
+for these instances appear to be regulated by deterministic token bucket like mechanisms. We find widely different types of
+disclosures by providers of the parameters governing these regulation mechanisms: full disclosure (.., CPU capacity for
+EC2 t2 instances), partial disclosure (.., CPU capacity and remote disk IO bandwidth for GCE shared-core instances), or no
+disclosure (network bandwidth for EC2 t2 instances). A tenant modeling these variations as random phenomena (as some
+recent work suggests) might make sub-optimal procurement and operation decisions. We present modeling techniques for a
+tenant to infer the properties of these regulation mechanisms via simple offline measurements. We also present two case studies
+of how certain memcached workloads might benefit from our modeling when operating on EC2 by: () augmenting cheap but
+low availability in-memory storage offered by spot instances with backup of popular content on burstable instances, and (ii)
+temporal multiplexing of multiple burstable instances to achieve the CPU or network bandwidth (and thereby throughput)
+equivalent of a more expensive regular EC2 instance.
+---
+INTRODUCTION
+
+To attract more customers (tenants), public cloud providers offer virtual machine (instance) types that, in different
+ways, trade off lower prices for poorer capacities. Broadly speaking, providers employ two approaches for this.
+The first approach is based on aggressive revocation of cheaper instances in favor of more expensive instances
+when overall demand increases (resulting in tenants perceiving poorer availability for such revocable instances).
+Examples of this are Amazon EC2’ well-known spot instances [] and the more recent GCE preemptible
+instances [38]. The second approach employs aggressive statistical multiplexing of multiple cheaper instances on
+
+a single physical server (resulting in tenants experiencing higher dynamism in the resource capacity of these
+instances, cf, Appendix on cloud point of view). Examples of this are EC2’ “ type” instances (t1 introduced
+inand t2 in) and the “shared-core” instance types introduced by GCE in[37, 42]. We collectively
+refer to these as burstable instances for their ability to dynamically “burst” (.., increase the capacity of) their
+CPU and, possibly, some additional resources. Whereas revocable instances (especially EC2’ spot instances) have
+been studied extensively, burstable instances have remained largely unexplored.
+
+Burstable instances are significantly cheaper’ than even the smallest “regular” instances [10, 39]. For example,
+EC2’ smallest burstable instance (t2.nano withshared core andGB RAM) costs a mere $.75 per month
+compared to $49 per month for its smallest regular instance (m3.medium withcore andGB RAM). Burstable
+instances are intended for tenants with very small resource needs (and budgets) whether absolute or incremental
+(the latter for dynamically scaling out). Unlike regular instances, burstable instances offer time-varying CPU
+capacity comprising a minimum guaranteed base capacity/rate, which is much smaller than a short-lived peak
+capacity (for bursting) that becomes available upon operating at lower than base rate for a sufficient duration. For
+example, a t2.nano instance offers a base capacity equivalent to a mere% of a regular core and a peak capacity
+of%, the latter becoming available for one minute only upon remaining idle forminutes.
+
+Whereas EC2 and GCE are promoting burstable instances as cheap options for testing/development, small
+web servers with intermittent traffic bursts, etc. [], we believe they can go further and may prove cost-effective
+resource procurement options (while still offering acceptable performance levels) for a larger class of workloads.
+To achieve this potential of burstable instances, however, a tenant would need to carefully understand the
+additional complexity these instances possess beyond that disclosed by the providers.
+Table Our classification of resource capacity dynamism for GCE and EC2 instances along with the nature of disclosure
+made by the provider.
+
+How are Burstable Instances Different? To clarify this, we find it instructive to develop the classification
+shown in Tableof () capacity dynamism for an instance resource, and (ii) the nature of disclosure made by the
+provider about such dynamism.
+The per unit resource prices are higher than those for regular instances.
+ Type It is well-known from existing measurement studies [, 13, 16, 19, 49] that, generally, larger and
+more expensive instances offer close-to-fixed resource capacities, effectively appearing as dedicated
+machines.
+
+ Type The resources of cheaper/smaller instances tend to exhibit non-negligible temporal variations.
+From a tenant’ point of view, much existing work [19, 49] suggests these Typevariations are best
+modeled as externally-controlled random phenomena (whose statistical properties the tenant may need
+to infer through its own measurements).
+
+Burstable instances represent a departure from these conventional types: whereas some key resources (one or
+more of CPU capacity, network bandwidth, and remote disk bandwidth ”) exhibit high variations similar to TypeB, their capacities are in fact regulated via deterministic token bucket mechanisms. That is, the capacity variation
+for these resources depends very much on the tenant’ own actions.
+Table
+
+A further aspect of the complexity of burstable instances relates to the nature of disclosure made by the
+
+cloud provider about its regulation mechanism. In some cases, the provider reveals its regulation mechanism
+(TypeA). .., recall the earlier example of CPU capacity for t2 instances for which EC2 reveals the parameters
+governing the underlying token bucket regulator. EC2 also offers online information about the regulator state via
+its CloudWatch monitoring system [] (see Section). More generally, however, we find important quantitative
+details lacking in information offered by providers (TypeB). .., GCE suggests that its f1-micro (and also
+gi-small) CPU capacity is token-bucket regulated but, to our knowledge, neither reveals its parameters nor offers
+an API to help a tenant application track its state as EC2 does - in our view, a partial disclosure which may
+require careful characterization and online inference by tenants (see Section). A case of even more limited
+disclosure arises for EC2’ regulation of network bandwidth for its burstable instances (see Section) which it
+only describes as “low to moderate” (which for an EC2 instance can span the range-508 Mbps).
+Research Contributions: The discussion above motivates why a tenant using a burstable instance might
+find useful () models that let it infer (if not disclosed by the provider) or confirm (if disclosed) the regulation
+mechanisms employed by the provider for the instance’ resources and (ii) precise situational awareness of the
+state of these regulated resources. Together, () and (ii) could help inform what impact the tenant’ own resource
+usage activities might have on near-term capacities (rather than mistaking them for purely externally-controlled
+random phenomena). Our goal in this paper is to develop such an understanding and demonstrate its efficacy via
+case studies involving realistic workloads. Towards this, we make the following contributions.
+
+ We present our own measurements of capacity dynamism for a variety of EC2 and GCE instance types.
+Generally, our measurements agree with observations in recent studies that burstable instances exhibit
+higher dynamism in network bandwidth and CPU capacity. However, we also find some (surprising)
+examples where this is not the case; we present conjectures for why this may be so.
+
+ We then investigate the high capacity dynamism in CPU and network bandwidth observed for burstable
+instances and demonstrate that it results from deterministic regulation mechanisms employed by the
+cloud provider. Specifically, EC2 appears to employ an unconventional dual token bucket algorithm for
+regulating its t2 instances’ network bandwidth. GCE appears to employ a classical dual token-bucket
+regulation for the CPU capacity of its burstable instances.We present analytical models for these TypeB
+regulation mechanisms and show their efficacy for predicting capacity. We also present a methodology to
+verify the TypeA token bucket regulation used by EC2 for CPU capacity regulation, with novel insights
+about an unconventional token expiration mechanism that EC2 appears to employ.
+
+?Remote disk bandwidth may be token bucket regulated even for some regular instances [, 18] although, again, not necessarily with full
+disclosure of the underlying regulation.
+
+ We present principled approaches for tenants to use these models for exploiting burstable instances
+as effective replacements of or supplements to regular instances. We demonstrate the efficacy of these
+ideas via two case studies, both based on memcached. () Augmenting cheap but low availability EC2 spot
+instances with passive backup of popular content on burstable instances may offer improved failure
+recovery (with lower performance degradation) than using regular instances for such backup. (ii) Temporal
+multiplexing of multiple burstable instances may allow us to achieve the CPU or network bandwidth
+(and thereby throughput modulo low congestion levels) equivalent of a regular EC2 instance at% lower
+cost.
+
+Outline: The rest of this paper is organized as follows. In Section we present salient findings from our own
+measurements of capacity dynamism in EC2 and GCE instances. In Section we focus on validating or inferring
+token bucket regulation for burstable instances. In Section we present our case studies of memcached workloads
+that might find burstable instances useful. In Section we discuss the general applicability of our ideas and
+findings especially given likely changes in future instance offerings and pricing schemes. In Section we discuss
+related work. Finally, we present our conclusions in Section
+
+ BACKGROUND
+
+We have carried out extensive measurements of temporal variations in raw resource capacities for a variety of
+EC2 and GCE instance types. Several similar studies have also been carried out in other recent work [, 14, 15, 15,
+16, 21, 24, 26, 31, 32, 35, 36, 52]. In this section, we highlight a representative subset of our findings with a focus
+on results that are relevant to our current interest in burstable instances; this includes comparing the capacity
+variations for burstable instances against those for regular instances.
+
+Current Burstable Offerings: EC2 offersdifferent types of burstable instances (t2 type) having- virtual
+cores (vCPUs) with base capacities in the range-60% of a regular EC2 vCPU and RAM capacity in the range- GB. GCE offersshared-core types with the ability to burst: f1-micro withGB RAM andvCPU and
+gi-small withGB RAM andvCPU. GCE only discloses that these vCPUs are shared (.., lower in capacity
+than a full core with the ability to burst opportunistically) but does not offer a quantification of their base rates
+and bursting capabilities. It appears reasonable to expect GCE to offer more types soon and other providers (such
+as Microsoft Azure and IBM Bluemix) to also offer similar instances.
+
+We list the instance types considered in our measurement study in Table We restrict ourselves to instances
+withor fewer vCPUs; larger instances generally show low capacity variations and are not of interest to this
+study. We cover all burstable instances currently offered. For regular instances, we have representatives from
+different classes including: () general-purpose, (ii) compute-optimized, and (iii) memory-optimized instances. For
+ease of comparison across EC2 and GCE offerings, each instance is listed along with its closest “iso-capacity”
+counterpart (specifically, in term of advertised capacities for CPU and main memory) from the other cloud
+provider
+
+Next, we describe the details of our measurement methodology and our main findings. Our interest is in
+characterizing the offered capacities of individual resources (and not, for example, in studying application-level
+performance metrics for realistic workloads that simultaneously exercise multiple resources [49]). Consequently,
+each benchmark we use has been deliberately chosen to only stress a single resource (with no or minimal usage
+of other resources).
+
+Network Bandwidth: We use the iperf benchmark [22] which is designed to probe available bandwidth over
+time. We use iperf with its default TCP connection window size ofKByte. TCP congestion control may
+The presented prices for EC2 instances are current listings for its us-east- region. Also note that capacity configurations in co-listed
+instance types are close but not exactly identical. This must be kept in mind when comparing their performance. For details of resource
+configurations, see [, 28]
+
+Table Nearly iso-capacity instance types offered by EC2 and GCE for instances with <vCPUs. Here the suffixes {sd,
+hcpu, hm} denote {standard, high CPU, high memory}, respectively. Burstable, general-purpose, compute-optimized, and
+memory-optimized instances are grouped by the labels {Burstables, General, Comp-Opt, Mem-Opt}, respectively.
+
+affect measured throughput depending on other network traffic (and this would appear to be a random effect
+to the tenant). We conduct our experiments at different times of day and on different days to ensure what we
+observe is indeed due to EC2’ regulation mechanism and not due to TCP congestion control. We make sure
+that our measurements are not affected by TCP flow control mechanisms by checking the number of retries for
+each transmission and ensuring they are negligible. We choose all instances from the same availability region*
+us-east-1d. We place one end of iperf on the target instance and the other on a well-provisioned instance? to
+measure the uplink bandwidth available to the target instance. We record measurements oversecond intervals
+for an hour.
+
+Findings: We show our network bandwidth measurements in Figures(a) and () for EC2 and GCE, respectively.
+We show", 50, and% percentiles, as well as minimum and maximum (shown by horizontal bars) and
+outliers (shown by cross markers). We find that the network bandwidth allocations of EC2 burstable (t2) instances
+have much higher variations than those for regular instances - see region R1, Figure{a). Surprisingly, we find
+that GCE burstable instances show very low variation. GCE claims to offerGbps network bandwidth per vCPU
+(including for its burstable instances) and we find this to hold for most of instance types except for instances
+withvCPUs where we find noticeable variation - see region R4, Figure(). We postulate that this could be
+Amazon hascompletely isolated data centers (“regions”) around the globe, with each region divided into multiple isolated availability
+zones which are partly connected through low-latency links. Geo-distributed regions offer tenants the flexibility to place their instances
+closer to their end-customers, or closer to one another. Similarly GCE hasregions andavailability zones.
+
+We choose m4.10xlarge for EC2 and n1-standard-16 for GCE which have guaranteedandGbps, respectively.
+
+due to one or both of the following: () GCE manages its network more carefully and efficiently [40], (ii) having
+access currently to a smaller share of the public cloud marketplace than EC2, GCE is offering higher network
+bandwidth at lower cost to attract more customers.
+
+CPU/Memory Resources: We discuss two resources here: bandwidth to main memory (a hardware-managed
+resource) and CPU cycles per unit time (which we refer to simply as CPU capacity); we have also studied cache
+bandwidth which we omit for space. For recording memory bandwidth, we run the STREAM benchmark [41] copy
+operations using all vCPUs available to the target instance. For measuring CPU capacity, we use SysBench [23]
+to calculate prime numbers less thanand use the recorded execution time as our proxy for CPU capacity. In
+case of instances with multiple vCPUs, we run one copy of the benchmark per vCPU and record each execution
+time.
+
+Findings: We present our measurements for main memory bandwidth and CPU capacity in Figures(),()
+for EC2 and (),() for GCE, respectively. We show histograms as well as mean + standard variation using
+horizontal bars. For regular instances, we find that, generally, an EC2 instance and its GCE counterpart (Table)
+indeed possess nearly equal mean capacities. However, there may be significant differences in their capacity
+variances. Somewhat surprisingly, we find higher variation in memory bandwidth for GCE regular instances
+than its burstable instances whereas this is not so for EC2 - compare regions R2 and R5. Combined with our
+earlier observation about how network bandwidth offerings by EC2 and GCE compare, this suggests significantly
+different consolidation strategies being used by these two providers. We are tempted to postulate that GCE’
+burstable instances, being relatively recent, are not yet heavily used and hence experience plentiful memory
+bandwidth allocation with low variability. Finally, per Figure(), EC2 burstable instances (particularly t2.nano
+and t2.micro) show high variation in CPU capacity whereas GCE’ burstable instances do not - compare R6 vs. R3.
+Typevs. Typevariations: The regions R1-R6 in Figurerepresent examples of capacity dynamism that is
+high enough that a performance-sensitive tenant might need to be aware of it (and model it well). There is a
+crucial difference, however, between the nature of the dynamism in regions R1, R3, and R6 versus the rest. To
+clarify this, we compare the temporal evolution of the memory bandwidth of a GCE n1-sd- instance (Figure(a))
+with the network bandwidth of an EC2 t2.medium instance (Figure()). Clearly, the former is Typewhile the
+latter is Type
+
+To appreciate the significance of identifying and understanding Typevariations, we offer an example involving
+
+the CPU capacity of EC2’ t2.micro instance, a TypeA resource. Using information about regulation revealed by
+EC2, in Figure(a), we let the instance idle forminutes resulting in accumulation of(/60) =“credits”. In
+this case the tenant is able to burst at% CPU utilization forminutes. In Figure(), we let the instance idle
+forminutes thereby accumulating(/60) =tokens. In this case, it is able to burst forminutes. That is, a
+workload using a burstable resource would benefit from an understanding of the regulation mechanism as well
+as relevant “situational awareness” (.., an estimate of the pending number of credits in our example) and the
+impact of its own resource usage on this state.
+Token Bucket Regulation: The token bucket is a mechanism originally developed in communication networks
+for the purpose of ensuring that packets comprising a network flow conform to specified values of average
+throughput and “burstiness" (a measure of temporal variations in the flow) [20]. The regulation mechanisms we
+study in the rest of the paper are all rooted in the dual token-bucket mechanism which has three parameters: () a
+peak rate (II bytes/), (ii) a sustainable (or committed) rate ( bytes/), and (iii) a bucket size ( bytes) associated
+with the sustainable rate. Conceptually, tokens arrive at a fixed rate  into the bucket. Tokens that arrive when
+the bucket is full are discarded. The policing mechanism is based on ensuring that a packet only proceeds when
+tokens equal to its size are available within the token bucket; the contents of the bucket are adjusted to reflect
+this discharge of tokens. Finally, the peak rate II represents an upper limit on the rate at which tokens may be
+discharged.
+
+Fig. A subset of our measurements depicting capacity dynamism for several instance types and three instance resources:
+network bandwidth, main memory bandwidth, and CPU cycles (execution time of the sysbench benchmark [23]). Instances
+grow in size from left to right with the smallest ones given a single shared core and less thanGB RAM. We use boxplots for
+network /, violinplots for memory  deviation.
+The abbreviations {, , , , , XL, 2XL, sd, hcpu, hm} denote{nano, micro, small, medium, large, xlarge, 2xlarge, standard,
+high CPU, high memory}.
+Fig. Illustrative experiments using an EC2 t2.micro instance to explain the complexity of CPU capacity dynamism and the
+tenant’ own role in it.
+
+The token bucket has proved to be a useful and popular idea beyond routers/switches because it is expressive
+and easy to implement efficiently. Many operating systems implement it for policing their network interface
+card traffic (.., Linux tc-tbf filter [43]) . It has also been adapted for policing resources other than network
+bandwidth (.., CPU cycles [45] and disk IO bandwidth [)).
+ VALIDATION AND INFERENCE OF TYPECAPACITY DYNAMISM
+
+In this section, we present techniques for validating (when disclosed by the provider, -., TypeA) or inferring
+(TypeB) the regulation of network bandwidth and CPU capacity for burstable instances. We consider similar
+validation or inference problems for remote disk IO bandwidth regulation in Appendix. Both in this section
+and the next, we repeat our experiments enough times to ensure their reproducibility. We choose to present
+specific but representative results in several places for clarity of presentation rather than for want of statistically
+significant results.
+Network Bandwidth of EC2 Burstables
+
+To understand EC2’ network bandwidth regulation mechanism, we conduct a set of experiments wherein, rather
+than letting our t2.medium instance always transmit data at the maximum rate available to it, we stop data
+transmission at  =180 seconds, the duration after which the instance appears to reach a fixed transmission
+
+rate in Figure(). We then let the instance idle for differing amounts of time before resuming transmission
+at available capacity. In Figure we show the outcome of one such execution. We see that after idling forseconds, the instance is able to accomplish transmission behavior identical to that during the firstseconds.
+Together, Figures() andsuggest the following: () there appears to be a token-bucket like policing mechanism
+for the network bandwidth of t2 instances; (ii) there are some initial tokens in the bucket which are fully used
+up afterseconds of transmission at the available rate; (iii) tokens are replenished after idling for some time
+and this replenishment mechanism needs to be investigated in depth; (iv) the regulation mechanism cannot be
+fully modeled using a conventional token bucket - compare our observation of EC2’ regulation mechanism vs. a
+classical token bucket in Figure(the latter in dotted line).
+Fig. An illustration of the difference between observed regulation and what one would expect from a classical token bucket
+(shown in dotted line) for network bandwidth of an EC2 t2.medium instance.
+
+Ideally, one would expect to see a piece-wise constant throughput profilecorresponding to an initially full
+token bucket (() = ), ie, (¢) = I fort <  := /(II-) else() = . What we instead observe is a gradual
+reduction in throughput from the peak II to  over a period ofseconds for alltypes of EC2 burstable
+instances.
+.. A Dynamic-Peak Dual Token-Bucket. A reasonable hypothesis is that the peak-rate allocation () °
+dynamically depends on the token-bucket occupancy (), ., a = $() for some increasing function ¢. In the
+following, we call this mechanism “Dynamic-Peak Dual Token-Bucket Regulation”. The classical token bucket
+dynamics would be  =  — where throughput @ =  in our discussion. See Figurefor an illustration of this
+difference between the observed regulation and that a classic token bucket would offer for a t2.:medium instance.
+
+In order to characterize such dynamic-peak dual token-bucket regulation for network bandwidth, we need to
+model the following two aspects of its operation: () the mechanism for diminishing peak-rate (sr) and (ii) rate of
+token replenishment as a function of idling time (), when idling time starts from the time when the bucket is
+
+empty ( =).
+That is, a is the dynamic rate at which tokens arrive to the (small-sized) token bucket that performs peak-rate shaping.
+. Diminishing Peak Rate. We try to characterize the observed diminishing peak-rate for uplink bandwidth
+(xt) based on elapsed time from when  = II as a function of the state of the bucket ((¢)) and hence an indirect
+function of time (¢(())). We have similarly checked the downlink bandwidth of t2 instances and observed the
+same policing, hence we just describe the uplink bandwidth hereafter. We model the observed decrease in peakrate allocation  using a deterministic concave function, for when the peak rate  is higher than the sustainable
+rate () (hence the token bucket occupancy () is nonzero).
+Fig. An illustration for a t2.medium instance of agreement between our model and observations of peak rate evolution.
+
+We find that this model accurately characterizes EC2’ Dynamic-Peak Dual Token-Bucket mechanism governing
+network IO. As an example, for instance type t2.medium we find= knowing that II =Mbps and
+ =Mbps. As Figureshows, our model and measurements agree well. We observe the same parameter 
+for alltypes of t2 instances which suggests more rapid drop in () for smaller instances.
+. Token Replenishment. We conduct another set of experiments to help us characterize the token replenishment mechanism. In each experiment, we pair a freshly started target burstable instance with an m4.10xlarge
+instance and start transmitting from the burstable until the rate has reduced to the sustainable rate (afterseconds for all instance types). We interpret this event as a sign that the token bucket has been emptied. We
+report network bandwidth measured oversecond duty cycles (diminishing peak rate and then sustainable
+rate) spaced by increasing idle periods of length  € (, 20, 40, ..., 400} seconds. We show a snippet of the result
+
+Table Measured peak and sustainable rates and inferred token-bucket parameters for EC2 burstable instances. For all
+instances a@ =, =.  is upper-bound on , the idling time to replenish the peak-rate completely ( = I).
+Fig. Understanding the peak rate replenishment mechanism for t2 instances’ network bandwidth.
+
+for a t2.medium instance in Figure(a). We see that the absolute peak in a duty cycle increases with the length of
+the previous idle period, and thereafter the same diminishing-peak profile follows.
+
+We plot the replenished peak-rate versus different idling times  for a t2.: medium instance type in Figure().
+It is evident that replenished peak-rate is a non-linear function of idling time ( < /). We also observe in
+Figure(a) that after achieving the restored peak-rate ( > ), its network bandwidth characteristic completely
+follows the deterministic profile of (). Based on the observed concavity of restored peak-rate we choose the
+following general form for the model,
+
+where  is the upper-bound on .
+We find this model explains our observations well. We show an example of the parameters for instance type
+t2.medium in Figure(a): .25. We observe the same parameter a for all t2 instances
+
+resulting in larger  for smaller instances. We present the measured classical token bucket parameters of all
+five t2 instance types (with  <seconds) and associated  values in Table The maximum idling time ()
+for larger instances is smaller. We postulate this as a result of the same size bucket for all t2 instance types.
+Correspondingly, since larger instances have higher sustainable rates, their replenishing times are smaller.
+CPU Capacity of EC2 Burstable Instances
+
+CPU capacity of EC2 burstable instances represents an example of TypeA. These instances are given a baseline
+level of CPU capacity with the ability to burst up to peak level based on their CPU tokens (EC2 refers to
+tokens as credits; henceforth, we will simply use the term token). CPU tokens are credited continuously at an
+instance-specific disclosed rate. The parameters for this CPU token bucket mechanism - as revealed by EC2
+- are presented in Table We denote as ; the token replenishment rate for a burstable instance of type— in
+tokens/min and as ; the bucket size in tokens. One CPU token provides the ability to burst at full capacity of
+one or two cores (if applicable) for one minute. EC2 offers two metrics related to CPU token-bucket regulation of
+t2 instances via its CloudWatch API []. () CPUCreditUsage which tracks the expenditure of tokens over time
+and (ii) CPUCreditBalance which tracks the accumulation of tokens over time. Additionally, each instance is
+given some initial CPU tokens.
+Table EC2 burstables’ CPU token-bucket parameters.
+
+Token Expiration Mechanism: One way in which EC2 regulation deviates from the classical token bucket is
+the following (also revealed by EC2): accumulated CPU tokens expire afterhours. We verify this through our
+experiments. Taking an illustrative example of a t2.micro instance, the bucket size for this instance type istokens, which is filled attokens/hour. We conduct an experiment wherein a full bucket is achieved by letting
+the instance CPU idle forhours. Afterwards, by operating the CPU at the base rate (which is% of a regular
+core) using the lookbusy benchmark [27], we expect to see a constant CPUCreditBalance if a conventional token
+bucket were being used. However, we observe that the CPUCreditBalance depletes attokens/hour, matching the
+rate of token accumulation. We postulate that there is a timer that is reset at each underflow of the bucket, and
+expired (older thanhours) tokens are discarded according to a First In First Out (FIFO) mechanism. We further
+postulate that tokens are consumed by the instance according to a Last In First Out (LIFO) mechanism. Token
+expiration does not impact utilizing the CPU at the base/sustainable rate. This time-based expiration appears
+peculiar to t2 CPU and we do not observe it for the network bandwidth regulation.
+
+CPU Capacity of GCE Burstable Instances
+
+GCE does not reveal the specifics of the CPU bursting capacity for its “fl-micro” and “g1-small" instance types,
+instead just choosing to state that “GCE offers bursting capabilities that allow instances to use additional physical
+CPU for short periods of time”[28]. Similar to observations we made for Amazon EC2 t2 offerings in Section, we
+suspect that GCE burstable instances might have their CPU capacities regulated by a classical dual token-bucket
+mechanism with parameters (II, , ) which need to be inferred.
+Fig. Measurement results for inferring f1-micro instance token bucket parameters.
+
+For this, we need to overcome additional complications. First, unlike EC2 t2 instances, standard utilization
+tools (.., the top command) in GCE burstable instances do not reveal absolute CPU capacity, but the amount of
+utilization in terms of virtualized CPU capacity. So running a CPU-intensive workload within these instances
+will cause the CPU to be close to% utilized even if the physical CPU capacity varies considerably over time.
+
+Second, unlike network bandwidth regulation, we are not dealing with packets of data whose sizes are precisely
+known. Instead we must find a reasonable way to account for CPU cycles. Towards this, we need to define a
+basic unit of work that corresponds to a relatively stable number of cycles of a CPU core. We choose as this unit
+of work a CPU-intensive computation that determines all prime numbers less thanusing the SysBench CPU
+benchmark.
+
+Having identified the above unit of work, we pursue experiment design similar to that in the above sections.
+Using representative observations for an f1-micro instance in Figure(a), we illustrate evidence we find of
+token-bucket regulation. We also find that a newly started instance is endowed with some tokens. We find an
+abrupt increase in execution time for the same unit of work after aboutexecutions at the peak capacity we interpret this as the instance running out of its tokens. The behavior after this, however, represents a slight
+departure from classic token bucket behavior. The execution time for subsequent runs exhibits high variation
+(unlike with a classic token bucket where we would expect it to be constant). We find that tenant may easily
+create (a) reasonably useful models for this behavior (.., a conservative model based on a high percentile of
+the observed execution time, close tosec in the shown example) and () operational rules for detecting this
+transition (.., we interpret execution time exceeding  = sec - highlighted in Figure(a) - as a sign of
+the token bucket being empty). However, the mechanism used by GCE server remains unclear and we hope to
+investigate it in future work.
+
+In Figure() we show a sample experiment using a fl-micro instance wherein we vary the idle periods
+before running the instance at peak rate to infer the token replenishment rate. Using modeling similar to that in
+Section, we find the bucket occupancy () as a function of idling time  after it has been fully drained ( =).
+We show our findings in Figure() which suggests acceptable agreement between empirical observations and
+our modeling. The token bucket parameters we find for the fl-micro type are:  = tokens/sec, II =
+ tokens. The parameters we find for the g1-small instance are:  = tokens/sec,
+II =  tokens.
+EXPLOITING BURSTABLE INSTANCES
+
+We present two case studies wherein using EC2 burstable instances as replacements of regular instances or to
+supplement them carefully might yield cost or performance benefits. Both our case studies are based on memcached,
+a popular distributed in-memory key-value store that is used to construct the caching tier of large-scale storage
+applications [29]. For both case studies, we present: () arguments based on our earlier characterization for cost or
+performance improvements, (ii) the specific type of memcached workload that we expect to benefit, (iii) necessary
+enhancements to memcached to realize these gains and any online regulator state that might be useful, and (iv)
+measurements from experiments on our EC2 based prototypes and how they match up against our expectations.
+At the heart of our case studies are the following two properties of burstable instances:
+
+ Property A: For every dollar invested, burstable instances offer much higher network bandwidth or
+CPU capacity per unit RAM than regular instances.
+
+ Property : Whereas burstable instances are more expensive than regular instances when one considers
+their base/sustainable network bandwidth and CPU capacities (as expected), they are cheaper when one
+considers their peak capacities.
+ Case Study Passive Backup for Spot Instances
+
+In our first case study, we argue that burstable instances may be ideal candidates for serving as backups for
+revocable instances thereby helping improve the fault tolerance of certain workloads wishing to use them for
+cost-efficacy. Recall from Sectionthat revocable virtual machines are the other important class of cheap instances
+currently besides burstable instances. There are two examples of revocable instances among current offerings:
+
+Proc. ACM Meas. Anal. Comput. Syst., Vol. No. Article Publication date: June
+Using Burstable Instances in the Public Cloud: Why, When and How? «
+
+EC2 spot instances [] and GCE preemptible instances [38]. Although we use EC2 spot instances in our case
+study, our ideas should also find use for GCE preemptible instances.
+. Why and When? Spot instances may be up tox cheaper (on average) than their on-demand counterparts. Since a spot instance may be revoked by the provider ’, its lower cost comes with the risk of degraded
+performance. In the case of memcached, although spot instance revocation does not affect application correctness
+(since all cached data is persisted in a back-end), it does result in an increased number of cache misses that are
+then serviced from the slower persistent back-end (typically on magnetic hard disk drives).
+
+We identify the following two (commonly occurring) workload properties for which burstable instances can
+help improve this trade-off. First, we assume that a relatively small portion of the overall cache contents (“hot
+content") accounts for most of the accesses. Second, we assume the presence of significant temporal locality in
+accesses. This property, commonly found to hold in storage workloads, implies that the tenant may be able to
+devise effective mechanisms to track the dynamic evolution of the hot content. Finally, we assume a read-intensive
+workload - the significance of this assumption will become clear below.
+. How? Our idea is inspired by the classic primary-backup fault-tolerance technique []. In our scheme,
+we keep the “primary" copy of the entire cache on the requisite number of spot instances leveraging extensive
+prior work on bid placement (including ours [46]). Our passive “backup" resides on instances that have high
+availability. To keep the cost of this backup small, we only replicate the hot content (because these are the cache
+elements we would like to be able to access with low latencies even upon the revocation of the spot instances
+holding their primary copies).
+
+When a spot instance (say sgjq) is about to be revoked (EC2 offers aminute warning prior to revocation), we
+begin copying the hot content it was caching using replicas on the passive backup into a freshly started instance
+(say Snew) meant to replace soig. Once this copying finishes, memcached’ load balancer can redirect requests to
+Snew that has already been “warmed up" via this copying. In the best case, our copying of hot content would be
+accomplished within the warning period. In this case, our primary spot instance ,3q would be able to operate
+at full speed past the warning till its revocation thereby further helping keep any performance degradation in
+check. More generally, different types of failure recovery scenarios may arise that we depict in Figure
+
+In scenario the replacement is started before the spot instance is revoked. Then the backup starts to warm
+up the cold cache of the replacement. If this copying finishes before the revocation ((a)), we update the load
+balancer configuration and switch to the replacement immediately. Otherwise (()), we either switch to the
+back-end (events—) till the replacement is ready, or use the backup to serve the requests temporarily (events’ —’) which however may slow down the failure recovery and result in a long interim period A (spot is revoked
+but replacement is not yet warmed up). In scenario the replacement is not yet started when the spot instance is
+revoked, and similar strategies as() could be applied.
+
+A common observation across these scenarios is that we want the backup to have high CPU/network capacities
+per unit RAM, so that the data copying process can be fast, and/or the backup could have enough resource
+capacity to serve the requests during the interim A. Our calculations suggest that, for every dollar invested,
+t2 instances, if operating at their peak rates, can offer-12. times higher network bandwidth and-15.
+times higher CPU capacity per unit RAM compared to memory optimized instances. For read-heavy workloads
+(as assumed earlier), we can indeed expect our burstable-based backup replicas to be “token rich" during the
+recovery period. This is because during periods free of failures, their CPU and network resources would remain
+relatively under-utilized thereby being able to achieve close to full token bucket occupancy. Based on this, we
+expect a backup constructed using burstable instances to outperform and/or be less expensive than one based on
+on-demand instances - again, under our (frequently occurring) assumed workload properties.
+
+?This happens when the tenant’ “bid” falls below a dynamic spot price that may exhibit hard-to-predict spikes.
+Fig. Illustration of our implementation using burstable instances for passive memcached backup.
+. Implementation and Evaluation. Figureillustrates key ideas including small modifications to mcrouter
+- amemcached load balancer - that our scheme requires. A read (get) request is served from the spot instance
+holding the primary copy of the requested key. A write (put) request is additionally sent to the burstable instance
+holding the replica to keep the copies consistent. If the workload is ready-heavy, the burstable instances making
+up the backup would be rich in CPU and network bandwidth tokens (being “idle” most of the time) when called
+upon for a recovery. Even for workloads containing a non-negligible fraction of writes, the situational awareness
+of token expenditure enabled by our techniques in Sectioncan be used to ensure enough tokens are kept
+available to assist in speedy recovery.
+
+
+We offer results from an experiment that validate the expected performance gains due to a backup based on
+burstable instances. We use the Yahoo! Cloud Serving Benchmark (YCSB) [51] to generate a read-only workload
+at an arrival rate ofKops/sec, with the key popularity following a Zipfian distribution (Zipfian constant).
+We consider a size ofGB for the cached content out of which we deem the most popularGB to be hot (..,
+worthy of backup). We use an m4.2xlarge spot instance as our primary memcached server which hasGB RAM
+and enough CPU capacity and network bandwidth to offer an average latency ofsec (which we deem
+acceptable).
+
+We emulate a spot revocation and observe how performance is affected depending on which of the following
+instance types is used for our passive backup: () m3.medium, (ii) c3.large, and (iii) t2. medium. While () and (ii)
+have the smallest RAM capacity (.75GB) among all regular on-demand instances, t2.medium has the closest RAM
+capacity (4GB) among all burstable instances.
+Fig. Performance during recovery from a spot instance revocation with different types of backup options.
+
+once every second) with options ()-(iii) and also without any backup. ¢ =corresponds to the beginning of
+the period when a newly launched instance (replacement for the spot instance that is to fail) is ready for use.
+Then we start to warm up the empty cache of the new instance using the backup. As expected, owing to its
+ability to burst its CPU and network bandwidth when needed, the t2.medium instance is able to help match the
+performance behavior otherwise obtained using the twice more expensive c3.large instance. Option (ii) which
+costs more than using the burstable instance offers poorer performance.
+ Case Study Temporal Multiplexing of Burstable Instances
+. Why and When? Consider a read-intensive workload with a relatively small memory footprint but high
+CPU and/or network bandwidth needs. Such a workload may be able to replicate its memory contents across
+multiple instances with low overheads of consistency maintenance. Given property A, these replicas could be
+located on multiple identical burstable instances that could be “staggered” in time to offer the CPU and network
+bandwidth equivalents of a more expensive regular instance (with allocation corresponding to the peak of the
+burstables).
+
+To illustrate this idea, we consider a hypothetical read-intensive workload to which batches of work arrive
+roughly once everys. Assume each batch requires aboutMbps network IO andvCPU to execute
+withins. We find that if the tenant staggers three t2.medium burstable instances as shown in Figure a
+fully token-provisioned instance would be on standby at the required frequency.
+Fig. Staggeringt2.medium instances to achievevCPU, >900Mbps networkO, andGB RAM on standby.
+
+t2.medium instances is $.156/hr, whereas that of an approximately equivalent regular instanceis $.201/hr. That
+is, the use of burstable instances in this manner is about% cheaper while actually offering higher network
+bandwidth.
+.2__How? We describe a simple methodology to translate the above basic idea into a practically useful
+technique for memcached. We continue to assume a commonly-occurring memcached workload pattern wherein
+read requests dominate and content popularity exhibits a highly skewed distribution. With such a workload,
+memcached can have a small hot set (.., small memory needs) but a relatively high request rate requiring high
+CPU and network bandwidth.
+
+We first consider the CPU resource. As in Tableof Section, we denote as ; the token replenishment
+rate (tokens/min) for the CPU token bucket of a type- EC2 burstable instance, as ; the bucket size (in tokens),
+and as II; and Mj; the peak and sustainable rates (as percentages of vCPU capacity), respectively. We denote
+asunits of CPU capacity (in units of tokens/time) that we wish to provision using burstable instances. We
+discard the following regions: ()< ; (feasible but non-interesting because of being more expensive than
+using regular instances) and (ii)> II; (infeasible for this instance type). To find the smallest number of burstable
+type- instances that can offer the equivalent units of CPU capacity, we want to find the minimum nj;() >that
+satisfies the following for some  >
+
+min (;,(nj() —);) = St. ()
+
+Additionally, we must ensure that our chosen values for nj() and ¢ do not result in tokens expiring before
+they can be used - recall the token expiration employed by EC2. In Table we present the outcome of these
+calculations for obtaining the CPU capacity equivalent ofvCPU andvCPUs using a variety of burstable
+
+The problem of provisioning a network bandwidth capacity of  Mbps by staggering burstable instances of
+type- can be solved in a similar manner. A minor additional complication here arises from the more complex
+processes governing token replenishment and available peak rate that we inferred in Section. We denote as
+;() the minimum number of burstable instances of type- to achieve the network bandwidth equivalent of 
+Mbps. In Figure we present the number of burstable instances of various types needed to offer the equivalent
+of a variety of network bandwidth capacities spanning-900 Mbps. Note that the tokens need not be completely
+exhausted or restored before switching the burstables instances.
+
+Finally, if using EC2 burstable instances in the manner described above, two token-bucket regulators (for
+CPU and network bandwidth) are involved and the less plentiful of the two (for the workload in question) will
+dictate the number of staggered instances and the associated scheduling plan. Specifically, to schedule a CPU and
+network IO intensive workload such as memcached with CPU requirement ofunits and network bandwidth
+requirement of  Mbps, we would need need max{;(65), ;()}, identical instances of type-, where nj() and
+;,() are calculated as described above.
+. Evaluation. We set up memcached with a total cache size ofGB. We assume that it needs to service queries
+at a constant arrival rate  with% read (get) operations with average latency requirement <psec and" percentile latency to be <msec. Through offline profiling, we determine the resource needs
+of our memcached to be ( vCPU, 7GB RAM, 800 Mbps). We use YCSB as our workload generator which we place
+on a well-provisioned instance (c4.4xlarge) with (16 vCPUs, 30GB RAM, >4900Mbps).
+
+Using our proposed methodology, Prop, we determine that a cost-effective strategy for our workload is based
+on staggeringt2.large instances. The cost of this solution isx = $.208/hr. Figure(a) depicts how Prop
+operates. We compare the efficacy of Prop against the following two baseline approaches:
+
+ Baseline I: We run two t2.large instances in parallel and service half of the workload 
+using each instance. The CPU tokens are not replenished since the instances are never idle (CPU is the
+limiting resource for our chosen workload). The cost of this solution is obviously the same as that of
+Prop. We depict its operation in Figure().
+
+ Baseline Il: We use the cheapest regular instance with the required network bandwidth and >vCPU,
+which is m3.xlarge. This represents a more expensive solution that costs $.266/hr.
+
+We compare the latencies offered by these solutions in Figure We find that the cost-comparable Baseline I
+offers poorer average and tail latency than Prop.
+Fig. memcached case study schematic: (a) Prop: staggering two t2.large instances. () Baseline I load-balancing (LB) two
+t2.large instances in parallel.
+
+by modeling a burstable instance as a queueing server. For example, an  queue with arrival rate A and
+service rate  offers an average response time of a whereas two  and
+
+/ offer an average response time of rare Finally, we find that even the more expensive Baseline II offers poorer
+tail latency than Prop which may be due to the superior network bandwidth that Prop is able to offer.
+Fig. Latency offered by Prop, Baseline | and Baseline II.
+GENERALITY & FUTURE EVOLUTION
+
+As public cloud computing continues to grow in its popularity, we expect an increasing number of leading
+providers to begin offering different types of cheaper instances. The recent increase in the types of such instances
+from EC2 and GCE lends credence to this. Since such instances are still quite new, there will likely be a period of
+intense experimentation by cloud providers wherein new forms of service-level agreements (SLAs) and pricing
+structures will be explored and the ideas that survive (or last long) will depend on myriad technical and economic
+factors. For one, as even burstable instances in their current form are procured in increasing numbers, episodes
+of demand exceeding supply will become more frequent and tenants may have to add some stochastic elements
+to their models of regulated resource capacity (to capture the increased occurrence of episodes where effects of
+resource overbooking manifest themselves). One may then rightfully question the relevance of our work in the
+long run.
+
+We believe that our work will continue to be useful because, despite these inevitable changes in upcoming
+offerings, deterministic regulation mechanisms (.., token buckets, perhaps with minor enhancements) will
+continue being popular due to significant advantages they hold both for providers and tenants. Token buckets are
+relatively simple to implement (generally already implemented in most operating systems for network cards if not
+for CPU capacity), can be operated efficiently, and lend themselves to easy online verification of correct operation.
+Similarly, as we have shown, token buckets are also simple and efficient for tenants to infer and use. Additionally,
+as we showed through our case studies, the associated resource capacity variations are cost/performance-effective
+for workload classes that will continue to be integral components of future cloud-hosted applications.
+
+Finally, we must emphasize that the cost-efficacy of our ideas in this section crucially depend on the pricing
+schemes for burstable instances (including how their prices compare with regular instances). Even today, price
+differences exist across different availability zones even within the same cloud provider. The cost savings reported
+in our case studies are specific to the environments we chose for our experiments. Despite this, we believe our
+analysis and insights can be easily adapted to other settings.
+RELATED WORK
+
+Measurement-based studies of effective resource capacities (and other properties such as availability, dynamic spot
+prices, etc.) constitute an area of significant recent research [, 14, 15, 15, 16, 21, 24, 26, 31, 32, 34-36, 47, 48, 52].
+
+These studies have been undertaken in a variety of different contexts, .., for () private vs. public settings (with
+differences in what measurement-related facilities may be assumed), (ii) informing different types of optimization
+goals (.., performance anomaly detection, capacity planning and SLA selection over coarse timescales, or fine
+timescale measurements that can inform autoscaling or other resource management decisions), and (iii) different
+types of resources within instances (network bandwidth or others). We discuss a representative subset here.
+
+In a private setting, the designer of a measurement study may have access to significantly more detailed
+information than in a public cloud. For instance, in [52] from Google, a method called CPI” is suggested that
+relies on real-time measurements of cycles-per-instruction using hardware performance counters to diagnose
+tasks whose resource allocations should be throttled to reduce the resource interference they may be causing for
+other co-located tasks. Since our measurements are from the perspective of a tenant of EC2, a public cloud, we
+cannot assume access to such information and must work with information available to a virtual machine.
+
+A first set of capacity measurements for public cloud offerings is made up of studies from the providers themselves (.., []). Similar studies have also been offered by some other third-party companies, .., Cloudlook [12]
+and CloudHarmony [33]. Cloudharmony offers its own score called the Cloudharmony Compute Unit (CCU) for
+CPU capacity across different public cloud providers including EC2. A key shortcoming of these studies in our
+opinion is that they tend to lack details of their measurement methodology making it difficult to reproduce them.
+Research papers tend to offer more detailed description of their methodology and have looked both at spatial
+(across instances of the same type) and temporal variations in capacity. Some papers use macro-benchmarks
+or realistic applications to study the performance dynamism of specific public cloud-hosted workloads such as
+high performance computing [15], map-reduce jobs [53], or search of academic articles [44] Others have studied
+low-level resource capacity dynamics using micro-benchmarks [15, 16, 31, 49].
+
+Many papers have reported/inferred high variations (both temporal for a fixed instance and across instances of
+the same type) in resource capacities offered by public clouds. .., [53, 54] shows that the application performance
+of map-reduce type jobs can be very different across instances with identical advertised CPU and RAM capacities;
+[48] studies the effect of CPU virtualization on network throughput through measurements; [16, 19] study
+the variation in network bandwidth for Amazon m1.small instance type; [17] measures network performance
+(upload/download times and bandwidth) between instances across different regions of Amazon EC2; and [11]
+studies how to use network performance measurements, including latency and bandwidth, to perform efficient
+task-mapping for the application.
+
+All of these studies have focused on regular instance types. Generally, they find higher capacity dynamism
+than seen in comparable in-house environments and higher variance for smaller/cheaper instance types. From
+the tenant’ perspective, resource capacity is best modeled as a random process (controlled by the provider). We
+find regulated resources in burstable instances to behave very differently.
+
+Burstable instances have received relatively scant attention (likely due to their recency). Cloudability blog [30]
+presents a simple cost comparison of EC2 burstable instances against others but does not take into account
+complications due to their higher capacity dynamism (whether disclosed or otherwise). In [49], the authors report
+high variability for t1.micro, the only burstable instance type at that time (EC2’ first generation of burstables).
+Given the lack of any evidence at the time that the regulation mechanism might be based on token buckets, the
+authors employed a stochastic gradient based model for capturing the performance of complex (multi-resource)
+workloads on t1 instances.
+
+Most closely related to our work, [25] presents a formal model to capture CPU and disk IO dynamism forEC2 t2 instances types. Our work is complementary to it and goes beyond it significantly in its scope (in its
+consideration of network bandwidth regulation, our classification of capacity variation types, and in our case
+studies). Finally, recent research has explored other ways of using EC2 spot instances for reducing the costs of
+hosting memcached in the public cloud, .., [50]. Our work is novel in its use of burstable instances to improve
+the cost/performance of such solutions.
+
+ CONCLUDING REMARKS
+
+Using measurements from Amazon EC2 and Google Compute Engine (GCE), we identified key idiosyncrasies of
+resource capacity dynamism for burstable instances that set them apart from other instance types. The network
+bandwidth and CPU capacity of these instances were found to be regulated by deterministic, token bucket like
+mechanisms. We found widely different types of disclosures by providers of the parameters governing these
+regulation mechanisms: full disclosure (.., CPU capacity for EC2 t2 instances), partial disclosure (.., CPU
+capacity and remote disk IO bandwidth for GCE shared-core instances), or no disclosure (network bandwidth
+for EC2 t2 instances). A tenant modeling these resource capacities as random phenomena (as some recent work
+suggests) might make sub-optimal procurement and operation decisions. We presented modeling techniques
+for a tenant to infer the properties of these regulation mechanisms via simple offline measurements. We also
+presented two case studies of how certain memcached workloads might utilize our modeling for cost-efficacy
+on EC2 based on: () augmenting cheap but low availability in-memory storage offered by spot instances with
+backup of popular content on burstable instances, and (ii) temporal multiplexing of multiple burstable instances
+to achieve the CPU or network bandwidth (and thereby throughput) equivalent of a more expensive regular EC2
+instance.
+
+ACKNOWLEDGEMENTS
+
+We thank the anonymous reviewers and our shepherd Giuliano Casale for their valuable feedback that helped us
+improve the quality of our presentation. Kesidis was supported, in part, by the NSF CNSgrant, a DARPA
+XD3 grant, and a Cisco Systems URP gift. Urgaonkar was supported, in part, by the NSF CAREER award
+NSF CNS and an IBM faculty partnership award. Finally, we are grateful to Amazon and Google for
+offering us research credits that were used in a subset of our experiments.
+

@@ -1,0 +1,748 @@
+Persistent Spread Measurement for Big Network Data Based on
+Register Intersection
+
+ABSTRACT
+---
+Persistent spread measurement is to count the number of distinct elements that persist in each network flow
+for predefined time periods. It has many practical applications, including detecting long-term stealthy network
+activities in the background of normal-user activities, such as stealthy DDoS attack, stealthy network scan, or
+faked network trend, which cannot be detected by traditional flow cardinality measurement. With big network
+data, one challenge is to measure the persistent spreads of a massive number of flows without incurring too much
+memory overhead as such measurement may be performed at the line speed by network processors with fast but
+small on-chip memory. We propose a highly compact Virtual Intersection HyperLogLog (VI-HLL) architecture for
+this purpose. It achieves far better memory efficiency than the best prior work of -Bitmap, and in the meantime
+drastically extends the measurement range. Theoretical analysis and extensive experiments demonstrate that
+VI-HLL provides good measurement accuracy even in very tight memory space of less thanbit per flow.
+---
+INTRODUCTION
+
+Massive and distributed data are increasingly prevalent in modern networks as high-speed routers forward
+packets at hundreds of gigabits or even terabits per second. Big data also happens at the network edge.
+For a few examples, Google handles over search queries every second [], andmillion tweets are
+produced per day []. Traffic measurement and classification at such high speeds and with such massive
+volumes pose significant challenges [-14]. Exact measurement of big network data is often infeasible due
+
+to excessively high memory requirement and computation/communication overhead, whereas approximate
+estimation with probabilistic guarantees is a viable option.
+
+Flow cardinality estimation [15-20] is a fundamental problem in network traffic measurement. It
+estimates the number of distinct elements in every flow during pre-defined measurement periods. Each
+flow is uniquely identified by one or multiple fields in the packet headers, called flow label, which can
+be flexibly defined based on application needs. As examples, the flows under measurement may be
+per-source flows (with flow label being the source address), per-destination flows, TCP flows, WWW
+flows, or application-specific flows. The elements under measurement can be destination addresses, source
+addresses, ports, values in other header fields, or even keywords that appear in packet payload. For
+example, for each per-source flow, if destination addresses are treated as elements, then a flow’ cardinality
+is the number of distinct destination addresses that the flow source has contacted, which can be used for
+scan detection.
+
+Existing research on flow cardinality estimation mainly focuses on analysing traffic sketches from one
+measurement period, which is the summary of the raw traffic data in that time period. Since online storage
+can only hold limited information, the sketches are usually offloaded to a server after each measurement
+period for long-term storage and offline query. This paper studies an under-investigated problem of
+analyzing sketches across multiple periods as shown in Figure In particular, we are interested in
+measuring the persistent spread of each flow, which is defined as the number of distinct elements that
+show up in a network flow during a certain number of consecutive measurement periods.
+
+Practical Importance: Persistent spread measurement has many practical applications. Traditional
+super-spreader detection is to identify the “elephant” flows whose cardinalities are abnormally large, and
+can be applied to monitoring network anomalies. For instance, scanners may be identified if they send
+probes to too many destination addresses, .., the cardinalities of per-source flows are large. But there
+are practical scenarios where flow cardinality alone is inadequate — a stealthy scanner may intentionally
+reduce its probing rate to reduce its flow cardinality in order to evade detection. Even with a reduced
+probing rate, after sufficient time, the scanner can still discover systems with vulnerability to exploit.
+In this case, measuring persistent spread can help identify such stealthy scanners. As a scanner probes
+different destination addresses over time, its persistent spread is zero or low; if a scanner deliberately
+ DDoS attack.
+
+repeated many of the same destinations, it would significantly slow down the already small scanning
+rate. Therefore, modest flow cardinality but usually low persistent spread helps signal a low-rate scanner
+that wanders in the destination address space. In the second example, DDoS attacks may be identified if
+unusually many clients send requests to a server, .., the cardinality of a per-destination flow is too high.
+However, as illustrated in Figure with a smaller number of available attacking machines, a stealthy
+DDoS attack does not attempt to overwhelm the target server with excessive requests, but to degrade its
+performance [21]. If the number of attacking machines is similar to the number of legitimate users, we will
+not observe unusual flow cardinalities. Again, measuring persistent flow cardinality may help. According
+to the study [22] of real-world network traces from CAIDA [23], the continuous interaction between
+legitimate users and their target servers is normally shorter than twenty minutes. For attackers, since
+their goal is to degrade the performance of the target server over a long period, these hostile machines
+will send requests persistently to the target server, resulting in a significant persistent cardinality over
+time that is higher than usual.
+
+Persistent spread measurement also has applications at the network edge (.., web search and social
+media). Take Google trends as an example. If Google treats all client IPs that query a keyword as a flow,
+the cardinality of the flow suggests the popularity of the keyword being searched. However, a significant
+number of colluding machines with different IP addresses can periodically query the same keywords, and
+make these keywords popular in Google trends as they wish. Since normal users typically do not query
+the same keywords periodically for a long time, persistent spread measurement can help detect such
+long-term search patterns, where a large set of IPs keep querying the same keywords over multiple periods.
+Besides detecting faked popularity, our work may serve as a generalized primitive tool for detecting
+hidden activities that manifest only over long time.
+
+Prior Art and Challenges: Most previous work focuses on traffic sketches of one measurement
+period. To deal with a large number of flows, a series of sketches were developed to reduce massive
+raw data to a summary of per-flow cardinalities during online measurement. These solutions include
+PCSA [16], Multi-Resolution Bitmap [15], LogLog [17], and HyperLogLog (HLL) [18]. The principle is to
+allocate a separate data structure, containing a certain number of bitmaps, registers or other elementary
+data structures, to each flow for recording its elements. Over the past decades, a major research thrust is
+to reduce the sketches’ memory footprint. But it has been a difficult undertaking with slow progress. For
+
+instance, per-flow memory requirement for cardinality measurement was reduced from thousands of bits
+to hundreds of bits by HLL [18], which ensures a large measurement range with good accuracy.
+
+However, as the Internet enters the big-data era, hundreds of bits per flow can still be too much when
+there are too many flows. An example is modern high-speed routers, which forward packets from incoming
+ports to outgoing ports via switching fabric at the extraordinary speeds. To sustain high throughput,
+online modules for packet scheduling, access control, quality of service and traffic measurement are
+often implemented on network processors, bypassing main memory and CPU almost entirely. The on-die
+memory (such as SRAM) in a network processor is fast but small, and may have to be shared by multiple
+functions. Therefore, it is highly desirable to implement these functions as compact as possible. As
+this paper focuses on persistent cardinality measurement, we want to push its memory usage to an
+unprecedented low level, in order to save space for other functions on the same chip.
+
+In another example, suppose a web-search analyst wants to profile, for each keyword (phrase, question
+or sentence), the number of distinct users that have searched the keyword. This information is useful
+in online  trend studies or optimizing search performance [24]. As we have
+discussed earlier, persistent spread measurement can be used to detect faked popularity. However, since
+the number of flows (one flow per keyword, phrase, question or sentence) can be in many billions, it
+presents a challenge in computational resources, and memory in particular. Instead of using an expensive
+and powerful server, if we can drastically reduce the resource requirement, we may be able to run such
+analysis on a cheap commodity computer, which is a welcome result when high-end machines are not
+readily available.
+
+To sum up, there are practical scenarios with great disparity between memory demand and availability,
+which requires online cardinality measurement to be implemented as compact as possible. Moreover, the
+design of a measurement function should also ensure reasonable accuracy with a large measurement range
+that supports “elephant” flows with very high persistent cardinalities.
+
+To the best of our knowledge, little research work on persistent spread measurement exists in literature.
+Chen et al. [] propose a continuous variant of Flajolet-Martin sketches adapted from [16], which however
+cannot give accurate results when the available memory space is tight [22]. Xiao et al. [22] design a bit
+sharing architecture called multi-virtual bitmaps, which store a flow’ information in a virtual bitmap
+during each measurement period and analyzes the bitmaps from multiple periods to find persistent
+cardinality. The major drawback is that the measurement range of bitmaps is very small and no more
+than a few thousands for a typical implementation.
+
+Our Contributions: The objective of our research is to improve the memory efficiency and enlarge
+the range of persistent spread measurement, while keeping good accuracy. Our main contributions are
+summarized below.
+
+First, we design a highly efficient persistent spread estimator called Intersection HLL (I-HLL) that
+works over multiple measurement periods. Every flow is allocated a separate HLL sketch of registers to
+record its cardinality in a measurement period. We apply register intersection over the series of HLL
+sketches produced for a flow during a given number of measurement periods. We then employ maximum
+likelihood estimation to develop the formula of the LHLL estimator that computes an estimate of the
+flow’ persistent spread. We formally analyze the accuracy of the estimation, and show -HLL has a large
+estimation range.
+
+Second, to further improve memory efficiency, we introduce register sharing on top of I-HLL and
+propose a highly compact Virtual Intersection HLL (VI-HLL) architecture to measure the persistent
+spreads of a large number of flows simultaneously. Similar to [20], each flow is allocated a virtual HLL
+sketch of multiple registers, and the virtual HLL sketches of all flows share a common pool of physical
+registers. But unlike [20] that measures flow cardinality in one period, our VI-HLL deals with persistent
+
+cardinality over multiple periods. VI-HLL achieves far better memory efficiency and much larger range
+than the best existing work (-Bitmap [22]) on persistent cardinality measurement.
+
+Finally, not only do we mathematically analyze the estimation accuracy of VI-HLL, but also perform
+extensive experiments to compare it with -Bitmap. The experimental results demonstrate the superior
+performance of VI-HLL. Interestingly, its estimation accuracy improves when the number of measurement
+periods increases.
+
+The rest of this paper is organized as follows. Sectionformulates the persistent spread measurement
+problem. Sectiondiscusses the preliminaries. Sectionproposes our -HLL estimator. Sectionpresents
+the enhanced VI-HLL architecture. Sectionevaluates the performance by simulations. Sectiondraws
+the conclusion.
+PROBLEM STATEMENT
+
+Consider the packet stream arriving at a router (or firewall) inside a high-speed network or the application
+records produced by a server (.., web search) at the network edge. We model both types of network
+data as a sequence of (flow label, element) pairs in our abstraction. Based on the flow labels, the sequence
+of pairs are classified into different flows. For the packet stream as example, if we want to measure the
+number of distinct sources that have contacted each destination, we abstract every packet as a pair of
+destination address and source address, which can both be extracted from the packet header. All pairs
+(.., packets) with the same destination address (.., flow label) constitute a flow. In the example of web
+search, each search record is abstracted as a pair of keyword and source address (from which the search
+request is received). All pairs with the same keyword are treated as a flow.
+
+We are interested in measuring elements that keep showing up over time in each flow. The issue is how
+to quantitatively define the persistency of “keep showing up over time”. Consider the traditional definition
+of flow cardinality (or spread) measurement [15-18], which is to find the number of distinct elements in
+each flow during a certain time frame [,]. This definition does not capture the property of persistency.
+We illustrate it through an example of measuring the number of distinct sources that have contacted
+each destination, where all packets to the same destination form a per-destination flow. Suppose one
+million different sources contacted a destination during a day. The cardinality of this per-destination flow
+is one million. But if all the sources contacted the destination in the firstminutes and no contact was
+made for the rest of the day, we cannot say these sources “kept contacting” the destination for the day.
+The persistent spread is zero in this case. To formulating persistency, one way is to divide the day into
+measurement periods ofminutes each. If we find thatsources out of the million were present in
+each period, they were the persistent elements that we want to measure. The remaining elements that
+showed up only in the first period were not persistent. So the persistent spread is
+
+Generally, we specify persistency by dividing time into measurement periods and measure those elements
+that are present persistently in a pre-set number  of consecutive periods under consideration. We give a
+more formal definition as follows: Consider an arbitrary flow and  consecutive measurement periods. Let
+; be the set of distinct elements in the flow observed during the jth measurement period,  <  < .
+Let * be the subset of common elements observed in all  periods, .., * = $, NS2N... ;. The
+problem of persistent spread measurement is to find the size of *, denoted as * = |*|, which is called
+the persistent spread of the flow. The elements in * are called persistent elements. The elements in
+;—-*, < <, are called transient elements.
+
+The proposed architecture for estimating the flows’ persistent spreads is intended to be generic, while
+its parameters should be set by system admins based on their application needs. In particular, the length
+of each period and the number  of periods used are application-dependent. As an analogy, a system
+admin will configure the threshold for scan detection (.., the triggering number of different destinations
+
+ 
+
+Fig. Persistent spread of a packet flow to destination.145.236, with respect to different period lengths in the
+two plots and different numbers  of periods on the horizontal axis.
+Fig. Persistent spread of a packet flow to destination.80.140, with respect to different period lengths in the
+two plots and different numbers  of periods on the horizontal axis.
+
+that a source contacts over a period) to be more than the measured numbers of most normal sources,
+which may vary from network to network. Similarly, the parameters of persistent spread measurement
+should also be set based on application-specific and system-specific normal traffic statistics. Consider
+the example in the introduction on detecting stealthy DDoS attacks by measuring persistent spreads
+of per-destination (server) flows. If we set the measurement period to be a day, we may find significant
+persistent spreads for servers in normal traffic, because legitimate users may regularly access their email,
+web and other services on a daily basis. If we set the measurement period to be a few seconds, we may
+still find significant persistent spreads in normal traffic because any single connection to a service may
+last for many consecutive periods. However, if we choose a period length in-between and use a sufficient
+number of periods, it becomes unlikely for many normal users to exhibit the same persistency in accessing
+the servers as the attacking hosts [22].
+
+The above analysis is confirmed by our experiments using a real network traffic trace from CAIDA,
+containing per-destination flows in an hour. We vary the length of measurement period and the
+number  of periods when measuring the persistent spreads of the flows.
+Fig. Flow distribution with respect to persistent spread under different ¢ values.
+
+randomly-selected large flows are shown in Fig.-, and the statistics of all flows are shown in Fig.
+Consider the flow in Fig. Both plots show that its persistent spread drops quickly when we increase
+the number of periods. However, in the left plot where the period is short (10 seconds), if the number  of
+periods used is too small (..,  or), the persistent spread of this normal traffic can be significant. For
+example, when  = the persistent spread is which is% of the spread when  = .., the number
+of active sources in one period. Similar observation can be made in Fig. On the other hand, as we
+increase the period length tominutes in the right plot, when  = the persistent spread is just%
+of the spread when  = Be aware that a period ofminutes has many more packets (thus elements)
+than a period ofseconds; therefore, the relative percentage (36% ..%) is a better indicator for
+the impact of period length on persistent spread. By choosing a period length ofminutes and letting
+ = we observe justpersistent elements (sources) in the flow during an hour. In contrast, when the
+period length isseconds and  = we observepersistent elements in an hour. Fig.presents
+the flow distribution with respect to the spread (or cardinality) value when ¢ = , andin the four
+plots, respectively. We put flows in bins with spread ranges of [, 10], (10, 50], (50, 100], ... The length
+of each period isminutes. The figure shows that most flows in this normal traffic trace have small
+spreads. When we increase the number of periods, the number of flows in bins of large spreads decreases
+quickly, suggesting that the persistent spreads of those flows are reduced to small values. This property
+helps in anomaly detection: When we see the persistent spread of a per-destination flow suddenly jumps
+
+from a usually small value to a large one, it signals a possible DDoS attack as we explain earlier in the
+introduction.
+
+The objective of this paper is to design a persistent spread estimation architecture that consists of an
+online component and an offline component, where the former records all elements from all flows in real
+time using highly-compact data structures — which keep only sketches of the raw traffic data and are
+offloaded to a server after each measurement period, and the latter performs persistent spread estimation
+based on the sketches from multiple periods. We will evaluate the performance of our design based on the
+following two metrics.
+
+Memory overhead: The disparity in memory demand and supply for practical traffic measurement
+scenarios explained in the introduction motivates us to make the online component of persistent spread
+measurement as compact as possible.
+
+Estimation accuracy: Let  a flow. The
+estimation accuracy is evaluated based on the relative bias, Bias(#), and the relative standard error,
+StdErr( a), which are defined below.
+
+Clearly, smaller values of relative bias and relative standard error mean more accurate measurement
+results. Given a certain available memory space, we want to make persistent-spread estimations as
+accurate as possible.
+
+We make two assumptions, which are needed by our statistical analysis. The first assumption is that
+there are a large number of flows in each period and the number of distinct elements/persistent elements
+in any flow is negligibly small when comparing with the total number of distinct elements/persistent
+elements in all flows. The second assumption is that transient elements can be approximately treated as
+being independent among different periods. The same assumptions are needed in [22], which provides
+network traffic analysis to support the assumptions. The observation is that when the length of each
+period is sufficiently long, most transient elements will stay in one period because most user connections
+do not take that long. For example, when the period is set tominutes with a gap ofminutes between
+consecutive periods, traffic analysis in [22] shows that less than% of all HTTP connections overlap with
+more than one period. The percentage will be lower if the period is set longer.
+PRELIMINARIES
+
+In this section, we first introduce the HyperLogLog (HLL) algorithm [18], and then present a straightforward register-union approach for persistent spread estimation based on HLL, which further motivates a
+more accurate register-intersection approach.
+ HyperLogLog (HLL) Algorithm
+
+The HLL algorithm has made impact on IT industry [19]. It is designed to estimate the number of distinct
+elements in a single stream (flow) during a single measurement period. HLL ensures a large estimation
+range and a good estimation accuracy. An incoming stream is modeled as a multi-set , whose elements
+are in the domain . An HLL sketch  of  registers are allocated to store the cardinality information.
+Without loss of generality, let  =°, € . The ith register in  is denoted by [],  € [,). The size
+
+ALGORITHM HLL Sketch for a stream '
+Initialize a register array  of size  =° with all zeros;
+return  at the end of a measurement period.
+
+of registers is set based on the maximum range of the cardinalities to be estimated. Specifically, a register
+withbits can measure cardinalities up to) ~
+
+zeros,  € [,). Let : [] > [,] = {,}” be a suitable hash function that maps an element in domain
+ uniformly at random to the binary range of  bits long. Let () be the position of the leftmostfor a binary string  € {,}”, .., it equals one plus the length of leading zeros in . For example, if
+ = (0001...), then () = For an incoming element  in stream , let  be the binary representation
+of hash value (), where  is the leadingbits in , and  is the remaining bits. Then the element  is
+mapped to [|, and [] is updated by
+
+In other words, the stream  is split into  substreams, each of which is encoded in a register based on
+the first  bits of hashed value (). Each register is set to the maximum value of () among all elements
+ in the corresponding substream. If no element is encoded by a register, the register remains zero.
+
+At the end of a period, HLL estimates the number of distinct elements encoded by its sketch  =
+It has been shown that estimation by () is severely biased when the cardinality is smaller thans.
+Hence, when the estimated cardinality from () is smaller thans, we treat  as a bitmap of  bits,
+with each register  |] converted to one bit, whose value is one when Mi] >or zero otherwise. The
+estimation formula for small cardinality is
+
+ 
+ HLL-Based Persistent Spread Estimation
+
+The HLL sketches can be adopted for persistent spread estimation. To make technical discussion more
+concrete, we consider per-destination flows passing a router and measure the number of distinct source
+addresses in each flow. For an arbitrary flow, we allocate an HLL sketch  of  registers to record the
+flow’ source addresses in each period. Denote the HLL sketch of the jth period by ;.
+
+At the beginning of the jth period, all registers of HLL sketch ; are initialized to zeros. When the
+router receives a packet, it extracts the flow label (.., destination address dst) from the packet header,
+and records the element (.., source address src) in ; by Algorithm By the end of the period, the
+router has recorded the set; of elements in ,. It offloads ; to a server for long-term storage and
+offline query.
+
+After  consecutive periods, we have a sequence of HLL sketches M1, Mo, ..., :. The problem is how
+to use these HLL sketches to estimate the persistent spread * = |*| = [S19 ....9S;|, which is
+the number of distinct elements that are present persistently through the  periods. We propose two
+approaches, register union and register intersection, to solve this problem.
+. Register-Union Approach. According to the inclusion-exclusion rule, the cardinality of an arbitrary
+set intersection, including *, can be expressed as sums/differences of the cardinalities of set unions. The
+cardinality of any set union can be estimated using the HLL estimator () after performing register-wise
+union on the corresponding sketches. For example, the cardinality of set intersection $;  S2 is
+
+Namely, |S1.'| is represented as the sum/difference of three cardinalities, | |, |S2| and |; US|, where
+[| and |.Sy| can be estimated from Mj, and Mz using the HLL estimator, respectively. Moreover, given
+the sketches , and Ms for ; and Sg, the HLL sketch for the set union ;  S2 is simply register-wise
+union , = ,  M2, where operator  is defined to be Mu/] = max(,/], Mo[]),  < < . After
+that, [$ S2| can be estimated by applying the HLL estimator on My. Generalizing the above analysis
+to intersection over more than two periods (..,  >) is straightforward.
+
+Despite its mathematical simplicity, register-union estimate is very inaccurate since it does not fully
+explore the correlation among the  HLL sketches. Let ny be the cardinality of set union $;US2U...US:,
+* be the cardinality of set intersection *, and * be its estimate using the register-union approach.
+According to [, ], the estimation standard error of * is
+
+The estimation accuracy depends on¢, and StdErr(®) increases asbecomes larger. When  is
+set large, nj may become large due to addition of more transient elements, whereas * may stay more
+or less the same if the set of persistent elements does not change much, which drives up¥ and thus
+
+inaccuracy in estimation. The accuracy loss as  grows can prohibit a network admin from configuring a
+large value for .
+
+ 
+. Register-Intersection Approach. By contrast, the register-intersection approach calculates the
+intersection of HLL sketches, Mj, = , A Mo A.../AM:, where operator A on two arbitrary HLL sketches
+is defined as (;, \ ;,)[¢] = min(;, [], ;,[]), <  < . Therefore, the value of the ith register in the
+intersection sketch Mp is the minimal value of all corresponding registers in the  original HLL sketches,
+
+Mali] = pint Mjli]}, <<. ()
+Let  records the true intersection set *. We derive the
+relationship between Mn, and ™. As stated earlier, each flow element pseudo-randomly picks a register
+in ; by the hash function , and updates the chosen register accordingly. Moreover, in different periods,
+a persistent element  in * always tries to update the same register ; || using the same value () as
+suggested by (). Therefore, the same sketch * constructed with the persistent elements from ™* is
+embedded in ;,  < <, which can be considered as *  ;, where ; is the sketch constructed with
+the transient elements, Si = $; — *, in the jth period. ; changes from period to period as transient
+elements vary over time. Hence, we have
+If we use , to approximate *, the HLL estimator will produce a result with positive bias because
+it may happen that transient elements set the ith registers in all  periods higher than *(¢], causing
+overestimation of the persistent spread, although the probability for this to happen decreases as the
+number  of periods increases. We will address this overestimation issue by maximum likelihood estimation.
+INTERSECTION HLL ESTIMATOR
+
+In this section, we present an Intersection HLL (I-HLL) estimator based on register intersection Mj and
+maximum likelihood estimation (MLE) to measure the persistent cardinality of any flow.
+ The Intersection Register Value
+
+We first analyze the probabilistic distribution for an arbitrary register in the -HLL sketch ,, which
+will be used to construct an MLE estimator. Suppose we measure a flow over  periods, and obtain a
+
+sequence of HLL sketches, ,, Mo,..., :, which record element sets, 51, So, ..., :, respectively. Let
+nj be the cardinality of ;. The number of elements in the transient subset Sj is ni = nj —°*.
+
+We know ; = *  Tj, ie., the HLL sketch ; of the jth period is the combination of * for
+the persistent elements and ; for the transient elements. In other words, ,[] = max(*{], ;[#]),
+ <<-. Applying it to (), we can express the intersection sketch Mj as
+I. The persistent elements in * set the value of register *{[] to be , and the transient elements
+in at least one period set the value of *{] no larger than . Namely, *[] =  and {] =
+II. The persistent elements in * set the value of register *[] smaller than . Of the  HLL sketches
+of transient elements, the minimum value in this register is exactly . Namely, *[] <  and
+
+To calculate the probability for ,|] = , we should first analyze the probabilistic distribution for
+*|] and [] to carry a particular value. Let *[] be the total number of persistent elements recorded
+in the ith register of the sketch *, and ni] be the number of transient elements in the ith register
+of the sketch ;,  € [,]. Since each persistent element in * randomly selects a register in *, it
+has a probability of + to map into *[]. Hence *[{] approximately follows a binomial distribution,
+*[] ~ Bino(*, +), and the probability for *[] to record rv persistent elements is
+
+According to the HLL algorithm, the random variable *{] is the maximum value of  random
+variables that are independently and geometrically distributed according to ( > ) =-*, > >
+Thus, the cumulative distribution function of *[] under the condition *[] = , >is (*[] <
+|*[] =,  >) = ( — ze)”. Since° =and (*[] < |*[] = ,  =) = the above
+conditional cumulative distribution function is also satisfied if  = Combining these two cases, we have
+
+
+Therefore, based on (13) and (14), the cumulative distribution function Fyy«() of *[] is
+
+
+In most situations, the persistent spread  is smaller than or equal to ( >).
+Hence, Poisson distribution can be used to approximate the binomial distribution for efficient calculation,
+
+As we assume that transient elements in different periods are approximately independent, the cumulative
+distribution function ’;,() of TZ] is
+
+
+Note that the ,,n2,...,¢ can be estimated using the HLL algorithm on HLL sketches MM), Mo, ...,
+;, respectively. Thus, they can be treated as constant in the generation function , so we can simplify
+,(n1,N2,...,n4,*,) to ,(*,). We position  as the subscript of function  because the number of
+registers in each period is determined by the available memory and is typically a fixed value. Therefore,
+the probability that the ith register in the intersection sketch Mp has the value  is
+
+In practice, a register can only carry a value in a specific range due to the limited memory size (.., 
+bits per register). Let  be the threshold, which is the maximum value (upper bound) that a register’
+capacity can record. For instance, if the size of a register isbits, its recording range is fromto° =(exclusive), and the threshold  is Let  be the size of a register, then  =” —
+
+Considering the limited register size, we need to modify probability for , > . Assume the register
+is assigned to  when its value is out of bound. Hence, we have
+
+
+We provide the I-HLL estimator for persistent spread * based on MLE. To establish the likelihood
+function, we first measure the number of registers among the  registers in , that carry the value
+, which is denoted by Nz. The reason why we use Ny instead of  as the observing factor is that the
+observing space size of Nz is equal to , which is far less than ’ observing space size . The probability
+for observing , registers in Mj, carrying the value  is (,/] = )%*, assuming these registers are
+approximately independent. Hence, the combined probability for observing No, Ni, ..., Na under the
+condition that there are * elements in the persistent set is
+
+Taking the logarithm on both sizes of the likelihood function, we obtain the log based likelihood function
+as follows:
+
+Taking the partial derivative on log based likelihood function with respect to *, we obtain
+
+
+The derivative of (,[] = ) with respect to * for an arbitrary value  € [, ] is given as follows,
+
+where the partial derivative of ,(*,) over * is
+
+The maximum likelihood estimation is to find an estimated persistent spread * that maximizes the
+log likelihood function In £. Therefore, we obtain an estimator for *:
+
+
+As a summary, we define a unified function ; to give a formal I-HLL estimator ’* to measure the
+persistent spread * over an arbitrary number  of time periods, which is equivalent to (30).
+
+Definition. [I-HLL Persistent Spread Estimator] For  > a unified function to estimate the
+persistent spread of a flow is
+ Accuracy Analysis
+
+We analyze the relative bias and relative standard error of -HLL estimator. We denote the value of the
+ith register of , by a random variable ;, thereby Px,() = (,|?] =). Then the expected value
+
+
+Note that the above likelihood function is only the original likelihood function multiplied by a constant
+value a. Hence, we can still use the notation £ without confusion.
+Taking the logarithm of the likelihood function and the derivative with respect to *, we have
+
+ 
+
+The calculation of ps and ? can be found in the Appendix .
+Hence, the fisher information [25] is [(A*) = + ((G2£)?) = ()?. According to the asymptotic
+
+properties of maximum likelihood estimation, our estimator is asymptotically unbiased, and it achieves
+the Cramer-Rao lower bound:
+
+ VIRTUAL I-HLL ARCHITECTURE Motivation
+
+In the design of our I-HLL estimator, all flows are allocated with separated and equal-sized HLL sketches
+to record their elements in each measurement period, which best fits when the flow cardinality is uniformly
+distributed. However, many studies observe a common fact that the distribution of flow cardinalities
+is extremely unbalanced in real networks, and small percentage of large flows account for a majority
+of the Internet traffic (also known as the heavy-tailed distribution). Without loss of generality, we use
+the real network trace captured by the main gateway of our university as an example. The distributions
+of per-source flow and per-destination flow are illustrated in Figurea and Figureb, respectively.
+Clearly, the vast majority of flows have small cardinalities, while only a small number of flows have large
+cardinalities. The same trend is observed in the traffic traces from CAIDA [23].
+
+Under this common observation of unbalanced distribution in network traffic data, maintaining one
+HLL sketch for each flow is not applicable due to the limited size of on-chip SRAM. The reason is that,
+when we don’ know which flows are elephant flows in advance, the sizes of all HLL sketches for -HLL
+estimator should be configured according to the largest flow cardinalities in order to achieve reasonably
+accurate measurement. Therefore, we have to allocate all HLL sketches with the same size that are large
+enough to accommodate the elephant flows.
+Fig. Flow cardinality distributions for different flows
+
+which causes a significant waste of memory. To reduce the memory waste caused by the uneven flow
+cardinality distribution, register sharing should be enabled among the flows to utilize these unused bits.
+ Register Sharing and Virtual HLL Sketch
+
+Our idea is to enable register sharing among HLL sketches of all flows. An example is illustrated in
+Figure where each cell represents a register. The HLL sketches of all flows are no longer separated.
+Instead, they share registers from a common register pool, called physical register array A. Each flow
+pseudo-randomly picks a number of registers from the physical register array A to form its logical data
+structure called virtual HLL sketch. Since virtual HLL sketches of all flows share the same register pool
+A, elephant flows can ‘borrow’ memory from small flows to utilize the unused space.
+Fig. Register sharing and virtual HLL sketch.
+
+From above, we design a novel persistent spread estimation architecture based on virtual HLL sketches
+on top of register sharing, called Virtual Intersection HyperLogLog estimator (VI-HLL), where each flow
+is allocated with a virtual HLL sketch of multiple registers in each measurement period. Suppose the
+total memory size of A is  bits, and the size of each register is  bits. So the number of registers in A
+ism= Mu Each virtual HLL sketch is configured a unified size  that is large enough to accommodate all
+flows. For each flow dst, we randomly select  registers from A to form its virtual HLL sketch Ag,;.
+Table Notations
+
+ 
+
+A a physical array of registers
+
+Aj a physical register array of period 
+
+number of registers in physical register array
+virtual HLL sketch of flow dst
+
+number of registers used by virtual HLL sketch
+hash function that maps the ith register of Ags; to A
+number of persistent elements of flow dst
+
+an estimation of *
+
+number of persistent elements in Aggt
+
+an estimation of nz
+
+number of persistent elements in A
+
+an estimation of *
+
+ 
+
+where ; is a hash function whose range is [,). The hash function ; can be implemented using
+one master hash function ,
+
+where  is a hash function whose range is [,), @ is the XOR operator, and  is an array of  random
+seeds.
+
+In the next subsections, we will introduce our VI-HLL architecture to estimate the persistent spread
+simultaneously for multiple flows. The architecture includes two components; one for recording flow
+elements in A, and the other for estimating the persistent spread for an arbitrary flow dst. The frequently
+used notations are summarized in Tablefor quick reference.
+Record Flow Elements in A
+
+In each time period, a register array A of  registers is used to record elements information of all flows.
+At the beginning of each period, all registers of A are initialized to zeros. In technical discussion below,
+we again consider per-destination flows through a router that measures the distinct number of source
+addresses in each flow. When a packet arrives, the router extracts its flow label dst and treats the source
+address src as an element of flow dst. The router records the element in the flow’ virtual HLL sketch
+Aast. To do so, it first performs a hash (src), whose binary representation is denoted as . Let  is the
+leading  ( = log, ) bits in , and  is the remaining bits:
+Using the value of , the router maps the element src of flow dst pseudorandomly to a register of its
+virtual HLL sketch Ags:[], and updates the value Ags:[] if its current value is smaller than (),
+
+ALGORITHM Online recording module for one time period
+
+Applying (38) and (39), we have
+
+The online recording module for one time period is summarized in Algorithm At the end of each
+measurement period, the physical register array A will be offloaded from on-chip SRAM to main memory
+of a server for long-term storage and offline query. Assume that we have measured ¢ consecutive time
+periods, thereby we have ¢ physical register arrays, which are denoted by Ay, Ag,..., Ay.
+ VI-HLL Estimator
+
+We describe our VI-HLL estimator, which uses the sequence of physical register arrays A;, Ag,..., Az, to
+estimate the persistent spread for an arbitrary flow.
+
+Consider a flow dst under query, we reconstruct its virtual HLL sketch  from an arbitrary physical
+register array A, where the ith register in virtual HLL sketch has been mapped to the register A[;(dst)|
+
+Since we have  physical register arrays A;, Ag,..., Az, we can reconstruct  virtual HLL sketches, denoted
+as My, Mo,..., My. Then we have the virtual intersection HLL sketch My: Mn = My, A Mo A---A My.
+An intuitive method is that we can apply our previous -HLL estimator on M1, Mo,...,; and Mp, in
+Definition, to filter the transient elements and estimate the cardinality of persistent elements in the
+virtual HLL sketch.
+
+However, this intuitive method will cause overestimating problem for the persistent spread * of
+flow dst. This is because the virtual HLL sketch of flow dst not only records the persistent elements
+belonging to flow dst, but also contains the persistent elements coming from other flows due to the
+mechanism of register sharing. Specifically, if some of registers shared with other flows happen to be
+set by some persistent elements of these flows, then these registers will be updated in all virtual HLL
+sketches ,, Mo,..., MM; in all  periods such that they are recorded in ,. Therefore, the persistent
+elements introduced by register sharing, called noise, causes the overestimation problem when estimating
+the persistent spread of the flow dst with I-HLL estimator.
+
+Our VI-HLL estimator is to remove the noise that comes from other flows, and gives unbiased persistent
+spread estimation. Let * be the number of persistent elements of flow dst, = be the number of persistent
+elements recorded in virtual intersection HLL sketch Mj, of flow dst, and * be the number of persistent
+elements in physical intersection register array Aq = A; \ Ag A---A Az. Due to register sharing, we know
+that  flow dst plus the noise (persistent spreads) introduced by other
+flows. Let  be a random variable for the number of noise persistent spreads recorded by the virtual
+
+To recover * from virtual HLL sketches of flow dst, we remove such noise as follows. The total number
+of persistent elements coming from other flows is * — *. From the view of the flow dst, these elements
+are noise. As we assume that there are many flows and * < *, each noise element from other flows
+has approximately the same probability to map into ,. This probability is equal to = due to the
+random selection of  registers by the virtual HLL sketch from A ( registers). Hence,  follows a
+binomial distribution,  ~ Bino(§ — *, +). The expected number of noise elements mapped to Mp is
+
+() = aoe) Therefore, we have
+
+By the law of large numbers in probability theory, if the number of  is large, the relative variance
+Var( ney? approaches to zero. In this case, the expected value (* — *) can be approximated by
+an instance value, } — *. Hence, we have
+
+The VI-HLL estimator for flow dst is summarized in Algorithm
+
+. Accuracy Analysis
+
+We now analyze the relative bias and relative standard error of our VI-HLL estimator. According to
+analysis of I-HLL estimator in Section, we have the following theorem.
+THEOREM. Let = be the number of persistent elements that are mapped to the virtual HLL sketch.
+
+Suppose the number  of registers is large enough. Then,
+SIMULATIONS
+
+In this section, we use extensive simulations to evaluate our persistent spread estimator VI-HLL based
+on register sharing. We compare it with state-of-the-art -Bitmap [22]. Since our goal is to design
+persistent spread estimator that can be used in tight memory space while delivering high accuracy, in our
+simulations, we only consider memory requirements that are less thanbits per flow. We also evaluate
+the impact of the number of periods ¢, signal-to-noise ratio SNR;, and number of registers  on the
+VI-HLL performance.
+ Simulation Setup
+
+We implement VI-HLL as well as -Bitmap, and compare them through extensive simulations. The data
+we used is simulated from real-world network traffic traces. Note that the flows in the simulations can
+be per-source flows, per-destination flows, or other user-defined flows, which all lead to similar results.
+Without loss of generality, we use per-destination flows for presentation. The traffic data in each period
+contains 846, 736 distinct elements generated by 453,043 flows. The average flow cardinality is per flow. We simulate tremendous users concurrently accessing a large server farm, which is quite
+practical in today’ main gateway router. Some of the flow elements are persistent elements, which exist
+throughout the  periods, and the rest are transient elements. In each period, we control the ratio of
+persistent elements to the transient elements by signal-to-noise ratio SNR; = es = aoe jg € [,¢].
+The performance metrics used in our simulations include memory requirement and estimation accuracy
+as discussed in Section We run two sets of simulations. The first set is used to evaluate the impact of
+memory size on the persistent spread estimation accuracy of -Bitmap and VI-HLL. We vary the memory
+space  fromMB, 1MB, 2MB toMB, which translates to approximatelybits/flow, .75bits/flow,
+
+() -Bitmap with bits per flow
+
+different memory overhead,
+
+Persistent Spread Measurement for Big Network Data Based on Register Intersection 
+15 + -Bitmap (=.5MB) + -Bitmap (=1MB)+ -Bitmap ( =2MB) + -Bitmap ( =4MB)
+
+(a) -Bitmap with bit per flow () -Bitmap with bit per flow () -Bitmap with
+Fig. Persistent spread estimation using -Bitmap under different memory overhead, with  = SNR; =and
+ =
+
+., respectively. To make a fair comparison, VI-HLL and -Bitmap are given the
+same memory size to process the simulated traffic data in each case. For -Bitmap, the length of each
+virtual bitmap is configured as to achieve better accuracy, or as large as to accommodate
+the large flows to have larger estimation range as in [22]. For VI-HLL, we use a virtual HLL sketch to
+record each flow in each period. The length  of each virtual HLL sketch is configured as The second
+set of simulations evaluates the impact of different parameters on the performance of VI-HLL. We fix
+the memory size to  =MB, and vary , SNR; and  with different values to observe their impact on
+estimation accuracy. The simulation results are given as follows.
+VI-HLL .. -Bitmap
+
+We study the estimation accuracy of -Bitmap and VI-HLL with the available memory ranging fromMB, 1MB, 2MB toMB. The total measurement time periods  is fixed to and signal-to-noise ratio
+SNR; is The comparison results of -Bitmap and VI-HLL are presented in Figures , 10 and The
+first three figures show the estimation results for -Bitmap with  = -Bitmap with  =
+and VI-HLL with  = each of which includes four plots under different memory sizes . Each point
+in each plot represents a flow, where the  coordinate is the actual persistent spread cardinality * and
+the  coordinate is the estimated cardinality *. The equality line,  = , is also shown. Clearly, the
+closer a point is to the equality line, the more accurate the estimate is.
+Fig. Compare VI-HLL and -Bitmap under different memory overhead .
+
+In Figure plot(a) and plot() show when the available memory is tight, ..,  =MB (.37bits/flow)
+or  =MB (.75bits/flow), -Bitmap ( =) cannot give reasonable estimations for most flows.
+The reason is that the estimation accuracy of -Bitmap depends on the fill rate — the proportion of
+bits in a bitmap that are set to be one. The higher the fill rate, the worse the accuracy. For example,
+when  =MB, each bit is mapped byelements on average, so almost all bits are set to Hence,
+-Bitmap can no longer work in such tight memory. As the memory size increases fromMB toMB as
+shown in plot() and plot(), -Bitmap generates some positively biased results, but still cannot yield
+estimates for large persistent spread flows due to the high fill rate. Although increasing  can enlarge
+the estimation range of -Bitmap to some extent, it still does not address the problem caused by high fill
+rate.
+
+An alternative way to extend the estimation range for -Bitmap is to increase the virtual bitmap size
+. Figuregives the simulations results for -Bitmap with  = Clearly, it still cannot work under
+tight memory as shown in plot(a) and plot(). When increasing memory size as illustrated in plot() and
+plot(), -Bitmap gives larger estimation range comparing with the last two plots in Figure but the
+results are still quite inaccurate because the fill rate is still very high and large size bitmap introduces
+more noise. Therefore, -Bitmap cannot work under tight memory.
+
+Figureshows the simulation results of VI-HLL when  = Clearly, VI-HLL can generate very
+accurate persistent spread estimates for both small and large flows as points are clustered to the equality
+line for all four plots. This is true even under a tight memory, ..,  =MB (.37bit/flow) as
+shown in plot(a).
+Fig. Estimation results and relative errors of VI-HLL under different values of SNR,;, with  =MB,  =and
+=512.
+
+ranges without modifying preset parameters, which is required by -Bitmap in order to generate sound
+measurement results when facing different traffic situations. VI-HLL provides a more robust solution for
+real-life persistent spread measurement.
+
+The relative bias Bias(") of -Bitmap and VI-HLL and relative standard error StdErr(#) of
+VI-HLL are given in Figure Plot(a), plot() and plot() present the estimation bias of -Bitmap with
+ = -Bitmap with  =and VI-HLL, respectively. We can see that under tight memory,
+-Bitmap has large bias, while VI-HLL has small relative bias and relative standard errors. Also, VI-HLL
+becomes more accurate when more memory is used.
+Impact of Value  on VI-FHLL
+
+In our second set of simulations, we firstly study the impact of the number of time periods ¢ on the
+performance of VI-HLL. We fix  =MB, SNR; =and  = and vary  fromto ,  to
+The results are presented in Figure The first four plots are estimation results under  =  ,  and
+Corresponding relative standard errors are illustrated in the fifth plot. Clearly, when  becomes larger,
+the relative standard error becomes smaller, which reflects an interesting feature of VI-HLL that its
+estimation accuracy improves when the number of time periods increases. This is because VI-HLL detects
+the existence of the persistent elements from the register intersection on all HLL sketches ,, Mo,..., M4.
+The probability for an intersection register in Mj, to be updated higher by transient elements, captured
+by the term ’’ in (19), decreases as  value grows. Therefore, VI-HLL permits network admin to set
+arbitrarily large  values to differentiate persistent and transient elements.
+
+Next, we evaluate the impact of the signal-to-noise ratio SNR; on the performance of VI-HLL. We fix
+ =MB, , and vary SNR; from, .,  to
+Figure The first four plots are estimation results under SNR; =, .,  and Corresponding
+relative standard errors are illustrated in the fifth plot. From the plots, we see that the accuracy degrades
+a bit as SNR; decreases, but VI-HLL still renders reasonably high accuracy. The ability of tolerating
+heavy noise in VI-HLL makes it more flexible to use in practice.
+ Impact of Value  on VI-FHLL
+
+Finally, we investigate the impact of the register size  on the performance of VI-HLL. We fix @ =MB,
+and vary the value of  fromto 256, 1024 to The results are represented in Figure The
+first four plots are estimation results under  = 256, 1024 and Corresponding relative standard
+errors are illustrated in the fifth plot. Clearly, when  is relatively small ( =), the relative standard
+errors are larger than when  for large size flows. However, when  gets large enough
+, the estimation accuracy for large size flows stabilizes, but the estimation accuracy
+for small size flows becomes noticeably worse. Combining these two effects, in practice, it may be more
+appropriate to choose a virtual HLL sketch size of eitheror
+
+ CONCLUSION
+
+In this paper, we propose a highly compact and efficient Virtual Intersection HyperLogLog (VI-HLL)
+architecture for persistent spread measurement. It can help detect long-term stealthy network activities
+in the background of short-term activities of legitimate users. Through extensive analysis and simulations,
+we demonstrate that VI-HLL can perform well even in a very tight memory space (less thanbits or
+even bits per flow) with wide measurement range and reasonably high accuracy. Therefore, it can
+be implemented in fast on-chip SRAM to keep up with the line speed of modern routers, or low-cost
+commodity computers to process big network data.
+
+ACKNOWLEDGMENTS
+This work is supported in part by the National Science Foundation under grant STC-1562485, and a
+grant from Florida Center for Cybersecurity.
+
+

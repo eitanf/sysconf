@@ -1,0 +1,635 @@
+Expected Values Estimated via Mean-Field Approximation are/-Accurate
+ABSTRACT
+---
+Mean-field approximation is a powerful tool to study large-scale stochastic systems such as data-centers — one example being
+the famous power of two-choice paradigm. It is shown in the literature that under quite general conditions, the empirical
+measure of a system of  interacting objects converges at rate (/VN) to a deterministic dynamical system, called its
+mean-field approximation.
+
+In this paper, we revisit the accuracy of mean-field approximation by focusing on expected values. We show that, under
+almost the same general conditions, the expectation of any performance functional converges at rate (/) to its mean-field
+approximation. Our result applies for finite and infinite-dimensional mean-field models. We also develop a new perturbation
+theory argument that shows that the result holds for the stationary regime if the dynamical system is asymptotically
+exponentially stable. We provide numerical experiments that demonstrate that this rate of convergence is tight and that
+illustrate the necessity of our conditions. As an example, we apply our result to the classical two-choice model. By combining
+our theory with numerical experiments, we claim that, as the load  goes to the average queue length of a two-choice
+
+system with  servers is log.
+---
+INTRODUCTION
+
+Mean-field approximation is a powerful tool for studying systems composed of a large number of interacting
+objects. The idea of mean-field approximation is to replace a complex stochastic system by a simpler deterministic
+dynamical system. This dynamical system is constructed by considering that each object interacts with an average
+of the other objects (the mean-field). When each object has a finite or countable state-space, this dynamical
+system is usually a non-linear ordinary differential equation (ODE)  = (), where ;() denotes the fraction of
+objects in state  at time ¢ and  is the drift of the system.
+
+Mean-field approximation is widely used to study the performance of computer-based systems: queueing
+networks [], wireless networks [], dissemination algorithms [], caching [12], SSDs [24],... An important
+area of application is the analysis of resource allocation strategies in server farms or data centers: such a
+
+system is composed of a large number of servers that interact because of scheduling or routing strategies
+[10, 17, 19, 20, 22, 25]. A typical example is the power of two-choices: Mean-field approximation has been used in
+[20, 25] to show that routing a task to the least loaded of two randomly sampled servers significantly reduces the
+response time compared to a purely random allocation.
+
+Mean-field approximation is known to be asymptotically exact for many systems. For these systems, the
+fraction of objects in a given state  at time ,  “ (¢), converges to a deterministic quantity ; (¢), as the number
+of objects  goes to infinity. The rate of convergence of xi) to ; has been studied by several papers, ..
+[, 15, 26], that show that the expected distance between  () and  is of the order of/VN:
+
+This result is a like a central-limit-theorem for mean-field systems: ‘%)() is equal to () plus/VN times
+a Gaussian noise [15]. It was originally proven for finite time-horizon and recently extended to stationary
+distributions in [26].
+
+Yet, we believe that Equation () does not fully explain the accuracy of mean-field approximation. As an
+example, we provide in Tableresults obtained by simulation on how the mean-field approximation is accurate
+for the power of two-choices model’ of [20, 25]. We report the average queue length in steady-state as a function
+of the number of servers  for  =. We observe that the error made by the mean-field approximation decreases
+as/, much faster than the/VN suggested by Equation ().
+Table Average queue length in the two-choice model. The values for a finite number of servers  are obtained by simulation.
+The value for  = +00 is the mean-field approximation.
+
+This discrepancy comes from the fact that the error term ' — ® is the distance between the mean-field value
+
+® and an expected function of ¢%), It is not the expectation of a distance as in Equation (). We therefore adopt
+a new point of view in this paper. Instead of studying the distance between XY) () and () as in Equation (),
+we study the distance between the expectation of a function of “) () and its mean-field approximation. As a
+norm is a convex function, we expect the former to be smaller than the latter. We will show in fact that there is
+an order of magnitude of difference: under mild conditions, for any function  that is twice differentiable, this
+distance is of order/:
+As for Equation (), we show that Equation () holds for the transient regime and can be extended to the stationary
+regime under the same conditions as [26]. As a byproduct, Equation () can be recovered from Equation () by
+using  = ||. — ]|?.
+
+This result shows that an average value estimated via mean-field approximation is/-accurate. In a queuing
+network such as the two-choice model, the average queue length can be expressed as [(%))]. Equation ()
+shows that the average queue length converges at rate (/) to its mean-field approximation. This is what is
+observed in Table where [(\)] = () +/.
+We define and study this model in more details in Section
+Contributions. We prove our result for a generalization of the classical population model of Kurtz in which
+each object can have a countable state-space.
+
+The classical methods to obtain Equation () for transient [, 15] or stationary regime [] rely on martingale
+concentration arguments. Our approach is different and uses an idea inspired by Stein’ method and [14, 21, 26]
+to relate Equation () and the convergence of the generators of the Markov chain.
+
+From a theoretical perspective, the main contribution of our paper is to provide a unified framework in which
+Equation () is true: our results hold for the transient and stationary regime and for finite or infinite-dimensional
+models. Using Stein’ method, we show that the (/) rate holds if the derivative with respect to its initial
+condition of  ®,xds exists and is Lipschitz-continuous (where  + ®; denote the unique solution of the ODE
+ = () that starts in  at time). We show that, for the transient regime, this holds as soon as the drift  has
+a derivative that is Lipschitz-continuous. For the stationary regime, it holds when, in addition, the ODE has a
+unique attractor that is exponentially stable. In the transient case, [14] obtains a (/) like Equation () for
+a simplified version of our model where a transition affects at most one object. For the stationary regime, a
+(/VN) like Equation () is obtained in [26]. Our proof is inspired by the methodology of [26] but we obtain a
+stronger result by working with a generic function . Note that infinite-dimensional models arise naturally when
+one considers queuing systems with unbounded queues. They are not considered in [14, 26].
+
+Another contribution of our paper compared to [14, 26] is to characterize what happens when the derivative
+of the drift is not Lipschitz-continuous. We show that if the drift is differentiable and its derivative is a-Hélder
+
+continuous, then the convergence rate occurs at rate (/VN May We provide a numerical example in Section that shows that in general this exponent is tight and that having a Lipschitz-continuous drift is not sufficient to
+obtain Equation (). This contrasts with the convergence rate of Equation () that is known to be (/VN) as
+soon as the drift is Lipschitz-continuous (or one-sided Lipschitz-continuous) for the transient case. Hence, only
+Lipschitz-continuity (or one-sided Lipschitz-continuity as in [11, 22]) is not sufficient to guarantee a/-accuracy
+of the mean-field estimates.
+
+From a performance analysis perspective, one of the main insights provided by our result is that for many
+mean-field models and performance functions , we have
+This provides a refinement of the mean-field approximation: the performance of a system of size  can be
+precisely estimated from two quantities: its mean-field approximation () and the constant  corresponding to
+the error of the mean-field approximation. The constant  can be estimated analytically or by simulation for a
+small system size and then extrapolated to larger system sizes. As an example, we study in detail the convergence
+rate of the classical power-of-two-choice model of [20, 25]. This model shows that routing an incoming job to the
+shortest of two randomly sampled queues greatly reduces the average queue length : as  goes to infinity, for a
+system with load  ~ the queue length equals (log/( — )) compared to/( — ) in the case of purely
+random allocation. We show that for any fixed , the average queue length in a -server two-choice system is at
+distance ,/ of its mean-field approximation. We provide numerical evidence that this dy grows as/(— ) as
+ goes to one. As a result, we conjecture that the average queue length in a -server two-choice system is
+
+where @(/( — )) is equivalent to/( —) as  goes to
+
+The above equation is constructed by assuming first that  goes to infinity and then that  goes to one. This
+result should be contrasted with the heavy-traffic limit of [], who study the case where the load depends on 
+and goes to one as  goes to infinity: py =-/ with limy—oo mn = The authors show that the mean-field
+
+approximation always under-estimates the average queue length. They also establish a heavy-traffic regime when
+yn grows sub-linearly. Our result suggests that for this scaling, the difference between the average queue length
+of the system of size  and its mean-field limit is of order/(( —pn)) = yw/ — A comparison of both
+results is not straightforward as the considered metric is different. Yet, our result confirms that when yn grows
+sub-linearly, there is little difference between the system of finite  and the mean-field.
+
+Reproducibility. The code to reproduce the paper — including simulations, figures and text - is available at
+https://github..
+
+Roadmap. The paper is organized as follows. We introduce the model in Section We provide the main
+theoretical results in Section the transient regime and its extension to stationary regime when the ODE has
+a unique exponentially stable attractor. We illustrate the necessity of the regularity assumptions in Section
+We apply these results to the two-choice model in Section Sectioncontains the proof of the most technical
+lemmas. Finally, we conclude in Section
+
+ MEAN-FIELD MODEL Population Processes
+
+We consider population processes described by the classical model of density-dependent population process of
+[15, 16]. We recall the definition here. A population process is a sequence of continuous-time Markov chains
+(CTMC) (), For each , ‘%) evolves on a subset of some Banach space? (, ||.||). We assume that there
+exists a set of vectors £ € & and a set of functions Bg :— * such that XY) jumps from  to  + ¢€/ at rate
+NBe() for each € € £.
+
+We will refer to the chain “) as the system of size , although  does not a priori correspond to the system’
+size. For such a system, we define the drift  as
+
+This definition means that ()dt is the expected variation of a chain “) that would start in state  during a
+small time interval dt. It does not depend on .
+
+Mean-field interacting system. A particularly interesting subclass of population processes is the case of meanfield interacting systems. Such a system is composed of  objects. Each object lives in a finite or countable
+
+state-space . The state of the object  at time ¢ is denoted by gs) (). Let ) () be the empirical measure at
+time ¢: fori € , !) () is the fraction of objects in state  at time :
+
+We say that this system is a mean-field interacting system if (‘%)) is a population process. The process XW)
+lives in (), the set of probability measures on .
+Note that if all objects are exchangeable, we haveTypically, we will use & = @ or & = RN (the set of infinite sequences) with an appropriate norm.
+The two-choice model is an example of mean-field interacting system (see Section).
+
+Imperfect population processes. In some cases, it is useful to consider models in which the set of transitions £ or
+the transition functions Be vary with the system size. We refer to this case as the imperfect population processes
+and we add a superscript  to all quantities that depend on . The drift of an imperfect model depends on 
+and will be denoted by %, with % () = Deegn BN ().
+ Notations
+
+For a function  :— , we will denote by Dh the derivative of  (if it exists). For a € (, ], a function  is
+a-H6lder continuous with constant  if for all , € &:
+
+Lipschitz-continuity corresponds to the case a = a function is Lipschitz-continuous if it is-Hdlder continuous.
+
+The set !+*(&, ¥) denotes the set of functions  : & >  that are differentiable and such that the first
+derivative of  is a-Hélder continuous. The set C1(, ¥) denotes the set of functions  : & —  that are
+differentiable and such that the first derivative of  is continuous and bounded.
+
+In the theorems, we assume that  is Lipschitz-continuous. This implies that, for any initial condition the ODE
+ = () has a unique solution. For ¢ > we denote by ©; the value at time ¢ of the solution that starts in  at
+time It satisfies
+
+We denote by ‘) the generator of the system of size  and by A the generator of the ODE. They associate to
+each function  that is differentiable, two functions Lh and Ah that are defined as
+By definition of the drift: (Ah)() = Deer Be()Dh() - €.
+ CONVERGENCE RESULTS
+
+The classical approach to show the convergence of a stochastic system to its mean-field approximation is to obtain
+a bound on the expected distance between ‘%)(¢) and its deterministic limit ©,. Our approach is different in
+the sense that we obtain a bound of the distance between the expectation of ‘%)() and ®,. We show that the
+latter is in general much smaller than the former:
+ fe [x0] ~
+
+« [ - el] -(—). Transient Regime
+
+Our first result concerns the transient regime. We show that in this case, the Lipschitz-continuity of the derivative
+of the drift suffices to show that an average value estimated by the mean-field approximation — (®;) — is
+at distance (/) from the true value — [()(£))]. One application of this result is when one wants to
+compute the marginal law of an object of a mean-field interaction model. This result combined with Equation ()
+implies that the marginal law of one object converges at rate (/) to its mean-field approximation:
+
+where () denotes the value at time  of the unique solution of the ordinary differential equation starting in
+ = ()(), This result complements functional central limit theorems - such as the results of [16] — that show
+that the sample paths of “) are at distance (/VN) of .
+
+Note that the conditions to apply Theorem are easy to verify and can be done by a syntactic analysis of
+the model. In Section, we show that this result can be modified in the case of drifts whose derivatives are
+a-Hélder continuous.
+
+THEOREM. Let “%) be a population process on a Banach space & such that sup, dite Lt Be() IIL? <
+Assume that the derivative of the drift exists and that both the drift and its derivative are Lipschitz-continuous. Let
+:& OR bea differentiable function such that both  and its derivative are Lipschitz-continuous with constant .
+Assume that ||[%)()] - || < /. Then, for each , there exists a constant () < co such that
+
+Proof. The proof can be decomposed in three steps. The first step is to reduce Equation () to a convergence
+of the generators. For that, we use Lemma that shows
+
+The second step is to remark that if the derivative of a function  is Lipschitz-continuous with constant , then
+LW)  converges to Ag at rate ~!. Indeed:
+
+The third step is provided by Lemma which shows that when the derivative of the drift is Lipschitzcontinuous, the derivative of the function  +> ©, exists and is also Lipschitz-continuous with constant
+As. Hence, the derivative of  }» (® sx) is Lipschitz-continuous with some constant LA,;. We can then plug
+Equation () into () to show
+
+ he statements and the proofs of the two lemmas are postponed to Section. oO
+ Stationary Regime
+
+We now focus on the stationary distribution of XW) and how it concentrates on the stationary regime of the
+ODE.
+
+It is shown in [] that if the ODE has a unique attractor (.. a fixed point to which all trajectories converge),
+then the stationary measure of the system of size  concentrates on this fixed point * as  goes to infinity. In
+this section, we show that the rate at which it concentrates is (/) under the condition that the ODE has a
+unique attractor that is locally exponentially stable (as in [26]).
+
+We say that a point * is a locally exponentially stable attractor if there exists a bounded neighborhood  of
+*, and two constants a,  >such that
+(A2) For all  € &, there exists  such that for  > : ;() €  (the neighborhood  attracts all trajectories).
+In practice, condition (A1) is easy to verify, as it depends mainly on whether the ODE is locally stable. This can
+be done by a numerical procedure that linearizes the drift  around its fixed point and computes the eigenvalues
+of its Jacobian matrix. The most difficult condition to verify is (A2): proving that the fixed point of an ODE is a
+global attractor is difficult because it depends not only on the form of the ODE but also on precise values of its
+parameters [, ]. Note (A2) is necessary to apply the classical concentration results of [] which means that our
+conditions are not more difficult to verify than the ones of [].
+
+We assume that for  large enough, the stationary measure of the system of size  exists. Moreover, in order
+to deal with possibly non-compact state-space we assume that, as  goes to infinity, the stationary measure
+concentrates on a bounded setof & at rate (/°), ie.
+
+(A3) There exists a bounded setand a constant  >such that PLX) ¢] < /? (in steady-state).
+
+If the system evolves in a compact space, assumption (A3) is trivially satisfied by taking= &. In the case of
+unbounded state-space &, we know from [] that the stationary measure converges on the Dirac measure in * as
+ goes to infinity. The condition (A3) is a bound on how far “) can deviate from *. For the two-choice model,
+we show it by bounding “) by a system of  independent  queues and then by using a large-deviation
+type results (see the end of Section).
+
+THEOREM. In addition to the assumptions of Theorem, assume that
+ the ODE has a unique attractor * that is locally exponentially stable (assumptions (A1) and (A2))
+ either & is bounded or the stationary measure concentrates on a bounded set  at rate (/*) (Assumption (A3)).
+Then for any  € ?(&, ) bounded, the constant () in Theorem is uniformly bounded (in ). In particular, there
+exists a constant  < co, such that:
+
+where ’)[.] denotes the expectation with respect to the stationary distribution of the system of size .
+
+Proof. Without loss of generality, we assume that () = (*) outside a bounded set. Indeed, if this is not
+the case, we may replace  by a function ’ that is equal to  onand equal to (*) outside a bounded set. In
+which case, by Assumption (A3) and because  is bounded, EX) [())] = EX) [’())] + (/?).
+
+The first step of the proof is then to construct Equation (10). This equation is the analog of () as  > oo.
+Following Stein’ method and [26], we define the function Gh as
+
+The previous integral is well defined because * is exponentially stable. By differentiating in  =the quantity
+As \) is the generator associated to the stationary measure, for any function ’ such that EY) [||’())||]
+exists, we have ™)[™) ’())] = Applying this to the function ’() = Gh(), and combining this with
+
+
+The previous equation is essentially a generalization of [26, Equation () and Equation ()].
+We then decompose Equation (10) in two terms:
+
+
+As shown by Equation (), the first term of this equation converges at rate (/) toif the derivative of Gh
+exists and is Lipschitz-continuous on This is what we show in Lemma. The second term can be bounded
+by using (A3), as shown in Lemma. The proofs of both lemmas are postponed to Section. oO
+Extension to Imperfect Models
+
+The above results apply for exact mean-field models. For some mean-field models, the set of transitions £% or
+the rates Bg depend on the system size. In this section, we show that the above results can be extended to the
+case of imperfect models. Note that this theorem does not require that the convergence of the set of transitions
+of the rate functions but only that , the drift of the system of size , converges uniformly to a function .
+
+THEOREM. Assume that for each , the function  is differentiable and has a Lipschitz-continuous derivative.
+Assume that both % and its derivative Df converge uniformly to  and Df.
+
+() Ifthe other assumptions of Theorem are satisfied, then Theorem holds, replacing Equation () byProor. One key ingredient of the previous Theorems is Equation (), that shows that “) converges to A at
+rate (/). In an imperfect population process, the generator of the system of size  is
+
+Let A) be the generator of the ODE associated to ™:
+It follows that
+
+Similarly to Equation (), the first term is of order (/). The second is bounded by ||  — ||||DAl|
+ Hélder Continuous Derivative
+
+In this section, we study what happens when the derivative of the drift is not Lipschitz-continuous. When the
+drift  is Lipschitz-continuous with constant , it is shown in [15] that there exists a constant  such that for all :
+
+In the previous section, we have shown that when the derivative of the drift exists and is Lipschitz-continuous,
+the convergence is in (/). The next theorem, whose proof is postponed to Section, characterizes what
+happens in between, .. when the derivative of the drift exists and is a-Hélder continuous with a € (, ).
+
+THEOREM, Let “) be a population process on a Banach space & such that sup, Nees Be()|ILII? < oo.
+Assume that the drift is Lipschitz-continuous with constant  and that its derivative exists and is a-Hélder continuous.
+Leth: & >  be a differentiable function such that  and its derivative Dh are a-Holder continuous with constant .
+Then, there exists  < co such that fort >
+
+A key difference between this result and Theorem lies in the methodology of proof. On the one hand,
+the proof of Theorem involves Gronwall’ lemma which leads to a constant ” that grows exponentially
+with time which therefore cannot be easily adapted to the stationary regime. On the other hand, the proof of
+Theorem involves the convergence of the generators. The constant in front of/ depends on the Lipschitz
+constant of  ®,ds. This result can then be adapted to the the stationary measure by showing that the Lipschitz
+
+constant of  ®,ds is bounded.
+
+In fact, the proofs of Theorem and can be adapted to the case of a-Hélder continuous derivative. The
+only difference is that, for a function  that has a @-Hélder continuous derivative, we have (‘) — A) = (/®)
+instead of Equation (). This means that the a-Hélder continuity of  ®,ds implies a convergence rate of
+(/“) (for  < co and  = +00). As a consequence, if the ODE has a locally exponentially stable attractor *,
+if the derivative of the drift is a-Hélder continuous and if  equalsoutside a bounded set, then in stationary
+regime we have
+
+More details are given in Sections and.
+
+To the best of our knowledge, Equation (11) is the first result that guarantees a rate of convergence of the
+steady-state distribution of a mean-field model in the case where the derivative is not Lipschitz-continuous ([26]
+considers models that evolve in a compact space and that have a twice-differentiable drift which implies that the
+derivative of the drift is Lipschitz-continuous).
+
+The exponent @ of Equation (11) is smaller than the exponent (a@ +)/ obtained in Theorem for the
+
+transient regime. A natural question is whether the rate of convergence (/VN ane of Theorem carries over
+to the stationary regime. We conjecture that it is the case. Yet, neither the method used to prove Theorem nor
+the one used for Theorem can be modified to show this. The former because it involves the convergence of
+the generator that needs an a-Hélder continuous derivative in order to get an (~%) convergence. The latter
+because the proof uses Gronwall’ argument which leads to a constant ’!* that explodes with time.
+NECESSITY OF THE CONDITIONS
+
+In this section, we examine the necessity of the regularity conditions of the drift. We provide an example that
+shows that when the drift is Lipschitz-continuous (and not differentiable), the rate of convergence of |[‘)] — |
+is not faster than/ VN. When the derivative of the drift is a-Hélder, we show that the convergence is not faster
+
+than/¥ a This contrasts with the case of [||‘%) — ||] that is known to converge at rate (/ VN) in all
+cases.
+ Case-Study: a Birth-Death Process
+
+We use a small example for which we are able to numerically solve the Kolmogorov equations associated to the
+-dimensional Markov chain. This avoids estimation errors due to simulations.
+The transition graph is represented in Figure The transitions are as follows. For  € {/,...,—/},
+
+the chain jumps from state  to state ()/ and from state  to state  —/ at rate
+ — Nf ()/. The system jumps from stateto/ at rate Nf() and fromto state-/ at rate -Nf().
+
+
+It should be clear that this process is a population process with drift . For a =  is Lipschitz-continuous
+and not differentiable. For a =  is differentiable and its derivative is Lipschitz-continuous. For @ € (, ), the
+drift is differentiable and its derivative is a-Hélder continuous. In the remainder of this section, we study how a
+affects the convergence rate of [)] -  and of [||™ — xl].
+ Differentiability of the Drift
+
+When  is Lipschitz-continuous, [|| () — ] converges at rate (/ VN) as  goes to infinity [, 15]. In general,
+the (/VN) is tight: It is the rate of convergence of the central limit theorem. We verify this in Figure(a) where
+we plot [|)() — ()|] as a function of  with an initial state of “) () =. We observe that it decreases
+as (/VN), (the axes are in log-scale). We also display a curve /VN.
+
+The situation of [“)] —  is different. Theorems and show that the convergence rate is at least
+(/VN'*”). In Figure(), we plot as a function of  the difference [ELX‘%)] — | for a € {, ., }. We also
+plot the function cN~° that best fits the curve. In each case, the best fit value of the exponent is exactly ( + a)/.
+This figure indicates that the exponent provided in Theorem cannot be improved.
+
+An important observation is that the Lipschitz-continuity of the drift is not sufficient to obtain an (/)
+convergence. This example shows that mean-field approximation is more accurate when the drift is not only
+Lipschitz-continuous but also has a derivative that is Lipschitz-continuous.
+Estimated exponent
+Expected Values Estimated via Mean-Field Approximation are/-Accurate +
+
+The form of these transitions indicates that “) is a population process, as defined in Section The corresponding mean-field approximation of this system is given by the following infinite system of ODEs:
+
+
+This guarantees that the stationary distribution of ‘%) concentrates on a as  goes to infinity. In the following,
+we analyze the rate at which this concentration occurs.
+ Rate of Convergence
+
+The only difficulty for applying the results of Sectionis that the queue sizes are unbounded and that therefore,
+) lives in an infinite-dimensional space. In the following, we equip the space of infinite sequences with a
+weighted ¢,-norm with a carefully chosen sequence . We denote the norm of an infinite sequence  by |||,,:
+
+Let & be the set of sequences  such that ||||,, < The process ’ () lives in a subset of & for each : Indeed,
+the sequence (  , is non-negative, non-increasing, and as there is a finite number of jobs in each server, there
+is only a finite number of indices  for which  ( )>.Sucha sequence satisfies || () ||, < co and is therefore
+in
+
+The next result, whose proof is given in Section, shows that there exists a sequence of weights  such that
+the model satisfies the assumptions of Theorem.
+
+THEOREM. There exists an increasing sequence of weights (;)> and a constant  such that the two-choice
+model satisfies the assumptions of Theorem and such that in steady-state:
+Theorem implies that if  is a bounded function, then the quantity ‘%) [(‘%))] converges to () at rate
+(/). This is the case for the marginal law of one server by using the function () = ; which is bounded by This shows:
+
+iP [a server has  or more jobs] = ” '+ (—) ‘
+This result sharpens the result of [18] in which a convergence rate of (log /) was obtained.
+Equation (12) implies that for any  that grows at most linearly, EY) [(™))] converges to () at rate
+(/).
+
+For a vector  € &, the quantity  }';-; is the total number of jobs in the  servers of the model. As the
+weight sequence  is increasing, the function () = )); ; satisfies () = )); xi < |lx|,,/wi. As a result, the
+expected number of jobs satisfies
+
+
+Our result can also be used to bound the mean-square deviation by using () = D2q(xi — )”. As ; < this
+
+function is sub-linear: () < ¥},; + a < (lal, + llxll,,)/wi. This shows that for the two-choice model:EW) Say — mj)” =  (=) .
+
+iz
+This last result improves the bound of [27], in which a convergence rate of ((log )?(log log )°/) is obtained.
+The factor (log )? (log log )° of [27] comes from the fact that the author studies a truncated finite-dimensional
+model in order to study the original model. This factor is then a bound on the error between the finite and infinite
+models. One advantage of our approach is that we treat directly the infinite-dimensional system.
+
+To work in the infinite-dimensional case, the main technical difficulty for applying our approach is to show that
+[||@)|| > ] = (/?). In our proof of Theorem, we prove it by using a coupling to bound the process by
+a system of  independent  queues. We then show in Lemma that the sum of  independent variables
+have a third moment and therefore concentrate on a bounded set at rate (/N7).
+
+ 
+Numerical Evaluation
+
+In this section, we evaluate numerically the (/) of (13). We provide numerical experiments that show that
+when  is close to the difference between the average queue length of the -server model and the mean-field
+approximation is approximately ”/(2N( — )).
+. Methodology. In order to evaluate the term (/), we use a stochastic simulator’ of the two-choice
+model. Our simulator follows strictly the stochastic model that we described in Section.
+
+To sample from the stationary distribution, we use a starting period of* events starting from an empty
+system. We then draw one sample of a performance indicator by computing an average over the next° events.
+This gives us one sample. To guarantee confidence intervals of order/, the reported results are averages over
+() = max(500, ”/100) samples. The error bars that are shown on the figures correspond to the standard
+confidence intervals for the mean (.. +20 /./(), where ? is the empirical variance of our () samples).
+The time to simulate () samples grows as ?: fromseconds for .
+. Marginal law of one server. We first study the convergence of the marginal distribution of one object to
+. For the system of size , we denote by pn the probability that a server has  or more jobs. As the servers are
+symmetric, ’ equals
+
+By Theorem, the difference between %\ and; is of order (/). In Figure we display the quantity
+
+()’ — ;) as a function of . We report the values for  = and  € {,,, }. The quantity (’ —;)
+converges rapidly to a constant value.
+The code of our simulator and of all scripts needed to plot the graphs are available at https://github..
+Expected Values Estimated via Mean-Field Approximation are/-Accurate +
+
+The average queue length of the mean-field limit has been shown in [20] to be of order log(/( — )) as 
+tends to more precisely, limy_,, ™()/ log(/( — )) =/ log This is an order of magnitude smaller than
+when jobs are allocated at random in which case the average queue length is/( — ). Our numerical result
+suggests that for a finite system size , a term in (/(( — ))) remains.
+
+We conjecture that the average queue length of a -server two-choice system satisfies
+with a hidden constant of/ in the term ©,,:(/( — )). This term is equal to () and seems to satisfy
+
+ 
+
+ PROOFS
+Notations
+
+For a function  :& >  andg:  — , we denote by Df () the derivative of the function  evaluated at .
+Df () is a linear map that associates to each  the quantity Df () - . We denote by ((())) the derivative
+of the function    with respect to  evaluated at  and by Df(()) the derivative of  evaluated at (). It
+
+follows that ( (())) = Df (()) - Dg().
+We define the following operators yl) and ©, that operate onh: & > :
+
+ Proof of Theorem (Transient Regime)
+
+The proofs of the following lemmas follow similar ideas as the proof of [14, Theorem]. Yet, we provide a
+complete proof here as our result generalizes [14, Theorem] for two reasons. First, the set of transitions that we
+consider is more general (a transition in the model of [14] can only affect one object). Second, our results apply
+for Banach space and not just for finite dimensional sets.
+
+Lemma. For any  € C1(&,), we have
+
+Proor. By definition of the operators ¥%) and © introduced in (16) and (17), the left-hand side of Equation (18)
+can be written as
+
+We are therefore interested in the convergence of yl) — ®,;.
+
+As in [14, Theorem], we use the following trick : The function  ye, is equal to ®, for  =  and yl )
+Expected Values Estimated via Mean-Field Approximation are/-Accurate +
+
+This shows that for any / and any :
+
+Remark: Although Theorem is stated only in the Lipschitz-continuous case, the proof in this section holds for
+a-Holder continuous. This does not require more work and will be useful for the proof of Equation (11).
+
+LEMMA. Assume that Df is bounded and is a—Holder continuous with constant . Then, there exists a constant
+ such that, for any , ®, is a-Hélder continuous with constant Le?*.
+
+Proor. Let , € &. By [, Theorem. of Part I], ®;() and ®;( + ) exist and are differentiable
+with respect to time. Moreover, £ Do, = ((®;)) = Df(®,) - ®;(). As ||®po|| = this shows ||®;|| <
+exp(tlID ll).
+
+
+By using the Hélder-continuity of Df and the fact that ||®,|| < ’!'/"!, the second term of Equation (20) is
+bounded by
+
+
+The quantity ||;|| can then be bounded by using Gronwall’ Lemma:
+
+
+The result follows by setting= ( + @)||DFf|. 
+ Proof of Theorem and of Equation (11) (Stationary Regime)
+
+Remark: As for Lemma, we directly prove the result in the case of a-Hélder continuous derivative. Theorem
+can be obtained by considering the special case a =
+
+LEMMA. Let ®; be the flow associated to a drift  : & — & that is differentiable with a bounded derivative.
+LetCc & be a bounded set. Assume that  is a-Hélder continuous and that the flow has an exponentially stable
+attractor *.
+
+() There exists , >such that for any :
+
+(ii) There exists a constant  such that, the derivative of  +» ®, exists and is a-Hélder continuous on  with
+constant ce~®*.
+(iii) The function Gh, defined by
+is differentiable on  and its derivative is a-Hélder continuous.
+
+Proor. We will first prove (), then prove that () implies (ii) and then prove (iii). The most technical part of
+our proof is to show that () implies (ii). Its proof is inspired by the proof of [, Lemma .] that shows that the
+exponential decay of the first derivative of the flow implies the exponential decay of the second derivative of a
+flow.
+
+Proof of () - To ease the notation, we assume without loss of generality that * = By assumption,  is
+exponentially stable, which means that there exists>such that ||®,()|| <  Fix.
+
+Let A = Df (). As Df is continuous at * = () = Ax + () and Df () = A+ () where the functions
+ and  satisfy lim,, ||()||/|||]| =and lim, ||()|| = Let= £/. By assumption, there exists a
+neighborhood WN ofsuch that ||()|| < |||| and ||A()|| <for  € . As the flow is stable, there exists a
+neighborhood ’ ofsuch that if  € ’, then ®, €  for allt >
+
+The flow satisfies
+
+As the flow is exponentially stable, it is also linearly stable: ||“‘ || < ~#‘. Hence, for all , + € ’:
+
+Therefore, () = ||®:(« + ) - ®;|le* satisfies
+
+This shows that ©, is Lipschitz-continuous on ’ with a constant less than ae~®!
+
+Lemma, ®; is continuous, which implies that ||®;|| < ae
+
+The setis a bounded subset of & andis exponentially stable. Hence, there exists  such that for all  €
+we have ®,() € ’. Let  € Fort > , we have
+
+
+
+
+Proof of ()= (ii) - As in the proof of Lemma, let , = ®,( + ) — ®,(). Following, Equation (20), ;
+satisfies the differential equation
+
+
+with initial condition Fy = (®( + )) — ®() =
+
+The homogeneous part of the differential equation is A = Df (®;( + ))A. It is a linear differential equation
+on (&, &), the set of linear map from & to &. Let A;, : (,) > (, &) be the solution operator‘ of this
+homogeneous differential equation.
+
+
+Let us show that  is indeed the function  defined at the beginning of the proof by showing that it is a solution
+of the differential equation (21). By definition of , we have Fy = Moreover, for ¢ > we have
+
+
+By Gronwall’ lemma [, Lemma., Part II], this in turns implies the existence of a constant  such that Proof of Theorem (Two-choice)
+
+To prove that the two-choice model satisfies the assumptions of Theorem, the only difficulty is to show that the
+fixed point is asymptotically stable (assumptions A1 and A2) and to show that the stationary measure concentrates
+on a bounded sub-set of & (assumptions A3). The existence of a sequence of  such that the two-choice model is
+asymptotically stable for the weighted €,-norm |||| = >); wix; has been shown in [20, Theorem]. To prove
+our concentration result, we also need that this sequence grows slower than ~‘/. We construct such a sequence
+below.
+
+According to [20, Proof of Theorem], the quantity () = || — a]|,, satisfies £(®;) < -dV() if the
+sequence ; is positive and satisfies
+
+
+By definition of , ; = (a’).
+
+
+As * is finite, there exists* such that for<*, the sequence ; is increasing and satisfies (24) for  < *. Let= min(", (a —)( — a)/(ab)). For  > *, we have
+wi( —) — wi-
+this shows that ; satisfies Equation (24) for= min(", ( — a)(a —)/(ab)) >
+
+According to [23, Theorem] (see also [13, Theorem]), there exists a coupling between ‘%) and a
+variable XY) picked according to the stationary distribution of  independent  queues such that for all ,
+Dicy ) < dey; xe), Denoting wo = for any infinite sequence  we have i721 wixi = Dijea(wi-wi-) Lj: XjAs the sequence  is increasing, wj — wj_- > This implies that (for this coupling): || (NIL, = vet Wixi’) =
+
+In stationary regime, the quantity (%) can be written as xm) =(/)yN, , > Where the variables Zn are
+iid. and are geometrically distributed with parameter . The sequence  defined above satisfies ; < ca‘. This
+implies that ¥| hel ; < ’a', where ’ = ca/(a—). Therefore, in the stationary regime, we have
+
+where ’ < oo is the constant defined above. .
+To conclude, we use the following concentration lemma that we apply with &, = a2". Note that quantity
+[|lénll?] = [a>"] is finite because a < ~'/> and ,, is geometrically distributed with parameter .
+
+LEMMA. Let (En) be a sequence of ... random variables such that [||||°] < +00. Let Sy = No ye, En.
+Then there exist two finite constants  and ’ such that [||Sw|l1\\sy\>] < /’.
+
+PROOF. Let & = &, — [,] and Sy = Sy — [Sy] = Sw — [&]. By assumption, there exists a constant  < co
+such that [||£,||?] < . As the variables , are iid, this implies that [||Sy||?] < /”. This shows that
+CONCLUSION AND DISCUSSION
+
+In this paper, we revisited the rate of convergence of mean-field models. Most of the results in the literature show
+that the expected distance between the empirical measure “) and its mean-field approximation  converges
+toat rate (/VN). Our approach is different : we study the distance between the expectation of XY) and 
+and we show that this distance decreases as (/). The latter quantity is natural when one wants to compute
+expected performance indicators such as the average queue length or the marginal law of one object. We have
+shown that this convergence rate of (/) holds for finite and infinite-dimensional models. It holds for the
+transient regime and also for the stationary regime when the limiting ODE has a locally exponentially stable
+attractor.
+
+We believe that the potential of applicability of our method is large. Most of the discrete-space mean-field
+models found in the literature satisfy our assumptions. For these models, our results provide new insights on how
+accurate mean-field approximation is. They also suggest that in many cases, the mean-field approximation can
+be refined by a term /. An easy way to evaluate this constant  is to compute the gap between the mean-field
+approximation and a simulation for a small system size ( ~) and then to extrapolate to larger values of .
+For future work, we are currently working on numerical and analytical methods to directly compute the constant
+ without simulation. This will provide new analytical and numerical tools to build approximations that depend
+on the system size . We expect these new approximations to be more accurate than mean-field, especially when
+the system size is small (for example when  is a few tens).
+ACKNOWLEDGMENT
+
+The author would like to thank Romain Joly and Jaap Eldering for fruitful discussions on the link between
+asymptotic stability and the dependence on initial conditions. The author is grateful to Bruno Gaujal, Debankur
+Mukherjee and Sem Borst whose insightful comments substantially improved this paper. This work is partially
+supported by the EU project QUANTICOL, 600708.
+
+

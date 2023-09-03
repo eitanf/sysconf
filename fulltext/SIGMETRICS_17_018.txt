@@ -1,0 +1,859 @@
+Dandelion: Redesigning the Bitcoin Network for Anonymity
+
+ABSTRACT
+---
+Bitcoin and other cryptocurrencies have surged in popularity over the last decade. Although Bitcoin does not claim to provide
+anonymity for its users, it enjoys a public perception of being a privacy-preserving financial system. In reality, cryptocurrencies
+publish users’ entire transaction histories in plaintext, albeit under a pseudonym; this is required for transaction validation.
+Therefore, if a user’ pseudonym can be linked to their human identity, the privacy fallout can be significant. Recently,
+researchers have demonstrated deanonymization attacks that exploit weaknesses in the Bitcoin network’ peer-to-peer (P2P)
+networking protocols. In particular, the P2P network currently forwards content in a structured way that allows observers
+to deanonymize users. In this work, we redesign the P2P network from first principles with the goal of providing strong,
+provable anonymity guarantees. We propose a simple networking policy called DANDELION which provides quasi-optimal,
+network-wide anonymity, with minimal cost to the network’ utility. We also discuss practical implementation challenges
+and propose heuristic solutions.
+---INTRODUCTION
+
+Cryptocurrencies are digital currencies that provide cryptographic verification of transactions. Bitcoin is the
+best-known example of a cryptocurrency [40]. In recent years, cryptocurrencies have transitioned from an
+academic research topic to a multi-billion dollar industry [14].
+
+Cryptocurrencies exhibit two key properties: egalitarianism and transparency. In this context, egalitarianism
+means that no single party wields disproportionate power over the network’ operation. This diffusion of power is
+achieved by asking other network nodes (.., other Bitcoin users) to validate transactions, instead of the traditional
+method of using a centralized authority for this purpose. Moreover, all transactions and communications are
+managed over a fully-distributed, peer-to-peer (P2P) network.
+
+Cryptocurrencies are transparent in the sense that all transactions are verified and recorded with cryptographic
+integrity guarantees; this prevents fraudulent activity like double-spending of money. Transparency is achieved
+through a combination of clever cryptographic protocols and the publication of transactions in a ledger known
+as a blockchain. This blockchain serves as a public record of every financial transaction in the network.
+
+A property that Bitcoin does not provide is anonymity. Each user is identified in the network by a public,
+cryptographic key. If one were to link such a key to its owner’ human identity, the owner’ financial history
+could be partially learned from the public blockchain. Indeed, even if a user uses fresh public keys for each
+transaction, the blockchain can help adversaries cluster keys from the same user [36]. In practice, it is possible
+to link public keys to identities through a number of channels, including the networking protocols on which
+Bitcoin is built []. This is a massive privacy violation, and can be dangerous for deanonymized users.
+
+Bitcoin is often associated with anonymity or privacy in the public eye, despite explicit statements to the
+contrary in the original Bitcoin paper [40]. People may therefore use Bitcoin without considering the potential
+privacy repercussions []. Moreover, this problem is not unique to Bitcoin; many spinoff cryptocurrencies (known
+as altcoins) use similar technologies, and therefore suffer from the same lack of anonymity in their P2P networks.
+
+The objective of this paper is to redesign the Bitcoin networking stack from first principles to prevent network
+facilitated user deanonymization. We consider an adversary that aims to jointly deanonymize ail users, rather
+than targeting one specific user. Critically, the network’ reliability and performance must not be reduced.
+Although the networking stack is only one avenue for deanonymization attacks, it is an avenue that is powerful,
+poorly-understood, and often-ignored. To better convey the problem, we begin with a brief primer on Bitcoin
+and its networking stack.
+Bitcoin Primer
+
+Bitcoin represents each user and each unit of Bitcoin currency by a public-private key pair. A user “possesses”
+a coin by knowing its private key. Any time a user Alice wishes to transfer her coin  to Bob, she generates a
+signed transaction message, which states that Alice (denoted by her public key) transmitted  (denoted by its
+public key) to Bob (denoted by his public key). This transaction message is broadcast to all active Bitcoin nodes,
+at which point miners, or nodes who choose to help validate transactions, race to append the transaction to a
+global ledger known as the blockchain. Specifically, each miner aggregates a group of transaction messages into
+a block, or list, and then completes a computational proof-of-work for the block; the first miner to complete a
+proof-of-work appends their block to the blockchain and reaps a reward of newly-minted bitcoins and transaction
+fees.
+. Bitcoin message propagation. This paper focuses on one key step in the pipeline: broadcasting transactions to other nodes. The broadcasting process is critical because it affects which nodes can reap a transaction’
+mining reward (by virtue of the delivery delays to different nodes), and it also affects the global consistency of
+the network (.., if only a subset of the users receive a given transaction).
+
+To understand the mechanics of broadcasting, note that cryptocurrencies can be abstracted into two layers:
+the application layer and the network layer. The application layer handles tasks like transaction management,
+blockchain processing, and mining. Nodes are identified by their public keys in the application layer. The network
+layer handles communication between nodes, which occurs over a P2P network of inter-node TCP connections.
+In the network layer, nodes are identified by their IP addresses. As we shall see momentarily, a node’ IP address
+and public key should remain unlinkable for privacy reasons.
+
+Bitcoin’ peer-to-peer broadcast of transactions and blocks is based on flooding information along links in the
+P2P network. When a node learns of a new transaction or block, it passes the message to its neighbors who have
+not yet seen the message with an independent, exponential delay. The process continues recursively until all
+reachable peers receive the message. This broadcast protocol is commonly known as a diffusion process; it forms
+the basis of Bitcoin’ global, eventually consistent log and is therefore of utmost importance to its correct and
+fair operation.
+. Desirable Network Properties. Bitcoin’ network layer should exhibit two principal properties: low
+latency and anonymity.
+Low latency means that the maximum time for a message to reach all network nodes should be bounded and
+small. Latency matters because if the network fails to deliver messages within a predictable time bound, the
+network risks reaching an inconsistent state.
+
+Anonymity means that the adversary should be unable to link transaction messages (and hence, the associated
+public keys) to the IP address that originated a transaction. Recall that every transaction made by a public key is
+listed in plaintext in the blockchain. Therefore, if a public key can be linked to an IP address, the adversary can
+link all of that user’ transactions. In some cases, the IP address could even be used to learn a node operator’
+human identity. Thus, deanonymization attacks can result in a user’ entire banking history being revealed.
+Cryptocurrency users are typically recommended to choose fresh public keys and “mix” their coins with others
+to obscure their transaction history [12, 49] (in practice, few users do so [30, 36]). However, these techniques are
+useless if the IP address of the source of the transaction can be recovered.
+. How the Current Network Fails. In recent years, security researchers have demonstrated multiple
+deanonymization attacks on the Bitcoin P2P network. These attacks typically use a “supernode” that connects to
+active Bitcoin nodes and listens to the transaction traffic relayed by honest nodes [, , 31]. Because nodes diffuse
+transactions symmetrically over the network, researchers were able to link Bitcoin users’ public keys to their IP
+addresses with an accuracy of up to% []. Moreover, the source estimators used in these papers are simple,
+and exploit only minimal knowledge of the P2P graph structure and the structured randomness of diffusion. We
+hypothesize that even higher accuracies may be possible with more sophisticated estimation tools.
+
+These attacks demonstrate that Bitcoin’ networking stack is inadequate for protecting users’ anonymity.
+Moreover, the Bitcoin networking codebase is copied almost directly in other cryptocurrencies, so the problem
+pervades the ecosystem.
+ Problem Statement and Contributions
+
+We aim to address the Bitcoin P2P network’ poor anonymity properties through a ground-up redesign of the
+networking stack. We seek a network management policy that exhibits two properties: (a) strong anonymity
+against an adversarial group of colluding nodes (which are a fraction  of the total network size), and () low
+broadcasting latency. The anonymity guarantees we seek to provide are network-wide that uniformly protect all
+the users against a full-network deanonymization. We define these notions formally in Section Critically, these
+networking protocols should be lightweight and provide statistical anonymity guarantees against computationally
+unbounded adversaries. Lightweight statistical solutions are complementary to cryptographic solutions, which
+aim to provide worst-case anonymity guarantees, usually in the face of computationally bounded adversaries.
+Lightweight anonymization methods lower the barrier to adoption since a more efficient, faster protocol leads to
+a better user experience and also places less burden on developers to significantly modify existing code; their
+study is also of basic scientific and engineering interest. Such is the goal of this paper.
+
+Part of the novelty of our work is that the Bitcoin P2P networking stack has not been modeled in any detailed
+way (much less analyzed theoretically), to the best of our knowledge. In addition to modeling this complex,
+real-world networking system, our contributions are threefold:
+
+() Fundamental anonymity bounds. The act of user deanonymization can be thought of as classifying
+transactions to source nodes. Precision and recall are natural performance metrics. Recall is simply the probability
+of detection, a common anonymity metric that captures completeness of the estimator, whereas precision captures
+the exactness. We define these terms precisely in Section.
+
+Given a networking protocol, the adversary has a region of feasible (recall, precision) operating points, which
+are achieved by varying the source classification algorithm. We give fundamental bounds on the best precision
+and recall achieved by the adversary for any networking protocol, as illustrated in Figure; here  refers to the
+ratio of colluding nodes to the total number of nodes in the network. We show that a (recall, precision) point is
+feasible only if it lies between the red and blue lines in Figure Moreover, every networking protocol yields an
+achievable (recall, precision) region to the adversary that intersects with the shaded region (a) in Figurein at
+least one point.
+Fig. Bounds on the precision and recall of any networking protocol, plotted for  =. DANDELION has strong anonymity
+properties, achieving a precision-recall region close to the fundamental lower bounds.
+
+() Optimal algorithm. We propose a simple networking protocol called DANDELION, whose achievable precision
+recall region is nearly optimal, in the sense that it is contained in the achievable region of (nearly) every other
+possible networking protocol.
+
+DANDELION consists of two phases. In the first phase, each transaction is propagated on a random line; that is,
+each relay passes the message to exactly one (random) node for a random number of hops. In the second phase,
+the message is broadcast as fast as possible using diffusion. DANDELION has two key constraints: (a) in the first
+phase, all transactions from all sources should propagate over the same line, and () the adversary should not be
+able to learn the structure of the line beyond the adversarial nodes’ immediate neighbors.
+
+The point labeled ‘DANDELION’ in Figureis the Pareto frontier of DANDELION’ achievable precision-recall
+region (shaded in blue). The point labeled ‘Diffusion’ was obtained by simulating a diffusion process on a snapshot
+of the Bitcoin server network from[38], and using a suboptimal source classifier. Because of this, the
+achievable region for diffusion must contain the red-shaded region, including the plotted point, but may be larger.
+Not only is the region for diffusion larger than the one for DANDELION, but DANDELION’ region is nearly as small
+as possible. We revisit Figurein greater detail in Sectionsand
+
+() Practical considerations. We outline the practical challenges associated with implementing DANDELION. In
+particular, constructing the graph for DANDELION in a distributed fashion, and enforcing the assumption that the
+adversary cannot learn the graph, are nontrivial. We therefore propose simple heuristics for addressing these
+challenges.
+
+Paper Structure. We begin by discussing Bitcoin’ P2P networking stack and our problem of interest, which we
+model in Section We then present fundamental bounds on our anonymity metric in Section; these bounds are
+used for comparison with various networking policies later in the paper. In Section we present some first-order
+solutions, and explain why they do not work. We present our main result, DANDELION, in Section Section
+discusses the systems challenges of implementing DANDELION, and proposes some simple, heuristic solutions.
+
+We discuss the relation between DANDELIONand prior related work in Section and conclude with some open
+problems in Section
+
+ SYSTEM MODEL
+
+We model three critical aspects of Bitcoin’ P2P network: the network topology, the message propagation protocol,
+and the deanonymizing adversary’ capabilities. These models are based on existing protocols and observed
+behavior.
+ P2P Network Model
+
+The Bitcoin P2P network contains two classes of nodes: servers and clients. Clients are nodes that do not accept
+incoming TCP connections (.., nodes behind NAT), whereas servers do accept incoming connections. We focus
+in this work on servers because (a) they are more permanent in the network, and () it is straightforward to
+generalize server-oriented anonymity solutions to also protect clients.
+
+We model the P2P network as a graph (, ), where  is the set of all server nodes and  is the set of edges,
+or connections, between them. For a node , I'() denotes the set of ’ neighbors in . Similarly for a set of
+nodes , [() denotes the set of all neighborhood sets of the nodes in . To model the graph’ topology, we first
+discuss Bitcoin’ network management protocols.
+
+Each node in the Bitcoin P2P network has an address manager—a list of other nodes’ contact information
+represented as a (IP address, port) pair, along with a time estimate of when that node was last active. When
+a server first joins the network, its address manager is empty, but the node can learn a random set of active
+addresses by contacting a hard-coded DNS server. During normal network operation, nodes periodically relay
+entries from their address managers, which helps spread information regarding active peers. We model address
+managers by assuming that each node possesses the contact information for every other Bitcoin server. In practice,
+address managers actually contain a random sample of population IP addresses.
+
+Each server is allowed to establish up to eight outgoing connections to nodes in the server’ address manager.
+An outgoing connection from Alice to Bob is one that is initiated by Alice. However, these TCP connections are
+bidirectional once established. We therefore model the subgraph of server-to-server connections as a random-regular graph. In practice, the degree distribution is not quite uniform—we revisit this issue in Section
+
+. Transaction Model
+
+As explained in Section, the network is partitioned into honest nodes and colluding, adversarial nodes, who
+attempt to deanonymize users. In this work, we assume that all honest nodes generate one transaction in the
+time period of interest. In practice, servers generate transactions at different rates; however, transactions by a
+single node can be linked in practice [36]. Therefore, we treat multiple transactions from the same node as a
+single transaction to be deanonymized. We also assume the exact time when each server starts broadcasting its
+transaction is unknown to the adversary. A typical transaction can take up toseconds to propagate through
+the Bitcoin network [17], so estimating its time of origin at a useful granularity of a second or sub-second can be
+difficult.  is the set of all transaction messages from honest servers. , is the transaction message originating
+from honest server  and  is a vector containing the ground truth mapping between source nodes  and
+transactions ,,. We model the mapping between servers and transaction messages as being drawn uniformly
+from the set of all such mappings.
+
+Spreading Model. Once a Bitcoin transaction is complete, the source broadcasts the transaction message over
+the network. The protocol for broadcasting transactions should ensure low transaction latency, in order to provide
+network consistency and fairness.
+
+Bitcoin currently uses a diffusion propagation mechanism to broadcast transactions, in which each transaction
+source or relay passes the transaction to the node’ neighbors with independent, exponential delays. Once
+a node has received a particular transaction, the node does not accept future relays of the transaction. This
+diffusion spreading serves as a baseline for our algorithmic improvements. It has good latency properties due to
+its exponential spreading [].
+
+More generally, in this work, we consider spreading policies that are symmetric in the neighbor node IDs;
+that is, a forwarding node does not use the IP address values (or other metadata) of its neighbors to influence its
+forwarding decisions. This holds for diffusion spreading, but we constrain our proposed solutions to also satisfy
+the same property.
+ Adversarial Model
+
+We consider an adversary whose goal is to deanonymize all users by linking their transactions (and hence, their
+public keys) to their IP addresses. Note that an IP address does not necessarily determine a user’ human identity.
+However, it can significantly narrow the set of candidates, particularly if combined with side information. Also,
+note that we are not interested in adversaries that aim to deanonymize specific nodes; this is a separate (important)
+problem that has been studied extensively in the literature [25, 37, 50]. Such solutions tend to require users to
+change their behavior, .., by adopting a new application. Our goal in this work is to provide network-wide
+(weaker) protection to all nodes, but without requiring human users to change their behavior.
+
+In particular, we are interested in defending against botnets—large sets of malware-infected hosts that are
+controlled remotely, often without the host owners’ knowledge [54]. Botnets are a commonly-studied adversarial
+model for various Bitcoin attacks [], largely because they are easy to access, cheap, and pervasive in the Bitcoin
+network [43]. While botnets can have many uses, we wish to defend against a botnet that aims to deanonymize
+users.
+
+We model the botnet adversary as a set of adversarial, colluding “spy” nodes that participate in the Bitcoin
+network as if they were honest nodes (.., honest-but-curious).! We denote honest nodes by Vj; and adversarial
+nodes by Va. For a parameter , we assume a fixed number of adversarial nodes (|V4| = np) and honest nodes
+( = || = ( — )). The adversarial nodes are dispersed uniformly at random in the network; this reflects the
+botnet’ ability to obtain IP addresses uniformly across the IP address space. However, for a given topology, the
+actual locations of the honest/adversarial nodes are random. We further assume that all nodes know the complete
+list of active IP addresses, and honest nodes cannot distinguish between an adversarial and honest IP address.
+
+Whenever a transaction is broadcast over the network, the adversarial nodes log the timestamps and the honest
+neighbors from which they receive the transaction. We assume a continuous-time system, in which simultaneous
+transmissions do not occur. For each honest server node , we let , denote the set of (transaction, receiving
+spy node, timestamp) tuples (, , ,,()) such that transaction  was forwarded by honest node  to adversary
+ € Vy at time ,,() (Fig.);  is the vector of all ,,’. We shall see in Sectionthat the honest server who first
+delivers a given transaction to the adversary plays a special role.
+
+In addition to the transaction timestamps, the adversaries can also learn the network structure , partially
+or completely, over time. The extent of such knowledge depends on the dynamism of the network, and will be
+made clear in the context of the specific networks being considered. For example, if the network is static over an
+extended period of time then adversaries can learn the entire graph . On the other hand, in a fast changing
+network, the adversaries have knowledge of only their local neighborhood I'(Va). For ease of exposition, let us,
+for now, use I’ to denote the adversary’ knowledge of the graph.
+
+Once the timestamps have been collected, the adversarial nodes collude to infer the transaction source. The
+adversary uses its observations  = (,I) to output a mapping between transactions and honest servers; we
+Tn particular, we assume adversaries do not repeatedly exit and re-join the network in order to achieve a favorable graph configuration.
+Fig. Red nodes are adversarial spies; blue nodes are honest. Message X_ reaches the spy  at time ¢ =
+
+let (,,) € Vx denote the server associated with transaction , in the adversary’ mapping. This mapping is
+chosen to maximize the adversary’ deanonymization payoff, defined in Section.
+ Anonymity Metric
+
+A common metric for measuring a broadcasting scheme’ anonymity is probability of detection. For a fixed
+transaction and estimator, probability of detection is defined as
+
+or the probability that the estimator outputs the correct source of a single transaction, computed over all
+transaction sources  € Viz, mappings between sources and transactions , realizations of the message propagation
+trajectory, and graph realizations  (if the graph is random). While probability of detection considers a single
+source, our problem considers the joint deanonymization of transactions from distinct sources. In this case,
+probability of detection inherently captures the recall, or completeness, of an estimator. We propose to augment
+this metric by also studying precision, which captures the exactness of an estimator.
+
+Precision and recall are performance metrics commonly used in information retrieval for binary classification.
+Suppose we have  data items, each associated with a class:or We are given a classifier that labels each
+data item as either aor a without access to the ground truth. We designate one of these classes (.. class)
+‘positive’. For a given classifier output on a single item, a true positive means the item was correctly assigned to
+class and a true negative means the item was correctly assigned to class A false positive means aitem was
+incorrectly classified as a and a false negative means aitem was incorrectly classified as a If we run this
+classifier on all  data items, precision and recall are defined as follows:
+where | -| denotes the cardinality of a set, and ‘True Positives’ denotes the set of all data items whose classification
+output was a true positive (and so forth).
+
+Precision can be interpreted as the probability that a randomly-selected item with labelis correct, whereas
+recall can be interpreted as the probability that a randomly-selected data item from classis correctly classified.
+Adapting this terminology to our problem, we have a multiclass classification problem; each server is a class, and
+each transaction is to be classified. For a given server  and mapping , the precision Dy() comparing class  to
+all other classes is computed as”
+
+Following convention we define Dy() =if both the numerator and denominator arein Equation ().
+
+
+where{-} denotes the indicator function. In multiclass classification settings, precision and recall are often
+aggregated through macro-averaging, which consists of averaging precision/recall across classes. This approach
+is typically used when the number of items in each class is equal [51], as in our problem. We therefore average
+the precision and recall over all servers and take expectation, giving an expected macro-averaged precision of
+[Dy] = $ Deevy [Du()] and recall of [Rv] = $ Lvev;, ELRw()].
+
+We now explain why probability of detection does not capture the distinction between precision and recall.
+Consider two estimators: in the first, the adversary’ strategy is to assign alltransactions to one randomlyselected server . In the second, the adversary creates a random matching between the fi transactions and honest
+servers. Both estimators have a probability of detection (.., expected per-node recall) of/A. However, the first
+estimator has an expected per-node precision of/”, while the second has an expected per-node precision of/.
+Operationally, this can be interpreted as a difference in plausible deniability: the implicated node  in the first
+case can deny being the source of any given transaction, because it could not have generated alltransactions. If
+a node is correctly implicated in the second estimator, it has no plausible deniability. Probability of detection
+alone does not capture this difference, and is therefore insufficient as a standalone metric.
+
+In this work, we quantify anonymity through a combination of expected macro-averaged precision (or
+“precision” for short) and expected macro-averaged recall (or “recall", or probability of detection). Higher
+precision and recall favor the adversary. For a mapping strategy  let Dy and Ry denote the average precision and
+recall, respectively, obtained in a realization. Our metrics of interest, then, are the overall expected precision
+Dy = [Dy] and recall Ry = [Ry]. This expectation is taken over four random variables: the graph realization 
+(which can be random in general), the mapping between servers and messages , the observed timestamp and
+topological information , and the adversary’ mapping strategy . Similarly let Dy() and Dy() denote the
+instantaneous and expected precisions at a server  € Vy, and let Ry() and Ry() denote the instantaneous and
+expected recalls. Let Dopt and Ropt denote the precision and recall, respectively, of the precision-maximizing
+and recall-maximizing mapping strategies, respectively. The optimal precision is not necessarily achieved by the
+same mapping strategy as the optimal recall. The adversary is computationally unbounded.
+ Problem Statement
+
+As network designers, we control two aspects of the network: the graph creation/maintenance strategy and the
+spreading protocol. Our goal is to choose a graph-selection strategy and a spreading protocol that simultaneously
+give low average latency, precision, and recall guarantees. We restrict ourselves to the following model of graph
+generation: For a fixed topology , we assume that the nodes are equally likely to assume each possible label
+ordering in . Moving forward, (, ) will describe the resulting, labeled graph.
+
+Let  denote the set of all graph topologies over  nodes, and © the set of graph-independent spreading
+strategies. The adversary controls only the estimation algorithm for mapping transactions to nodes. Given a
+topology  €  and a spreading strategy  € , let ,,, denote the set of mapping strategies that map fi
+transactions to fi servers, with all knowledge derived from the topology and the spreading strategy. If  and  are
+clear from context, we simply use  to denote the space of mapping strategies. We define the detection region
+for rt and  as the set of achievable precision and recall operating points:
+
+(, ) = {(, ) | dMe ,,; =Dy,= Ry}.
+
+Note that the detection region always contains the origin. The adversary’ goal is to find estimators that achieve
+the boundary points of the region, whereas our goal is to make the detection region as small as possible.
+Problem: Characterize fundamental, protocol-independent bounds on the detection region. Further, identify a
+(*,*) pair whose detection region is a subset of the detection region of every graph-generation and spreading
+strategy:
+It is unclear a priori if such a strategy pair exists. In this work, we show a simple networking policy that closely
+approximates condition ().
+ANONYMITY METRIC PROPERTIES
+
+Precision and recall are not generally used as anonymity metrics, since most anonymity systems provide per-user
+ano-nymity guarantees [18, 19, 21, 47]. We instead want guarantees against a stronger adversary that jointly
+deanonymizes multiple users. The goal of this section is to give intuition about precision and recall as metrics,
+and to provide fundamental bounds on both.
+
+Our problem differs from traditional classification in that there is only one data item (transaction) per class
+(server). This restricts the set of achievable macro-averaged precision-recall points in a somewhat unconventional
+way. We first explain how precision and recall are typically used, and then prove fundamental bounds that
+illustrate the ways in which our problem differs from traditional classification problems.
+
+Precision-Recall Curves. Most binary classifiers have an internal parameter (.., a threshold) that can be
+varied to give the classifier different precision and recall characteristics. Sweeping this parameter yields a tradeoff
+between precision and recall. While this tradeoff has been studied theoretically [44], it is most often illustrated
+empirically for a given classifier, through curves like Figure(right). Notably, a classifier can achieve high recall
+(=) at the expense of precision or vice versa. Hence the precision-recall points (, ) and (,) are typically
+achievable in practice.
+
+Unlike traditional precision-recall curves, we are not interested in the curve for a single estimator; we want to
+identify the achievable detection region across all estimators. Moreover, since ours is a multi-class classification
+problem, we consider macro-averaged precision and recall. With macro-averaging, increasing the recall (resp.
+precision) for one class will often reduce the recall (resp. precision) for another. Therefore, it is unclear what
+the precision-recall tradeoff will look like, or even if the boundary points (, ) and (,) are achievable. The
+following theorem restricts the set of feasible, macro-averaged precision-recall points for any estimator the
+adversary employs.
+
+THEOREM Any mapping policyM € ,, on a network with topology  €  and spreading strategy  € = has
+a precision and recall that are bounded as
+
+(Proof in Section A..)
+
+This theorem follows from the definition of macro-averaged precision and recall; it implies that not only are
+corner points (, ) and (,) unachievable, but every estimator’ detection region must lie between the blue and
+red lines in Fig.(left). Given this constraint, a natural question is whether there exist precision and recall points
+that can always be achieved, regardless of the networking protocol. We demonstrate the existence of such points
+by analyzing a simple estimator.
+
+Lower Bounds. Computing lower bounds on precision and recall is challenging because the adversary’ knowledge can vary depending on the networking policy. However, the so-called first-spy estimator (which is used
+in practical attacks like []) relies only on the adversary’ knowledge of its local network neighborhood. The
+adversaries we consider will always have access to this information.
+Fig. Bounds on the precision-recall detection region for any networking policy (left). Each bound is labeled with the
+corresponding equation number from Section Example of a typical precision-recall curve (right).
+
+honest node to send a given message to any of the adversarial nodes. We start by showing that the first-spy
+estimator always achieves a precision and recall of at least ” and , respectively, where  is the fraction of spies.
+This in turn implies that the maximum precision and recall over all estimators are individually lower-bounded by
+’ and , respectively.
+
+THEOREM The optimal precision and recall on a network with a fraction  of adversaries and any spreading
+policy are lower bounded as
+
+This theorem implies that for any networking policy, the detection region must include at least one point
+in the shaded region of Figure(left). Note that if an estimator can achieve a given (recall, precision) point,
+then it can also achieve points with elementwise lower precision and recall by choosing to discard observed
+information. The purple curves labeled () and (ii) outline the boundaries of two examples of feasible detection
+regions, staggered for visibility.
+
+Optimizing Estimators. Given these constraints on the detection region, we want to understand what estimators
+achieve the maximum precision and recall, respectively. For a given network specification, precision and recall
+might be maximized by different estimators; if this is the case, then the detection region will have a nontrivial
+Pareto frontier, like curve () in Figure(left). On the other hand, if the same estimator maximizes precision and
+recall, the detection region’ Pareto frontier will be a single point, like curve (ii).
+
+We start by proving that in order to maximize precision, the adversary should use a maximum-weight matching
+estimator, where the weights depend on the information observed by the adversary, such as graph structure and
+timestamps.
+
+THEOREM(PRECISION-OPTIMAL EsTIMATOR). The precision-optimizing estimator for an adversary with observations  = (,), is achieved by a matching over the bipartite graph (Vy, ). Moreover, such a matching is a
+maximum-weight matching for edge weights () = |) on each edge (,) € Vu   of the graph.
+
+(Proof in Section A..)
+Theoremgives a corollary used in Sectionfor bounding the performance of various networking protocols.
+
+Proc. ACM Meas. Anal. Comput. Syst., Vol. No. Article Publication date: June
+Dandelion: Redesigning the Bitcoin Network for Anonymity «
+
+Coro.tary The optimal expected payoff at a server , under observations  = (,) for the adversaries, is
+upper bounded as
+
+(Proof in Section A..)
+
+Computing the probabilities in Corollarymay be challenging, depending on how much information the
+adversary has. Nonetheless, if the adversary can approximate these probabilities with some accuracy (.,, if it
+knows the underlying graph ), there exist polynomial-time algorithms for computing max-weight matchings
+[, 22].
+
+The precision-optimal maximum-weight matching does not necessarily maximize recall. Notice that for any
+matching, its precision and recall are equal, due to the definitions of precision and recall. The following theorem
+characterizes a recall-optimal estimator, which assigns each message  to any server  for which (, = |) is
+maximized.
+
+THEOREM(RECALL-OPTIMAL EsTIMATOR). The recall-optimizing estimator for an adversary with observations
+ = (,), is a mapping that assigns each transaction  €  to any serverv* € arg max, <,, (» = |).
+
+(Proof in Section A..)
+
+The first-spy estimator is an instance of a recall-optimal estimator for spreading models in which the exit node
+to the first-spy is the most likely source. Moreover, Theoremimplies that a precision-optimal, maximum-weight
+matching is only recall-optimal if it also maps each message to its most likely source, elementwise. For example,
+if  servers are equally likely sources for  messages, then the precision-optimal matching estimator is also
+recall-optimal.
+
+Summary. This section provides fundamental limits on both precision and recall, as well as detailing estimators
+that optimize precision (Thm) and recall (Thm.), respectively. These fundamental limits and estimators will be
+useful benchmarks as we analyze the precision-recall regions for networking policies in Sectionsand
+
+ BASELINE ALGORITHMS
+
+With the fundamental bounds from Section we now tackle our main problem: designing a networking policy
+with a minimal detection region. A key message of our work is that statistical anonymity requires mixing of
+messages: users should spread their own messages and those of their peers in a way that is difficult to distinguish.
+Degree of mixing depends on three key properties of a networking policy: () the spreading protocol, () the
+topology of the network, and () the dynamicity of the network (ie., how often the P2P graph changes). For
+example, the current Bitcoin network uses diffusion spreading over a static, roughly-regular topology. This
+policy has poor mixing—.., a large detection region—because different nodes have unique spreading patterns
+and can therefore be deanonymized.
+
+In this section, we first identify a taxonomy of networking policies, based on the properties above. We then
+systematically evaluate the anonymity of various first-order, natural networking policies from this taxonomy. We
+show that most of these baseline policies have poor anonymity guarantees, and we extract rules of thumb for
+improving a policy’ anonymity. These rules of thumb will build the groundwork for our main result, DANDELION,
+presented in Section
+
+. Taxonomy of Networking Policies
+
+Our taxonomy has three axes: spreading protocol, topology, and dynamicity.
+
+Spreading protocol. The space of spreading protocols is vast. In this work, we consider a few natural, first-order
+spreading policies, and also propose a new protocol called dandelion spreading. Perhaps the most natural spreading
+
+strategy is flooding, where messages are propagated with a fixed delay to all neighbors. A slightly refined version
+is diffusion, which adds independent randomness to the transmission delays of flooding. Diffusion is explained
+in Section. Flooding and diffusion reflect the current status quo in the Bitcoin network.
+
+Given that our goal is to provide anonymity, another natural strategy is to forward a message to a randomlychosen node, which then runs diffusion or flooding. We call this spreading protocol diffusion-by-proxy.
+
+Finally, we propose in this paper a new protocol called dandelion spreading. Dandelion spreading forwards
+each message on a randomly-selected line before diffusing it to the rest of the network. Since dandelion spreading
+is a comparatively new protocol (not a first-order baseline), we defer a detailed discussion to Section
+
+Topology. We are interested in topologies that are simultaneously simple to construct, analyzable, and good for
+anonymity. We therefore limit ourselves to a set of canonical graph models: lines, trees, -regular graphs, and
+complete graphs. These categories are not mutually exclusive; lines are a special case of both trees and regular
+graphs (we consider lines and cycles interchangeably), and complete graphs are a special case of regular graphs.
+
+Dynamicity. Many network-based deanonymization attacks use partial or full knowledge of the connectivity
+graph between nodes [52]. We assume that the network can change the graph at varying rates to control the
+adversary’ ability to learn it. We consider two extremes on this spectrum: static graphs and dynamic graphs. In
+static graphs, the network never changes the graph, so the adversary learns it fully over time. We define dynamic
+graphs as graphs that are changed at a rate such that the adversary only knows its local neighborhood at any
+given point in time.
+
+In the remainder of this section, we first explore the regions of our taxonomy by studying three baseline
+networking policies: flooding, diffusion, and diffusion-by-proxy. Although none of these baselines has satisfactory
+anonymity guarantees, the associated analysis provides valuable intuition that helps us design better policies in
+Section
+
+. Flooding
+
+To model flooding, we assume that messages propagate along each graph edge with a deterministic delay, and
+nodes forward incoming messages to their neighbors with a constant delay. On undirected topologies, flooding
+has poor source-hiding due to symmetry and the deterministic spreading scheme. However, it is unclear if directed
+topologies fare better. We begin by showing that flooding has poor performance on directed, static, -regular
+graphs.
+
+PRoposrtion The expected precision of flooding on a static -regular graph is at least Dopt = (—(—)) = .
+
+(Proof in Section A..)
+
+Flooding performs poorly on static regular graphs because each honest node has a unique spreading “timestamp
+signature", and the adversary can predict these signatures. That is, if node  is the source, then the adversarial
+nodes receive all messages from  in a deterministic timing pattern. Moreover, the adversary can predict this
+pattern from the structure of the graph, due to the fixed nature of flooding.
+
+This reasoning suggests that if the adversary does not know the graph, it cannot predict nodes’ spreading
+patterns, and therefore cannot deanonymize nodes. However, the following proposition shows that even when
+the graph is dynamic, the adversary can achieve a high precision.
+
+(Proof sketch in Section A..)
+This result highlights that even if the adversary cannot predict the exact timestamp pattern for a given node, it
+can infer certain statistical properties of the pattern that are sufficient for deanonymization. In short, as long as
+
+the topology allows messages to flood in more than one direction, the adversary can use the statistics of observed
+timestamp signatures to infer the source of a message.
+
+Lesson: Do not flood content in multiple directions on the graph at the same rate.
+ Diffusion
+
+Diffusion is a natural successor to flooding; instead of using deterministic delays, it uses random ones. By
+introducing uncertainty into the adversary’ timing estimates, diffusion reduces the adversary’ overall precision
+and recall. However, much research in recent years has shown that the source of a diffusion process can nonetheless
+be identified reliably [20, 33, 42, 45, 52, 53, 55, 58]. Although there are no theoretical results on the precision
+or recall under our particular adversarial model, several heuristic estimation algorithms are able to identify
+the source of a diffusion process on many classes of graphs [42, 58]. Moreover, theoretical results exist on
+other adversarial models [52, 53, 55]. All of these results rely on the intuition that diffusion spreads content
+symmetrically. Because of this, the source node appears at the center of the adversary’ observed spreading
+pattern, and can be identified. Diffusion is therefore not a satisfactory solution to this problem.
+
+Lesson: Random forwarding delays are not powerful enough to provide anonymity against spreading protocols
+that spread content symmetrically.
+ Diffusion-by-Proxy
+
+The takeaway message from diffusion and flooding is that symmetry of spreading leads to deanonymization.
+To counter this, we must break the symmetry of diffusion. A natural strategy for breaking symmetry about the
+source is to ask someone else to spread the message. That is, for every transaction, the source node chooses a
+peer uniformly at random from the pool of all nodes. It transmits the message to that node, who then broadcasts
+the message. More generally, the network could forward each message a few hops (each hop choosing a new
+node at random) before diffusing it. We call this approach diffusion-by-proxy, and it is conceptually equivalent to
+propagating over a line that changes for every transmission. Diffusion-by-proxy might seem like it should have
+low precision because the graph is so dynamic, but that intuition turns out to be false.
+
+PROPOSITION The expected first-spy precision of diffusion-by-proxy is bounded as Drs =a — eP-),
+
+(Proof in Section A..)
+
+Intuitively, this statement holds because each node delivers its own message to the adversary with probability
+, and few other nodes report to the adversary over the same edge. So even though diffusion-by-proxy breaks the
+symmetry of diffusion, it also provides many paths for messages to reach the adversary. Since there are many
+total paths to the adversary, each path sees (relatively) less traffic, which in turn reduces the amount of mixing
+that happens. A simple countermeasure is to reduce the number of paths over which messages can flow.
+
+Lesson: There is anonymity in numbers; dense graphs achieve poor mixing because they do not constrain
+messages to flow over the same paths.
+MAIN RESULT: DANDELION
+
+The baseline spreading protocols from Sectionprovide us with a key guideline for building more anonymous networking policies: spread asymmetrically over a sparse graph. In this vein, we propose a new protocol: dandelion
+spreading. While the basic intuition of dandelion spreading is used in several point-to-point anonymous communication systems [18, 47], it has not been formally studied in the context of anonymous broadcast messaging.
+Dandelion spreading consists of an anonymity phase and a spreading phase (Algorithm). In the anonymity
+phase, the protocol spreads the message over a randomly-selected line for a random number of hops; in the
+spreading phase, the message is broadcast using diffusion until the whole network receives the message. In
+general, the two phases can occur over different graphs. In this work, we will design a (possibly time-varying)
+graph  over which the anonymity phase occurs, and we will assume the spreading phase occurs over the
+current Bitcoin P2P network . The name ‘dandelion spreading’ reflects the spreading pattern’ resemblance to a
+dandelion seed head (Figure).
+Fig. Dandelion spreading forwards a message in a line over the graph, then broadcasts it using diffusion. Here both phases
+occur over the same graph, ..,  = .
+
+The two-phase nature of dandelion spreading allows us to separately design networking policies that optimize
+anonymity and latency. This separated architecture is not necessarily optimal in terms of a latency-anonymity
+tradeoff; exploring that tradeoff is an interesting direction for future work. However, diffusion is known to have
+good spreading properties [], but poor anonymity properties [52]. Therefore, we combine it with an anonymity
+phase of constant duration (in an order sense), such that the average latency is increased by a small, bounded
+factor. We subsequently assume that the spreading phase can be fully deanonymized; ie., the node that launches
+the diffusion process can be identified. As such, we only need to analyze the precision and recall of the anonymity
+phase. This assumption does not weaken our anonymity guarantees since it gives the adversary more power.
+A key observation for this analysis is that the anonymity phase of dandelion spreading largely removes the need
+for exact timestamps. For honest server , let Si,  ,, denote a trimmed down version of ,,, in which we retain
+only those transaction log tuples (, , ,,()) that correspond to the first time transaction  was received by an
+adversary from any honest node. That is, we only keep a tuple if  was the first spy to see message , and  was
+delivered to  by honest exit node . As before, let ’ denote the vector of all ’,’. Then, with dandelion spreading,
+it holds that  — (’,) —  forms a Markov chain. Therefore it is sufficient to use only the first observation
+information ’ instead of $ for computing transaction likelihoods. In fact, the sufficient statistic ’ can be further
+simplified by ignoring the timestamp coordinate ,,() in the tuples. This is possible due to our assumption
+that the transactions’ originating times are unknown a priori to the adversary, which removes the observed
+timestamps from any temporal reference frame. Hence, in the remainder of this paper, with a slight abuse of
+notation, we use ,, for honest server , to denote the set of message tuples (, ) such that ()  was the first
+adversarial node to receive  and (ii)  received  from .  denotes the vector of ,,’.
+
+Note that a similar argument does not hold for spreading mechanisms like flooding or diffusion, in which
+multiple independent timestamps across different nodes (.., not just the first observation of a message) are used
+to compute likelihoods. The diversity of such observations allows the estimator to compare timestamps across
+nodes, thus making them useful for detection.
+
+We begin by showing that the maximum recall for dandelion spreading over any connected topology is , the
+lower bound from Theorem
+
+THEOREM The expected maximum recall for dandelion spreading on any connected graph of  nodes with a
+fraction  of adversaries is ().
+
+(Proof in Section A..)
+
+The reason for this result is that dandelion spreading propagates content unidirectionally over a line. This lack
+of symmetry makes the first-spy estimator—which has a recall of —optimal. Theoremresult implies that as we
+explore various topologies of dandelion spreading, we only need to analyze and minimize their precision. We do
+so for three topologies of the graph : static trees, dynamic trees, and dynamic lines. Each topology provides
+intuition about how to achieve anonymity. We find that dynamic lines achieve nearly-optimal average precision
+and recall.
+ Static Trees
+
+Recall that our goal is to mix messages from different users; in this sense, trees are a natural topology to study.
+That is, consider a rooted, directed -regular tree, with each edge directed toward the parent node. Dandelion
+spreading respects the directedness of the graph, so during the anonymity phase, each node passes all messages
+to its parent node (.. toward the root). Nodes near the root are therefore able to mix their own messages with
+exponentially-many other messages from users beneath them in the tree. However nodes near the leaves of
+the tree have few nodes beneath them, and therefore experience minimal mixing. This fundamental asymmetry
+results in a high average precision.
+Proposition The expected precision under a matching estimator MAT on any tree is given by DMAT ≥ .
+(Proof in Section A..)
+
+Intuitively, when the graph is known, the adversary can partition nodes into wards, or sets of honest nodes
+that share the same first spy. Each ward contributes equally to the adversary’ precision, so we would like to
+minimize the number of wards. On trees, the expected number of wards is pri, most of which consist of a single
+leaf with an adversarial parent node. This gives an overall precision of .
+
+Proc. ACM Meas. Anal. Comput. Syst., Vol. No. Article Publication date: June
+21:16 « Shaileshh Bojja Venkatakrishnan, Giulia Fanti, and Pramod Viswanath
+
+Although a precision of  is an improvement over Bitcoin’ current networking policy, we would like to achieve
+a precision close to the lower bound of ” (Theorem). We therefore consider topologies with fewer wards on
+average.
+
+Lesson: Use topologies in which it is difficult for the adversary to partition nodes into wards.
+Dynamic Trees
+
+The adversary was able to partition the nodes of a static tree into wards largely because the graph was known. A
+natural question is whether dynamic trees have the same problem, since most of the graph is hidden, except the
+adversary’ local neighborhood.
+
+A perfect -ary tree is a rooted tree in which each node has either  children or no children, and all leaves are
+at the same depth. Again, we assume each edge in such a tree is directed toward the parent node. We find that
+dandelion spreading on perfect -ary trees has an expected precision similar to that of static trees.
+
+PROPOSITION The expected precision of the first-spy estimator on a perfect -ary tree,  > can be bounded as
+Drsp/.
+
+(Proof in Section A..)
+
+Since the graph is now dynamic, the adversary cannot explicitly determine every ward like it could in the static
+case. However, the first-spy estimator naturally identifies wards that consist of a single honest leaf. Statistically,
+there are many such wards on trees that are not lines, so we obtain similar guarantees to the static case. This
+implies that the problem with trees is mainly the fact that they have many leaves.
+
+Lesson: A dynamic graph does not mitigate the negative impact of leaf nodes.
+ Dynamic Lines: Dandelion
+
+Next, we study dynamic line graphs. Lines are-regular trees, but unlike higher degree trees, they do not suffer
+from the asymmetry problems associated with leaves. However, line graphs seem to lack the strong mixing
+properties of higher-degree graphs. Nonetheless, we show near-optimal precision for this class of graphs. This
+happens because despite the moderate mixing on lines, the number of honest nodes visible to the adversary
+is also small. As such, the adversary cannot accurately partition nodes into wards, which reduces the overall
+precision. Note that this would not hold in the static case, since the adversary could identify the wards exactly.
+Fig. The DANDELION networking policy: () dandelion spreading, () a line topology, () a dynamic graph.
+
+We use the name DANDELION to refer to a full networking policy (Figure): dandelion spreading over dynamic
+lines (.., -regular graphs with out-degree). We begin by showing that DANDELION has near-optimal precision.
+Fig. Detection regions for studied networking policies,  =. DANDELION has a detection region close to the fundamental
+lower bounds.
+
+THEOREM The expected precision of DANDELION (.., dandelion spreading on a dynamic line graph) with 
+nodes and a fraction  </ of adversaries, is upper bounded by
+
+(Proof in Section A..)
+
+This result states that for small , the expected maximum precision is within a logarithmic factor of our lower
+bound of ”. The stated bound has loose constants for improved readability; a tighter expression is included in the
+proof. The proof depends heavily on the fact that the adversary cannot reliably assign nodes towards outside of
+its local neighborhood on the graph. As such, it is forced to use estimators that would give suboptimal precision
+in the static case, like variants of the first-spy estimator.
+
+Figureillustrates DANDELION’ detection region compared to those of other benchmark policies. The points
+for diffusion and flooding are generated through simulation over a snapshot of the Bitcoin server graph from[38]. Since dandelion spreading has optimally-low recall (Theorem), the Pareto frontier for DANDELION is exactly
+the plotted point (.., points below and to the left are achievable). The other policies are analyzed using possiblysuboptimal estimators, so their detection regions must at least contain the plotted points. DANDELION therefore
+satisfies the theoretical demands of our problem, and performs favorably compared to baseline alternatives.
+Remarks. () While DANDELION is near-optimal, whether the logarithmic gap between our algorithm (Theorem)
+and the lower bound (Theorem) can be improved remains an important open question. () We have assumed
+that the exact start-times of transactions are unknown to the adversary. Analyzing DANDELION’ performance
+under a partial knowledge of start-times is also an important future direction.
+SYSTEMS ISSUES
+
+Theoretically, DANDELION is simple and exhibits desirable anonymity properties. However, the implementation
+raises a number of practical considerations, like how to construct the underlying line graph and how to provide
+sufficient graph dynamicity. We discuss each of these challenges, and introduce practical, heuristic solutions for
+addressing them.
+
+node picks an edge from  options
+ Constructing a line graph
+
+In DANDELION, all nodes propagate their messages over the same line. To implement this, the network must
+build either a Hamiltonian circuit or a set of long, disjoint lines in a fully-distributed fashion. Constructing a
+Hamiltonian circuit is challenging in our case because it is not a one-time event; in order to provide dynamicity,
+the network must frequently construct a new random line. To ensure scalability, the algorithm for constructing
+such a line should be fully-distributed, lightweight, and asynchronous.
+
+Traditional algorithms for computing Hamiltonian circuits are often computationally intensive and/or require
+centralized control [23, 28], but recent papers have studied lightweight, distributed alternatives [29, 32]. For
+instance, [32] first generates line fragments, then splices them together into a circuit. However, it relies on the
+nodes of each line fragment knowing the identities of the fragment’ head and tail nodes. This could partially
+reveal the graph structure to the adversary, which would likely change our anonymity guarantees.
+
+On the other hand, [29] builds up the circuit sequentially; a pair of nodes start as the circuit ‘seeds’. Each node
+ who joins the circuit contacts a random node  from the partially-built circuit;  replies with the IP address
+of its outgoing neighbor . Then  splices itself into the (, ) edge, so the new ordering is  —  — . This
+distributed protocol is a viable solution for constructing an exact line.
+
+Another alternative is to use Bitcoin’ current networking strategy to approximate a line. Currently, each
+Bitcoin server generates eight connections at random. We can approximate a line by asking each server to create
+one outgoing connection at random. This protocol can be refined by having each server, prior to making a
+connection, contact  nodes and connect to the node with the smallest in-degree. This protocol (specified in
+
+Figureillustrates the degree distribution of Algorithm’ approximation of a line graph with nodes,
+averaged over trials, for different values of . First, note that the average degree is two by construction.
+As  increases, the fraction of leaves decays, with the greatest reduction coming as we transition from  =to
+ = This empirical observation is supported by the following proposition:
+
+PROPOSITION Suppose Algorithmis used to construct a -approximate line over  nodes. Let the empirical
+degree distribution of the resulting graph’ nodes have support (d1,...,dm), where di < ... < dm.
+Fig. Degree distribution of -approximate lines (Algorithm) for various . The fraction of leaves decreases as the number
+of edge choices  increases.
+
+(Proof in Section A..)
+
+Here we are using maximum degree as a proxy for regularity (or number of leaves), but recall that the expected
+degree is fixed by construction. Therefore, if we can drive the maximum degree down to the minimum degree
+must also be Propositionsuggests that we can reap most of the precision gains of a more regular graph by
+connecting to one of  =nodes with minimum in-degree, whereas larger  only improves the regularity by a
+factor logarithmic in .
+
+Sec. showed that leaves increase the precision of a scheme because the leaf nodes’ messages cannot be
+mixed with other messages. This suggests that DANDELION can achieve lower precision over -approximate lines
+(Algorithm) by increasing  and decreasing the number of leaves. Figurecompares the the first-spy estimator
+precision for exact lines (generated by [29]) and -approximate lines (Algorithm). The figure shows that over
+-approximate lines, average precision decreases as  increases (.., as the distribution becomes more regular),
+but the returns are diminishing in . The most significant decrease in precision occurs as we transition from
+; higher values of  give marginal improvements. Moreover, the precision of -approximate lines is
+significantly larger than that of exact lines, which could be obtained through the line-creation protocol in [29].
+
+it uses more fine-grained information—connection IPs rather than simple degree information. As such, [29] may
+be less robust to misbehaving nodes. Understanding this tradeoff, and developing alternatives that are resistant
+to adversarial misbehavior, are of practical interest.
+ Preventing graph leakage
+
+Another challenge is that DANDELION assumes the graph  is unknown to the adversary. However, lines can be
+learned over time. First, note that for any given adversarial node ; on a-regular digraph, ; can learn the honest
+nodes immediately before and after it on the graph by sending probe messages. Now consider the following
+scenario: a message from an honest user propagates on the line, and passes ;. At an honest node  between ;
+and the next adversarial node s2 (see Figure), the message transitions into the spreading phase at and starts
+diffusing over the main P2P graph . We assume that the adversary can reliably infer the diffusion source .
+Since s2 did not receive the message before the spreading phase began, and  was the source of the spreading
+phase, the adversary learns that  lies between ; and s2. Thus, the adversary learns  at a rate proportional to
+the creation of new transactions, which raises the adversary’ expected per-node precision to .
+Fig. The adversary can easily learn line graphs.
+
+This problem must be managed by changing the graph quickly enough that the adversary cannot learn it—on
+the timescale of transaction execution. As an estimate, the Bitcoin network currently sees about three transactions
+per second [11]. For $200, one can rent a botnet of US-based zombies, or corrupted hosts for an hour [16].
+Since the current Bitcoin network consists of about servers [10], this corresponds to  ~; each ward
+would have about seven nodes on average, of which five are unknown to the adversary in the fully-dynamic
+setting. We conservatively assume that each transaction launches its spreading phase from a different honest
+node. If we want to ensure that the adversary never learns more than% of interior nodes, we should change
+the graph everytransactions xxx Sa om =minutes. This is easy to enforce in a distributed
+fashion; every nine minutes, each node will tear down its connections and form new ones. Synchrony between
+nodes is not needed for this restructuring due to the fully-distributed line approximation protocol.
+
+More powerful attackers can create botnets of tens of thousands of nodes, which would overwhelm DANDELION.
+In such scenarios, statistical solutions are no longer appropriate.
+RELATED WORK
+
+Related work includes anonymity attacks on Bitcoin, source detection analysis in diffusion processes, anonymous
+broadcasting, and privacy-conscious cryptocurrencies.
+
+Anonymity attacks on Bitcoin. Most attacks on Bitcoin’ anonymity harness the public blockchain [41, 46, 48].
+Transaction patterns can be used to link user transactions over time, and in some cases identify the human owner
+of a public key. More recently, authors have demonstrated deanonymization attacks on Bitcoin’ networking
+stack. These attacks typically use the first-spy estimator, and achieve surprisingly high accuracies [, , 31]. The
+Bitcoin Core developers responded to these attacks with ad hoc changes to its networking stack for improved
+anonymity []. More recently, researchers have considered ISP-level adversaries [], which are beyond the scope
+of this work.
+
+Analysis of diffusion. A number of researchers have studied source detection on diffusion processes on graphs.
+These results show that for various classes of graphs and adversarial models, reliable deanonymization is possible
+[20, 33, 45, 52, 53, 55]. However, there has been a relative lack of theoretical results in the analysis of diffusion
+under a spy-based adversary like ours. Many of the results in this space propose effective heuristics that achieve
+high recall in practice [42, 57, 58]. These papers suggest that by using centrality information, adversaries may be
+able to launch stronger attacks than prior practical network attacks [, ].
+
+Anonymous broadcasting. The best-known work on anonymous broadcasting is dining cryptographer networks (DC nets), which enable a user to broadcast a message anonymously with information-theoretic guarantees
+[13]. DC nets are communication-intensive, which has prevented them from scaling beyond a few thousand
+nodes [15, 24, 56].
+
+Another relevant topic is adaptive diffusion (AD) [19], recently proposed as an anonymous broadcasting
+protocol over fixed graphs. AD shares some properties with DANDELION, such as symmetry-breaking. However,
+AD can ‘get stuck’ on real graphs, meaning that some messages do not reach the entire network [19]. This
+property is unacceptable in cryptocurrencies: all nodes should receive all messages for fairness and consistency
+purposes.
+
+Finally, the core idea of dandelion spreading—passing content through proxies—has been used in numerous
+anonymity systems, mainly for point-to-point communication [18, 47]. However, existing systems have not
+connected dandelion spreading to fundamental precision-recall guarantees, and they typically assume a complete
+graph topology [18]. In contrast, we identify topologies over which dandelion spreading actually provides strong
+guarantees (.., not complete graphs). More fundamentally, our problem is focused on broadcasting over a
+network, which has different requirements and models than point-to-point messaging.
+
+Privacy-conscious cryptocurrencies. Researchers have proposed several privacy-conscious alternatives to
+Bitcoin, including ZCash [, 37, 50], Mimblewimble [26], CoinJoin [35], and TumbleBit [25]. These solutions
+mainly on cryptographic protocols that must be implemented either as a secondary service or as a separate
+cryptocurrency. Our work differs in that Dandelion provides weaker statistical guarantees, but it is inherent to
+the Bitcoin implementation without requiring users to change their behavior.
+CONCLUSION
+
+In this paper, we redesign the Bitcoin P2P stack to provide anonymity against botnet-like adversaries who wish
+to link users to transactions. We present the DANDELION networking policy, which achieves nearly-optimal
+anonymity guarantees with a simple, distributed implementation. DANDELION achieves these guarantees by
+mixing messages from different users on a graph that is unknown to the adversary.
+
+A few topics of interest for deployment are as follows: first, we have analyzed honest-but-curious adversarial
+nodes. In practice, botnet nodes disobey protocol. In this case, anonymity can be negatively affected by nodes
+forwarding content inappropriately or misbehaving during graph construction. Hardening our protocols against
+such intrusions is critical. For example, noninteractive graph construction protocols offer some robustness
+by reducing opportunities for the adversary to lie in order to generate an advantageous anonymity graph.
+Alternatively, a system could use cryptographic proofs to ensure that nodes follow the graph construction
+protocol. Second, we have paid less attention to message latency by assuming the two-phase architecture of
+dandelion spreading. Understanding the anonymity-latency tradeoff is of fundamental interest.
+
+ACKNOWLEDGMENTS
+
+We thank Andrew Miller for valuable discussions on the Bitcoin P2P network. This work is partly supported by
+the Maryland Procurement Office contract H98230-14--C0141, and NSF grants CCF-1422278, CCF-1705007 and
+NeTS-1718270.
+

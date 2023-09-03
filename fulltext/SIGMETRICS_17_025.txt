@@ -1,0 +1,531 @@
+A Case Study in Power Substation Network Dynamics
+
+ABSTRACT
+---
+The modern world is becoming increasingly dependent on computing and communication technology to function, but
+unfortunately its application and impact on areas such as critical infrastructure and industrial control system (ICS) networks
+remains to be thoroughly studied. Significant research has been conducted to address the myriad security concerns in these
+areas, but they are virtually all based on artificial testbeds or simulations designed on assumptions about their behavior either
+from knowledge of traditional IT networking or from basic principles of ICS operation. In this work, we provide the most
+detailed characterization of an example ICS to date in order to determine if these common assumptions hold true. A live
+power distribution substation is observed over the course of two and a half years to measure its behavior and evolution over
+time. Then, a horizontal study is conducted that compared this behavior with three other substations from the same company.
+Although most predictions were found to be correct, some unexpected behavior was observed that highlights the fundamental
+differences between ICS and IT networks including round trip times dominated by processing speed as opposed to network
+delay, several well known TCP features being largely irrelevant, and surprisingly large jitter from devices running real-time
+operating systems. The impact of these observations is discussed in terms of generality to other embedded networks, network
+security applications, and the suitability of the TCP protocol for this environment.
+
+---
+INTRODUCTION
+
+In recent years, the confluence of increasingly complex control systems and advancing information technology
+(IT) has resulted in a new class of networks, cyber-physical systems. These networks in the form of industrial
+control systems (ICS) and supervisory control and data acquisition (SCADA) systems, are used for a variety of
+applications ranging from delicate manufacturing processes to critical infrastructures, such as power or water
+distribution where safe and reliable operation is paramount. The protocols running on these networks were
+often originally developed for dedicated serial communication lines and later adapted for TCP/IP networks.
+Although these systems now communicate over networking protocols familiar to the IT world, the true effect of
+the merging of these two technologies has yet to be thoroughly studied, and as a result, most research in the area
+of cyber-physical systems is based on artificial testbeds and theoretical assumptions that are not always accurate.
+
+Given the nature of what these systems are actually controlling, detailed knowledge of how they truly behave
+is necessary for improved operation performance and developing defenses against a new class of cyber attack
+that could result in physical harm to both equipment and personnel. Intrusion detection algorithms that perform
+well in lab experiments and are based on assumptions about the target network do not always translate well
+
+to real-world ICS networks where the nodes are comprised of a heterogeneous mix of devices of varying ages
+and the network architecture and configuration are not as clean and straightforward. Without published data
+on the size and intensity of bandwidth on these networks, security researchers designing these new intrusion
+detection systems cannot know what kinds of throughput their algorithms must handle. Additionally, detailed
+understanding of real-world ICS networks can lead to more accurate computer simulations and more efficiently
+and robustly designed networks in the future.
+
+To date there have been very few works that attempt to provide a detailed characterization of ICS networks,
+primarily due to the culture of the industry being so resistant to change and the issue of security only recently
+gaining popularity in the area. For this work, we were given rare access to several live power substation networks
+and monitored the traffic over an extended period of time to answer important questions about the characteristics
+of real-world ICS networks. Specifically, the primary goal of this characterization was to examine the accuracy of
+common assumptions that are made about ICS networks and highlight any unusual behavior including observable
+security issues. A secondary goal was then to determine, based on the observed traffic, whether TCP is wellmatched to ICS networks and whether any modifications could be made to improve the resiliency of remote field
+devices and efficiency of their low powered hardware. The major contributions of this paper can be summarized
+as follows:
+
+The most in-depth traffic characterization of real-world live power substation networks to date
+
+A study of the stability of this characterization over year’ time and minor changes in architecture
+A comparison of behavior across multiple substations
+
+The discovery of several abnormal behaviors in the observed SCADA protocol stacks, configurations,
+and real-time software
+
+Suggestions for modifying the TCP protocol to fit the needs of the ICS environment
+
+The remainder of this paper is organized as follows. Related characterization work is discussed in Sectionfollowed by background information and an explanation of the experimental setup used in this research in
+Sectionsand Sectiondescribes in detail the behavior of one substation network over time and Sectioncompares the same behavior across multiple substations. The implications of our findings are discussed in Sectionand finally our conclusions and future work are summarized in Section
+
+ RELATED WORK
+
+Most areas of networking research depend on a foundation of knowing the target networks’ behavior and traffic
+patterns, therefore it is crucial that detailed characterizations are regularly conducted. These characterizations
+can provide insight on how to run a more efficient and reliable network, help create more accurate simulation
+models, enable OS or browser fingerprinting based on variations in protocol implementations [] [21], and aid
+in the design of more precise and effective anomaly based intrusion detection algorithms. Unfortunately, until
+recently there has been little research published on the characterization of power system networks and industrial
+control system traffic in general.
+
+However, there has been significant research into various aspects of Internet traffic that provides a solid
+foundation for this paper. One of the first works to study Internet traffic at a high level was achieved by Vern
+Paxson inwhen he published a study on the end-to-end behavior of bulk TCP transfers across nodes on the
+Internet. His results included observations on packet loss, out of order deliveries, bottleneck bandwidth, and
+packet replication, while offering keen insight into the causes of any abnormal behavior seen [15]. The next major
+milestone in traffic characterization was inwith the proposal of using GPS synchronization to produce more
+detailed timing analysis. The study also found that the traffic content flowing through the Internet had shifted to
+being a majority of file sharing and media streaming as opposed to simple web sites [].
+
+One of the primary purposes of characterization of TCP traffic has always been to study possible techniques
+for congestion control and more efficient use of bandwidth. As the applications used by the average consumer
+constantly demand more and more bandwidth, this is still as important as ever. However, this problem does not
+apply to ICS networks where bandwidth requirements are at fixed low levels and nodes consist almost exclusively
+of embedded devices. Even though we are becoming more and more reliant on intelligent electronic devices that
+control physical entities, there has been very little studies on how these specific types of networks perform. One of
+the earlier related works studied the physical and link layers by simulating the effects of power substation noise on
+commonly used wireless protocols such as WiFi and Zigbee [20]. Several years later, an in-depth characterization
+of cellular machine-to-machine traffic was published by Shafiq et al., which contained a small amount of power
+metering traffic and focused on comparing the behavior of machine-to-machine communication with smart phone
+traffic over cellular networks by taking measurements of round trip time, packet loss, and temporal patterns [19].
+
+In the specific area of industrial control systems, there has only been limited research. Ina study was
+published that compared certain traffic characteristics of a water distribution facility with an example IT network
+dataset and found that the water facility did not exhibit strong diurnal patterns like the IT dataset and that the
+flow sizes did not quite fit the typical log-normal or Pareto distributions found in other Internet characterizations
+[]. Most closely related to this work was a traffic characterization of a power substation network inthat
+provided an important first look into what these networks look like but only at a very high level [13]. Shortly
+afterward, a different study focused on characterizing widespread TCP vulnerabilities found in power grid devices
+[]. This work differentiates itself from previous work by providing a more detailed characterization over a longer
+capture period, comparing behavior across multiple substations, and providing unique insight into how these
+observations can be used to improve TCP for ICS networks.
+BACKGROUND
+
+In order to better understand the differences between ICS networks and IT networks, some background information on SCADA and power grid networks is required. First, we describe the general operation of aSCADA system
+in a power distribution network to provide context about where the network traffic capture was taken. Figure
+illustrates the typical hierarchy where the control center (CC) communicates primarily with the remote terminal
+unit (RTU) in each substation, and the RTU acts as a middle man between the control center and intelligent
+electronic devices (IEDs) by collecting data from the IEDs in the field, summarizing the data and reporting it
+back to the CC when requested. When control operations are required, the CC sends the command to the RTU
+which forwards it on to the correct IED. The most common SCADA protocols used to perform this kind of
+communication include Modbus, GOOSE/IEC and DNP3, all of which collect data in slightly different ways.
+Modbus, the oldest of the three, relies solely on regular polling of measurement data, while DNP3 can operate in
+polling mode or spontaneous reporting mode. Finally, GOOSE operates on a publisher-subscriber philosophy by
+multicasting event data throughout the network.
+
+The primary protocol used in this research was DNP3. The DNP3 protocol was originally developed for serial
+communication lines so it has its own complex protocol stack illustrated in Figure that either sits directly on a
+serial line or is encapsulated by the TCP/IP protocol suite. It is important to note that no matter the physical
+media on which the protocol is deployed, the DNP3 stack still views communication as it would appear on a serial
+line, as a stream of data. Therefore, the DNP3 data link layer performs frame delimiting, error checking, and
+optional acknowledgments for reliable transmission. The transport pseudo-layer primarily handles fragmentation
+of application layer fragments that are too large for the maximum link layer size. Finally, the application layer
+handles larger sized fragmentation, optional acknowledgments, and a wide variety of flexible functions for
+SCADA system operation including data collection and control. DNP3 data collection can be achieved through
+field devices spontaneously reporting important events, or as in the case of this research, the DNP3 master
+implementing a polling schedule for all devices [].
+EXPERIMENTAL SETUP
+
+The datasets used in this research were captured at medium-voltage distribution substations over the span of two
+and a half years, with roughly a year gap. During that gap, small changes were made to the configuration and
+architecture of the network which allows us to study how those changes affected the traffic measurements.
+Figurea illustrates the architecture from which the first dataset was obtained. Under this architecture, each
+substation has its own separate LAN, communication between the CC and RTU was over a third-party frame
+relay service, and DNP3 polling intervals were much slower than in the second dataset. The traffic was captured
+in the substation close to the RTU so all communication between the CC, RTU, and IEDs in the field could be
+monitored. The capture setup in Figureb is different in that all substations were moved to the same LAN, a new
+switch was installed that allowed port mirroring, communication between the CC and RTU used a dedicated fiber
+backbone, and the DNP3 polling intervals were much faster than the first dataset. Tablesummarizes the basic
+statistics about the datasets, where datasets A1, A2, and A3 are taken from the same substation and the others are
+taken from separate substations on the same network. The change from using a third party frame relay service
+to having a private fiber backbone would theoretically increase the speed and reliability of the communication
+between the CC and each substation. Furthermore, while data on the old router’ processing and switching delay
+is unavailable, it is relatively safe to assume that the brand new, higher end switch is able to process packets at a
+higher speed reducing the switching delay for packets on the network. Finally, the change from having each
+substation on its own LAN to logically combining them on the same LAN should have little effect on the traffic
+observed at the specified measurement points, except for potentially seeing some traffic from nearby substations.
+
+STABILITY OVER TIME
+
+The first half of this characterization studies the evolution of a substation’ behavior over a long period of time
+using datasets A1 and A2 to determine how stable the measurements were.
+High Level Behavior
+
+To first study the network traffic at the highest level of abstraction, patterns in metadata such as timing and
+bandwidth usage were examined.
+Traffic Volume. As explained in Section the two primary functions of any ICS or SCADA system are data
+acquisition and control. Consequently, the networks are assumed to have very clear communication relationships
+where the bulk of the traffic is generated from field devices regularly reporting data to the master and the
+master occasionally sending commands as needed. Although it varies by the exact SCADA protocol used, this
+is especially true with the DNP3 protocol where there are strict master/slave relationships and the IEDs never
+communicate with each other. To test whether the bandwith is low and stable, as would be expected from polling
+traffic, bandwidth samples were taken every ten seconds and summarized in Table
+The results confirmed that indeed, the network uses very little bandwidth on average atkbps andkbps for
+A1 and A2 respectively of theMbps links and with little variation. The bandwidth usage increased between
+datasets due to a configuration change that increased the polling frequency of devices for measurements. Another
+interesting observation is the maximum bandwidth usage in both datasets appear to be caused by temporary
+switching loops and subsequent broadcast storms.
+As a result of the constant polling for measurements, and the device often having no signficant events to
+report, the average packet sizes remain rather small, as described in Table
+Regularity of Traffic. Popular ICS protocols including DNP3 and Modbus rely on regular polling of measurement data to ensure that the system is operating as intended. DNP3 in particular uses a combination of
+faster event polls to monitor for exceptions, such as voltages crossing a certain threshold, and slower static
+polls to monitor the exact status of all measurements over time. These polls are initiated by devices running
+real-time operating systems and are often configured with the real-time control constraints in mind, .. certain
+measurements have to be updated so often in order maximize efficiency or respond to emergencies in time.
+Therefore, one might assume that the polling intervals would be very regular with low jitter, but this was not
+the case. Figureillustrates the event and static polling intervals for all devices in datasets A1 and A2. Note
+that all polls were initiated by the RTUs running VxWorks, a popular real-time operating system that provides
+hard real-time guarantees. Minimum and maximum polling intervals varied drastically due to broadcast storms
+and devices going silent, and even during normal operation polling intervals had standard deviations on the
+order of several seconds despite the real-time nature of the RTU. To verify that this behavior was not caused by
+network issues, polling intervals were also calculated by the TCP timestamp ticks in the poll requests coming
+from the RTU, which were generated by the real-time operating system. Indeed, Figureillustrates how the poll
+requests being generated by the software running on the real-time operating system in the RTU exhibits similar
+irregularities.
+
+Fig. Polling Intervals
+
+To study another aspect of the regularity of the traffic, the inter-arrival times of packets at the capture point
+were measured and are shown in Figure The distributions from both datasets appear to be approximately the
+same, and the most interesting feature is small periodic spikes everyms that dampen exponentially. While the
+
+cause for these spikes is still unclear, we speculate that it is most likely originating in the RTU since it initiates all
+communication with the IEDs. One possible explanation is the use of a very coarse grained timer to decide when
+to send the next polling request, but other explanations are just as likely to be the true cause. It is also interesting
+to note that the traffic intensity of the network is so low that inter-arrival times occasionally reach as high as one
+second.
+Fig. A1 and A2 packet inter-arrival times at the measurement point
+
+Availability. One interesting aspect that differentiates ICS networks from traditional IT networks is the
+consequences of node down-time. If a set of nodes is unavailable for a period of time in an IT network, either
+due to network issues or device issues, revenue and productivity will be lost but no physical harm will be done.
+However in the ICS environment, every minute that a node is down increases the risk that a critical issue that
+requires attention will go unnoticed. In the case of the power grid, this could be as innocuous as lost revenue
+from wasteful energy production when demand has fallen, or as devastating as loss of power to parts of the grid
+due to increased consumption and lack of available power.
+Fig. Idle Times of Devices on the Network
+
+Figureillustrates the idle times for individual devices with the RTU separated from the IEDs. For the first
+dataset, the distributions show that the RTU never appears to lose availability for long, but surprisingly some
+IEDs appear to go down for up todays at a time. It is unclear from manual inspection of the network traffic if
+these devices were intentionally taken out of commission for maintenance or technical problems brought them
+down. Devices in the second dataset demonstrate similar behavior.
+
+
+TCP Level Behavior
+
+In addition to unexpected patterns in high level metadata, unusual behavior was also observed in the common
+network protocols that have been adapted from the IT world into use for the ICS environment, and it was found
+that some of the most crucial improvements to TCP that allow modern web traffic today are largely irrelevant in
+the context of ICS networks.
+TCP Flow Duration and Size Although previous work has studied TCP flow sizes for Internet traffic []
+and for water distribution networks [], data on power grid TCP flow sizes has yet to be published. Studies of
+Internet traffic suggested that flow durations have long tailed distributions and follow log-normal and Pareto
+distributions. The characterization of the water facility found similar results for some types of flows, but others
+exhibited too much variance. The general conclusion that the research was able to draw was that all types of
+flows observed at the water facility were positively skewed, meaning most values fell within a main body in the
+distribution but there were a significant number of extreme large values.
+Water distribution facilities are another example of industrial control system networks not unlike the power
+substation networks studied here, so similar results were expected to be found. From a purely theoretical
+perspective, most flows were expected to be very long lived similar to an extreme persistent HTTP connection,
+due to the connections staying open for the constant polling for measurements. Few shorter flows were expected
+to represent the occasional configuration or manual maintenance. However, results obtained from the substation
+network exhibited high variance due to a variety of configuration issues at the application layer and network
+layer, illustrated in Figuresand
+The most striking feature of the A1 distribution is the overwhelmingly large body centered around asecond duration. After closer inspection, the cause of this was determined to be a misconfiguration of all devices
+on one of the circuits in the network. The issue stemmed from the fact that the RTU was configured to poll for
+
+Fig.
+Fig. A1 and A2 TCP Flow Sizes
+
+DNP3 event data everyseconds for each device in this circuit, but either the IEDs themselves or the switches
+in the network were configured to close the connection with a FIN handshake afterseconds of being idle. After
+acknowledging the FIN packet from the IED, the RTU never sends its own FIN to gracefully close the connection
+and instead waits anotherseconds, attempts to send another DNP3 poll request and gets a TCP reset flag in
+response. This type of disagreement in the TCP connection termination was actually so rampant in the network
+that% of all flows were terminated with a TCP reset flag instead of the full graceful FIN handshake.
+The second most noticeable spike (largely overshadowed in Figureis the flow durations on the order ofseconds, corresponding to relatively short flows from maintenance access to various devices. Finally, the
+relatively large number of extremely short duration flows appeared to mostly come from a brief disruption
+where the switches were caught in a broadcast loop and UDP messages flooded the network causing connection
+
+issues. Other extremely short flows appear to be caused by occasional strange behavior where the RTU becomes
+temporarily inactive and refuses connection attempts by the control center.
+When the network was revisited over a year later in dataset A2, again, large amounts of extremely short flows
+were a result of another broadcast storm. However, as a result of the faster DNP3 polling, the overwhelming spike
+atseconds no longer appears because the IEDs are never idle forseconds. Instead, this reveals another
+strange configuration issue evidenced by the large spike at aroundseconds. After manual inspection of the
+traffic, the cause of this new spike appeared to be an implementation issue at the firmware layer. At several
+points in both datasets, the RTU closes all connections with the IEDs for a short period and refuses connection
+attempts from the control center. In one of these cases, when the connection is restarted with a specific IED, the
+IED sends the RTU a DNP3 “Request Link Status” message. The message is acknowledged by the TCP layer at the
+RTU, but apparently ignored at the application layer. While normal DNP3 data collection is successfully taking
+place, the IED retries this message several times without getting a reply and finally closes the connection after
+aboutseconds apparently with the mistaken belief that the connection is broken at the application layer. The
+connection is continually restarted following this same pattern throughout the rest of the dataset and is never
+resolved. As a result of one configuration issue being corrected and another one appearing, the total percentage
+of TCP flows closed by reset flags in the second dataset was%.
+To compare the distributions with previous work suggesting TCP flows follow log-normal and Pareto distributions, all data was fit to both log-normal and Pareto distributions using Maximum Likelihood Estimation of the
+parameters. The resulting theoretical distributions were compared with the empirical ones in - plots (Figuresand) to qualitatively test for similarities, noting that the closer - plots resemble the green line  = 
+the closer their distributions are. Also note that extreme outlier quantiles were omitted to allow for detailed
+examination of the main body of the distributions. Clearly, the large spikes caused by the observed undesirable
+behavior prevent the empirical distributions from matching any of the theoretical ones.
+Round Trip Times Another notable characteristic of ICS networks is that they consist of devices in fixed
+locations in the same geographic area as opposed to mobile devices constantly on the move or devices communicating over large distances. Therefore, based on knowledge from traditional IT networks one might think at first
+that the round trip times (RTTs) would be small and consistent, since they should not be affected by changing
+locations, different routes over the Internet, or long propagation delays.
+
+As explained in Section the measurement point for our experiments was close to the substation’ RTU,
+therefore to test assumptions about round trip times, RTTs between the RTU and field devices were measured
+from the dataset by recording the time between the SYN and SYN-ACK packets in the TCP handshake and the
+RTT between the RTU and IP addresses associated with the control center were calculated from the time between
+the SYN-ACK and final ACK in the three-way handshake. RTT measurements taken during a brief broadcast
+storm in the network were discarded due to being extreme outliers (round trip times of greater than four seconds).
+Fig. A1 mean and standard deviation of round trip times for each device
+
+As Figureand Tableillustrate, the RTTs are neither small nor consistent. Although this may be counterintuitive at first, it can easily be explained by the fundamental differences in the make-up of legacy ICS networks
+and current-day IT networks. The typical IT network consists of large numbers of relatively powerful end devices
+capable of processing and creating large amounts of data that must be sent over communication lines that
+are heavily constrained by bandwidth and propagation delay. Due to this imbalance of large load generation
+capability and small network bottleneck size, IT networks would quickly experience congestion collapse without
+implementing congestion control algorithms [12].
+
+However, in ICS networks the imbalance leans in the opposite direction. The networks consist of low powered
+embedded devices where it is not uncommon to be running-bit microcontroller processors in the tens to
+low hundreds of MHz range and very limited RAM. The communication distances at most are no bigger than a
+few miles resulting in propagation delays that are fractions of a millisecond. Additionally, the link bandwidths
+are typically over-provisioned for availability and reliability reasons (.., the observed network only utilized
+roughly% of theMbps link). This imbalance suggests that the observed RTTs are largely dominated by
+the processing time of the end devices rather than the propagation and queuing delay across the links.
+
+Another interesting observation from this comparison is the difference in consistency between the two types
+of RTTs. Even though the ICS network’ traffic intensity was very light, meaning that the network switches
+should never have been heavily loaded, and the packets always took the same path, the RTTs were surprisingly
+much more erratic compared to the RTTs over the unpredictable Internet. RTTs measured over the Internet
+typically have standard deviations on the order of a few milliseconds. By comparison, the RTTs measured in the
+ICS network were widely varying with standard deviations in the tens and even hundreds of milliseconds, and it
+was a regular occurrence to have RTTs as large as three seconds.
+
+In order to study whether the cause of the irregularity in RTTs originated in the network or the field devices
+themselves, we compare the different RTTs in Table The last row contains statistics for communication between
+the RTU in the substation to IP addresses associated with the control center. This communication is carried
+wirelessly over a third party frame relay service across a distance (aboutmiles) that is roughly ten times
+the communication distance between the RTU and the IEDs over fiber. The devices in the control center that
+communicate with the RTU are all relatively modern PCs capable of quickly processing the TCP handshake,
+resulting in a standard deviation of RTTs that is expectedly smaller than any of the measured Internet RTTs
+or other ICS device RTTs. The fact that this link, even with its longer distance and less predictable wireless
+communication medium, has more stable RTTs than the links between the RTU and field devices further suggests
+that the embedded device processing time dominates the observed network performance rather than the network
+infrastructure itself.
+
+Finally, given such strong evidence that the RTT is largely dependent on the processing time of the embedded
+devices, it suggests that measuring the RTT could supply information about the identity of the device, similar to
+the cross layer response time fingerprinting methods proposed in []. Indeed, Figureshows strong clusters for
+different physical device types, with Device Types A.1a and A.1b being the same hardware and Type A. being
+only a slightly different model hardware. Furthermore, these device types were not clustered by location and were
+quite spread out, ruling out any significant effects of propagation delay and switching delay. For example, these
+
+ 
+
+To elaborate, given that the observed average packet size ofbytes has a transmission time ofs on aMbps
+link and that the observed average time between packet arrival for the entire network is significantly greater atms, the outgoing rate at which each switch can push packets on the line is much greater than the incoming
+rate of arriving packets. Therefore, the average packet should experience roughly zero queuing delay, packet loss
+should be virtually nonexistent, and almost every observed retransmission could have been avoided.
+
+Even though the retransmission performance was expected to be significantly better on the substation network
+compared to Paxson’ study, Tableshows only marginal improvements. The substation network had an
+average hourly retransmission percentage of% which reached as high as% during one hour, compared
+to Paxson’% and% over the Internet. Of these observed retransmissions% of them occurred after the
+acknowledgment for the original segment had already traversed the measurement point. Since it is unlikely that
+the acknowledgment was dropped anywhere in the network, the cause of these avoidable retransmissions had to
+be due to the sender’ RTO expiring before the acknowledgment could reach it.
+
+To examine why the overall retransmission rate was so unexpectedly high, retransmission percentages were
+calculated based on IP address pairs and classified by direction in the - plot in Figurea. Note that if the
+retransmission patterns for packets originating from the RTU were equal to those destined to the RTU, then the
+- plot would roughly follow the line,  = . Interestingly, the retransmissions were not evenly distributed
+among device pairs due to some devices having high overall retransmission rates (as high as%) and others
+having much more reasonable rates of around%. The shape of the - plot falling so far below the line
+ =  suggests that packets originating from the IEDs in the field were retransmitted at much higher rates than
+in the opposite direction. When studied further, it was found that the IP address pairs suffering from higher
+retransmission rates were located in the same electrical cabinets connected to the same switches, suggesting a
+possible malfunction or misconfiguration of some of the network switches. Other causes for poor performance
+could originate from the noisy electrical environment the devices are subjected to, despite being hardened against
+such conditions.
+
+Another important observation to be made from Figurea is the imbalance between directions of the
+retransmissions. On closer inspection, it was found that the field devices retransmitted much more frequently
+to the RTU than the RTU retransmitted to the field devices, suggesting two very different measured RTTs or
+different calculations of the RTO.
+
+The results from Dataset A2 in Figureb suggested similar conclusions about uneven retransmissions and
+offered other interesting observations as well with some IP pairs having a majority of their conversation be
+retransmissions. When examined manually, this seemed to originate from some IP addresses apparently located in
+other substations in the network rarely showing up in normal operation but appearing and being retransmitted a
+number of times during the two broadcast storms. It is also interesting to note that the average retransmission rate
+increased to% with the new changes, most likely due to the increased bandwidth usage and more frequent
+queuing delays.
+
+While it was impossible to accurately measure the RTO for all devices with only one network tap, estimates were
+made based on the arrival time difference between the original transmission and the subsequent retransmissions.
+Note that the data in Figureexcludes the extreme long tails atseconds in order to offer insight into the
+
+
+Retransmissions by Direction - Plot: Retransmissions by Direction
+
+Percentage Retransmitted from RTU
+belowms were unexpected. Since it is unlikely that these legacy devices are actually using faster minimum
+RTOs than more modern OSes, we suspect that packet timing compression is happening somewhere along the
+network or even in the slow processing of the field device itself.
+
+Although it is difficult to see in the figure, the RTU is also observed to double its RTO as specified in the RFC
+until it reaches a set maximum atseconds where it retries several more times before finally giving up.
+
+Exact RTO behavior is vendor specific which means distributions from different networks will undoubtedly
+differ from those presented here. However, two important conclusions can be drawn from this data that do
+generalize to other ICS networks. The first is that due to the use of proprietary application specific OSes and slow
+update cycles, there is much more inherent diversity in the TCP implementations seen in ICS networks than a
+typical corporate network consisting primarily of modern Windows and Mac systems. The second conclusion
+reinforces what was discussed in the previous section in that the slow processing time of the embedding field
+devices dominates that network performance rather than the network infrastructure.
+
+The results from Dataset A2 in Figureproduced similar results.
+COMPARISON ACROSS SUBSTATIONS
+
+After conducting the previous longitudinal study at a single substation, behavior across multiple substations was
+examined to determine how general the previous observations were. A third dataset from the first substation was
+compared with data from three other substations on the power system network.
+ High Level Behavior
+Comparing differences in behavior at the highest level of abstraction, such as bandwidth usage and packet size,
+across substations provides insight into how active and connected in the power grid each substation is.
+
+Traffic Volume When similar bandwidth measurements are taken as in Section, the new results, in Table lead to similar observations. Again, the average bandwidth usage is low in the tens of kilobits per second, and
+another broadcast storm caused large spikes of traffic in A3.
+
+Table Bandwidth statistics averaged over ten-second samples
+
+
+The average packet sizes in Tablewere again small due to the polling nature of the traffic, with the only
+significant differences between substations being the standard deviation of the sizes. This could be explained by
+the lack of broadcast storms in the shorter datasets , , and , or possibly a sign of how often devices in the
+field have important events to report back to the master.
+Table Packet Sizes
+
+
+Regularity of Traffic Polling interval jitter was again observed across all substations from both network tap
+timestamps and timestamps from the RTUs at each substation, illustrated in Figuresand
+When the inter-arrival times of packets at each of the substations were plotted in Figure again the
+unexplained spikes atms intervals are present in each one. It can also be noted that the busier substations with
+more devices on their networks have more short inter-arrival times simply due to the presence of more traffic.
+Availability Examining the idle times of the RTUs and IEDs in Figurereveals similar behavior with IEDs
+going quiet for surprisingly long periods of time. For example, from Dataset A3 a few devices were not heard
+from for several days while device idle times from Datasets  and  maxed out aroundminutes of idle time.
+
+
+TCP Level Behavior
+
+Measurements made at the TCP level across substations revealed more evidence of configuration issues and
+confirmed observations made about the round trip times being largely due to processing delay.
+TCP Flow Duration and Size Given that the ideal TCP flow for a control system environment would be
+as long lived as possible to reduce latency, evidence of similar configuration issues can be seen in Figures
+and For example, the same spike atseconds is still present in Dataset A3, and the other substations in
+Datasets  and  still are plagued with numerous short duration flows. Plots for Dataset  have been omitted
+because of the short duration preventing any useful observations. Again all distributions were fit to Pareto and
+log-normal distributions using MLE and illustrated on - plots to qualitatively test for distribution fitness. Note
+that extreme outlier quantiles were omitted again to allow for closer examination of the main body, and again
+the anomalous behavior prevents the empirical distributions from fitting any of the theoretical ones.
+Round Trip Times Due to the shorter capture times, no TCP SYN handshakes were observed in Dataset ,
+and only certain device types were observed in Datasets  and . The remaining results in Tableand Tabledo
+however support the previous observation that RTTs are surprisingly large and variable. Furthermore, the fact
+that the measurements are so similar with device types even across substation networks further suggests that
+they are primarily dependent on device processing time rather than network architecture.
+TCP Retransmissions Similar high retransmission rates were seen across all substations with the notable
+exception where the smallest substation, Dataset , had only% of all packets retransmitted. Although
+
+omitted here due to space constraints, retransmissions were again uneven between the master and field devices
+due to the apparent widely different calculations of the RTO.
+Since the same device types are used in all of the substations, they all use the same RTO calculation algorithms
+resulting in similar RTO distributions in Figure with noticeable clusters atsecond,  seconds, andms.
+
+DISCUSSION
+
+Based on the measurements taken during this research, three major areas of discussion and impact arise.
+ICS Network and Device Implementations Throughout the course of this research, one of the recurring
+observations made was that there were widespread implementation issues causing non-ideal network performance.
+Although the dataset used in this research is not large enough to conclusively determine how many other ICS
+
+networks suffer similar issues, the problems appear in several popular vendors and in multiple layers of the
+protocol stack suggesting that it is most likely indeed a widespread problem. Examples of the variety of issues
+observed in this dataset include overwhelmingly large numbers of TCP connections closing ungracefully, broadcast
+storms occurring despite the use of the spanning tree protocol, and disagreements in the implementation of DNP3
+
+resulting in TCP connections being unnecessarily closed. Other interesting observations revealed surprising
+amount of jitter in the polling intervals initiated by software running on one of the most popular real-time
+operating systems in the world.
+Since there are clearly efficiency issues in the implementations of the protocol stacks in these devices, it also
+suggests a strong likelihood of the presence of security vulnerabilities. In fact, a study conducted infound
+widespread vulnerabilities in power grid devices [], and through the course of this research multiple ICS-CERT
+advisories were also released [10] [11] []. The fact that so many devices are still plagued with easily observable
+vulnerabilities that have been around for decades highlights how vulnerable these networks are and how much
+more attention should be paid to them.
+Fig. Retransmit Timeout Distributions
+
+Usage of TCP The second main observation this research offered was that due to the steady low bandwidth
+requirements of embedded ICS devices, the TCP protocol performs several functions that are completely unnecessary, including congestion control. Combined with the fact that storage space and processing power are
+both very limited on these devices, it could be very desirable to leave these functions out. The official DNP3
+specification even recommends that it may be more efficient to use UDP as opposed to TCP when implemented
+over LANs where packet reordering is not present. However, if reliable transmission is required, then the DNP3
+level acknowledgments and retransmissions would have to be used, which have not been as thoroughly studied
+as TCP retransmission algorithms. Due to these reasons then it may be desirable to make a compromise between
+efficiency and functionality and use a stripped down version of TCP/IP like uIP developed by Adam Dunkels [].
+Round Trip Times The final and perhaps the most interesting observation is that traditional RTT estimation,
+and by extension traditional TCP retransmission algorithms, do not perform as expected in ICS environments
+due to the slow processing of the embedded devices. This resulted in significant redundant retransmissions and
+wasted bandwidth that could have been saved if a smarter RTO algorithm was used. Furthermore, as a result
+of the RTTs being so dependent on processing as opposed to propagation and queuing delay, it appears that
+measuring RTTs reveals information as to the device’ processing power and identity. As the Internet of Things
+continues to grow with ubiquitous embedded devices, this observation could be crucial to reducing redundant
+retransmissions and possibly even be leveraged for device fingerprinting and intrusion detection.
+Generality Being a case study, by definition, this research only focused on the networks of a single ICS.
+However, several of the most interesting observations have nothing to do with the specifics of power substations
+and hold true for any network of embedded devices, including other ICSs. Embedded devices by their nature are
+designed to perform very specific tasks, which results in limited processing power and memory and equivalently,
+limited capability for generating large amounts of traffic. Furthermore, when they are running application layer
+protocols designed to regularly poll for measurements, it virtually guarantees a constant bandwidth usage and
+packet size. When these devices, which are still often designed to be compatible slow legacy serial links, are
+networked together with common IT technology capable of speeds ofMbps and greater, traditional notions of
+round trip times and critical concerns for congestion control no longer hold.
+
+CONCLUSIONS AND FUTURE WORK
+
+In this paper we present the most detailed characterization of power substation network traffic to date and examine
+how well the behavior of the target networks align with common assumptions about ICS and SCADA systems.
+We found that while most assumptions held true, there was also a surprising amount of unexpected behavior
+including slow and variable round trip times dominated by processing time, relatively high retransmission
+rates, and polling intervals with large jitter. Finally, evidence suggested that most of the various functions that
+TCP provides, including congestion control, are largely irrelevant in the ICS environment. These insights and
+observations are crucial to creating more accurate ICS network simulations and inspiring several areas of new
+research.
+
+The primary limitation of this work is that its focus was limited to power substation networks at a single
+company. To conclusively determine whether the observations made here are generalizable to the entire power
+grid, as well as other industrial control systems, more data needs to be collected from a variety of control systems
+and networks. However, several of the most interesting observations have nothing to do with the specific network
+here and apply to any network of embedded devices performing real-time operations. More detailed analysis
+on round trip times and retransmissions could also be conducted if multiple simultaneous capture points were
+deployed throughout the network.
+
+Future work will address these limitations and build on this research by collecting data from other control
+system networks. Other possible areas of further research would primarily involve a detailed study about finetuning TCP for embedded ICS devices with a focus on modifying the RTO algorithm. Additionally, the findings
+with respect to the round trip times being largely device dependent suggest that such measurements could be the
+basis for the development of new network security applications.
+ACKNOWLEDGMENTS
+
+We would like to thank the reviewers and our shepherd, Gil Zussman, for their constructive comments and help
+in improving the quality of this paper.
+

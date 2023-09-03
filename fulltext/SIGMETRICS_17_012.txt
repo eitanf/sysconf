@@ -1,0 +1,525 @@
+Analysis of a Stochastic Model of Replication
+in Large Distributed Storage Systems: A Mean-Field Approach
+
+ABSTRACT
+---
+Distributed storage systems such as Hadoop File System or Google File System (GFS) ensure data availability and durability
+using replication. Persistence is achieved by replicating the same data block on several nodes, and ensuring that a minimum
+number of copies are available on the system at any time. Whenever the contents of a node are lost, for instance due to a hard
+disk crash, the system regenerates the data blocks stored before the failure by transferring them from the remaining replicas.
+This paper is focused on the analysis of the efficiency of replication mechanism that determines the location of the copies of a
+given file at some server. The variability of the loads of the nodes of the network is investigated for several policies. Three
+replication mechanisms are tested against simulations in the context of a real implementation of a such a system: Random,
+Least Loaded and Power of Choice.
+
+The simulations show that some of these policies may lead to quite unbalanced situations: if  is the average number of
+copies per node it turns out that, at equilibrium, the load of the nodes may exhibit a high variability. It is shown in this paper
+that a simple variant of a power of choice type algorithm has a striking effect on the loads of the nodes: at equilibrium, the
+distribution of the load of a node has a bounded support, most of nodes have a load less thanwhich is an interesting
+property for the design of the storage space of these systems. Stochastic models are introduced and investigated to explain
+this interesting phenomenon.
+---
+INTRODUCTION
+
+For scalability, performance or for fault-tolerance concerns in distributed storage systems, the pieces of data are
+spread among many distributed nodes. Most famous distributed data stores include Google File System (GFS) [],
+Hadoop Distributed File System (HDFS) [], Cassandra [? ], Dynamo [], Bigtable [], PAST [21] or DHASH [].
+Most systems rely on data redistribution. Large amounts of data have to be stored in a distributed and reliable
+manner. They use a hash function in the case of distributed hash tables (DHTs) [, 21]. As shown in previous
+studies, these systems imply many data movements and may lose data under churn [13]. Rodrigues and Blake
+have shown that classical DHTs storing large amounts are usable only if the node lifetime is of the order of
+several days [18].
+
+Distributed data storage permits to enhance access performance by spreading the load among many nodes. It
+can also improve fault tolerance by maintaining multiple copies of each piece of data. While implementing a
+distributed data store, many problems have to be tackled. For instance, it is necessary to efficiently locate a given
+piece of data: to balance the storage load evenly among nodes, to maintain consistency and the fault-tolerance
+level. While consistency and fault-tolerance in replicated data stores are widely studied, the storage load balance
+received little attention despite its importance. The distribution of the storage load among the storing nodes is
+a critical issue. On a daily basis, new pieces of data have to be stored and when a failure occurs, maintenance
+mechanisms are supposed to create and store new copies to replace the lost ones. A key feature of these systems is
+that the storage infrastructure itself is dynamic: nodes may crash and new nodes may be added. If the placement
+policy used does not balance the storage load evenly among nodes, the imbalance will become harmful. The
+overloaded nodes may have to serve many more requests than the other nodes, and in case of failure, the recovery
+procedure will take more time, increasing the probability to lose data.
+
+Although it is not mentioned explicitly in the description of most of these systems, the design of some parts of
+DHT’ is reminiscent of peer-to-peer systems architectures. But these are not the only framework where DHTs
+can be used. One of the best examples of such a system is Cassandra [12]. It is a fully centralized DHT, with failure
+detection mechanisms comparable to the ones considered in this paper. See the failure-detection section of
+the corresponding web site http: //cassandra.apache.org/. It has been initially developed by Facebook and is
+now used by companies such as GitHub, Instagram, Netflix, Reddit, eBay... The placement strategies investigated
+in this paper can therefore be used in various architectures, not only for peer-to-peer distributed hash-tables.
+
+In this paper we study data placement policies avoiding data redistribution: once a piece of data is assigned to
+a node, it will remain on it until the node crashes. We focus specifically on the evaluation of the impact of several
+placement strategies on the storage load balance on a long term. To the best of our knowledge, there are few
+papers devoted to the analysis of the evolution of the storage load of the nodes of a DHT system on such a long
+term period. Our investigation has been done in two complementary steps.
+
+() A simulation environment of a real system based on PeerSim [] is used to emulate several years of
+evolution of this system for three placement policies which are defined below: Random, Least Loaded
+and Power of Choice. See Figuresand
+
+() Simplified mathematical models are presented to analyze the Random and Power of Choice Policies.
+Mean-field results are obtained when the number  of nodes gets large. It should be stressed that a
+number of aspects are not taken into account in the mathematical models: delays to copy files, network
+congestion due to duplication or losses of files, ...See Sectionfor the motivation and more details.
+Additionally, we consider only the steady state of these systems in our results, mainly for the sake of
+mathematical tractability.
+
+These mathematical models appear nevertheless to explain some of the phenomena concerning the
+load of the nodes observed in the simulations.
+
+The Least Loaded policy is, without a surprise, quite optimal, the load of the nodes being almost constant in
+this case, it varies only within some small set of values. We show that, for a large network with an average load 
+per node , if Xs , [resp. Xp is the load of a random node at equilibrium for the Random policy [resp. Power of
+choice policy] then, for  >
+
+See Theorems and below.
+
+The striking feature is that, for the Power of choice policy, the distribution of the load of a node has a finite
+support [, 26] for a large average load per node £. This is an important and desirable property for the design of
+such systems, to dimension the storage of the nodes in particular. Note that this is not the case for the Random
+policy.
+Figure Another interesting feature is the fact that, in the limit, the distribution of the load of a node is uniform
+on [, 28]. It should be noted that the finite support feature is only an asymptotic property, for large  and , of
+the distribution of the load of a node. It just states that with high probability the load of a given node is less than
+(+) for any >. Additionally, it does not imply, of course, that the maximum of the loads is bounded.
+
+Usually Power of choice policies used in computer science and communication networks are associated with
+loglogN loads instead of logN loads, see Mitzenmacher [14]; or with double exponential decay for the tail
+distribution of the load at equilibrium, instead of an exponential decay, see Vvedenskaya et al. [23]. Here the
+phenomenon is that the number of files stored at a node is bounded in the limit, ie. it has a finite support, instead
+of an exponential decay for the tail distribution of this variable.
+
+The mathematical analysis of these systems turns out to be quite complicated mainly because of the large
+dimensionality of the state spaces involved. Our study relies on probabilistic methods to analyze the asymptotic
+behavior of an arbitrary node of the network when the total number of nodes gets large. An additional ingredient
+is the use of stochastic calculus with marked Poisson point processes to establish some of our results.
+
+The paper is organized as follows. The main placement policies are introduced in Section Sectiondescribes
+the simulation model and presents the results obtained with the simulator. Concerning mathematical models, the
+Random policy is analyzed in Section and Power of Choice policy in Section. All (quite) technical details
+of the proofs of the results for the Random policy are included. This is not the case for the Power of choice policy,
+for sake of simplicity and due to the much more complex framework of general mean-field results, convergence
+results of the sample paths (Proposition) and of the invariant distributions (Proposition) are stated without
+proof. A reference is provided. The complete proofs of the important convergence results () are provided.
+PLACEMENT POLICIES
+
+To each data block is associated a root node, a node having a copy of the block in charge of its duplication if
+necessary. During the recovery process to replace a lost copy, the root node has to choose a new storage node
+within a dedicated set of nodes, the selection range of the node. Any node of this subset that does not already
+store a copy of the same data block may be chosen. The mechanism in charge of the failure of the root nodes is
+beyond the scope of this paper and the selection range is assumed to be the set of all nodes. Three policies of
+placement are defined below when the root node of a data block has to copy it on another node.
+
+Least Loaded Policy
+
+For this algorithm the root node selects the least loaded node of its selection range not already storing a copy of
+the same data block. This strategy clearly aims at reducing the variation of storage loads among nodes. As it
+has been seen in earlier studies, this policy has a bad impact on the systems reliability, see [22]. Indeed, a node
+having a small storage load will be chosen by all its neighbors in the ring. Furthermore, this policy implies for
+a root node to monitor the load of all nodes, which may be costly. It is nevertheless in terms of placement an
+optimal policy. It is used in this paper as a reference for comparison with the other policies.
+
+Random Policy
+
+The root node chooses uniformly at random a new storage node among nodes not already hosting a copy of the
+same data block.
+
+Power of Choice Policy
+
+For this algorithm, the root node chooses, uniformly at random, two nodes not storing a copy of the data block. It
+selects the least loaded among the two.
+
+It is inspired by algorithms studied by Mitzenmacher and others in the context of static allocation schemes
+of balls into bins in computer science, see [14] for a survey. In queueing theory, a similar algorithm has been
+investigated by the seminal work of Vvedenskaya et al. [23] in There is a huge literature on these algorithms
+in this context. Our framework is quite different, the placement is dynamic, data blocks have to move because
+of crashes, and the number of requests is constant in the system contrary to the queueing models. The idea is
+nevertheless the same: reducing the load by just checking some finite subset of nodes instead of all of them. In
+fact the common version of this algorithm consists in taking  nodes at random and choosing the least loaded
+node, this is the power of  choices algorithm. For simplicity, we have chosen to refer to the algorithm as “power
+of choice” instead of the more accurate “power of two choices”.
+
+Essentially, Random is the policy used for the two main classes of DHT architectures: Past and Chord. It does
+not use any information on the states of the nodes and has therefore a low overhead from this point of view.
+Using more detailed information may prove to be useful but will involve more messages between nodes and,
+therefore, will have a cost in terms of overhead. The least loaded policy, for example, has a high overhead since a
+node has to know the states of all nodes to allocate copies. This is why we compare this "optimal policy" with a
+policy like power of choice which has a limited overhead but interesting performances.
+ SIMULATIONS
+
+Our simulator is based on PeerSim [], see also [15]. It simulates a real distributed storage system. Every node,
+every piece of data, and every transfer is represented. Each piece of data is replicated and each copy is assigned
+to a different storage node. We describe briefly the failure detection mechanism used. In classical systems, like
+Microsoft FeePastry/PAST implementation on a distributed infrastructure, see [21], the routing layer frequently
+exchanges many messages. Thus, on each node, the neighbor lists are updated very frequently. At storage level,
+the neighbor lists can be consulted to check the presence of the neighbors, and thus to detect node failures. The
+duration of time between consecutive maintenance checkings is an order of magnitude longer than the checkings
+on the routing layer. It is the way PAST detects nodes that join or leave the storage system in practice.
+
+In our simulator, for performance purposes, we did not simulate each message exchange at the routing layer
+level. When a node fails it is labeled as "failed" and its neighbors will consider it as failed at their next periodical
+maintenance. The maintenance at node NV consists in
+
+() checking the presence of all nodes storing data blocks for which WN is the root. In the case of faults, node
+ starts then creating, for each lost data-block, a new copy using a remaining one (and selecting a new
+storage node according to the chosen strategy).
+
+(ii) Checking the presence of all nodes being root for data blocks stored by NV. In the case of faults, node 
+computes the identity of the new root for this data block. It sends a message to the new root node to
+notify it of its new role. The information of this change of root node for this data block is also sent to the
+nodes having a copy of it.
+
+The detailed algorithms and description of the associated meta-data can be found in [13].
+
+System model. We have simulated  nodes, storing Fy, data blocks with a fixed size  and replicated  times.
+The nodes and the data blocks are assigned unique identifiers (id). The nodes are organized according to their
+identifiers, forming a virtual ring, as it is usual in distributed hash tables (DHTs) [, 21]. To each data block is
+associated a root node, a node having a copy of the block in charge of its duplication if necessary. See below.
+
+Failure model. Failures in the systems are assumed to occur according to a Poisson process with a fixed mean
+of seven days. The failures are crashes: a node acts correctly until it fails. After a crash it stops and never comes
+back again (fail-stop model). All the copies stored become unavailable at that time. To maintain the number of
+nodes constant equal to , each time a node fails, an empty node with a new id joins the system in a random
+position in the ring of nodes.
+
+The Poisson assumption to represent the successive failures of servers may not be completely accurate but
+given the large number of nodes and that the failures occur independently, the Poissonnian nature of the number
+of failures in a given time interval can be seen as a consequence of the law of small numbers (during some time
+interval each server fails with a small probability, independently of the other servers). See Pinheiro et al. [16].
+The assumption that the number of nodes is constant is made for convenience so that the average load per node
+remains constant. This is not the case in practice but the fluctuations are nevertheless not really significant.
+See [16] and the beginning of Section
+
+Simulation parameters. In the simulations, based on PeerSim, the parameters have been fixed as follows:
+
+— The number of nodes =200,
+
+— the number of data blocks ;,=10000,
+
+— the block size =10MB,
+
+— the replication degree of data blocks =,
+
+— the mean time between failures (MTBF) isdays.
+
+The network latency is fixed tos and the bandwidth isMbps.
+
+At the beginning of each simulation, the Fy, blocks and their copies are placed using the corresponding policy
+and the system is simulated for a period ofyears. We have studied the storage load distribution and its time
+evolution. With these parameters, the average load is =dxFy,/=150 blocks per node. The optimal placement
+from the point of view of load balancing would consist of havingblocks at every node. We will investigate
+the deviation from this scenario for the three policies.
+
+Network simulation. The impact of policies on bandwidth management has been carefully monitored. In case
+of failure, many data blocks have to be transferred among a subset of nodes to repair the system. Taking into
+account bandwidth limitation and network contention is crucial since a delayed recovery may lead to the loss of
+additional blocks because of additional crashes in the meantime.
+Simulation results
+
+Figureshows the evolution of the average load of a node with respect to the duration of its lifetime within the
+network. One can conclude that:
+
+— For the Least Loaded strategy, the load remains almost constant and equal to the optimal value. By
+systematically choosing the least loaded node to store a data block copy, the storage load tends to be
+constant among nodes.
+
+As observed in simulations, this policy has however two main drawbacks. First, it requires that nodes
+maintain an up-to-date knowledge of the load of all the nodes. Second, it is more likely to generate
+network contention for the following reason: If one of the nodes is really underloaded, it will receive
+most of the transfer requests of its neighborhood. See [22].
+
+— For the Random strategy, the load increases linearly until the failure of the node.This is an undesired
+feature since it implies that the failure of “old” nodes will imply in this case a lot of transfers to recover
+the large number of lost blocks.
+
+— The growth of the Power of Choice policy is slow as it can be seen from the figure. It should be noted that,
+contrary to the Least Loaded Policy, the required information to allocate data blocks is limited. Indeed,
+its cost is only of a communication with each of the two nodes chosen. Furthermore, the random choice
+of nodes for the allocation of copies of files has the advantage of spreading the load from the point of
+view of network contention.
+
+The distribution function of the storage loads after two simulated years is presented in Figure For clarity,
+the figure has been truncated. Each point of each policy has been obtained withruns. At the beginning, the
+data block copies are placed using the corresponding strategy. After two years of failures and reparations, one
+gets that:
+
+— The Random strategy presents a highly non-uniform distribution profile, note that more% of the nodes
+have a loaded greater than This is consistent with our previous remark on the fact that old nodes are
+overloaded.
+
+— For the Least Loaded strategy, as expected, the load is highly concentrated around
+
+— The striking feature concerning the Power of Choice policy is that the load of a node seems to a uniform
+distribution betweenand In particular almost all nodes have a load bounded bywhich is
+absolutely remarkable.
+
+Tablegives the maximum loads that have been observed for each strategy over samples: starting from
+day the maximal load has been measured and recorded every day, this for theruns. We can see that the
+mean maximum load of the random strategy is already high (more than five times the average), and furthermore,
+the load varies a lot, the maximum measured load beingdata blocks. This implies that, with the random
+strategy, the storage device for each node has to be over-sized, recall that the average load isdata blocks.
+
+As a conclusion, the simulations show that, with a limited cost in terms of complexity, the power of choice
+policy has remarkable properties. The load of each node is bounded by It may be remarked that each possible
+load betweenandis represented by the same amount of nodes on average. Figureshows that there is
+approximately the same number of nodes havingdata blocks, than nodes havingdata block or nodes havingdata blocks. Note that this is a stationary state. Additionally, the variation is low, we can observe in Tablethat among the samples, the most loaded node was never above From a practical point of view, it
+means that a slightly oversized storage device at each node (a bit more than twice the average) is enough to
+guarantee the durability of the system.
+
+In the following sections we investigate simplified mathematical models of two placement policies: Random
+and Power of Choice. The goal is to explain these striking qualitative properties of these policies.
+MATHEMATICAL MODELS
+
+The main goal of the paper is to investigate the performance of duplication algorithms in terms of the overhead
+for the loads of the nodes of the network. Without loss of generality, we will assume that the breakdown of each
+server occurs according to a Poisson process with rate After a breakdown, a server restarts empty (in fact a
+new server replaces it). The replication degree of data blocks is >, each data block has at most  copies. A
+complete Markovian description of such a system is quite complex. Indeed, if there are  servers and >, initial
+data blocks, for<  < Fy, the locations of the ith data block are given by the indices of  distinct servers if
+there are < copies of this data block. Consequently the size of the state space of the Markov process is at least
+of the order of (%)? which is huge if it is remembered that Fy, is of the order of . For this reason, we shall
+simplify the mathematical model.
+
+Assumption on Duplication Rate. In order to focus specifically on the efficiency of the replacement strategy
+from the point of view of the distribution of the load of an arbitrary node, we will study the system with the
+assumption that it does not lose files. We will only track the location of the node of each copy of a data block
+with a simplifying assumption: just before a node fails, all the copies it contains are allocated to the other nodes
+with respect to the algorithm of placement investigated. In this way, every data block has always  copies in the
+system.
+
+Note that this system is like the original one by assuming that the time to make a new copy is null. Once
+a server has failed, a copy of each of the data blocks it contains is produced immediately with a copy in the
+network. With this model, a copy could be made on the same node as the other copy, but this occurs with
+probability/(—-), it can be shown that this has a negligible effect at the level of the network, in the same
+way as in Proposition A. below. This approximation is intuitively reasonable to describe the original evolution
+of the system when few data blocks are lost. As we will see, qualitatively, its behavior is close to the observed
+simulations of the real system, few files were lost after two years.
+
+Now Fy = dF;, denotes the total number of copies of files, it is assumed that, for some  >
+
+Pf is therefore the average load per server. With these assumptions, the replication factor does not play a role, it
+is as if there were Fy distinct files and once a node breaks down, any file present on this node is immediately
+copied to another node according to the policy used.
+
+If the initial state of the system is (LN ()), where ¥ () is the number of files at node  initially, throughout
+the paper, it is assumed that that the distribution of the variables (LN ()) are invariant by any permutation of
+indices, .. it is an exchangeable vector, and that
+For<< Nandn>, it is the instant of the nth breakdown of server . For  > us" is the server where
+
+the pth copy present on node  is allocated after this breakdown. The random variables Ni, 1Si< are assumed
+to be independent. Concerning marked Poisson point processes, see Kingman [11] for example.
+
+One will use an integral representation for these processes, if My={,..., } and  :RuxMy > ,,
+Equations of Evolution. For<< and >, LN() is the number of copies on server  at time ¢. The dynamics
+of the random allocation algorithm is represented by the following stochastic differential equation, for<<,
+
+
+The first term of the right hand side of Relation () corresponds to a breakdown of node , all files are removed
+from the node. The second concerns the files added to node  when other servers break down and send copies to
+node . Note that the ith term of the sum is always
+
+Denote
+
+IN ()= (LN (), < ) ENN,
+then clearly (‘ ()) is a Markov process. Note that, because of the symmetry of the initial state and of the
+dynamics of the system, the variables () have the same distribution and since the sum of these variables is
+Fy, one has in particular
+The integrand in the second term of the right hand side of Equation () has a binomial distribution with
+parameters () and/(—) and the sum of these terms is Fy/(-) which is converging to £. Hence, this
+suggests, via an extension of the law of small numbers, that this second term could be a Poisson process with
+rate . The process (‘ ()) should be in the limit, a jump process with a Poissonnian input and return toat
+rate This is what we are going to prove now.
+
+By integrating Equation () one gets the relation
+
+
+The following proposition shows that the process (LN (¢)) does not have jumps of size >on a finite time
+interval with high probability.
+
+PROPOSITION. For  >then
+On the event & the probability that a failure of some node will send more thannew copies to nodeis upper
+bounded by (/)?. Since the total number of failures on the time interval [, ] affecting nodehas a Poisson
+distribution with parameter —, one obtains that the probability that (‘ ()) has a jump of size at leaston
+[, ] is bounded by */ hence goes toas  gets large. The proposition is proved. Oo
+
+Convergence to a Simple Jump Process. Define
+
+this is a counting process with jumps of size Define
+
+PROPOSITION. If the initial distribution of (LN ()) satisfies Condition () then, for the convergence in distribution
+of processes,
+
+ali (CPt) = Be).
+Proor. We first prove that the sequence (¥ ()) is tight for the convergence in distribution with the topology
+of the uniform norm. By using that the sum of the ,,’ equals Fy, for0 < < <,
+ NiS oN FN
+lc¥ () - CB()| = No {Em() dw < ( -).
+
+Hence for any> and >, there exists some>such that, for all  >
+
+The sequence (cy ) satisfies the criterion of the modulus of continuity, see Theorem pageof Billingsley [].
+The property of tightness has been proved. Furthermore any limiting point corresponds to a continuous process.
+The symmetry of the variables (,,()) and the fact that their sum is Fy give that
+
+By using again the same arguments, one has
+
+ 
+With Lemma A. in Appendix, one obtains therefore that the second moment of cy () is converging to (ft),
+hence
+One concludes that finite marginals of the process (Cj ()) converge to the corresponding marginals of (ft).
+
+Consequently, (ft) is the only limiting point of (Cj ()) for the convergence in distribution. The tightness property
+gives therefore the desired convergence. The proposition is proved. Oo
+
+THEOREM. If the initial distribution of (LN ()) satisfies Condition () and converges to some distribution mo,
+then, for the convergence in distribution,
+Proor. By using Proposition, Proposition and Theorem of [10], one concludes that the sequence of
+point processes ( [, ‘]) is converging in distribution to a Poisson process Ng with rate .
+Recall that ,(dt, My) = (}), from SDE (), one has
+The convergence we have obtained shows that (LN ()) is converging in distribution to (L1(#)) where() = Ng(}, ]ift, <<thy,.
+This is the desired result. Oo
+
+This result explains the phenomenon observed in the simulations, Figure if a node has been alive for  units
+of time, asymptotically it has received a Poissonnian number of files with rate Bt, hence its average is growing
+linearly with .
+
+Proposition. The equilibrium distribution of (LN ()) is converging in distribution to Kes a geometrically
+distributed random variable with parameter /(+).
+
+
+hence the sequence of probability distributions (a3 ) is tight. Letbe some limiting point of this sequence for
+some subsequence (Nx). If  is some function on  with finite support, then the cycle formula for the invariant
+distribution of the ergodic Markov process (LY ()) gives the relation
+
+By Proposition A. in Appendix, Theorem is also true when the initial distribution is rR hence, for the
+convergence in distribution,
+
+when the process (XQ) has initial point Consequently, by Lebesgue’ Theorem,
+
+The last term of this equation is precisely the invariant distribution of (XF()), again with the cycle formula
+for ergodic Markov processes. The probabilityis necessarily the invariant distribution of (X70); hence
+
+the sequence (x5 ) is converging to It is easily checked that  is a geometric distribution with parameter
+it is then easy to get the following result.
+
+THEOREM (EQUILIBRIUM AT HicH Loab). The convergence in distribution
+
+
+holds, where , is an exponential random variable with parameter
+
+In particular the probability that, at equilibrium, the load of a given node is more than twice the average load is
+
+which is consistent with the simulations, see Figure
+
+. The Power of Choice Algorithm
+
+Similarly as before, for<  < , Ni = (ti, (;)) denotes the marked Poisson point process defined as follows:
+— (;) is a Poisson process on , with rate;
+— Viz )=(Verr ee BR "\) where Wee ; Us ) is an iid. sequence with common distribution (Vo, Vi) is
+uniform on the set of pairs of distinct elements of {,..., }\{}. Finally, (; ") is iid. Bernoulli sequence
+of random variables with parameter/.
+
+The set of marks My is defined as
+where the pth copy present on node  may be allocated after this breakdown, depending on their respective loads
+of course. If the two loads are equal, the Bernoulli random variable Bz” is then used.
+
+Equations of Evolution. For<< and >, ON (¢) is the number of copies on server  at time  for this policy
+and (QN ())=(QN ()). The dynamics of the power of choice algorithm is represented by the following stochastic
+differential equation, for<<,
+
+
+As it can be seen, when node  breaks down while the network is in state @, RN, (€,) is the number of copies
+sent to node  by the power of choice policy if  is the corresponding mark associated to this instant.
+
+Contrary to the random policy, the allocation depends on the state ("()), for this reason it is convenient to
+introduce the empirical distribution A‘ () as follows, if  is some real-valued function on ,
+
+
+If<a<, ta® (), [a, ]) denotes A() applied to the indication function of [a, ]. In the same way as in the
+proof of Proposition, it can be proved that, with high probability and uniformly on any finite time interval, +
+is the unique value of positive jumps of all processes. By using Equation () and the definition of AY (), one gets
+that, for a finite support function , with high probability,
+
+PROPOSITION (MEAN-FIELD CONVERGENCE).
+() The distribution of (QN ()) is converging in distribution to (XF ()), a non-homogeneous Markov process
+whose -matrix ()=(()(, )) is given by, for  € , ()(, ) =and
+
+The proof which is quite technical is omitted to concentrate on the asymptotic behavior of the invariant
+distribution. It can be found in [17]. It is based on the proof of the convergence of the process (A‘()) by
+using Equation (). It is similar in fact to the proof of an analogous result in the context of queuing systems,
+see Graham [] for example. The last reference contains also the existence and uniqueness result of such a
+non-homogeneous Markov process.
+
+The Invariant Distribution. In this part, we study the asymptotic behavior of the invariant distribution of the
+load of a node at equilibrium.
+
+PROPOSITION. The process (Xp ()) of Proposition has a unique invariant distribution Ts on , which can
+
+
+It should be noted that, due to the non-homogeneity of the Markov process, the uniqueness property is not
+clear in principle.
+
+Proor. Let  be an invariant probability of the process. If we start from this initial distribution, obviously the
+coefficients of the -matrix do not depend of time, the invariant equations can be written as
+with initial value £()=. It is easily seen that the sequence (&()) is converging toso that a is indeed a
+probability distribution on . The proposition is proved. Oo
+
+Proposition. The invariant distribution of (QN ()) is converging to the unique invariant distribution of
+(xP ().
+
+The proof is omitted, we refer to [17]. It shows that it is enough to analyze the invariant distribution * of
+the limiting process we have just obtained. We can now state the main result of this section which explains the
+phenomenon observed in the simulations, see Figure
+
+THEOREM (EQUILIBRIUM WITH HicH Loap). If. Xp is a random variable with distribution Te , then, for the
+convergence in distribution,
+where  is a uniformly distributed random variable on [, ].
+Proof. In the proof of Proposition, we have seen that, by Equation (), for  >
+(
+By multiplying Equation (10) by + and by summing up, one gets
+
+
+holds. In particular the family of random variables
+is tight when  goes to infinity. Let  be one of its limiting points,
+(,>) = ((% - Ely’) .
+
+The uniform integrability property of (Yg), consequence of the boundedness of the second moments, gives that 
+satisfies necessarily the relation
+
+
+The function ()=( > ) is thus differentiable and satisfies the differential equation
+
+with a* = max(a,),  is a uniformly distributed random variable on the interval [, ]. The family of random
+variables (Yg) has therefore a unique limiting point when  goes to infinity. One deduces the convergence in
+distribution. The theorem is proved.
+CONCLUSION
+Our investigations through simulations and mathematical models have shown that
+
+— asimple, random placement strategy may lead to heavily unbalanced situations;
+
+— Classical load balancing techniques, like choosing the least loaded nodes are optimal from the point
+of view of placement. They have the drawback of requiring a detailed information on the state of the
+network, hence a significant cost in terms of complexity and bandwidth.
+
+— the power of two random choices policy has the advantage of having good performance with a limited
+cost in terms of storage space and of complexity.
+
+A CONVERGENCE RESULTS
+
+The technical results of this section concern the random allocation scheme. The notations of the corresponding
+section are used.
+
+PRoposITION A.. The previsible increasing process of the martingale (MN ()) is
+
+
+see Theorem (28.) pageof [20]. By independence of the Poisson processes, it is enough to calculate the
+previsible increasing process of the martingale
+
+
+the property of independent increments of Poisson processes will then give the martingale property of MN a()?
+minus this term. By integrating with respect to the values of (;””), one
+

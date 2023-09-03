@@ -1,0 +1,641 @@
+A Low-Complexity Approach to Distributed Cooperative Caching
+with Geographic Constraints
+
+INTRODUCTION
+
+Data traffic in cellular networks is rapidly expanding and is expected to increase so much in the upcoming years
+that existing network infrastructures will not be able to support this demand. One of the bottlenecks will be
+formed by the backhaul links that connect base stations to the core network and, therefore, we need to utilize
+these links as efficiently as possible. A promising means to increase efficiency compared to existing architectures
+is to proactively cache data in the base stations. The idea is to store part of the data at the wireless edge and use
+the backhaul only to refresh the stored data. Data replacement will depend on the users’ demand distribution over
+time. As this distribution is varying slowly, the stored data can be refreshed at off-peak times. In this way, caches
+containing popular content serve as helpers to the overall system and decrease the maximum backhaul load.
+
+Our goal in this paper is on developing low-complexity distributed and asynchronous content placement
+algorithms. This is of practical relevance in cellular networks in which an operator wants to optimize the stored
+content in caches (base stations) while keeping the communication in the network to a minimum. In that
+case it will help that caches exchange information only locally.
+
+In the remainder of the introduction we shall give an overview of the model and contributions. Then, in the
+ensuing section, we provide a very thorough discussion of the related works.
+
+We consider continuous and discrete models with caches located at arbitrary locations either in the plane or in
+the grid. Caches know their own coverage area as well as the coverage areas of other caches that overlap with this
+region. There is a content catalog from which users request files according to a known probability distribution.
+Each cache can store a limited number of files and the goal is to minimize the probability that a user at an
+arbitrary location in the plane will not find the file that she requires in one of the caches that she is covered by. We
+
+
+develop low-complexity asynchronous distributed cooperative content placement caching algorithms that require
+communication only between caches with overlapping coverage areas. In the basic algorithm, at each iteration a
+cache will selfishly update its cache content by minimizing the local miss probability and by considering the
+content stored by neighbouring caches. We provide a game theoretic perspective on our algorithm and relate the
+algorithm to the best response dynamics in a potential game. We demonstrate that our algorithm has polynomial
+step update complexity (in network and catalog size) and has overall convergence in polynomial time. This does
+not happen in general in potential games. We also provide two simulated annealing-type algorithms (stochastic
+and deterministic) that find the best equilibrium corresponding to the global minimum of the miss probability.
+Finally, we illustrate our results by a number of numerical results with synthetic and real world network models.
+To specify, our contributions are as follows:
+
+ We provide a distributed asynchronous algorithm for optimizing the content placement which can be
+interpreted as giving the best response dynamics in a potential game;
+
+ We prove that the best response dynamics can be obtained as a solution of a convex optimization problem;
+
+ We prove that our algorithm converges and establish polynomial bounds (in terms of network as well as
+catalog size) on the running time and the complexity per iteration;
+
+ We evaluate our algorithm through numerical examples using a homogeneous spatial Poisson process
+and base station locations from a real wireless network for the cellular network topology. We study the
+miss probability evolution on real and synthetic networks numerically and show that our distributed
+caching algorithm performs significantly better than storing the most popular content or probabilistic
+content placement policies or adhoc multi-LRU cooperative policy. We observe that as the coordination
+between caches increases, our distributed caching algorithm’ performance significantly improves;
+
+ In fact, we demonstrate that in most cases of practical interest the algorithm based on best response
+converges to the globally optimal content placement;
+
+ Finally, we present simulated annealing type extensions of our algorithm that converge to the globally
+optimal solution. Our simulated annealing algorithms have efficient practical implementations that we
+illustrate by numerical examples.
+
+Let us outline the organization of the paper. In Section we provide a thorough review of the relevant works.
+In Sectionwe give the formal model and problem definitions. In Sectionwe provide the game formulation of
+the problem, analyze the structures of the best response dynamics and Nash equilibria, provide bounds on the
+rate of convergence and analyze the computational complexity of the content placement game. In Sectionwe
+give a content placement game example converging to local optimum and provide some remedial algorithms,
+such as stochastic and deterministic simulated annealing, to achieve global optimum. In Section we present
+practical implementations of our low-complexity algorithms and show the resulting performances for various
+network topologies. In Sectionwe conclude the paper with some discussions and provide an outlook on future
+research.
+RELATED WORK
+
+Caching has received a lot of attention in the literature. Here we provide an overview of the work that is most
+closely related to the current paper. Namely, we survey the works about systems (networks) of caches.
+Building upon the approximation technique from Dan and Towsley [13], in [40] Rosensweig et al. proposed an
+approximation technique for a network of caches with general topology. Unfortunately, it is not easy to provide
+the performance guarantees of that approximation. Using the characteristic time approximation [16] (see also
+[21, 22]), Che et al. [12] provide a very accurate approximation for the cache networks with tree hierarchy. The
+characteristic time approximation is intimately related to the TTL-cache systems [18-20]. Then, in [23] Garetto
+et al. have shown how one can extend and refine the characteristic time approximation technique to describe
+
+quite general networks of caches. The recent upsurge in interest in the analysis of cache networks is motivated
+by two important application domains: Content Delivery Networks (CDN) [, , 30] and Information Centric
+Networks (ICN) [11, 41, 48].
+
+By now there is a significant body of literature on caching in wireless networks. A general outline of a
+distributed caching architecture for wireless networks has been presented in a series of works [25, 26, 43].
+Specifically, Shanmugam et al. [43] consider a model in which a bipartite graph indicates how users are connected
+to base stations. It is shown that minimizing delay by optimally placing files in the base stations is an NP-complete
+problem and a factor/ approximation algorithm is developed. Furthermore, it is shown that a coded placement
+can be obtained through linear programming. Poularakis et al. [38] provide an approximation algorithm for the
+uncoded placement problem by establishing a connection to facility location problems.
+
+Going beyond modelling the geometry of the problem by a bipartite graph, [], [], and [] consider placement
+of base stations in the plane according to a stochastic geometry. These works consider a probabilistic content
+placement strategy in which each base station independently of the other base stations stores a random subset of
+the files. In [] coded and uncoded placement are compared for various performance measures. In [] dynamic
+programming approach is developed to find the optimal coded placement. The authors of [] show how the
+placement with the average storage capacity constraint can be mapped to the placement with the hard storage
+constraint.
+
+Similar to the current work, [10] considers optimal uncoded content placement when caches are located at
+arbitrary positions. It is argued that this is an NP-complete problem and a Gibbs sampling based approach is
+developed that converges to the globally optimal placement strategy. However, there are important differences
+between [10] and the present work. In the present work we deal directly with the miss probability minimization
+and cast the problem into the framework of potential games. This allows us to obtain an algorithm that converges
+in polynomial time to a Nash equilibrium. Of course, we cannot guarantee that our basic algorithm converges
+to the best Nash equilibrium but in most practical scenarii it does so. We also show that when our algorithm
+converges to a local optimum the resulting performance gap in comparison with the global optimum is very small.
+Finally, to find global optimum, we provide generalized algorithms based on stochastic [28] and deterministic
+[39] annealing.
+
+In [44] game theory is used to establish incentives for users in the network to locally perform caching. Bastug
+et al. [] couple the caching problem with the physical layer, considering the SINR and the target bit rate. In [32]
+it is demonstrated that caching in base station can increase the efficiency in the wireless downlink by enabling
+cooperation between base stations. In [42] and [27] caching at the base stations in a FOG-RAN architecture is
+considered and bounds on the minimum delivery latency are established. Dehghan et al. [14] propose utilitydriven caching and develop online algorithms that can be used by service providers to implement various caching
+policies based on arbitrary utility functions. Neglia et al. [35] show that even linear utilities help to cover quite
+a number of interesting particular cases of cache optimization. It is interesting to note that the authors of [35]
+have also used stochastic simulated annealing type algorithms for the solution of the cache utility optimization
+problem. Ioannidis et al. [29] propose a mechanism for determining the caching policy of each mobile user that
+maximizes the system’ social welfare in the absence of a central authority. Mohari et al. [33], demonstrate the
+benefits of learning popularity distribution and it is a good direction for the extension of the present approach.
+
+One more view on caching in networks is given by Maddah-Ali and Niesen [31] who consider a model in which
+content is cached by users who are connected to the core network by a shared link and establish informationtheoretic bounds on backhaul rate that is required to satisfy requests for files by users. In a related study, it is
+demonstrated [49] that caching relaxes the constraints on the wireless channel state information that is required.
+
+MODEL AND PROBLEM DEFINITION
+
+We consider a network of  base stations that are located in the plane. We will use the notation
+and  where is the power set of. Each base station is covering a
+certain region of the plane and we specify the geometric configuration of the network through As, which
+denotes the area of the plane that is covered only by the caches in subset, namely A,
+where A, is the complete coverage region of cache.
+
+As a special case we will consider the case that all base stations have the same circular coverage region
+with radius . In this case we specify the location of each base station, with ,, for the location of base station.
+We then obtain A,, as the disc of radius  around xm.
+
+Each base station is equipped with a cache that can be used to store files from a content library  =
+{c1,C2,...,¢}, Where  < oo. Each element ; is represents a file. All files in the content library are assumed to
+have the same size. Caches have capacity , meaning that they can store  files. For clarity of presentation, we
+assume homogeneous capacity for the caches. However, our work can immediately be extended to the network
+topologies where caches have different capacities.
+
+Our interest will be in a user in a random location in the plane, uniformly distributed over the area that is
+covered by the  base stations, ie. uniformly distributed in Aggy = Use@As. The probability of a user in the
+plane being covered by caches  € © (and is not covered by additional caches) is denoted by ps = |As|/|Acou|. A
+user located in A, can connect to all caches in subset .
+
+The user requests one of the files from the content library. The aim is to place content in the caches ahead of
+time in order to maximize the probability that the user will find the requested file in one of the caches that it is
+covered by.
+
+The probability that file ; is requested is denoted as a;. Without loss of generality, a; > a, > ay.
+Even though any popularity distribution can be used, most of our numerical results will be based on the Zipf
+distribution. Newman shows that the probability of requesting a specific file from Internet content, ie, the
+popularity distribution of a content library, can be approximated by using the Zipf distribution [37] . The
+probability that a user will ask for content ; is then equal to
+
+
+where  >is the Zipf parameter.
+
+Content is placed in caches using knowledge of the request statistics a,,..., ay, but without knowing the
+actual request made by the user. We denote the placement policy for cache  as
+
+and the overall placement strategy for cache  as (™) = | oes | as a -tuple. The overall placement
+
+strategy for the network is denoted by  = [);& | as an    matrix.
+
+Our performance metric () is the probability that the user does not find the requested file in one of the
+caches that she is covered by, ie.,
+
+And our goal is to find the optimal placement strategy minimizing the total miss probability as follows:
+
+We will provide a distributed asynchronous algorithm to address Problemin which we iteratively update the
+placement policy at each cache. We will see that this algorithm can be viewed as the best response dynamics in a
+potential game. We will make use of the following notation. Denote by ~™) the placement policies of all players
+except player . We will write (), -™) to denote  (). Also, for the sake of simplicity for the potential
+
+game formulation that will be presented in the following section, let ’") denote the miss probability for a user
+that is located uniformly at random within the coverage region of cache , ie.,
+POTENTIAL GAME FORMULATION
+
+In this section we provide a distributed asynchronous algorithm to address Problemin which we iteratively
+update the placement policy at each cache. We will see that this algorithm can be formulated as providing the
+best response dynamics in a potential game.
+
+The basic idea of our algorithm is that each cache tries selfishly to optimize the payoff function ()
+defined in (). That is, given a placement ~™) by the other caches, cache  solves for ’”) in
+
+PROBLEM
+Each cache continues to optimize its placement strategy until no further improvements can be made, that is
+until no player can take an advantage from the other players. At this point,  is a Nash equilibrium strategy,
+satisfying
+We will refer to this game as the content placement game and demonstrate in the next subsection that the
+
+introduced game is a potential game [34] with many nice properties.
+ Convergence analysis
+
+In this subsection we prove that if we allow caches to repeatedly update their caches we are guaranteed to
+converge to a Nash equilibrium in finite time. The order in which caches are scheduled to update their strategy is
+not important, as long as all caches are scheduled infinitely often.
+
+
+THEOREM The content placement game defined by payoff functions () is a potential game with the potential
+function given in (). Furthermore, if we schedule each cache infinitely often, the best response dynamics converges to
+a Nash equilibrium in finite time.
+
+Proof. To show that the game is potential with the potential function (), we need to check that
+
+which completes the proof of the first statement.
+
+Since we only have a finite number of placement strategies, will not miss any cache in the long-run and in a
+potential game each non-trivial best response provides a positive improvement in the potential function, we are
+guaranteed to converge to a Nash equilibrium in finite time. Oo
+ Structure of the best response dynamics
+
+In this subsection we will analyze the structure of the best response dynamics. More precisely, we demonstrate
+that a solution to Problemcan be obtained by solving a convex, in fact linear, optimization problem and we
+provide the solution in closed form.
+
+First we present the relaxed version of Problemas follows. Given a placement by the other caches,
+cache  solves for  in
+
+PROBLEM
+Note that in Problem ym”) can now take values from the interval [, ] instead of the set {,} which allows
+us to present the following lemma.
+LEMMA Problemis a convex, in fact linear, optimization problem.
+Proor. It follows immediately from (). 
+
+We already showed that Problemis convex by Lemmaand the constraint set is linear as given in (). Thus
+KKT conditions provide necessary and sufficient conditions for optimality. The Lagrangian function corresponding
+to Problembecomes
+
+
+The next result demonstrates that the optimal solution of the relaxed local optimization problem follows a
+threshold strategy for each cache. As in the global optimization case, files are ordered according to a function of
+the placement policies of the neighbouring caches and then the first  files are stored. Contrary, to the case of
+global optimization, this solution is obtained explicitly, because the placement strategies of the other caches are
+assumed constant.
+
+
+THEOREM The optimal solution to Problemis given by
+
+
+The measure a includes file popularity a; and also takes into account if neighbours are already storing file 
+through gm(). The factor gm() takes into account the area of overlap in the coverage region with the neighbours
+through ps. After ordering the files we store the  ‘most popular’ files according to the measure ajqm/().
+
+Next we demonstrate that Theoremprovides an optimal solution to Problem
+
+THEOREM The optimal solution given in Theoremis a solution to Problem
+
+Proof. We applied relaxation on Problemand presented the convex, and in fact the linear version of it by
+Problem With this relaxation we provide allowance on ’™) values to take values between the interval [, ]
+instead of simply taking values from the set {, }. Having solved the problem, the optimal solution given in
+Theoremprovided a combinatorial structure on oh”, hence the solution also applies to Problem oOo
+
+Since our best response update can be solved as a convex and linear optimization problem, it can be done in
+polynomial time (see .., [],[36]).
+
+Furthermore, following the approach in [] we can show that -Nash equilibrium can be achieved relatively
+fast. An -Nash equilibrium is characterized by
+
+At each improvement we aim to decrease the potential function by at least . If no player can make a move
+decreasing the potential by at least € we stop and the reached profile corresponds to the -Nash equilibrium.
+Then, it will take no more than/ to reach the -Nash equilibrium. In particular, if we set the value of € less or
+equal to the minimal improvement value provided in Lemma we actually reach the exact Nash equilibrium.
+Structure of Nash equilibria
+
+In this subsection we provide insight into the structure of the Nash equilibria of the content placement game. We
+know from the previous subsection that this game is a potential game. The Nash equilibria, therefore, correspond
+to placement strategies  that satisfy the Karush-Kuhn-Tucker conditions of Problem
+
+The next result demonstrates that the optimal solution of the relaxed problem follows a threshold strategy for
+each cache. First all files are ordered according to a function of the placement policies of the neighbouring caches
+and then the first  files are stored.
+
+Turorem Let  denote a content placement strategy at a Nash equilibrium of the content placement game.
+Then
+
+
+Proof. The proof is similar to the proof of Theorem where in this case (32) must hold for all1 < <
+simultaneously. The detailed analysis is omitted due to space restrictions. Oo
+ Complexity analysis
+
+In this subsection we provide a bound on the number of iterations that is required to converge to a Nash
+equilibrium of the content placement game. Also, we provide a bound on the computational complexity of each
+iteration.
+
+Let us consider discrete placement of caches in the plane. More precisely, the locations of caches are restricted
+
+area of each cache is assumed to be the disk of radius  around the location of the cache. The assumption of
+discrete placement is not restrictive and will, in fact, be satisfied in practical scenarii where the location of base
+stations is specified in, for instance, whole meters and not with arbitrary precision.
+
+Since we are interested in the complexity and the convergence rate of our algorithm as a function of the network
+size  and of the library size  we need to consider a sequence (indexed by ) of file popularity distributions. In
+general it is possible that a; —>as  —> oo. We will assume that for all , a; decreases at most polynomially fast
+in  and say that such a sequence of distributions scales polynomially. This condition is satisfied for all practical
+
+scenarii, like Zipf distributions. In fact, if the Zipf scaling parameter  > then a; converges to a positive value
+for all . In this subsection we assume that the caches are scheduled in round-robin fashion.
+
+In general, there are examples of potential games where converging to a Nash equilibrium by the best response
+dynamics can take exponential time, see .., []. In the remainder of this subsection we will show that under
+discrete placement of caches and polynomial scaling of the popularity distribution, the convergence time is at
+most polynomial in  and . Our proof relies on the following result, the proof of which is given in Appendix A.
+
+THEOREM Let  andB denote the placement before and after one local update, respectively. Consider a discrete
+placement of caches and polynomial scaling of file popularities. Then
+
+The main result of this subsection is as follows.
+
+THEOREM Consider discrete placement of caches, polynomial scaling of file popularities and round-robin
+scheduling of caches. Then, the best response dynamics of the content placement game converges to a Nash equilibrium
+in at most ,;', with , and Kz as in Theorem
+
+Proor. If we improve the miss probability by making a local update we improve it by at least ; ~1J-™ by
+Theorem We can make at most «;'NJ™ such improvements, because we are minimizing the miss probability,
+which is bounded betweenand Furthermore, we cannot have more than  —sequential updates in which
+we are not improving, because we are using a round-robin schedule and not being able to provide a strictly better
+response for any of the caches implies that we have reached a Nash equilibrium. 
+
+Thus, the complexity of our basic algorithm in the context of discrete placement is polynomial in time. We
+note that this is quite interesting result as in general the best response dynamics in potential games does not
+have polynomial time complexity.
+
+Next, we demonstrate that the computational complexity of each update does not increase with the network
+size or the catalog size.
+
+THEOREM Consider discrete placement of caches. Then the complexity of each update is constant in both the
+network size  and the catalog size .
+
+Proor. In a discrete placement each cache will have at most ([27/] +)? neighbours (including itself).
+Together, these caches can store at most ([2r/] +)? files. In order to minimize the miss probability, the files
+that need to be cached will be a subset of the ([2r/] +)? most popular files and there is no need to consider
+other files in the content library. Therefore, the complexity is independent of the library size. Also, the number of
+neigbours is independent of . Oo
+
+We have presented our complexity result for a discrete placement of caches, but the result can easily be
+generalized to any placement of caches in which the number of neighbours of caches is bounded. Furthermore, it
+is indicated in the proof that in each update we only need to consider the ( +) most popular files, where 
+is the number of neighbours of the caches that is being updated. This result can be strengthened as follows. Once
+we perform an update for cache , we know the placement strategies of all its neighbours. It is easy check for
+the least popular file stored among all neighbours. We denote the index of this least popular file by ,,. Then, one
+can see that we need to search over first ,, +  files only, where we note that ,, +  <   ( +).
+
+Finally, note that if we relax the assumption of discrete placement and consider arbitrary (continuous) placement
+of caches, our game will still be in the PLS complexity class [47].
+SIMULATED ANNEALING APPROACH TO GLOBAL OPTIMALITY
+
+In this section we will first give an example of a network where the best response dynamics converges to a
+local optimum. Next we will present two potential remedies; stochastic simulated annealing and deterministic
+simulated annealing, in order to achieve global optimum for such networks.
+ Best response and local optima
+
+The main aim of this section is to show that the content placement game might get stuck at a local optimum
+in a symmetric network topology. Caches are located on axgrid. Caches have three-dimensional coverage
+area, resulting each cache being located at the center of a torus. An example is shown in Figure each node
+representing the location of a cache with a toroidal coverage area. Caches are sharing a common coverage area
+with their neighbours and caches located at the edge of the grid network are neighbouring with the ones located
+at the opposite edge of the network (depending on the coverage radius.).
+
+Consider the case of caches with -slot cache memory and the content library of size  = We set the
+cache capacity of the caches as  = We assume a Zipf distribution for the file popularities, setting  =and
+taking a; according to (). The coverage radius is set to  =. Distance between caches is set to  = rV2 .
+
+In Figure we have depicted a file placement strategy (only for the firstfiles, the rest are all-zero) that is a
+Nash equilibrium of the potential content placement game. We will argue below that this Nash equilibrium has a
+hit probability that is a slightly lower value than the global optimum. Each node is representing a cache. With
+this strategy, you can verify that KKT conditions are satisfied. It is clear that the red diamond shaped caches are
+storing different set of files compared to black circle shaped caches. One can also verify that KKT conditions will
+be satisfied if red diamonds follow the same strategy as in black circles (filled diamond follows the filled circle
+strategy and empty ones follow the empty circle strategy, respectively.). In this case, the hit probability will give
+the global optimum. Just to give some intuition, consider the following example: cz is available in both empty
+
+
+diamonds and filled circles and ; is not present in any of them. Hence, the intersecting area between empty
+diamond and filled circle will have a performance penalty, which reduces the total hit probability. This would not
+occur if the diamonds were circles.
+ Stochastic simulated annealing
+
+In this subsection, following the framework of Hajek [28], we provide a simulated annealing (SA) algorithm that
+will converge to the global optimum with probability Intuitively, the idea of the algorithm is to allow, with a
+small probability, for arbitrary changes to the placement policy at a cache during a local update.
+
+More formally, we will construct a discrete-time Markov chain Bo, Bi,..., that converges to the optimal
+placement .. To that end, for a state  we define a neighbourhood NB) as those placement policies that
+differ from  in at most one column, ie. that differ in at most one cache. Within a column, any change that
+
+satisfies the capacity constraint we a” =  is allowed.
+Given ; = , a potential next state ; is chosen from () with probability distribution [; = BIB; = ] =
+
+where  >is a constant.
+THEOREM If  > then Markov chain {;} converges with probabilityto a global optimum of Problem
+
+Proof. This follows directly from [28, Theorem], for which we demonstrate here that we satisfy all conditions.
+First, {,} is irreducible. Second, we have the property that
+
+
+for all  and . It can be readily verified that (30) is sufficient for weak reversibility as defined in [28]. Finally,
+since our objective function is a probability, it is bounded betweenand The depth of a local minimum is,
+therefore, at mostand it is sufficient to consider  > Oo
+
+Note that the selection of (™(™) in (26) uniformly at random requires the computation of (). We use
+Fisher-Yates shuffle [17] to obtain the random permutation over  files and store the first  many files after
+Deterministic simulated annealing
+
+In this subsection we will briefly present another new algorithm based on deterministic simulated annealing.
+The basic idea of the deterministic simulated annealing or homotopy approach (see .., [39],[45]) is to gradually
+transform an easier problem to the original, more difficult, problem. In deterministic simulated annealing (DSA),
+an initial  is set. The problem formulation is similar to the procedure given in Section. We have the same
+problem as in Problemwith modified boundary constraints for the file placement probabilities, ie., ym”) can
+now take values from the closed set [rt,  — ] instead of the closed set [, ]. Following a similar analysis in the
+aforementioned section, we have the following theorem, which we state without proof.
+
+THEOREM The optimal solution to DSA problem is given by
+
+
+At the end of each iteration step,  is reduced. The main idea behind the algorithm is to avoid entering a path
+that in the end KKT conditions are hold but the final hit probability gives a local minimum instead of the global
+one. The algorithm stops when  ()((™), -™)) converges Vm € {,...,}, ie, a full round over all caches
+{,...,} does not give an improvement in hit probability. DSA applied to our problem of interest is shown in
+
+Algorithm Deterministic simulated annealing (DSA)
+
+
+CorROLLARY The optimal solution given in Theoremis a solution to Problemwhen each oi” is rounded to its
+nearest integer ast —
+
+Proor. We already showed in Theoremthat the solution of Problemis a solution to Problem With the
+boundary conditions presented in DSA, we provide allowance on ” values to take values between the interval
+[,  —] instead of taking values from the set [, ]. Having solved the problem, the optimal solution given in
+Theoremis an equivalent to the one given in Theoremas  — Hence, whenis small enough, rounding
+ws to their nearest integers gives the solution to Problem Oo
+
+We will see from numerical results in Sectionthat DSA is an interesting approach to escape from the
+local optimum for the grid network. Considering the same cache update sequence causing the diamond shaped
+strategies illustrated in Figure optimizing the caches in the same sequence with DSA prevents the system
+ending up with diamond shaped strategies at the caches and the hit probability converges to the global optimum.
+NUMERICAL EVALUATION
+
+In this section we will present practical implementations of our algorithms for the content placement game and
+evaluate our theoretical results according to a network of caches with their geographical locations following a
+homogeneous Poisson process, a real wireless network and a grid network. Finally we will present an example
+illustrating the resulting placement strategies of the caches obtained by our algorithms.
+ The ROBR and RRBR algorithms
+
+The basic idea of our algorithm (which comes in two variants, RRBR and ROBR) is to repeatedly perform best
+response dynamics presented in Section. We introduce some notation in the next definition.
+
+Applying distributed optimization to cache  gives the new placement policy denoted by (”) which is given
+by Theorem Hence,
+As neighbouring caches share information with each other, the idea is to see if applying distributed optimization
+iteratively and updating the file placement strategies over all caches gives ) for all  € [ : ] yielding to the
+global optimum given in Theorem To check this, we define the following algorithms.
+
+For Round-Robin Best Response (RRBR) algorithm, we update the caches following the sequence of the indices
+of the caches. We assume that all caches are initially storing the most popular  files. The algorithm stops
+
+improvement in hit probability. RRBR algorithm is shown in Algorithm
+
+
+It is also possible to update the caches by following a random selection algorithm. For Random Order Best
+Response (ROBR) Algorithm, at every iteration step, a random cache is chosen uniformly from the total cache set
+{,...,} and updated. We assume that all caches are initially storing the most popular  files. The algorithm
+stops when  () (pi) -)) converges Vm € {,...,}, ie, a full round over all caches {,...,} does not
+give an improvement in hit probability. ROBR algorithm is shown in Algorithm
+
+. Poisson placement of caches
+
+Consider the case of caches with -slot cache memory and the content library of size  = We set  = We
+
+assume a Zipf distribution for the file popularities, setting  =and taking a; according to (). We have chosen
+
+the intensity of the Poisson process equal to A =~°. Base stations’ coverage radius is set to  =.
+For the stochastic simulated annealing, two different cooling schedules are considered, .., two different 
+
+values.
+
+Our goals are to see if the proposed solution algorithms converge, to compare the performances of the algorithms
+and to compare them with the probabilistic placement strategy [] and with multi-LRU-One caching [24].
+
+In [], it has been already shown that it is not optimal to cache the most popular contents everywhere. In
+Multi-LRU caching policies [24], the main assumption is that a user who is covered by multiple caches can check
+all the caches for the requested file and download it from any one that has it in its inventory. In Multi-LRU-One
+caching policy, if the requested file is found in a non-empty subset of the caches that is covering a user, only one
+cache from the subset is updated. If the object is not found in any cache, it is inserted only in one. In this work,
+the selected cache for the update will be picked uniformly at random from the caches covering the user.
+
+In Figure the hit probability (one-minus-miss probability) evolution for the proposed solution algorithms are
+shown. Both RRBR, ROBR and SSA algorithms converge to the same total hit probability value. First, we ran
+a simulation with  = because by Theoremthis guarantees convergence. In all our experiments, we have
+observed that random selections of the SSA decreases the hit probability by no more than until convergence.
+Consequently, we ran another SSA with  =. Both SSA algorithms converge to the same value, however
+using a smaller  increases the convergence speed of the SSA. This is not surprising because the temperature
+is decreased further when  is smaller. Also, it is easy to observe that using a larger  helps the algorithm stay
+closer to the optimal solution at each iteration step.
+
+We see that coordination between caches in ROBR and RRBR helps to improve the overall performance
+compared to probabilistic placement proposed in [] and Multi-LRU-One decentralized caching policy proposed
+in [24]. We observe significant increase in total hit probability when we exploit the information sharing between
+neighbouring caches.
+ Areal wireless network: Berlin network
+
+In this section we will evaluate the performance of the topology of a real wireless network. We have taken the
+positions ofG base stations provided by the OpenMobileNetwork project [50]. The base stations are situated in
+the area  kms around the TU-Berlin campus. Base stations’ coverage radius is equal to  =. The
+positions of the base stations from the OpenMobileNetwork project is shown in Figure We note that the base
+stations of the real network are more clustered because they are typically situated along the roads.
+
+
+In order to compare the Spatial Homogeneous Poisson Process performance with the real network, we have
+chosen the intensity of the Poisson process equal to the density of base stations in the real network. In Figureone can see a realization of the Spatial Homogeneous Poisson Process with A = ~°. The density is small
+because we measure distances in metres. Base stations’ coverage radius is set to  =. We have averaged
+
+overrealizations of the Poisson process.
+
+
+Consider the case of caches with -slot cache memory and the content library of size  = We set
+ = We assume a Zipf distribution for the file popularities, setting  =and taking a; according to ().
+We find the probabilistic placement strategy by the strategy given in [] by using the parameters given earlier
+(A = xand  =), store the files accordingly over all caches and compute the hit probability for
+the probabilistic placement policy. In Figure the hit probability (one-minus-miss probability) evolution for the
+ROBR algorithm and the probabilistic placement policy for both averaged overPoisson Point realizations and
+real OpenMobileNetwork topology is shown. We see that running the ROBR algorithm on both homogeneous
+Poisson Process realizations and the real topology performs significantly better than the probabilistic placement
+policy. We observe that the total hit probability for the average ofhomogeneous Poisson Process realizations
+is higher than the one of real topology. The reason is that the spread fashion of the homogeneous Poisson Point
+realizations allows more coordination between the base stations compared to the clustered fashion of the real
+topology, leading to the fact that they share more information between each other at each iteration leading to
+higher hit probability in the end. Note that in real topology shown in Figure there are many uncovered areas;
+however we only consider the regions that are covered by at least one of the base stations while computing our
+performance metric.
+
+Now we will present a more realistic example in terms of library size. We can get the numerical results for huge
+library size by using ROBR Algorithm. Consider the case of caches with -slot cache memory and the content
+library of size  =. We set  = We assume a Zipf distribution for the file popularities, setting  =and
+taking a; according to (). We find the probabilistic placement strategy by the strategy given in [] by using the
+parameters given earlier (A = ~° and  =), store the files accordingly over all caches and compute
+the hit probability for the probabilistic placement policy. We store the most popular  files over all caches in
+most popular content placement algorithm. In Figure the hit probability (one-minus-miss probability) evolution
+for the ROBR Algorithm for real OpenMobileNetwork topology is shown. Recalling that there are  =caches
+in total and all caches have capacity  = all caches in the network can only store first    =files out of
+
+Then from (), it is trivial to see that% of the files will always be missed. Due to nonhomogeneous
+scattering of the base station locations in real topology, storing the most popular content gives slight performance
+advantage over the probabilistic placement policy. We see that running the ROBR algorithm on the real topology
+performs significantly better than the probabilistic placement policy. The clustered fashion of the real network
+topology allows more coordination between the base stations, leading to the fact that they share more information
+between each other at each iteration leading to higher hit probability. Also note that in real topology shown in
+Figure there are many uncovered areas; however we only consider the regions that are covered by at least one
+of the base stations while computing our performance metric.
+
+Now we will present the performance of our algorithm when the file sizes are nonhomogeneous. We will
+present the numerical results again by using ROBR Algorithm. Consider the case of caches with -slot cache
+memory and the content library of size  =. We set  = We assume a Zipf distribution for the file
+popularities, setting  =and taking a; according to ().
+
+For every file a; we generate a random number ¢; from a log-normal distribution with meanfor various
+variances. Then the file a; has size ¢;. Next, we define how the cache placement strategy works. After running
+the ROBR algorithm, depending on the resulting placement strategy obtained from the best response dynamics,
+each cache can store a file unless the sum of the size of the stored files exceed the cache capacity, .., the cache
+starts filling its capacity by the file that it is supposed to store with the lowest index until it saturates (and skip
+the ones in between if they exceed the capacity and continue with the next one.).
+
+In Figure the converged hit probability (one-minus-miss probability) values for the ROBR Algorithm for real
+OpenMobileNetwork topology for nonhomogeneous file sizes is shown. Recalling that there are  =caches in
+total and all caches have capacity  = all caches in the network can only store first    =files out of. Then from (), it is trivial to see that% of the files will always be missed. As the variance between
+file sizes increases, the ROBR algorithm converges to smaller hit probability. However, the difference is very
+small and negligible. If the most popular files have huge capacity, this can also be solved with adjusting the cache
+capacities accordingly.
+
+Grid network
+
+In this section we will present the performance analysis of axgrid network. The main aim of this section is
+to show that ROBR algorithm might get stuck at a local optimum in a symmetric network topology.
+
+Consider the case of caches with -slot cache memory and the content library of size  = We set the
+cache capacity of the caches as  = We assume a Zipf distribution for the file popularities, setting  =and
+taking a; according to (). Base stations’ coverage radius is set to  =. Distance between caches is set to
+ =rv2 . For DSA, initial  is set to  =- and decreased exponentially, resulting in having ct =~° at theth iteration step.
+
+In Figure the hit probability evolution forxgrid network is shown. In previous network topology
+illustrations, .., in spatial homogeneous Poisson point process example or Berlin network, we have a nonsymmetric geographical cache placement and we have observed that the hit probability converges to the global
+optimum with ROBR and RRBR (as it converges to the same value with SA.). However, in this example we observe
+that the hit probability may converge to slightly different hit probabilities (the difference is in the order of°.)
+by running ROBR algorithm multiple times. We see that DSA also converges to the global optimum rapidly, when
+each yw”) is rounded to its nearest integer, verifying Corollarynumerically.
+ Resulting placement strategy: An example
+
+In this section we will present a simple example showing the resulting placement strategies of the caches obtained
+by the ROBR algorithm. For this specific example, all three caches have -slot cache memory and the content
+library of size  = We set  = We assume a Zipf distribution for the file popularities, setting  =and
+taking a; according to ().
+
+It can be seen in Figurethat as the common coverage area between two neighbouring caches increases,
+the probability of storing less popular files increases. In this specific scenario, the blue cache has been updated
+first and is always storing the three most popular files. As the neighbouring area between itself and red cache
+increases, red cache starts storing less popular files. It is evident that no simple heuristic can be used to give
+a similar placement strategy covering all such scenarios. Combining the structure of the resulting placement
+
+
+strategies with the performance evaluations that we have presented earlier, we conclude that our low-complexity
+distributed algorithm provides significant hit-probability improvement by exploiting the information sharing
+between neighbouring caches.
+DISCUSSION AND CONCLUSION
+
+In the current paper we have provided a low-complexity asynchronously distributed cooperative caching algorithm
+in cellular networks when there is communication only between caches with overlapping coverage areas. We
+have provided a game theoretic perspective on our algorithm and have related the algorithm to a best response
+dynamics in a game. Using this connection, we have shown that the complexity of each best response step is
+independent of the catalog size, linear in cache capacity and linear in the maximum number of caches that cover
+a certain area. Furthermore, we have shown that the overall algorithm complexity for the discrete placement of
+caches is polynomial in network size and catalog size. Moreover, we have shown that the algorithm converges in
+just a few iterations by the aid of practical examples. In most cases of interest, our basic low-complexity algorithm
+finds the best Nash equilibrium corresponding to the global optimum. We have given an upper bound to the rate
+of convergence of our algorithm by using the value for which we have found for the minimum improvement
+in hit probability in the overall network. For the cases where the algorithm converges to a local optimum, we
+
+have shown that the resulting performance gap in comparison with the global optimum is very small. We have
+also provided two simulated annealing based extensions of our basic algorithm to find global optimum. We have
+demonstrated the hit probability evolution on real and synthetic networks and have shown that our distributed
+cooperative caching algorithm performs significantly better than storing the most popular content, probabilistic
+content placement policy and Multi-LRU caching policies. For libraries with nonhomogeneous file sizes, we have
+shown that as the variance of the log-normal file sizes increases, the total hit probability decreases. However,
+the difference turns out to be very small. We have also given a practical example where the basic algorithm
+converges to the local optimum, showed that the performance gap is very small, and our simulated annealing
+based algorithms converge to the global optimum even when the same cache update sequence of the basic
+algorithm has been followed. Finally, we have provided an example of the resulting optimal placement strategies
+for a small network.
+
+In future work we will generalize this analysis for instance to consider time-varying file popularities. In
+particular, the aim is to obtain a more fundamental insight into the behaviour of more dynamic caching models
+in stochastic geometry settings.
+
+

@@ -1,0 +1,327 @@
+Stein’ Method for Mean-Field Approximations in Light and Heavy
+Traffic Regimes
+
+ABSTRACT---
+Mean-field analysis is an analytical method for understanding large-scale stochastic systems such as large-scale data centers
+and communication networks. The idea is to approximate the stationary distribution of a large-scale stochastic system using
+the equilibrium point (called the mean-field limit) of a dynamical system (called the mean-field model). This approximation is
+often justified by proving the weak convergence of stationary distributions to its mean-field limit. Most existing mean-field
+models concerned the light-traffic regime where the load of the system, denote by , is strictly less than one and is independent
+of the size of the system. This is because a traditional mean-field model represents the limit of the corresponding stochastic
+system. Therefore, the load of the mean-field model is  = limy_4o. \%), where ) is the load of the stochastic system of
+size . Now if () >as  — oo (ie., in the heavy-traffic regime), then  = For most systems, the mean-field limits when
+ =are trivial and meaningless. To overcome this difficulty of traditional mean-field models, this paper takes a different
+point of view on mean-field models. Instead of regarding a mean-field model as the limiting system of large-scale stochastic
+system, it views the equilibrium point of the mean-field model, called a mean-field solution, simply as an approximation
+of the stationary distribution of the finite-size system. Therefore both mean-field models and solutions can be functions
+of . This paper first outlines an analytical method to bound the approximation error based on Stein’ method and the
+perturbation theory. We further present two examples: the  queueing system and the supermarket model under the
+power-of-two-choices algorithm. For both applications, the method enables us to characterize the system performance under
+a broad range of traffic loads. For the supermarket model, this is the first paper that rigorously quantifies the steady-state
+performance of the-power-of-two-choices in the heavy-traffic regime. These results in the heavy-traffic regime cannot be
+obtained using the traditional mean-field analysis and the interchange of the limits.
+---
+INTRODUCTION
+
+From a hospital with hundreds of beds, to a city with thousands of Uber drivers, and to a data center with tens
+of thousands of servers, the scale and complexity of today’ systems one needs to manage and engineer have
+exploded. However, design and analysis of large-scale stochastic systems remain to be challenging problems due
+to “the curse of dimensionality”. For large-scale stochastic systems, performance analysis beyond stability (.. the
+existence of stationary distributions) is notoriously hard and analytical tools beyond stability analysis are very
+limited. One such analytical tool, emerging from statistical physics, is the so called mean-field method, where the
+idea is to approximate the time evolution of a stochastic system, which is a random process, using the trajectory ofa
+dynamical system, called a mean-field model; and approximate the stationary distribution of the stochastic system
+using the equilibrium point of the dynamical system. For many applications (.. [, , , 18, 23, 25, 26, 28, 30]),
+
+it can be shown that the stationary distributions indeed converge (weakly) to their mean-field limits as the
+system size increases, which justifies the use of mean-field limits for analyzing large-scale stochastic systems.
+However, most existing results were established in the light-traffic regime where the load of the system, denote
+by , is strictly less than one and independent of the size of the system. This is because a traditional mean-field
+model represents the limit of the corresponding stochastic system. Therefore, the load of the mean-field model
+is  = limyso0 ™?, where ) is the load of the stochastic system with size . Now if “) +as  > oo
+(.. the heavy-traffic regime), then  = For most systems, the mean-field limits when  =are trivial and
+meaningless.
+
+For example, consider the supermarket model under the randomized load-balancing algorithm called thepower-of-two-choices [18, 26]. The system consists of  identical servers and each maintains a separate queue.
+Each incoming job samples two queues and joins the shorter of the two. Assume Poisson arrivals with rate AN
+and exponential service times with mean The mean-field model for this system [18, 26] is
+
+where sx represents the fraction of servers with queue size at least . This dynamical system has a unique
+equilibrium point
+Now consider the heavy-traffic regime such that AY) =— yN~“ for> a >and>  > While it seems
+reasonable to believe that the average queue length per server should be approximately @ log, . This fact cannot
+be proved using the traditional mean-field model above because when A = limy ACY) = the limiting system
+becomes
+
+The equilibrium of the system is , =for all , which means all queues are infinite. This solution has little use
+for understanding the behavior of the original system in the heavy-traffic regime. The same phenomenon occurs
+when the mean-field analysis is used to analyze other queueing systems in the heavy-traffic regime because
+the mean-field limits trivialize when  = Most existing approaches of mean-field analysis, except [29], are
+asymptotic in nature and based on the interchange of the limits. Let ‘%)() denote the state of the stochastic
+
+system at time , ©%)(co) denote its steady-state, () denote the state of the mean-field model at time , and
+
+* denote the corresponding mean-field limit. The idea is to first prove “)() = () and ()  ",
+
+and then show XY) (co) , ” by exchanging the two limits. Therefore, these existing approaches have to
+consider a nontrivial mean-field model for  = oo (for proving the first limiting result) and cannot be applied to
+the heavy-traffic regime.
+
+To overcome this inherent difficulty of the traditional mean-field analysis, we adopt the approach based on
+Stein’ method used in [29], which directly bounds the approximation error of using the mean-field model for the
+finite-size system. [29] shows that for a large class of systems, we have
+
+where || - || denotes the-norm. Equation () implies the weak convergence of “%)(co) to *. More importantly,
+it applies to finite (maybe large) size systems and quantifies the approximation error (the rate of convergence).
+
+In this paper, we take this idea one step further. Instead of using * to approximate )(oo) for all , we
+define an -dependent mean-field model with an -dependent *“) to approximate ‘%)(co). We then analyze
+the approximation error
+for some distance measure  (, ) such that  (, ) =(.. (, ) can be the-norm as in [29]). Consider the
+supermarket model under the-power-of-two-choices with arrival rate ( - yN~“). We can define the mean-field
+model to be
+
+which has a unique equilibrium
+
+Different from the traditional mean-field model in (), which is independent of , the mean-field model above is
+-dependent.
+
+In this paper, we call *¥) a mean-field solution instead of mean-field limit because it is for a finite  instead
+of for  = co. The proposed approach takes a different point of view on mean-field models. Instead of viewing a
+mean-field model as the limit of some stochastic system, it views the mean-field solution as just an approximation
+of the stationary distribution of the finite-size system. The method then focuses on quantifying the approximation
+error. If the approximation error is small (as we will show in two applications), then we can conclude that
+the mean-field solution is a good approximation of the stationary distribution. For example, if () is a good
+approximation, then it suggests SYY)(co) concentrates around the point mass *‘%) and the average queue length
+per server is approximately @ log,  in the heavy-traffic regime.
+
+In this paper, we will outline a recipe for bounding the approximation error
+based on Stein’ method [, 29] and the perturbation theory [17]. After outlining the framework, we apply
+this method to two queueing systems: the  queueing system and the supermarket market model under
+the-power-of-two-choices. The main results of this paper are summarized below.
+Main Results
+
+In the remainder of the paper, we drop the superscript () because  is given and fixed from now on. However,
+we emphasize that both mean-field models and solutions are -dependent.
+
+Main Result In Section we outline the proposed approach, which synthesizes mean-field analysis, Stein’
+method and the perturbation theory. In particular, it is based on the following fundamental equation, which we
+call Stein’ equation for mean-field models
+ the gap yN’ © varies from a constant fraction of  (ie. light load) to a constant independent of  (ie. very
+heavy traffic load). When a <, () implies that
+which recovers a Halfin-Whitt result [16] and implies almost all jobs are immediately served upon arrival when
+the difference between the total service rate  and the arrival rate AN is @(VN). The details can be found in
+Section
+We remark that the  queueing system has been well studied in the literature. For example, more
+accurate estimations have been obtained using diffusion approximation and Stein’ method [, ]. The purpose of
+this example is not to provide a better estimation. Rather, it demonstrates the proposed approach in the case
+where we have the closed-form expression of (). Also the analysis for obtaining the universal bounds and the
+Halfin-Whitt result is remarkably simple (aboutpages in total), which itself could be interesting.
+
+We also like to comment that the mean-field model in this case is
+
+where . Note that A — min{, } is not differentiable and  is not bounded. Hence, this system does not
+satisfy the conditions required in [29]. Therefore, this example also shows the proposed approach can be applied
+to systems beyond those considered in [29]. 
+
+Main Result In the second application, we consider the supermarket model under the-power-of-two-choices.
+We assume A =— yN® and have the following result. For any< @ < and an arbitrarily small ¢’ > the
+following inequalities hold for sufficiently large ,
+Note that when a > this quantifies the steady-state performance of the-power-of-two-choices in the heavy
+
+traffic regime. The most related work is a recent result independently developed in [12]. In [12], the authors
+studied the performance of the-power-of--choices in the heavy-traffic regime. They defined a rescaled process
+
+_s(§) if
+() = rs, and established the process-level convergence of “)() to () for fixed  as  — ©,
+where () is the unique solution of a deterministic system defined by linear differential equations in [12]. The
+deterministic system has a unique equilibrium point Tf =  From this result, the authors conjectured that
+
+Sy(co) -(- ago. Note that this is a conjecture because to prove the result, it needs to be shown that
+) (co) is tight, which was left as an open problem in [12]. The authors also obtained a lower bound on the
+expected value of ;(co)
+ke
+
+[,(c0)] >-(- no. ()
+When  =(the-power-of-two-choices) and  < |log,( — A)| — @(), the two results above suggest that
+,(co) = They further used the light-traffic result in [18, 26] as a heuristic to argue that ,(co) =for
+ > |log,( — A)| + @(). From these observations and heuristics, the authors conjectured that at the steady-state,
+most queues are of size | log,( — A)| + (), which equals to a log,  + () given A =- yN-% ( < @ <).
+For< a <, this paper studies the steady-state queue lengths of the-power-of-two-choices and bounds both
+the expected value and the mean-square error of using the mean-field solution for approximating the stationary
+
+distribution. Our result in () shows that for a sufficiently large , the stationary distribution concentrates around
+the point mass * such that ; =*- Tt is easy to verify that ; ~for  < | log,( — A)| — @() and ; ~for
+ > |log,( — A)| + @(). Therefore, our result resolves the open conjecture in [12] for< a <, and is the first
+result on the steady-state approximation of the-power-of-two-choices in the heavy-traffic regime. 
+ Related Work
+
+Mean-field analysis originated from statistical physics has a broad range of applications in many areas. In queueing
+theory, mean-field models are equivalent to fluid models [10] for many-server queues. Mean-field approach
+often models a stochastic system as a population process, and then approximates the population process using a
+dynamical system, which is deterministic. In large-scale systems (.. many-server queues), this approximation
+often turns out to be very accurate, and enables us to quantitatively study the stationary distribution of a largescale stochastic system. The method to bound the approximation error follows the one used in [29], which is
+based on Stein’ method [, 21, 22], a method to bound the distance of two probability distributions. In particular,
+it follows the framework proposed in [, 15] to couple the stationary distributions of two stochastic systems via
+their generators. Please see [] for an introduction of Stein’ method for steady-state diffusion approximation
+and its connection to classical applications of Stein’ method. The key difference between this paper and the
+works mentioned above is that we use mean-field (fluid) approximation instead of diffusion approximation [, 15].
+Diffusion approximation is more accurate and yields tighter bounds, but analyzing a high-dimensional diffusion
+process is often very difficult (if not impossible). We also note that the same method has been used in [24] to prove
+the tightness of stationary distributions of a flexible-server system in the Halfin-Whitt regime, which proves the
+interchange of the limits and justifies the diffusion approximation. While the approaches are identical, the goals
+are very different. [24] uses the method to prove the tightness and justifies the diffusion approximation. This
+paper demonstrates that mean-field (fluid) approximation itself can be very accuracy for large-scale stochastic
+systems under a broad range of traffic loads, including the Halfin-Whitt regime.
+
+The contributions compared with the traditional mean-field models have been discussed in the introduction. In
+summary, we propose -dependent mean-field models and mean-field solutions. Together with Stein’ method
+and the perturbation theory, it enables us to study large-scale stochastic systems under a broad range of traffic
+loads and further quantify approximation errors, both are not possible using the traditional approaches based
+on the interchange of the limits. There are some recent work on heavy-traffic analysis of randomized load
+balancing in many server systems [11, 12, 19], where the focus is on process-level (ie. finite ) approximation,
+not the steady-state approximation. Approximation errors of mean-field models have also been studied at the
+process-level (finite ) [13] and at the steady-state [29], but both are in the light traffic regime. Finally, the use of
+-dependent dynamical systems for approximating stochastic systems has been suggested in [], but it does not
+provide any theoretical analysis on the approximation error.
+STEIN’ METHOD AND MEAN-FIELD APPROXIMATIONS
+We first overview the analytical framework based on Stein’ method for mean-field models [29]. Let  be a
+continuous time Markov chain (CTMC) with a unique stationary distribution. We use (co) to denote the random
+vector that has the stationary distribution of . Define  = () to be the mean-field model with a unique
+equilibrium point * such that (*) = Our proposed method is to approximate  (co) with * and quantify the
+approximation error [( (co), *)] based on the following lemma.
+
+LEMMA (STEIN’ EQUATION FOR MEAN-FIELD MODELS). Let  denote a CTMC with a countable state space ,
+and Rx,, denote the transition rate of the CTMC from state  to state . Define the mean-field model to be
+
+
+Under the assumptions that
+
+() the CTMC has a unique stationary distribution (0o),
+() the mean-field model has a unique equilibrium point * such that (*) = and
+() given distance measure (,*), |()| <for anyx € ,
+
+the following Stein’ equation holds
+
+
+Remark: This lemma follows the idea of Stein’ method for steady-state approximation [], and can also be
+obtained from equation () in [24].
+
+The lemma above shows that the approximation error,  [((co), *)], can be calculated using the approximation error of the first-order Taylor expansion of (), ie.
+
+(, ) = gy) — () — Vox) - (—). (15)
+Quantifying the difference in (15) is known as establishing gradient bounds for the Poisson equation solution
+. While only limited results on gradient bounds are known for high-dimensional diffusion processes, gradient
+
+bounds for mean-field models are more tractable because high-dimensional deterministic systems are easier to
+track and analyze as shown in the following discussion.
+
+If () has a closed-form expression, then it is straightforward to obtain a bound on the approximation error
+by bounding I(, ), as we will see in the  queueing system. However, in many cases, the closed-forms
+may not exist. In such cases, we leverage the perturbation theory to bound I(, ). Following the analysis in [29],
+we consider the following collection of dynamical systems:
+
+with initial conditions () = “?() = ( — ), (,) =  and (, ) = , where of denotes the Jacobian
+
+
+matrix.
+LEMMA (GRADIENT BOUND FOR MEAN-FIELD MoDELs). Assume the following conditions hold:
+C1 Given initial condition  and any positive constant , there exists iz , such that
+Ix(,)|) < Wt>;,.
+C2 There exists constant ; such that
+|()| < elxMO)| Ve. (20)
+
+C3 There exist Lyapunov function ; () and positive constants Cy1, ¢;, ,; and such that
+
+
+C5 There exist Lyapunov function -() and positive constants Cer, de, de and a such that
+
+
+From this closed-form expression of (), we can bound I(, ) and obtain (25). The details are given in Appendix
+.
+To obtain (26), we define (, *) = . From the Poisson equation Vg() = , we have
+
+From this closed-form expression of (), we can first bound I(, ) which leads to the upper bound in (26). The
+details are given in Appendix . The lower bound in (26) holds because the system has to have at least AN busy
+servers on average at each time instance.
+Remark: Inequality (26) implies that
+In other words, the average queue length is approximately AN unless— A =  () . Note that- A =  () is
+equivalent to  — AN = (), ie., the arrival rate and the total service rate differ by a constant only, which is a
+very heavily loaded regime, called the nondegenerate slowdown regime (NDS) [, , 27].
+Remark: From (25), we can also bound the probability that all servers are busy and recovers a Halfin-Whitt
+result [16]. According to (25) and the Markov inequality, we have
+
+which has a unique equilibrium point
+*ksp=av. (31)
+Let | - | denote-norm. The following theorem quantifies the error of using * for approximating the steady state
+distribution (co) in both the light and heavy traffic regimes.
+
+THEOREM. Consider the supermarket model under the-power-of-two-choices with A =—yN~°% and A >.
+Given< a <, and &’ >that can be chosen arbitrarily small, the following inequalities hold when  is
+sufficiently large
+Proof. We first prove (32), the bound on the mean-square error. Note that the mean-field model (30) is an
+infinite dimensional system. Analysis of perturbed infinite-dimensional nonlinear systems is difficult. To overcome
+this difficulty, we consider the following -dimensional truncated system,
+
+Then in Lemma, we use the fact [,(co)] < A* (equation) in [26]) to show that when  is sufficiently
+large,
+Recall that< @ <, so Rear can be made arbitrarily small when choosing sufficiently large . Therefore,
+(32) holds when  is sufficiently large and by choosing ¢’ =
+
+To prove (33), we again consider the truncated mean-field model and let (, *) = Yi¢ xx. The upper bound
+
+in (33) is established by applying the bound on  Dge lex ()| dt and the fact that [;(co)] < aK. Oo
+
+LemMa. Consider the supermarket model under the-power-of-two-choices. Given  = “*®, where & can be
+chosen arbitrarily small, the following inequality holds when  is sufficiently large,
+
+ 
+
+Proof. Note that the mean-field model is a truncated system, it is an imperfect mean-field model [29]. The
+Stein’ equation differs slightly from the one in Lemma. We first define , = — sj for1 < <, so
+
+
+where ;(, ) is the solution of the -dimensional truncated dynamical system (36). By combining the Poisson
+equation and the steady-state equation, we have
+
+
+Note that (co) = (co) — * is an infinite dimensional vector. (-) and (-) are defined by the -dimensional
+truncated system, so are functions of the truncated (co).
+From the definition of ; in (36) and ,, in (29), we have
+
+where the last equality holds because $ =for  > . Therefore, we have the following equation, which is a
+minor variation of Stein’ equation in Lemma,
+
+ 
+
+Now according to inequalities (53) and (54) in Appendix , and inequality (23), we have that for sufficiently
+
+
+Furthermore, from Lemmas . and ., we have
+
+  
+Now note that
+
+where the first nequarity holds because logx <  when  > Recall that  = %+$, A =- yN~¢, and
+Liy:#(co) Rx(), <. Hence we conclude that when  is sufficiently large,
+
+LEMMA. Consider the supermarket model under the-power-of-two-choices. The following inequality holds when
+= *® andN is sufficiently large,
+CONCLUSION
+
+This paper presented a method based on mean-field models, Stein’ method and the perturbation theory to
+study the performance of large-scale stochastic systems under a broad range of load conditions. Two examples,
+the  queueing system and the supermarket model under the-power-of-two-choices, were presented
+to demonstrate the novelty of the proposed method. For the  queueing system, we obtained universal
+bounds with simple and elementary analysis. For the-power-of-two-choices, we established the bounds on the
+expected queue length per server and the mean-square-error of the mean-field approximation, both of which are
+new results for the-power-of-two-choices in the heavy-traffic regime.
+
+ACKNOWLEDGEMENT
+
+The author sincerely thanks Jim Dai for the numerous discussions that motivated this work and inspired many
+results in this paper. The author also thanks . Srikant for his invaluable comments and feedback.
+
+This work was supported in part by NSF Grants CNS-1262329, ECCS-1547294, ECCS-1609202, and the ..
+Office of Naval Research (ONR Grant No. N00014-15--2169),
+

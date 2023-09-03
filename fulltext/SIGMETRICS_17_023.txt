@@ -1,0 +1,697 @@
+Accelerating Performance Inference over Closed Systems by
+Asymptotic Methods
+
+ABSTRACT
+---
+Recent years have seen a rapid growth of interest in exploiting monitoring data collected from enterprise
+applications for automated management and performance analysis. In spite of this trend, even simple performance
+inference problems involving queueing theoretic formulas often incur computational bottlenecks, for example upon
+computing likelihoods in models of batch systems. Motivated by this issue, we revisit the solution of multiclass
+closed queueing networks, which are popular models used to describe batch and distributed applications with
+parallelism constraints. We first prove that the normalizing constant of the equilibrium state probabilities of
+a closed model can be reformulated exactly as a multidimensional integral over the unit simplex. This gives
+as a by-product novel explicit expressions for the multiclass normalizing constant. We then derive a method
+based on cubature rules to efficiently evaluate the proposed integral form in small and medium-sized models.
+For large models, we propose novel asymptotic expansions and Monte Carlo sampling methods to efficiently
+and accurately approximate normalizing constants and likelihoods. We illustrate the resulting accuracy gains in
+problems involving optimization-based inference.
+---INTRODUCTION
+
+During the last decade there has been a growing trend among enterprises toward exploiting large
+volumes of monitoring data for performance management [18]. While activities such as capacity planning
+have been traditionally carried out by human experts, software systems to automatically forecast
+capacity needs are increasingly widespread in the industry. A common issue faced by these systems is
+automated performance model selection and parameterization, which can be dealt with using inference
+methods [17, 39, 45, 46]. We here focus on inference of closed queueing network models, which are often
+used to describe batch systems and distributed applications with parallelism limits. In such models,
+likelihoods can be expressed analytically if the scheduling disciplines at the resources comply with standard
+product-form assumptions [].
+
+The main challenge in computing likelihoods in closed systems is to determine the normalizing constant
+of state probabilities, which appears explicitly in the likelihood function. Prior work has proposed
+methods to exactly compute normalizing constants using recursive algorithms [, 15, 31, 41], generating
+functions [, 25], and moment-based methods [10, 11]. Furthermore, methods based on Laplace transform
+inversion [13], asymptotic expansions [33, 37], and Monte Carlo integration [43] have led to inexpensive
+approximations of the normalizing constant for large models. Still, we find that maximum likelihood
+
+ 
+
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee
+provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and
+the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires
+prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+   . Casale
+
+estimation problems remain either too expensive to solve or return largely inaccurate solutions, depending
+on the method used to compute the normalizing constant.
+
+Motivated by these observations, we revisit the computational theory of product-form multiclass closed
+queueing networks. Our main result is to reformulate the normalizing constant in terms of an integral over
+the unit simplex. This development leads to novel asymptotic expansions for the normalising constant
+based on Laplace’ method [27], which are obtained through a novel scaling that adds at every node a set
+of jobs that continuously loop at that node. We also obtain a novel Monte Carlo integration method,
+which enables the efficient sampling of the normalizing constant. Moreover, we derive novel explicit
+solutions for the multiclass normalizing constant in terms of algebraic sums, with time complexities
+similar to recursive methods such as convolution, RECAL, and mean-value analysis, but constant space
+requirements [, 15, 41, 42]. We validate the effectiveness of the proposed approximations using a numerical
+validation involving thousands of maximum likelihood estimation problems.
+
+The rest of the paper is organized as follows. Sectionintroduces the reference model for closed systems
+and surveys related work. Sectiongives novel exact theoretical results concerning the solution of closed
+product-form networks. Sectiondevelops asymptotic expansions and Monte Carlo integration methods.
+Sectioninvestigates the accuracy of the proposed techniques. Lastly, Sectionsummarizes results and
+concludes the paper. Proofs for some technical prerequisites are given in the Appendix.
+BACKGROUND Notation
+The reference model is a product-form closed queueing network with  nodes and  job classes []. Let
+, be the number of jobs in class  and define the population vector  = (Mi,...,Nr)?, = >, Nr:
+We assume that the first  <  nodes have a single-server and that the remaining ones are infinite
+server nodes. Matrix @ = [;,] collects the demands placed by class- jobs at node , #.., the product of
+the mean number of visits by the mean service time of the job. We denote by , = ya%kr the sum
+of the class- demands at all infinite servers.
+
+Consider for example a product-form network of processor sharing and infinite server nodes having
+exponential service times. In this case, the model maps to a Markov process with state space Syy = { €
+
+
+where Go() is a normalizing constant over Syq and for vector  = (vj, ..., Un) we define  = +... + Up.
+By the given definitions, the normalizing constant may be written as
+
+The last expression is valid for arbitrary multiclass product-form queueing networks defined in the sense
+of the BCMP theorem [].
+ Computational methods: state-of-the-art
+
+Since the number of states of the queueing network model grows as (™®) with the job population, it
+is usually infeasible to obtain Gg() by direct summation over the state space Syy. To tackle this issue,
+
+several computational methods have been defined over a time span of four decades. We limit here to give
+a high-level review, pointing to the references for details.
+. Exact methods. The classic exact computational methods for Gg(.) are the multiclass convolution algorithm (CA) [41] and RECAL [15], which feature respectively (”) and (*) time and
+space requirements. Such polynomial complexities limit the application of these methods to models with
+a few classes or queues. Other exact algorithms with similar complexities may be found in [, 20, 25, 42].
+The method of moments (MoM) [11] lowers the requirements approximately to (? log ) time and
+( log ) space using a recursive system of linear equations, applicable under certain regularity conditions on This method becomes computationally demanding as  and  grow simultaneously and
+solution times in large models are of the order of minutes, thus too expensive for optimization-based performance inference. Summarizing, several exact methods for Gg(.) exist, but they are hardly applicable
+to performance inference problems due to their cost. Experiments illustrating these limitations are shown
+in Section.
+. Approximate methods. Approximate mean-value analysis (AMVA) algorithms [44] provide accurate estimates of mean performance measures and are () with respect to job populations. Yet the
+focus on mean performance metrics is restrictive since inference problems typically require a probability
+model such as (), for example to express prior distributions on parameters or to infer an optimal
+parameterization using likelihood maximization [40, 45]. AMVA does not apply to these problems as it
+neither computes likelihoods nor probabilities.
+
+Flow-equivalent methods alternatively aggregate a subnetwork into a node with state-dependent service
+rates, which may be solved for state probabilities [12]. Unfortunately, this method is normally too
+expensive to apply in multiclass models, where the parameterization of the flow-equivalent server requires
+to determine service rates under all possible combinations of jobs residing at the node.
+
+Such limitations are addressed by specialized approximations for Gg(.), which include Monte Carlo
+integration, numerical methods, and asymptotic expansions. Monte Carlo integration methods are first
+introduced in [43], based on the following integral form [37]
+where RE = { € * ly >}, with= (,...,) and  = >>, yx. Expression () is obtained by
+expressing the ,;! terms in () using the integral form of the gamma function and subsequently by
+repeated application of the multinomial theorem
+
+where  € *. The integral form () can be efficiently evaluated using importance sampling [43], normally
+requiring  =° —” samples to approximate Gg() with low variance. Computing millions of
+samples is acceptable for evaluating individual models, but places an excessive overhead for use in
+optimization-based inference. Moreover, the variance of the Monte Carlo estimators for Gg() can
+adversely affect the identification of the search direction [47].
+
+Numerical methods for Gg() include Laplace transform inversion (LTI) [13] and ODE-based methods
+based on Taylor expansion (TE) [47]. LTI allows for arbitrary approximation accuracy, but can still
+incur a significant computational cost. For instance, [13, .
+Table Demand estimation results.  = timeout (10 min). Runtimes are rounded up to the nearest integer. On
+this example, memory requirements are negligible for all methods.
+
+=! operations on a model with , which is beyond the acceptable cost for a single
+iteration of an optimization program. Instead, the approximations proposed in this paper scale efficiently
+to models of this size. TE is theoretically (), but it becomes difficult to apply in large models due to
+the rapid growth of Gg(.) that affects numerical precision.
+.. Asymptotic expansions. Asymptotic expansions for Gg(.) are () and thus capable of accelerating optimization. Expansions appear in [29, 33-35, 37] and are discussed below. Other asymptotic
+methods exist but they are not relevant to the present work as they either focus on single-class models
+only [19] or study asymptotic values of mean-value performance metrics [, , , 28, 30], whereas we focus
+here on computing likelihoods in multiclass systems.
+
+PANACEA (PAN) [37] is applicable only to models with infinite servers and in normal usage, ..,
+where resources are lightly utilized so that max;a,; < where a; = >,. ,4jr0, =,...,. Normal
+usage conditions tend to be restrictive in applications, where the analysis of heavy-load regimes is of
+practical importance.
+
+The ray method [29] (RAY) is an approximation method for PDEs. Combined with singular perturbation theory, RAY provides an approximation for Gg(.) under an increasing number of nodes and a
+simultaneous scaling of their service demands. We extensively compare our results against the baseline
+provided by this method.
+
+Saddle-point approximation (SPA) provides asymptotic expansions of contour integrals arising from
+the generating function of Gg(). A limitation of SPA is that explicit formulas are available only for
+small models, although it principle the method may be generalized [33-35].
+
+As we show in Section our asymptotic expansions are based on Laplace’ method [27], which may
+be seen as a specialization of the saddle-point method for real integrals. This substantially differs from
+the SPA method which applies to contour integrals in the complex domain and leads to rather different
+expressions for Ge().
+Motivating example: demand estimation from state samples
+
+To illustrate the limitations of existing computational techniques, we compare prior art methods in a
+likelihood maximization application. Assume to measure a set of  state samples,  € Sy,  =,..., .
+
+We seek for a maximum likelihood estimator (MLE) for the demand matrix @. In practice, problems of
+this kind arise during model selection and calibration, where one seeks for an optimal parameterization
+and the ™ samples represent system state measurements. Likelihood-based estimation offers a number
+of advantages over other estimation techniques, for example it can cope with missing and aggregate
+data [40].
+
+We assume , =and knowledge of = >>, Mr, Vr, .., the end-to-end response time of a single
+class- request when  = From () the log-likelihood of @ is given by
+where Qkr = > nl / is the measured mean queue-length of class  at node . The first term can be
+neglected upon optimizing over> The cost of computing £(@) is thus dominated by the cost of
+determining log Gg().
+
+We consider () for a model with , =  = (,,)/, and =  * and seek
+for a (local) MLE that maximizes £()/ subject to @ > We also let  — oo by using in place of
+the Ohr the exact mean queue-lengths computed by mean-value analysis [42]. We apply MATLAB’
+fmincon interior point algorithm, and calculate Gg() at each iteration using one among CA, RECAL,
+MoM, TE, or RAY. We also use Monte Carlo integration (MCI) with AMVA-based initialization [47].
+The assumptions underpinning PAN and SPA are not met on this example: PAN requires infinite servers;
+SPA is not available for models withnodes andclasses or larger. TE also requires infinite servers, but
+we can set , =-, Vr; a similar perturbation cannot be used with PAN since the method also requires
+normal usage. Lastly, we include in the experiment a variant of () where we neglect the normalizing
+constant by setting log Gg() = This variant is denoted by NOG and corresponds to the log-likelihood
+formula for a product-form open queueing network with demands @. Each chosen method is initialized at
+the same point, sampled from a uniform distribution. We set a timeout ofminutes, after which fmincon
+returns after completing the running iteration.Experiments are run on a quad-core desktop computer.
+
+Tableshows execution times with , = ,20, 40 jobs and the absolute percentage errors of
+the returned demands with respect to the true The suffixes for MCI and TE are the number of samples
+ and the scale of the ODE step size respectively, .., MCI3 has  =? and TE- has  =”.
+The CA (No timeout) method is exact and thus provides an upper bound on achievable accuracy on
+this instance. For this method, we run the optimization until termination, computing the normalizing
+constant at each iteration using CA. This baseline is required since the problem () is non-convex, thus
+the choice of the initial point affects the achievable accuracy and it is thus undesirable to reason on
+absolute error alone.
+
+We note that all methods incur a considerable degradation of accuracy and running times as the
+population  grows. Some methods, such as TE, have a similar (or worse) performance than NOG,
+which ignores the normalizing constant. CA is the best among the exact methods, but its execution
+times grow quickly and on larger models become infeasible. Among existing approximations, the RAY
+asymptotic expansion achieves the best results, although the errors remain high, around%-82%.
+However, computational times are scalable. A similar conclusion applies to MCI with a small number of
+samples. This motivates us to further investigate into asymptotic expansions and Monte Carlo integration
+methods. We also remark that on this example the expansion proposed later in Sectionachieves less
+than% absolute percentage error in all the three cases, with runtimes betweens ands. A validation
+on a broader set of instances is presented in Section
+
+ EXACT RESULTS
+
+In order to inexpensively approximate the normalizing constant, we first derive novel integral expressions
+for Gg(.). This derivation leads to novel numerical approximations and provides a theoretical baseline
+for developing asymptotic results.
+ Integral form over the unit simplex
+
+We first derive an exact integral form for the normalizing constant in networks without infinite servers.
+
+THEOREM. In a multiclass closed queueing network with  single-server nodes
+Proof. The multinomial theorem () implies that for any set of real numbers (a1,...,@) and variables
+ = (ti,...,tz)? we can write
+
+where the right-hand side is the divided difference! of zN+*—! relatively to the interpolation points
+..., 9x. This expression is valid for single-class normalizing constants with arbitrary demands. We can
+then apply to the last expression the Hermite-Genocchi formula [], which is a classic integral form for
+divided differences
+
+where (*—))() is the ( —)th derivative of () and Ax is the unit simplex. Here we set () = aN+*-
+and show in Appendix  that, for this specific choice of (), (10) also holds under nondistinct;, a case
+normally not covered by the Hermite-Genocchi formula. Using () in (), followed by (10), we get
+
+For a given function (), divided differences extend the notion of forward difference of () to a set of interpolation points
+arbitrarily located in the domain of (). We point to [, 38] for further details.
+
+ 
+
+Recalling that = 9rty and applying () to the integrand, we find (). Oo
+
+Theorem provides a novel integral form for the multiclass normalizing constant, with an integrand
+similar to (), but defined over a bounded domain. It is also possible to verify that () follows from
+() using the Laplace transform, once the integration domain is reformulated in a suitable parametric
+form [36].
+
+It is useful to note that a shorter proof of Theorem follows by first applying the multinomial
+theorem () to each factor in the integrand of () and then using term-by-term the Dirichlet integral
+
+This yields () after noting that in the absence of infinite server nodes it is ea , = . Compared
+to this simple derivation, the proof of Theorem introduces (), which is used in the next section to
+obtain explicit solutions. Similar mappings between sums and products are important also in multivariate
+statistical analysis [26]. Moreover, the proof of Theorem shows that multiclass normalizing constants
+may be expressed as derivatives of single-class normalizing constants, and that the latter may be seen as
+divided differences of the power function.
+ Explicit solutions
+
+While our interest is on deriving approximations, novel exact computational formulas may also be
+obtained from Theorem. Such expressions are not used throughout due to their cost, but they appear
+of theoretical interest due to the lack of similar expressions for the multiclass normalizing constant.
+
+COROLLARY. The normalizing constant of a closed multiclass queueing network is given by
+
+where  = (t1,...,tr)", = >, tr, and gee() is the normalizing constant of a single-class model with
+demands = ye trOpr.
+
+The result follows by applying (13) to the product in the integrand of () and recognizing ggz() in the
+resulting expression. oO
+
+Computing gez() explicitly using the closed-form formulas in [, Eq.] implies for (12) a theoretical
+
+complexity of (®) time and () space. For example, in the special case where demands are distinct,
+the normalizing constant can be computed in () as [, 32]
+
+yielding by (12) the following explicit expression for the normalizing constant
+
+(Sse tea) NPR! )= So NeW all ( > _eee ty (Oke ~)
+
+A similar formula holds for the general case if one uses [, Eq.] in place of (14). Consider the
+single-class demands = aatrOxr. Assume that; has multiplicity , >and let ’ be the number
+of distinct demands. Plugging Eq.] into (12) yields the general expression
+COROLLARY. The normalizing constant of a closed multiclass queueing network model can be
+expressed as
+Proof. Observe that the specialization of () to single class models is
+
+This identity can be proved by first rewriting the expression in terms of  = — >and then
+iteratively applying a corollary of Vandermonde’ convolution [21, Eq.]. 
+
+This explicit form requires (“) time and () space, which makes it preferable to (12) on models
+with many classes, but a small number of nodes. To the best of our knowledge, (12) and (17) are the
+only exact and tractable algebraic expressions for Ge() with a () space requirement. This improves
+over the space requirements of recursive algorithms such as CA and RECAL, while retaining the same
+time complexities, which may be useful in cases where one wants to solve several models in parallel
+without incurring into memory bottlenecks. However, in practice the above expressions are applicable
+only to models where  = min(, ) is not too large (..,  <), typically with up to a few tens of
+jobs. Moreover, due to the large magnitude of the terms, multi-precision arithmetic should be used to
+avoid numerical issues upon computing (12) and (17). The techniques developed later do not suffer these
+problems and can help to approximate larger models.
+ Infinite server nodes
+
+Consider now a model where the first  nodes are single-server queues and the remaining  —  nodes
+are infinite servers. The following corollary generalizes the integral form.
+
+COROLLARY. In a model including infinite server nodes
+ Numerical evaluation
+
+Cubature rules are interpolation formulas that approximate a multidimensional integral by computing
+the integrand at a finite set of points [14]. For polynomial integrands, cubature rules may also allow the
+exact evaluation of the integral, if interpolation occurs at a large enough set of points. An advantage of
+() over () is that it expresses Gg() as an integral of a polynomial over the simplex, making it suitable
+for application of cubature rules.
+
+We focus here on Grundmann-MOller (GM) cubature rules, which are tailored to the exact and
+approximate integration of polynomials over the simplex [23]. Applying directly the definition of GM
+cubature rule of degreeS +to () leads to the following expression [23]
+
+The number of points in the rule (21) is  = (“*), thus worst-case complexity is (*) time and ()
+space.
+Fig. Grundmann-MGller weights ; for models with Af =  single-server nodes
+
+If the integrand is a multivariate polynomial of degree , then a GM cubature rule of degree  =
+[( —)/] returns the exact value of the integral in ((/)*) time and () space [23]. This is indeed
+the case for both () and (20). In the case without infinite servers, this is evident since the integrand is a
+product of linear forms. We now show that the same conclusion holds in models with infinite servers. Let
+@() be the normalizing constant for a model composed of an infinite server node with demand oa,
+and  identical single-server nodes having class- demand = Feruz. We have the following result.
+
+We now plug the integral expression of '( + ’) and the statement follows by the multinomial theorem ()
+and by definition of.. Oo
+
+Since §() is a normalizing constant with demands that are linear functions of uw, by definition it
+is a multivariate polynomial of degree  in uw. The theorem thus confirms that the inner integral in (20) is
+a polynomial of degree NV. Thus a GM rule with  = [( —)/] returns the exact value of Gg() also
+in the presence of infinite servers. Therefore, similarly to (12) and (17), (21) provides an exact expression
+for Ge(.) that is both explicit and tractable.
+
+Using smaller values of  trades accuracy for speed, as it is possible to approximate Gg() by
+truncation of the outer summation of (21). This is an effective procedure thanks to the rapid decay of the
+weights ,;, as illustrated in Figure For large enough the weights quickly and monotonically decrease,
+thus a few outer iterations of (21) are sufficient to return a good approximation. As we show later, GM
+rules perform very well on small and medium-sized inference problems. However, as the model size grows,
+the asymptotic expansions introduced in the next sections are normally more efficient.
+ ASYMPTOTIC EXPANSION Preliminaries
+
+We now exploit the geometry of the unit simplex to derive an asymptotic expansion for Geg(). Our
+approach first applies a logistic transformation to the integration variables in its integral form []. This is
+a classic method to map integrands defined over the -dimensional simplex to ”. We find after this
+transformation that, as  grows, the integrand becomes increasingly peaked at a unique point in the
+interior of the integration domain, satisfying the conditions for Laplace’ method [27].
+
+A technical requirement for our argument to hold is that all queue-lengths grow asymptotically large
+as  — +oo, a property which is violated by non-bottleneck nodes. To address this issue, we introduce a
+novel scaling where we also slowly increase at every node a population of jobs that permanently reside at
+the node itself, perpetually self-looping. That is, we introduce  additional classes, each with population
+eN, € > where the ith class is composed by jobs that self-loop at node , placing a unit service demand
+at each visit. In this way we are considering the perturbed normalizing constant
+
+Our asymptotic expansion is proved for an auxiliary function I,(), which uniquely defines Gg().
+This function is defined as follows. First, we allow for real values of « by expressing where needed factorials
+in Gg() using the gamma function I'(-). Without loss of generality, we then normalize the service
+demands in the auxiliary function to range in [,]. That is, we set
+
+I,(.) and to simplify notation use;, and , in place of Ger and ,, subject to,- < and , <
+Moreover, we assume that the ratios = ,/ remain constant while increasing NV.
+ Laplace’ method
+
+We first obtain the asymptotic approximation for I.() at & in a model with single-server nodes only.
+This method requires to verify a set of well-known analytical conditions [27]. We here verify a slightly
+stronger set of assumptions. After showing that
+
+for smooth and infinitely differentiable hy (ax), having constant order with respect to  and bounded
+derivatives, we prove the validity of Laplace’ method VN >by showing that there exist a ey >such
+that Ve > en:
+
+ Condition I,() exists and it is finite;
+
+ Condition hy(a) attains a unique stationary point in the interior of the integration domain of (25);
+
+ Condition the Hessian of hy(a) has a positive determinant at its stationary point.
+
+Under these conditions it is possible to apply Laplace’ method [27], which provides a (~')
+asymptotic approximation. Higher-order expansions may also be considered, but their computational cost
+grows quickly with the number of nodes in the model [27].
+
+THEOREM. In a closed network without infinite servers, for all  >there exists an én >such
+that Ve > en
+
+The last result provides by (23) an approximation for Gg(.). The role of the € parameter is to ensure
+that the stationary point of the integrand of () belongs to the interior of the integration domain and
+that det(A) > For models with a finite NV, the first condition holds irrespective of the value of «, which
+is needed only asymptotically, and choosing smaller values of € generally returns more accurate results.
+We also show that, for a sufficiently large €«, matrix A is positive definite, which is later used to develop a
+Monte Carlo integration method.
+
+Lastly, we note that (26) is a product. This is highly beneficial in applications, since we can avoid
+numerical difficulties associated to the rapid growth of the normalizing constant by directly computing
+log Ge(). As a result, across thousands of models that we have solved in the numerical validation, we
+have never experienced numerical issues with (26). On the contrary, normalizing constant methods based
+on summations such as CA or (21) eventually fail on large models due to floating-point range exceptions
+and round-off errors.
+Proof of Theorem
+The result follows by proving the assumptions of Laplace’ method. Since , = (24) here simplifies to
+
+with Jacobian
+
+ 
+Note that hy(az) is smooth and infinitely differentiable. Moreover, hy (a) has a constant order with
+respect to  and its partial derivatives are also smooth and bounded at all orders. We are now ready to
+verify the conditions for Laplace’ method given in Section.
+. Condition existence and finiteness. Since the logistic transformation does not affect existence
+and finiteness, it is sufficient to verify these properties on (29). Existence follows since Ax is a finite
+domain and the integrand of (29) exists at all points of Ax. I,() is also finite for all € >and  >
+since we assumed throughout that, < and the domain Ax has a constant volume irrespective of the
+value of .
+. Condition unique stationary point. Conditionis verified as follows. We seek to solve Vhw () =and use the inverse transformation of (30) to express the result over Ax. The inverse transformation is
+given by []
+
+& = (log d1/ax, ...,logdx_1/ax) (31)
+and yields the system of nonlinear equations (27). We now show that this system admits a unique solution
+&. Moreover we also show that if « >then &@ € AX   Ax for all  > with
+
+Af = {ulu € Ax, uj > (+eN)nz'(), vi}
+
+Mapping back & to *—" using the logistic transformation (30), this implies that the stationary point of
+hn(a) is in the interior of the integration domain, .., & is finite in RX—'.
+
+We begin by proving the existence of a solution in AX . Let us consider a point ul™ € An, neN,
+and the continuous mapping
+
+for  =..., —. Since Ax is convex, non-empty and compact, (32) has a fixed point @ € Ax
+and this must also be a solution of (27) by definition. We now show by contradiction that (27) has
+no solution in Ax \ A& . Assume that a solution  € Ax \ AX  exists. Then there exists a node 
+such that< ; < (+«)-(). Plugging  into (27) now makes the ith equation infeasible, since
+ye £,-(@)0ipu; >implies ; > (+ €)nz!(), against the assumptions.
+
+To prove uniqueness, we focus on Ak, » Since no solutions exist outside this sub-domain. Consider the
+nonlinear program
+
+
+for all  =...,& — A feasible solution in AS, ,, requires; = Vi. It is possible to verify that the
+objective is strictly convex over AS ,» being the sum of functions that are convex and strictly convex over
+this domain. Thus the KKT conditions admit a unique solution, which must be @ since this is feasible for
+A = Since the solutions to the above KKT conditions include all the solutions of (27) in AX& , we
+conclude that (27) has a unique solution & in AX .
+. Condition positive Hessian determinant. Let A = [Ajj], , =,...,. — be the Hessian of
+Nhn(a) evaluated at the stationary point &. Computing A by the definition we obtain (28). We now
+prove that for all  >there exists an ey >such that A is positive definite for all € > en.
+
+From (27) we have lim,,400; = —,Vi which implies that lim.,.. Ai; <  Jj. Thus, there exist
+an € such that —A has positive off-diagonal entries for all € > ey. By (28), this implies that
+
+with ax = (Aix,..., Ax _1,) is an irreducible infinitesimal generator. Being —A the principal sub-matrix
+of an irreducible generator, it is negative definite and thus A is positive definite, implying det(A) >
+Ve > en. Since  > this verifies Condition
+
+.. Final expression. To conclude the proof of Theorem we can apply Laplace’ method in *-!
+to obtain the expansion
+
+The final expression (26) follows by the expression of hy(#) and the inverse transformation (31). By the
+initial definitions and using the a, terms to remove the condition,. < the asymptotic expansion is
+finally given by
+ Extensions
+. Models with infinite servers. When the population at one or more nodes does not scale asymptotically, the asymptotic stationary point of hy(a) does not lie anymore in the interior of the integration
+domain and this complicates the asymptotic validity of Laplace’ method. In the presence of infinite
+servers, it does not seem easy to scale parameters in (25) to address the problem. Thus, in models with
+
+
+infinite servers we propose Laplace’ method only as a sub-asymptotic heuristic. The sub-asymptotic
+method amounts to fitting the integrand of (25) to a multivariate normal density and using the resulting closed-form expressions to approximate I,(), for  < oo. This needs to be coupled with an
+approximation of the indefinite integral in (20).
+
+The heuristic follows a very similar argument as in the case without infinite servers, thus we just give a
+sketch. We first apply the change of variable  = ”° and the logistic transformation (30) so that
+
+Note that this is a -dimensional integral, whereas in the case without infinite servers we have used
+ — dimensions. Setting Viy(ax) =and simplifying terms, we find that the stationary point is written
+in terms of the original integration variables as the solution (&, @) of the system
+
+where  € Ax, -() =+(+€eN), &-(,) =,(-+ vp Ore) ~* and in which the equation
+for  uses that ye £,(a, )(o7 + vey Org) = .
+Explicit formulas for the entries of A are obtained by computing the Hessian matrix of Nhy(a)
+
+expressed in terms of the variables (@, ). Define ber = + Gir, Vk, , the entries of A = [Ajj] are given
+by
+
+for all , =,...,& —. The above expressions use the inverse transformations (31) and zp = logv. The
+knowledge of (&,¢) and A provides a Laplace-type approximation for “a
+
+where the exponent of @ includes the contribution of the Jacobian. Equation  can be readily applied
+to approximating models with infinite server nodes, leading to
+As before, the « >parameter should be chosen as small as possible, but such that act( A) >
+
+... Combining Laplace’ method with AMVA. In some inference problems, measurements for both
+system state and mean performance metrics are available. In this case, in addition to likelihood-based
+inference, one may require that the estimated model also matches the empirical mean value of some performance metrics. This typically requires to run an AMVA algorithm alongside the likelihood maximization
+algorithm.
+
+In this section we argue that a more efficient way to optimize these models is to heuristically compute
+a using the results of AMVA. This effectively doubles the speed of the optimization, since the same
+AMVA fixed-point iteration can be used both to calculate likelihood and mean measures. A limitation of
+this method is that no formal guarantee is in place to ensure that det(A) >on all instances. However,
+no problematic instance in this sense is observed throughout the numerical validation. In cases where
+det(A) < one may try to heuristically increase € in order to resolve this issue.
+
+The proposed method works as follows. Let us observe that, as  — oo, (27) tends to
+
+ 
+ere €,() = .(+ ee, Oru~). As € +the last expression coincides with the expression
+of the mean-value analysis algorithm’ queue-length equations when ,; is the total queue-length at
+node  divided by , and  —> co. This suggests the following way to determine the point & at which
+we instantiate the Laplace’ method. Instead of using (27), we choose & * @ = (41, ...,Ga), in which
+Gi = Gr()/, Vi, where ;-() is the mean queue-length of class  at node  in a model with
+population , a value which can be accurately approximated in () time and space using AMVA [44].
+., Monte Carlo integration. The applicability of Laplace’ method indicates that the integral I,()
+may be approximated using a multivariate normal distribution centered at the stationary point of hy (a)
+and with covariance matrix A~‘. The resulting normal distribution is non-degenerate if A is positive
+definite. In situations where asymptotic expansions are expensive or inaccurate, one may thus apply an
+importance sampling method to ,(), using samples from a multivariate normal distribution. Denote by
+«; the jth sample drawn, out of a total of . We have the importance sampling estimator
+
+where & is the stationary point of  (a) and a stands for the normal density function. For the case
+without infinite servers, by =and hy(a#) is defined as in Section. For models with infinite servers,
+
+one needs to use the expressions of by and hy(a#) given in Section.. From Monte Carlo integration
+theory, (39) converges to I.() as (—/) under a growing sample size .
+NUMERICAL RESULTS Algorithms
+
+In this section we assess accuracy and speed of the proposed methods. We distinguish the proposed
+algorithms in two groups:
+
+ Deterministic methods, such as the asymptotic expansions, which return the same answer in successive
+invocations on the same model and therefore are suitable for use within deterministic optimization
+programs. We include in this group RAY and the asymptotic expansion (25), referred to as the
+logistic expansion (LE), and the heuristic variant of LE calibrated with AMVA, denoted by LE-A.
+We also consider in this group the cubature rules given in (21) with  = {,,,} and denote, ..,
+by CUB5 a cubature rule with  = We have also experimented with TE, CA, and MoM, but
+computational times are far larger than those of the other methods and incompatible with the scale
+of the experimental validation, which encompasses thousands of optimization programs.
+
+ Randomized methods, which use sampling to achieve the desired accuracy in return for an increased
+effort. We include in this group MCI and the Monte Carlo integration method in (39), which we call
+logistic sampling (LS). Monte Carlo methods are instantiated with  € {10', 107, 10} samples, ..,
+MCI2 stands for MCI with  =?, and similarly LS3 has  =°.
+
+For deterministic methods, we are interested in assessing both accuracy and ability to guide optimizationbased search. For randomized methods, we verify accuracy as the number of samples grows. Remarks on
+the implementations are as follows:
+
+ In LE we use fixed-point iteration to solve (32), setting the convergence tolerance on the-norm of
+@ to =°. The initial point has ; =/, Vi. We also set « =~°. Out of the thousands of
+models solved, none failed to converge and none required to increase ¢ beyond its initial value.
+
+ LE-A is implemented using the Bard-Schweitzer AMVA [44] for determining the point  with a=~® convergence tolerance on the-norm of the mean queue-lengths. Also in this case none of
+the models failed to converge.
+
+ For cases where A is not positive definite, LS is instantiated by increasing € in steps of-3N, until
+obtaining a positive definite matrix. In small and medium-sized models, this calibration is not normally
+required. However, on large models where the entries of A are small, very few increments of € are
+normally sufficient to address the issue. In the random validation on large models, this calibration is
+required on% of the instances and occurs prior to computing (39). The computational cost of the
+calibration is negligible.
+ Methodology
+
+An important issue for the validation methodology is that for large models Gg() cannot be computed
+exactly due to the large cost of the exact algorithms. Thus we first carry out a validation on small and
+medium-sized models where the normalizing constant can be obtained exactly. Afterwards, we report
+a similar validation on larger models where we estimate Ge() by Monte Carlo integration with a
+large number of samples (10”). In the large-scale setting, we attempt to compensate the variance of
+the estimator of the normalizing constant by assessing percentage error with respect to the scale, ..,
+log Ge(). Note that on most large-scale models the order of the normalizing constant is the dominant
+factor in the likelihood expressions.
+The validation does not include mean performance metrics. This is because their computation can be
+performed very efficiently using AMVA methods [44]. Our methods are instead proposed for the accurate
+computation of likelihoods and probabilities, which require Gg() and are still difficult to compute in
+practice.
+
+The computational times to run LE and LE-A inside optimization programs are very small, typically a
+fraction of a second. This is due to the rapid convergence of the fixed-point algorithms used to determine
+the location of the stationary point. For example, on the largest model with 
+LE takess to find at the first iteration the stationary point, but justs for a new prediction after a- increment of provided that the fixed point equations (32) are re-initialized at the previously-found
+stationary point. When the model size is decreased to  the first solution requires justs,
+while successive updates abouts. Since the optimization-based study considers an identical timeout
+for all methods, we do not provide details on the running times of individual algorithms. Lastly, we
+remark that space complexity is negligible and does not grow significantly with the model size. This is
+because all approximation methods considered throughout have () space complexity as the population
+sizes  grow, with  typically being the largest model parameter.
+Computing a single normalizing constant
+. Small and medium-sized models. We consider randomly-generated models with  € {,,}
+nodes,  € {,,} classes, and where each class has the same number of jobs equal to / = {, , }.
+Thus the largest model in this group hasnodes,  classes andjobs. We use less jobs than in the
+motivating example in Tablesince we now consider models with  =classes that are much more
+expensive to solve exactly. For any given triplet (, ,), we solverandom instances, for a total ofmodels. In each instance, demands are generated at random in [,]. Gg() is computed exactly
+using the CA algorithm.
+
+Note that RAY is the only method that incurs failures during execution. This occurs onmodels
+out ofand it is due to a singular determinant in its expression. Indeed, RAY does not provide
+correctness guarantees in the sub-asymptotic setting [29]. We count as a failure a run that either stops
+due to excessive memory requirements, or that returns a NaN, -too, or a complex value for Ge(IN) due
+to numerical issues.
+
+Tablesandgive the mean absolute percentage error (MAPE) on Ge() for deterministic and
+randomized methods. The results indicate that the CUB dominates all other methods, including the
+randomized ones. Execution times of CUB on these models are in the order of a few milliseconds, making
+this method preferable in small and medium-sized models. As expected, asymptotic expansions incur
+smaller errors as the number of jobs grows. The Monte Carlo integration methods, MCI and LS, are
+instead more accurate with fewer jobs. However, increasing the number of samples in both methods
+quickly lowers errors to the desired level.
+
+In order to better understand the differences between MCI and LS, we have investigated how the
+accuracy of the two methods varies under increasing number of nodes  or number of classes . MCI
+decreases errors as  increases, whereas it performs worse under increasing . For example, MCI1 goes
+from% to% as the number of classes goes fromto whereas it decreases errors from% to% when the number of nodes grows of the same amount. Conversely, LS is rather insensitive to ,
+with LS1 error lying between% and%, but the method incurs larger errors as  grows, with LS1
+going from% withnodes to% withnodes. This increased error is due to the larger number
+of integration dimensions in (25), which requires a larger  value to deliver a similar level of accuracy.
+Similar trends are seen also in large models and suggest that the two methods can complement each
+other, preferring MCI on models with many nodes and LS on models with several classes.
+Table Small and medium models - deterministic methods
+. Large-scale models. We now consider a similar setup as in the previous experiment, but with
+,  ranging in {16,32,64}. The number of jobs ranges in / = {, ,, 16, 32,64}. Thus the largest
+models havenodes, 64 classes andjobs. As explained before, in this setting it is difficult to obtain
+the exact value of the normalizing constant, thus we compare against MCI with” samples and focus
+on matching log Gg(IN). The MAPE on log Gg(.) may be seen as the percentage error introduced in
+log-likelihoods such as ().
+
+Tablesandpresent the results of these experiments. Since CUB3, CUB5 and CUB7 fail on over% of the large instances due to floating-point range exceptions, the corresponding entries are omitted
+from the table. The results indicate that CUB1 remains the best method under small population sizes,
+however as  grows the asymptotic expansions become the most accurate. The RAY method is the least
+accurate in light load, but has a similar accuracy to the other methods in high-load. This is indeed the
+regime that matches the assumptions for the scaling used in RAY [29]; we have noted however that on
+
+Table Large models - deterministic methods
+
+models with a large number of classes, but a few queues, RAY is less accurate than LE and LE-A, which
+is consistent with the fact that the scaling used in [29] assumes a growing number of nodes. For example,
+going from  nodes RAY improves its error from an average of% to%. On the
+opposite, when the number of classes is increased from , RAY goes from an average
+error of% to%. In the same ranges for nodes and classes, LE and LE-A have narrow error bands
+between% and% average error.
+. Models with infinite server nodes. We have repeated the experiments in Section. on models
+with a infinite server node, focusing on the validation of the heuristic given in Section.. Since
+with infinite servers RAY is no longer applicable, we have validated LE against the PANACEA (PAN)
+asymptotic expansion [37]. We have set in the experiments an identical think time on all classes equal
+to or € {.16 mac, Imax, 10? max, 1000 max}, where Omaz = Max, Max~=,..., O4,.
+Table PAN fails on all models with think time , =, and ; =max due to violation of the
+normal usage assumption; it instead returns a% MAPE with , = Oma, and an error less than%
+with , =mnaz- LE returns a valid solution in all cases, with decreasing errors for increasing ,. values.
+Thus, LE appears generally more robust than PAN, which is preferable only in very lightly loaded models.
+ Optimization programs
+
+We now compare the methods against the likelihood maximization problem () for service demand
+estimation, focusing on deterministic methods. For the sake of illustration of the limited performance of
+randomized methods in this setting, we also include MCI3 in the validation. We consider problems with
+, € {, ,, 16,32} and populations with / € {, 20,40} jobs per class. Each experiment is carried
+out with the same procedure described in Section, in particular setting a timeout of  =minutes.
+We repeat the same experimenttimes randomizing demands, solvingoptimization programs for
+. Results. Experimental results are given in Figure We include in the study also the NOG
+method, which neglects the normalizing constant. In Figures()-() we show how frequently each model
+is ranked best for a given population level . The results indicate that LE outperforms all the other
+methods and it is slightly better than LE-A. However, in models with a small number of jobs CUB is
+preferable, which is consistent with the observations in Section.. The fair performance of NOG is
+explained by the fact that asymptotically the closed network approaches an open network, where the
+arrival rate intensity matches the cumulative departure rate from the bottleneck nodes. The methods
+proposed in this paper remain preferable to NOG, as they are the best ones in most models. This is
+evident in Figure(a), which indicates that LE is the best method among the considered ones. The figure
+shows that about% of the times LE is the best method, and in about% of the cases it ranks second,
+typically behind CUB1, NOG, or LE-A. Tablereports statistics on the number of failures, which occur
+only for CUB as the load grows and for RAY, similarly to what seen for small and medium-sized models.
+Methods not shown in the table do not incur failures.
+. Single-class models. Lastly, for completeness we include results concerning inference in singleclass models, which also arise in practice. For such models we do not study the computation of a single
+normalizing constant since exact () expressions are available, .. (14). We instead consider likelihood
+maximization with  € {,,,16,32} nodes,  =class,  = {,20,40}, and single-class demands = /. The initial guess for the demand matrix is =/, Vk. We include in the study the
+exact-order asymptotic (EOA) formula recently proposed in [19].
+
+Generally speaking, exact methods such as CA are very fast on single-class models, and return a
+tiny error, on average just%. However, CA complexity is (), thus in models with very large
+populations  approximations may be of interest. In the above study, LE returns a MAPE of just%.
+The other methods are instead rather inaccurate, with a MAPE of% for CUB1, 26.% for RAY,
+24.% for LE-A, and% for EOA. This overall indicates that LE is fit for use also in single-class
+problems, although exact methods such as CA seem sufficient in practice.
+ Summary
+Summarizing, the results indicate the following main properties for the proposed algorithms:
+ On small models, CUB dominates all other algorithms.
+
+ On large models, one should choose CUB if the population is small, or otherwise prefer LE. The same
+criteria applies to optimization programs involving likelihoods.
+
+ Among randomized methods, LS is the best on models with many classes, whereas MCI is best with
+several nodes.
+CONCLUSION
+
+This paper has shown that performance inference over closed systems faces computational hurdles. If
+the model is a closed product-form multiclass network, we have shown that computational issues can
+be addressed by novel asymptotic expansions and Monte Carlo sampling methods for the normalizing
+
+
+constant of state probabilities. Future research may further investigate the implications of the integral
+form () for the exact theory of normalizing constants, for example on models with multi-server and
+load-dependent nodes.
+
+ACKNOWLEDGEMENT
+
+This research has been partially funded by the European Union’ Horizonresearch and innovation
+programme under grant agreement No.(DICE) and by a UK Engineering and Physical Sciences
+Research Council grant . Research data is available at (https://doi.org/10.5281/zenodo.) under CC-BY licence. The author wishes to thank Tony Field for support while preparing
+this work and Urtzi Ayesta for his helpful comments while serving as managing editor for this paper.
+

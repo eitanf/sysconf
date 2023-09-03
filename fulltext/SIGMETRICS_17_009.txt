@@ -1,0 +1,791 @@
+Security Game with Non-additive Utilities and Multiple Attacker
+Resources
+
+ABSTRACT
+---
+There has been significant interest in studying security games for modeling the interplay of attacks and defenses on various
+systems involving critical infrastructure, financial system security, political campaigns, and civil safeguarding. However,
+existing security game models typically either assume additive utility functions, or that the attacker can attack only one target.
+Such assumptions lead to tractable analysis, but miss key inherent dependencies that exist among different targets in current
+complex networks. In this paper, we generalize the classical security game models to allow for non-additive utility functions.
+We also allow attackers to be able to attack multiple targets. We examine such a general security game from a theoretical
+perspective and provide a unified view. In particular, we show that each security game is equivalent to a combinatorial
+optimization problem over a set system ¢, which consists of defender’ pure strategy space. The key technique we use is based
+on the transformation, projection of a polytope, and the ellipsoid method. This work settles several open questions in security
+game domain and significantly extends the state-of-the-art of both the polynomial solvable and NP-hard class of the security
+game.
+---
+INTRODUCTION
+
+The key problem in many security domains is how to efficiently allocate limited resources to protect targets against
+potential threats. For example, the government may have a limited police force to operate checkpoints and conduct
+random patrols. However, the adversarial aspect in security domain poses a unique challenge for allocating
+resources. An intelligent attacker can observe the defender’ strategy and gather information to schedule more
+effective attacks. Therefore, the simple random strategy of “rolling the dice” may be exploited by the attacker,
+which greatly reduces the effectiveness of the strategy.
+
+With the development of computational game theory, such resource allocation problems can be cast in game theoretic contexts, which provides a more sound mathematical approach to determine the optimal defense
+strategy. It allows the analyst to factor differential risks and values into the model, incorporate game-theoretic
+predictions of how the attacker would respond to the security policy, and finally determine an equilibrium
+
+strategy that cannot be exploited by adversaries to obtain a higher payoff. In the past decade, there has been
+an explosion of research attempting to address this approach, which has led to the development of well-known
+models of security games.
+
+The classic security game is a two-player game played between a defender and an attacker. The attacker
+chooses one target to attack; The defender allocates (randomly) limited resources, subject to various domain
+constraints, to protect a set of targets. The attacker (defender) will obtain the benefits (losses) for those successfully
+attacked targets and losses (benefits) for those defended targets. The goal of the defender is to choose a random
+strategy so as to play optimally under some solution concepts such as Nash equilibrium and strong Stackelberg
+equilibrium. This security game model and its game-theoretic solution is currently being used by many security
+agencies including US Coast Guard and Federal Air Marshals Service (FAMS) [26], Transportation System
+Administration [] and even in the wildlife protection []; see book by Tambe [25] for an overview.
+ Motivation
+
+There exists two common limitations of the classic security game model: first, it does not consider the dependency
+among the different targets; second, the attacker can attack at most one target. In particular, the payoff functions
+for both players are additive, ie, the payoff of a group of targets is the sum of the payoffs of each target separately.
+This assumption means that the security agency measures the importance of several targets without considering
+the synergy among them. In practice, the attacker can simultaneously attack multiple targets and there exists
+some linkage structure among those targets such that attacking one target will influence the other targets. For
+instance, an attacker attempts to destroy the connectivity of a network and the defender aims to protect it. The
+strategy for both players is to choose the nodes of the network. If there are two nodes that constitute a bridge of
+this network, successfully attacking both of them will split the network into two parts and incur a huge damage,
+while attacking any one of them will have no significant effect.
+ Related Works
+
+The nature of resource allocation in security games often results in exponentially many pure strategies for the
+defender, such that the defender’ optimal mixed strategy is hard to solve. In the past decades, there have been
+numerous algorithms developed for various extensions of the classical security game model discussed earlier.
+Table Solution Status in the Security Game
+
+Cases Single attacker resource Multiple attacker resource
+Homogeneous resource Heterogeneous resource
+
+  
+
+Additive utility function SSE [20], NE[16, 30 SSE Theorem,NE Theorem
+ 
+
+Non-additive utility function NE, SSE Theorem TheoremNon-zero-sum Same as above heorem, Theorem
+
+ 
+
+One line of research focuses on designing an efficient algorithm to solve such a game. [15] proposes a compact
+representation technique, in which the security game can be equivalently represented by a polynomial-sized
+mixed-integer linear programming (MILP) problem. The issue in [15] is that they only determine the optimal
+solution of the compact game instead of the optimal defender’ mixed strategy. To solve this problem, [16]
+introduces the Birkhoff-von Neumann theorem and show that the defender’ mixed strategy can be recovered
+under a specific condition. [13] proposes a double-oracle algorithm to exactly solve the security game with
+exponential large representation, which can be regarded as a generalization of traditional column generation
+technique in solving the large-scale linear programming problem. There are also other works such as the Bayesian
+security game [22], the security game with quantal response [] and the security game with uncertain attacker
+Another line of research focuses on examining the complexity of the security game. [16] adopts the previous
+compact representation framework [15] and shows that the compactly represented security game is polynomial
+solvable in some cases while NP-hard in other cases. [31] shows that the spatial and temporal security game
+is generally NP-hard. [18] provides an interesting result that, if the attacker has a single resource, the strong
+Stackelberg equilibrium is also a Nash equilibrium, which resolves the leader’ dilemma; if the attacker has
+multiple resources, this property does not hold. [] proves that the general security game with costly resources!
+is NP-hard and proposes an approximation algorithm.
+
+The earlier mentioned works studying the complexity of the security game focus on the game with a single
+attacker resource. However, none of these works provide a systematic understanding of complexity properties or
+provide an efficient algorithm for the security game when attacker has multiple resources and utility functions
+are non-additive. In [17], the authors extend the classic security game model to the scenario of multiple attacker
+resources. They design a— states transition algorithm to exactly compute the Nash equilibrium in polynomial
+time. Such an algorithm is complicated and restricted to the case that the defender’ resource is homogeneous,
+ie., the defender can protect any subset of targets with a cardinality constraint. In the practical scenario such as
+FAMS, the defender’ resources may be heterogeneous and solving such a scenario is still an open question in the
+security game domain.
+
+In work [29], the authors propose to investigate the security game with non-additive utilities. However, they
+assume that the security game is zero-sum, the defender’ resources are homogeneous and only one one group
+of utilities (benefit function). The recent work [30] provides a unified framework of the classical security game
+model with a single attacker’ resource. He shows that solving the security game is equivalent to solving a linear
+optimization problem over a set system. Using the flexibility of such a set system, their framework can encode
+most previous security games. For example, if the set system is a uniform matroid, it recovers the result of LAX
+checkpoint placement problem [23]; if the set system represents a coverage problem, it recovers most results
+in [16], ie., the polynomial solvability of-weighted coverage implies the polynomial solvability of equilibrium
+computation; if the set system represents the problem of independent set, it recovers the NP-hardness result
+in []. However, they leave open the question: what is the complexity of the security game model when attacker
+has multiple resources and utility functions are non-additive.
+Our Results
+
+In this paper, we study the classic security game model when attacker has multiple resources and utility functions
+are non-additive. More specifically, we wonder how the following questions that are well understood in the case
+of single attacker resource and additive utility functions can be addressed in this general case.
+
+ How to compactly represent the security game with multiple attacker resources and the non-additive
+utility functions?
+
+ How to efficiently solve such a compactly represented game?
+
+ What is the complexity of the security game when we consider non-additive utility functions and allow
+the attackers to attack multiple attacker resources?
+
+To answer these questions, we provide the following contributions: () we first propose a polytope transformation and projection framework to equivalently and compactly represent the zero-sum and non-additive security
+game with only poly() variables; () We prove that the problem of determining the Nash equilibrium of the
+zero-sum and non- additive security game and the problem of optimizing a Pseudo Boolean function over a set
+system ¢ can be reduced to each other in polynomial time. The main technique we use is to exploit the geometric
+structure of the low-dimensional polytope to construct a polynomial time vertex mapping algorithm. () We
+then apply our framework to the non-zero-sum and non-additive security game, and further obtain a similar
+
+Here “costly resources” means that the defender’ resource are obtained at some costs and the defender has a budget to allocate his resources.
+
+result that determining the strong Stackelberg equilibrium and the above combinatorial optimization problem
+is equivalent. () Finally, we examine the Nash equilibrium in the non-zero-sum but additive security game.
+We prove that determining the Nash equilibrium can be reduced to the linear optimization over a set system .
+The basic technique is to add another polytope transformation step in our previous framework, and show that
+determining the Nash equilibrium of non-zero-sum game can be reduced to a polynomial dimensional saddle
+point problem. The main results and comparison is summarized in TABLE
+
+These results demonstrate that the security game with non-additive utility function and multiple attacker
+resource is essentially a combinatorial problem, and provide a systematic framework to transform the game
+theoretical problem to the problem of combinatorial algorithm design. Further, our results not only answers the
+questions proposed in the security game domain [17, 30], but also extends significantly both the polynomial
+solvable and NP-hard class:
+
+ The previous result in [30] is dependent on the description length of the set system. One special case of
+our result can recover and strengthen the main results in [30], which is independent of the description
+length of the set system. It also implies that we also recover and strengthen the results in most security
+game papers.
+
+ The polynomial time solvability in [17] corresponding to that the set system , is a uniform matroid,
+which can be easily solved by summing the first  largest elements. In the scenario of the heterogeneous
+resource, we can extend several polynomial solvable classes.
+
+ Solve the security game occurred in the tree network or a sparse network. In these cases. although the
+utility functions are non-additive, we can show such a problem can be reduced to a polynomial solvable
+oracle such as a sub-modular minimization problem.
+
+The detailed discussions can be seen in Section The rest of the paper is organized as follows. In Section
+we introduce the security game model with multiple attacker resources and non-additive utility functions, and
+the preliminaries regarding some classical results in combinatorial optimization. In Section we present our
+framework of polytope transformation and projection to compactly represent the zero-sum security game. In
+Section we present the reduction between the zero-sum security game and the combinatorial optimization
+problem. In Section we further generalize our framework to the non-zero-sum security game and present the
+main results. Finally, we provides numerous applications of our theoretical framework in Section We conclude
+our work in Section Due to the space limitation, all of our technical proofs are provided in the Appendix.
+MODEL AND PRELIMINARY
+
+In the following, we first define the security game with non-additive utility functions and multiple attacker resources as a two-player normal-form non-zero-sum game. Then we present several classic results in combinatorial
+optimization.
+ Problem Description
+
+The model is similar to the classic security game [15], and the only difference is that we consider multiple attacker
+resources and non-additive utility functions.
+
+Players and targets: The security game contains two players (a defender and an attacker), and  targets. We
+use [] = {,,...,} to denote the set of these targets.
+
+Strategies and index function: The pure strategy for each player is the subset of targets and all the pure
+strategies for each player constitute a collection of subsets of []. We assume that the attacker can attack at most 
+targets, where  >is aconstant?. The attacker’ pure strategy space is a uniform matroid A = {A  []||A| < }
+and the number of attacker’ pure strategies is Ng = |\Al|. Similarly, we use  € al"! to denote the defender’
+Later, in Section we will relax this constant assumption.
+
+
+
+Let ? and @ be the attacker’ and defender’ payoff matrices. It is clear that ? = ? + ? and @ = ? + ?.
+Then the expected payoffs for the attacker and defender is given by following bilinear form, when they play the
+mixed strategy  € An, and  € An, by
+
+Solution Concepts: If both players move simultaneously, the standard solution concept is the Nash equilibrium
+(NE), in which no single player can obtain a higher payoff by deviating unilaterally from this strategy. A pair of
+mixed strategies (*, ") forms a NE if and only if they satisfy the following: Vp € An,, € An,,
+
+
+In some application domain, the defender can build fortifications before the attack and is thus in the leader’
+position from the point view of the game, and able to move first. In this case, the strong Stackelberg equilibrium
+(SSE) serves as a more appropriate solution concept [27, 28], where the defender commits to a mixed strategy; the
+attacker observes this strategy and comes up with its best responses. Formally, let () = arg maxpeay, "(, )
+denote the attacker’ best response to defender’ mixed strategy . A pair of mixed strategies (*, *) is a SSE, if
+and only if,
+
+Our goal is to compute the defender’ Nash equilibrium strategies and strong Stackelberg equilibrium strategies
+
+and we call it as equilibrium computation problem. The following definitions are often used in our theoretical
+development.
+
+Definition. (Common utility) The common utility is defined as the Mébius transformation [10, 14] of the
+benefit and loss function Bg() and Lg() for all  ¢!"!,
+Similar definitions hold for defender’ benefit and loss function: Bg(-), Lq(-) and their common utilities: BG (-),
+IC).
+The following definition of the set system ¢ is a binary representation of the defender’ pure strategy space .
+
+Definition. (Set System) The set system
+ Preliminaries
+
+Let be a non-empty convex polytope in ”. Given a vector  € ", one wants to find a solution to maxyey ’ .
+By “linear optimization over ”, we mean solving the problem max,¢;; !  for any  € ”. A separation problem
+for  is that, given a vector  € ”, decide if  € , and if not, find a hyperplane which separates  from . The
+following results are due to Grétschel, Lovasz and Schrijver [11].
+
+THEOREM. (Separation and optimization) Let  € ” be a convex polytope. There is a poly() time algorithm
+to solve the linear optimization problem over  if and only of there is a poly() time algorithm to solve the separation
+problem for .
+
+THEOREM. (Separation and convex decomposition) Let  € " be a convex polytope. If there is a poly()
+time algorithm to solve the separation problem for , then there is a poly() time algorithm that, given any  € ,
+yields ( +) vertices ',...,"! ©  and convex coefficients A1,...,An41 such that  = puis, Ajv'.
+
+The following result is the generalization of the von Neumann’ minimax theorem, which provides a condition
+when we can use the minimax or maximin formulation to solve a saddle point problem [24].
+
+THEOREM. (Sion’ minimax theorem) Let  be be a compact convex subset of a linear topological space
+and  is a convex subset of a linear topological space. If  is a real-valued function on    with () (, -) is
+lower semicontinuous and quasi-convex on , Vx €  and () (-, ) is upper semicontinuous and quasi-concave on
+, Vy € , then we have
+ THE COMPACT REPRESENTATION FOR ZERO-SUM SECURITY GAME
+The Nash equilibrium is equivalent to the strong Stackelberg equilibrium in the zero-sum game. Therefore, we
+only focus on the computation of Nash equilibrium. Invoking the result in the von Neumann’ minimax theorem,
+computing the NE of zero-sum game can be formulated as the following minimax problem,
+Although it can be cast into a linear programing problem, such an optimization model has (*) variables, which
+is exponential in  in the worst case, ie., the defender can protect any subsets of targets. The goal of this section
+
+is to develop a technique to compactly and equivalently represent the zero-sum and non-additive security game
+with only poly() variables. To convey our idea more easily, we begin with an example.
+ Motivating Example
+
+We first use gauss elimination on matrices ? and * to transform them into row canonical form, which is to left
+and right multiply such matrices by elementary matrices ;, Ez € RNe*Ne and ,, Fp € RN@*Na,
+
+where  and  are the rank of matrices ’, *, and ?, ? are the corresponding non-zero blocks of their row
+canonical form. If we define the affine transformation: fi() = (":)’, frlp) = (")', gi() = Fig and
+
+Moreover, considering the fact that only the first  elements in vector ; and ; and first  elements in pz and
+qz have the non-zero coefficients in the above optimization model, we can further simplify the above optimization
+where the , and Hg is obtained by projecting the polytope AN, and Ane to those coordinates belonging to the
+non-zero blocks.
+
+The basic observation in the above example is that the number of variables in the optimization model ()
+is equal to the sum of rank  +  of payoff matrices. Based on the rank inequality that the rank of a matrix
+is less than its dimension, we have that , < min{Ng, Ng}. Since the number of attacker’ pure strategies is
+ Formal Description
+
+The above illustrative derivation provides a possible path to compactly represent the game. However, there exists
+a significant technical challenge: the elementary matrices ,, , and their inverse matrices may have exponential
+size due to exponential large defender’ pure strategy space. Hence, the key question is whether we can find
+both these elementary matrices efficiently? To tackle this problem, we first show that payoff matrices * and
+? can be decomposed as the product of the several simple matrices. The following technical lemma is critical in
+our decomposition.
+
+Lemma. (Utility and common utility) For all  €!", the benefit and loss functions satisfy
+Ba() = )) BG() andLa() = )? LE().
+vou vou
+
+The lemma provides a path to recover the utility functions from the common utility. Indeed, it is named
+as the zeta transformation [10], which is the inverse transformation of the Mébius transformation given in
+Definition. Suppose that B4 and L4 represent the benefit and loss matrix for attacker when !", and
+“, ? can be regarded as the sub-matrix of B4, L4. The following technical lemma presents the decomposable
+property of payoff matrices B4 and LA.
+
+LEMMA. (Decomposition of complete payoff matrix) If the attacker’ and defender’ pure strategy space
+"), the payoff matrices B4,L4 € ?”*?” can be decomposed as,
+
+The following lemma constructs the relation between the matrices “, L4 and the corresponding sub-matrices:
+?,?.
+
+LEMMA. (Complete matrix and sub-matrix) The payoff matrices ?,? ¢ RNeXNa can be expressed as
+? = SB4R ,? = SLAR, ()
+where matrix  € RNe*” and  € R2”*Né are the block matrices, defined as,
+So(a),() ={A = },VA€ A, €!) Roy, wp) ={ = }, VD € , €!"),
+
+Intuitively, the matrices $ and  in Lemma plays the role of extracting the rows and columns of the matrices
+B4 and L4, whose indices belong to the feasible pure strategies of attacker and defender. For example, suppose that
+the defender’ pure strategy space is a uniform matroid, .,  = {  []||| < ky}, if the index function satisfies
+(,) < (U2),|Ui| = |U2|, which means that the index of attacker’ (defender’) pure strategy is increasing
+(decreasing) with the decreasing of the cardinality of each strategy, then the payoff matrices 
+from the bottom left of the matrices B4 and “. The block matrices $ and  can be represented as
+ is the identity matrix.
+Combining the results of Lemma and Lemma, we have the following decomposition of the payoff matrix
+?.
+
+THEOREM. (Decomposition of the payoff matrix) The payoff matrix * = ® + ® can be decomposed as
+
+As can be seen in Theorem, we decompose the original exponential large payoff matrix ® into the
+summation and the product of several simple matrices including binary matrices , ,  and two polynomial-sized
+diagonal matrices ? and !. Moreover, such a decomposition has a closed-form expression and the elements in
+those simple matrices can be implicitly represented.
+
+Based on the above decomposition results, we can let elementary matrices , = E2 = , ; =  and , = ,
+and the corresponding affine transformation () = ’ and ,() = Jq, g2() = Kq to yield two polytopes:
+AK, = {() | € An, } and AS, = {(91(), 92())lq € An}. Then we can represent the minimax problem () as
+
+Based on the definition of our support set  and matrices ?, /, only the variables with indices belonging
+to () has non-zero coefficients. Therefore, we can eliminate those variables with zero coefficients in () and
+project the polytopes AN, and AS, into the coordinates with indices belonging to (). The further simplified
+model can be expressed as
+
+Since the size of the support set || < Ng and Ng = poly(), we arrive at a compact representation of zero-sum
+security game with only poly() variables. Note that in the above compact representation framework, the affine
+transformation , and f2 is the same as in our compact representation. The following theorem guarantees the
+correctness of our compact representation.
+
+THEOREM. (Compact representation) (*,*) is a Nash equilibrium of zero-sum non-additive security game
+if and only if (as( (*)), (as (g1(")), (g2("))) is the optimal solution of compact minimax problem (10).
+
+REMARK Based the specific form of (10), the complexity of obtaining the above compact representation (10)
+is dependent on the complexity of obtaining matrices >, ! and the projected polytopes Hz, Hy. The non-zero
+elements of matrices ? and ! are the common utilities, which can be calculated in time (‘) by Definition.
+The complexity of representing , and Hg is dependent on their corresponding description length.
+Linear Programming Approach
+
+The compact minimax problem has a linear objective function. If the polytope , and Hg is convex, such a
+problem can be cast into a linear programming approach. The following technical lemma shows that the above
+transformed and projected polytope is convex.
+
+LemMA. The polytopes Hg and Hg is convex.
+
+Based on Lemma, we can formulate the minimax problem by following equivalent linear programming
+model,
+
+where I, denotes the set of vertices of the convex polytope Hg.
+In the sequel, we refer to the compact problem as the above linear programming problem. Based on our compact representation, a natural question that arises is whether can we efficiently solve such a linear programming
+
+problem and implement the optimal solution by the defender’ mixed strategy? We will answer this question in
+the next section.
+Note that each vector in AN, is consists of two parts gi() and g2(). Here the corresponding low-dimensional point is (775 (g1(), 275 (g2()).
+SOLVING THE ZERO-SUM SECURITY GAME IS A COMBINATORIAL PROBLEM
+
+In this section, we will build the connection between the equilibrium computation in the zero-sum security game
+and the following defender oracle problem (DOP) via our compact representation framework. For simplicity, we
+use Ig to denote set of vertices of the convex polytope Hy.
+
+Definition. (Defender oracle problem) For any given vector  € ?!!, determine,
+* = argminw’ . (12)
+xé€lg
+The main result of this section is the following theorem.
+
+THEOREM. (NE computation and defender oracle problem) There is a poly() time algorithm to compute the
+defender’ Nash equilibrium (strong Stackelberg equilibrium), if and only if there is a poly() time algorithm to
+compute the defender oracle problem.
+
+To obtain above reduction, we adopt the following path: we first show how the compact problem and the
+defender oracle problem can be reduced to each other in poly() time; then we exploit the geometric structure of
+polytope , and Hg to construct two poly() time vertex mapping algorithms to obtain the reduction between
+the equilibrium computation and the compact problem.
+Reduction between Compact Problem and DOP
+
+The linear programing problem (11) has poly() number of variables and possibly exponentially many constraints
+due to the irregularity of the polytope Hy. Therefore, we can apply the ellipsoid method to solve such an LP,
+given a poly() time separation oracle. Specifically, the separation oracle of such LP is defined as following.
+
+Definition. (Separation oracle for LP (11)) For any given (qi, q2) and a, either (:, q2) and a satisfy all the
+constraints of (11) or finds a hyperplane:
+
+Similarly, the separation oracle of the defender oracle problem is defined as following.
+
+Definition. (Separation oracle for DOP (12)) For any given (qi, q2), either (qi, q2) belongs to Hy, or finds a
+hyperplane: (qi, q2) € Hg such that
+
+Based on Theorem, both our compact problem (11) and defender oracle problem is equivalent to their
+corresponding separation oracle problem. To obtain the equivalence between the compact problem and the
+defender oracle problem, it remains to show the equivalence between the above two separation oracles.
+
+We first examine one direction: the separation oracle of such an LP can be reduced to the separation oracle
+of DOP. Specifically, the separation oracle of such an LP can be reduced to the following two parts: given any
+(G1, G2) and a, () membership problem: decide whether (qi, G2) € %. If not, generate a hyperplane that separating
+(G1, 42), a from *; () inequality constraint problem: decide whether all the inequality constraints hold. If not,
+find one violating constraint. We have the following result for these problems.
+
+LEMMA. The membership problem and the inequality constraint problem of LP (11) can be reduced to the
+separation oracle of the defender oracle problem in poly() time.
+
+The basic idea in the proof of Lemma is to show that the number of vertices of , is poly() and each vertex
+has a close-form expression. Then we can implicitly check the inequality constraint problem in poly() time, and
+the membership problem is indeed the separation problem for the DOP. The reverse direction is guaranteed by
+the following lemma.
+
+LEMMA. The separation oracle of the defender oracle problem can be reduced to the separation oracle of LP (11)
+in poly() time.
+
+Based on Lemma and Lemma, we arrive at the reduction between the compact problem and the defender
+oracle problem.
+ Reduction between Equilibrium Computation and Compact Problem
+
+To obtain the reduction between the equilibrium computation and the compact problem, there exist two issues:
+first, how to transform the input instance of each problem to the other one in poly() time; second, how to map
+the optimal solution of each problem to the other in poly() time. Since the input of the equilibrium computation
+problem are the utility functions {,()} and {,()} and the input of compact problem are the common utilities
+{&()} and {$()} (all the elements of matrices ? and ! are the common utilities), such transformation can
+be completed in (°°) = poly() time based on Definition and Lemma.
+
+To resolve the second issue, we first consider how to map the optimal solution of compact problem to the
+defender’ optimal mixed strategies. Based on Theorem, we obtain that if the separation problem of LP (11)
+can be solved in poly() time, we can decompose any feasible point  into a convex combination of at most
+(|| +) vertices of the polytope defined by those constraints. Note that this is precisely the DOP required
+for above reduction. Applying this result to the optimal solution (qj, q3) of the LP (11), we can get a convex
+decomposition that
+where (', vi) € Ig. The basic fact is that the defender’ mixed strategy can be regarded as a convex combination
+of its pure strategies, each of which corresponds to a vertex of simplex Ay,,. If we can map the vertices (vi, })
+back to the vertices (pure strategy) of the original game, denoted by A((',})), the mixed strategies of the
+defender can be expressed as
+Thus, the key lies in how to compute ((!, v5)) in poly() time.
+
+To tackle this problem, we need to investigate the geometric structure of polytope Hg. First, considering an
+arbitrary defender’ pure strategy  € , the corresponding vertex in Ay, is a unit vector ? « RN¢ with only
+one non-zero element en() = Based on the definition of the transformation ;() and g2(), the corresponding
+point of polytope Hg is
+
+(:(”), ga(?)) = Je”, Ke”) = Op): Kyp)), (15)
+where ,,() and ,)is the :()th column of matrix  and . Then the corresponding point > of the projected
+polytope ? is
+
+which is the sub-vector of ,,() and ,,(). The problem is that the vertex in the high-dimensional polytope may
+not project to a vertex of its low-dimensional image. However, the following lemma will provide a positive result.
+
+LEMMA. (Geometric structure of Hz) For any support set [] «  € A, the vertices of the polytope Hg are the
+
+columns of the sub-matrix of  , which is formed by extracting the row whose index belongs to ().
+
+Since we have a closed-form expression of the matrix  and , we can construct a vertex mapping algorithm
+from low-dimensional vertex to the defender’ pure strategy. The efficiency and the correctness of Algorithmis
+justified by following lemma.
+
+ALGORITHM Vertex Mapping from Vertex to Pure Strategy
+
+Lemma. (Correctness of vertex mapping algorithm) The vertex mapping algorithmruns in () time and
+maps each vertex of Ha to a unique pure strategy.
+
+Note that our vertex mapping algorithm only examines  instead of all the coordinates of each vertex of Hg to
+recover a defender’ pure strategy. The reason behind this result is that there exists a one-one correspondence
+between each pure strategy and those  coordinates of each vertex of polytope Hy. Intuitively, those  coordinates
+of each vertex of Hy is binary and therefore there exists possibly” possibilities, each of which corresponds to a
+pure strategy.
+
+The other direction follows from the following argument. Suppose that the problem of equilibrium computation
+is solved in poly () time and the optimal defender’ mixed strategy is denoted by *. Invoking a known result in
+game theory (Theoremin [21]), the number of non-zero probability of the Nash equilibrium is less than the
+rank of the payoff matrix. Since the rank of payoff matrix ? is (‘), the number of non-zero coordinates in *
+is at most (°) = poly() and * can be expressed as
+
+Therefore, we can determine the optimal solution of the compact problem in poly() time by constructing the
+following poly() time vertex mapping algorithm from a pure strategy ' to a vertex of Hy.
+
+The intuition behind this result is similar to the previous vertex mapping algorithm and the correctness of
+
+LemMaA. (Correctness of vertex mapping algorithm) Vertex mapping algorithmruns in (‘) time and
+maps each defender’ pure strategy  to a unique vertex of Hg.
+
+Based on Lemma, Lemma, Lemma and Lemma, we arrived the desired result in Theorem.
+ALGORITHM Vertex Mapping from Pure Strategy to Vertex
+NON-ZERO-SUM SECURITY GAME
+
+In this section, we assume that the security game is non-zero-sum, in which the benefit ,() (Bg()) of attacker
+(defender) may not equal to the the loss Lg() (La()) of the defender (attacker). We consider the computation of
+two mostly adopted concepts including the strong Stackelberg equilibrium (SSE) and the Nash equilibrium (NE).
+For the SSE, we prove analogous equivalence theorem as the zero-sum case. For the NE, we relax the assumption
+that the attacker’ resource limit  is constant to an arbitrary number, but assuming the additive utility function.
+Then we prove our equivalence theorem for the problem of equilibrium computation.
+ Strong Stackelberg Equilibrium
+The main result of this subsection is given by the following theorem.
+
+THEOREM. (SSE and DOP) There is a poly() time algorithm to compute the defender’ strong Stackelberg
+equilibrium, if and only if there is a poly() time algorithm to compute the defender oracle problem (12).
+
+The “only if” direction follows straightforwardly from Theorem. Considering the fact that the set of Nash
+equilibrium is equivalent to the set of strong Stackelberg equilibrium in the zero-sum game, and the zero-sum
+game is a special case of the non-zero-sum game, such a direction can be obtained by converse. For the “if”
+direction, we need the following existing technical lemma, which shows that the SSE of the game can be computed
+by multiple linear programming approach.
+
+LEMMA. (Multiple linear programming of SSE []) Solving the strong Stackelberg equilibrium can be formulated
+as a multiple linear programming problem.
+
+Solving above linear programming for all A € A, then picking the optimal defender’ mixed strategy of the LP with
+the largest objective value.
+
+The intuition behind this result is that, in linear programming problem (for each A € A), the defender optimizes
+his mixed strategy under the constraint that the attacker’ best response is A. Once we have solved these LPs for
+all the attacker’ best response, we compare all the optimal mixed strategies and choose the best one, which is
+also the optimal solution overall (without constraints on which is the best response).
+
+Since the attacker’ resource limit  is constant, there exists poly (nm) number of LPs in the above approach, but
+there still exists exponential number of variables in each LP. Fortunately, we can still follow our transformation and
+
+projection approach in the previous zero-sum scenario. Specifically, based on the same argument of Theorem,
+we can decompose both attacker’ and defender’ payoff matrices as
+
+and choose the same transformation such that () = ’ and ,() = Jq, g2() = Kq. Then we eliminate the
+variables with zero-coefficients and project the polytope into corresponding low-dimensional image. Therefore,
+we can formulate above multiple linear programming problem as following compact problem with only poly()
+variables.
+
+where the matrix De and the other diagonal matrices are obtained by extracting the non-zero columns and the
+rows of matrix DY Clearly, such a compact problem can be reduced to the defender oracle problem (12) and the
+
+optimal solution of compact problem can be mapped to a defender’ optimal mixed strategy based on a similar
+argument with Lemma and Lemma. Thus, we arrive our desired results in Theorem.
+ Nash Equilibrium
+
+It is well known that computing the Nash equilibrium of a two-player normal form game is PPAD-hard [, ]. In
+the security game, we can potentially compute the Nash equilibrium in poly() time in the case of the single
+attacker resource [30], because we can transform the non-zero-sum game into an equivalent zero-sum game [18].
+However, when the attacker has multiple resources, the solvability is still an open problem. In this subsection,
+we assume that the attacker’ resource limit  is an arbitrary number instead of a constant, and all the utility
+functions are additive. The main result of this subsection is given by the following theorem.
+
+THEOREM. (Non-zero-sum NE computation and DOP) There is a poly() time algorithm to compute the
+defender’ Nash equilibrium, if and only if there is a poly() time algorithm to compute the defender oracle problem:
+for any given  € ®
+
+The “only if” direction can be obtained by the converse and Theorem, thus we only focus on the how to
+compute the defender’ Nash equilibrium in poly() time given a poly() time defender oracle. In this case, there
+exists two key challenges: first, not only is the defender’ pure strategy space exponential large, but also the
+attacker’ pure strategy space; second, the Nash equilibrium in non-zero-sum game may not be the corresponding
+minimax equilibrium when the attacker has multiple resources [18], thus we cannot apply the linear programming
+approach to straightforwardly solve such a problem.
+
+The following lemma exhibits a crucial property of common utility when all the utility function is additive
+such that all the common utility is equal to zero except those defined on the singleton set.
+
+LEMMA, (Additive utility function) If the attacker’ utility functions are additive, ., Ba() = Niecy Ba({}),
+and L4() = Yjey La({}) for allU €!"], then the corresponding common utilities satisfy
+
+BG() = LU) = if|] > (21)
+A similar result holds for defender’ utility functions Bg(-), Lg(-) and their common utilities B5(-), LG(-). Note
+
+that the common utility function is indeed the original utility function when  is a singleton set. Then, according
+
+to the definition of matrix pe and Di, we can observe that although they are exponential large matrices, there
+exists only  non-zero elements in the main diagonal. Therefore, the support set  = [] based on the definition,
+and we can define the following —dimensional polytope.
+
+, = Tn (AXy,) ’,= {21tn)0q), V4 € An,}. (22)
+which projects our transformed polytopes to the coordinates whose indices belong to the singleton set. Note that,
+in this case, we only use the vector Jq instead both of Jq and Kq to form the transformed and projected polytope.
+
+The reason is that there exists a linear coupling between)(Jq) andn](Kq). The formal description can be
+seen in Lemma. The following result provides a compact representation of the non-zero-sum security game.
+
+LEMMA. (Compact representation of non-zero-sum security game) The strategy profile (*,*) is a Nash
+equilibrium of the non-zero-sum security game if and only if
+As can be seen in Lemma, the strategy profile (*, *) is a Nash equilibrium in non-zero-sum security game
+if and only if its low dimensional image (a*, *) is also an equilibrium point. Based on the definition of matrix 
+
+which can be regarded as the marginal probability that target  is attacked and defended among the strategy
+profile (, ).
+
+REMARK Lemma provides a compact representation of the non-zero-sum security game, and the objective
+function ; and ; are quite similar to the the one used in [15]. However, the previous result is limited to the
+assumption that the defender’ pure strategy space is a uniform matroid. However, our result is more general and
+does not dependent on the structure of .
+
+Although we have a polynomial-sized representation, it is still a non-zero-sum “game” and its optimal solution
+may not correspond to its minimax solution. Fortunately, inspired by the transformation introduced in [18], we
+can exploit the specific structure of the above problem to transform the compactly represented problem into a 
+dimensional saddle point problem.
+
+LEMMA. (Saddle point problem) The (a*, *) satisfy condition (23) if the ((a*), *) is a saddle point of following
+
+®For simplicity, we write Ag (fa) and ,,({;}) as ay and;.
+
+Based on Lemma, we can first determine a saddle point of function Uj (a, ). Due to the fact that function
+; ((a), ) is linear in a and  and the polytope Hj and ’, is convex (Lemma), we can apply the Sion’ minimax
+theorem and solve such problem by the minimax problem,
+Similarly, such an LP can be reduced to the membership problem and inequality constraint problem. The
+membership problem can be reduced to the defender oracle problem (12), and the only difference is that /, is a
+
+-dimensional polytope in this case. To solve the inequality constraint problem, we first examine the geometric
+structure of polytope H7.
+
+LEMMa. (Geometric structure of HZ) The polytope Hj, is the intersection of a —dimensional cube and —
+dimensional hyperplane,
+Since any linear program achieves optimality at some vertex of its feasible region, based on Lemma, the
+inequality constraint problem can be further reduced to the following polynomial-sized linear programming
+problem.
+which can be solved in the poly() time by the interior point method. If the optimal value of the above linear
+programming is less than , then all the inequality constraints are satisfied; if the optimal value is larger than ,
+we output the point  attains this optimal value, which corresponds to a violating constraint.
+Now the remaining is to determine how to map such a saddle point back to the optimal defender’ mixed
+strategy. Since our transformation is linear and the inverse function is given by
+we can first decompose such saddle point into the convex combination of the vertices given a poly() time
+separation oracle; then use the inverse function to map each vertex back to the vertex of polytope /. The
+mapping from the the vertex of polytope /, to a defender’ pure strategy follows the Algorithm
+
+Combining the result of Lemma and Lemma, we arrived the desired result in Theorem.
+REMARK The reduction from the equilibrium computation to the defender oracle problem does not require the
+assumption that the attacker’ pure strategy space A is a uniform matroid. Indeed, if A encodes a polynomial
+solvable problem such as uniform matroid, bipartite matching and—weighted cover, we can obtain a same result in
+Theorem; otherwise, the polynomial solvability of the equilibrium computation will depends on both A and .
+CONSEQUENCES
+
+In this section, we further investigate the defender oracle problem and provides various interesting applications
+of our theoretical framework.
+What is the Defender Oracle Problem
+
+Through a series of reductions, we determine that the security game with non-additive utility functions and
+multiple attacker resources is essentially a defender oracle problem defined on a low- dimensional polytope Hg.
+However, the complicated form of polytope Hg still prevents us from uncovering the effect of our assumptions.
+The promising observation though is that since oracle problem attains its maximum in some vertices of Hg, we
+only need to examine the geometric structure of its vertices.
+
+First, considering the fact that each vertex  of polytope Hg consists of two parts such that  = (v1, v2), and vi,
+vz comes from two different transformations and same projection of the one vertex of polytope An. Therefore,
+there exists a linear coupling between these two parts , and v2. The following lemma justifies this intuition and
+show that the coordinates of ; and v2 whose indices belong to those singleton sets exhibits a complementary
+relation.
+
+LEMMA. (Geometric structure of Hz) For any vertex (v1, v2) in the polytope Hg, its coordinates satisfy
+V1, ({}) + V2, ({}) =Vi € []. (31)
+
+Based on this result, Theorem and Lemma, we can show that the DOP is indeed a combinatorial
+optimization problem over a set system.
+
+THEOREM. (DOP is combinatorial optimization) The defender oracle problem is, for any vector  € '!,
+
+Clearly, the complexity of the DOP is not only dependent on the set system, but also dependent on the support
+set , which describes the degree of the above pseudo-boolean function. For example, If the attacker can attack at
+most two targets and the utility functions are non-additive, the support set  = {A € alnl||A| <}. In this case,
+the DOP is a general constrained binary quadratic programming problem, which is NP-hard. In Section we
+assume that all the utility functions are additive. In this case, Lemma shows that the support set  = [] and
+the defender oracle problem will degenerate to the following linear optimization problem:
+
+In this case, the complexity of such an oracle problem is only dependent on the complexity of set system ¢. For
+example, if the defender can attack at most  targets, the set system ¢ is a uniform matroid and solving the DOP
+only requires summing first  largest elements of . If the defender’ resources are obtained at some costs and
+there exists a resource budget, the set system in this scenario encodes the knapsack problem, which is NP-hard
+(we can solve it in pseudo-polynomial time by dynamic programming). More interesting applications can be
+found in [30].
+
+REMARK Compared with the original complicated security game, the simple form of DOP not only provides a
+simpler method to design the polynomial time algorithm, but also facilities us the better understanding of the inherent
+complexity property of the security game. For example, in the non-zero sum and additive security game, the standard
+solution technique used is the Lemke’ algorithm [19]. Such an algorithm may run in exponential time and cannot
+provide any insights of the problem. Instead, our equivalence theorem reduces the complexity of the original problem
+
+into the complexity of the defender’ pure strategy space, which is dependent on the specific problem structure. Besides,
+In Section, we will also show how to utilize the DOP to solve several open problems in the security game domain.
+
+REMARK The previous results in [30] demonstrates that the security game under single attacker resources and
+additive utility function is equivalent to the above oracle problem (33). Their reduction is based on the equivalence
+between the optimization and the membership problem, in which the polynomial time solvability is dependent on the
+description length of the set system . However, the special case (33) of our result strengthens their arguments, which
+is independent of the set system .
+ Applications
+
+We now provide some applications to illustrate the value of our theoretical development. The first direction is
+to utilize the results in Theorem to tackle several open problems on the complexity of the security game
+with multiple attacker resources and heterogenous defender resources [17, 30]. Another direction is to answer
+the question in [30]: what is the complexity of the security game when we consider both non-additive utility
+functions and multiple attacker resources.
+
+Regarding the first direction, we provide a general algorithmic framework shown below (Algorithm).
+
+ALGORITHM General Framework for Non-zero-sum and Additive Security Game
+ Solve the compact problem: Solve the linear program (27) to obtain the optimal compact strategy * by ellipsoid method:
+() check the inequality constraint by exactly solving the polynomial-sized linear program (29); (ii) solve the membership
+problem by exactly solving the DOP (33);
+
+solving the DOP (33); Vertex mapping: Map each vertex ' to a defender pure strategy ; by Algorithm output the defender’ NE strategy:
+play pure strategy ; with probability A;, <<+;
+
+The framework outlined in Algorithmprovides a possible path to design a polynomial time algorithm to
+solve the NE’ of the non-zero-sum and additive security game. The details in the second step of Algorithmcan
+be found in [11]. The key lies in the polynomial time solvability of the DOP (33), which is completely dependent
+on the combinatorial problem encoding by the set system .
+APPLICATIONS
+
+LAX airport checkpoint placement problem [23]. This problem is one of the earliest applications of security
+games. In this setting, the security force has  police officers that are to be deployed across  (where  < )
+checkpoints.Each police officer can be deployed at any given check point. Therefore, any subset of [] of size at
+most  is a defender pure strategy. [17] extends this game model into the multiple attacker resources and shows
+that this problem can still be solved in poly() time by a state transition algorithm [17]. In our framework, the
+DOP is the linear optimization over a uniform matroid.
+
+The algorithm to solve the SSE is similar.
+
+The above problem can be solved in polynomial time by summing the  largest elements of vector . Thus, it
+verifies previous results.
+
+In the following three cases, the defender’ resources are heterogeneous such that there exists some practical
+constrains in the set system .
+
+Geographic constrained patrolling problem. In the patrolling problem, due to geographic constraints, the
+police officer can only patrol the area around the station. In this case, the resources of different defenders (police)
+can defend different groups of targets. In our framework, we can construct a weighted bipartite graph as follows:
+() two disjoint sets ,,  represents all the nodes,  represents all the resources; (ii) there exists an edge
+between the node  in  and node  in  if the resource  can cover node ; (iii) associate each edge (,) with a
+weight ,, ( is the vector in the DOP). Then the DOP is a weighted bipartite matching problem, which can be
+solved in polynomial time by Hungarian algorithm.
+
+Federal air marshal scheduling problem [26]. In such applications, one air marshal is assigned to protect
+several sequential flights with the constraint that any destination of the previous flight is the departure of the next
+flight. The objective is to cover all current flights. [16] investigates this problem under single attacker resources
+and shows the polynomial solvability in some cases and NP-hardness in other cases. However, attackers may
+initiate simultaneous attacks (.., the flights of) and there still does not exist any efficient algorithm. In our
+framework, we can construct the following weighted set cover problem: let the node set [] be the universe and
+all the air marshals constitute the collection  of subsets of []; then associate the weight  to each element
+of the universe. Then, the DOP is a weighted set cover problem and our results show that when the attacker
+has multiple resources, the problem is generally NP-hard but we can still solve this problem in some cases. For
+example, if each air marshal can protect at most two flights (a pair of round trip flights), the set system ¢ indeed
+encodes the weighted—cover, which can be solved in poly() time.
+
+Spatio-temporal security game [, ]. In many applications of security games, an important class is the
+spatio-temporal security game. This kind of game is used to model the games played in the spatio-temporal
+spaces such as planning patrol boats of the US Coast Guard [], wildlife protection []. The current solution
+technique of this game is to discretize the space and time and build— gird, in which the security force patrol
+the points. Combining the results in [31], we can show that spatio-temporal security game with multiple attacker
+resources are indeed a min-cost flow problem, which can be solved in poly() time.
+
+There exists other applications that can be cast in our framework such as passenger screening for the Transportation Security Administration []. Indeed, based on our general framework in Algorithm all the results
+under the single attacker resources can be directly extended to the scenario of multiple attacker resources.
+
+Now, we focus on the second direction discussed earlier to answer the question on the complexity of the
+security game with non-additive utility functions and multiple resources.
+
+Coro ary. The security game with general non- additive utility functions are NP-hard.
+
+The answer appears to be negative since the constrained binary optimization problem is always NP-hard.
+However, inspired by the work [29], we can still explore some interesting polynomial solvable classes under
+the following standard relaxation technique: replace the hard constraints on defender’ pure strategy by the “soft”
+cost function, in which defender’ pure strategy space  =!" but each strategy  €  is associated with an
+additive cost function. More specifically, when the attacker and defender choose strategy A and , respectively,
+the attacker’ and defender’ pay off is given by ,(A\) + Lg(AND) —,(A) and Lg(A\) + Bg(AN ) — Cz(),
+where ,(-) and Cg(-) is the attacker’ and defender’ cost function, respectively. In this case, we can still apply
+our framework to reduce the equilibrium computation to the above oracle problem.
+
+Coro.iary. There is a poly() time algorithm to compute the defender’ Nash equilibrium in the non-additive
+security game with cost function, if and only if there is a poly() time algorithm to compute the the following
+
+Such a problem is an unconstrained optimization problem and we can apply the known results in the combinatorial algorithm design to obtain some polynomial solvable classes. The proof of the above corollary is quite
+similar with our previous theoretical development, and the only difference is that we require decomposition of
+the matrix involving cost functions (see the Theoremin [29]). Then, based on the above result, we can design
+a similar framework as in Algorithmto solve the zero-sum and non-additive security game and develop the
+following two applications. The detailed technical proof can be found in [29].
+
+The security game in a tree network. A sensor network is often in the form of a tree topology. The game
+is such that the attacker attempts to invade some nodes to destroy the connectedness of the network and the IT
+manager is required to deploy the anti-virus software in some nodes. We can show that the DOP of this game is a
+sub-modular minimization problem, which can be solved in poly() time.
+
+The separable support set . Here the “separable” is defined as,  = , ; such that Aj  Aj =VA; €
+Si, A; € ;, # , the component is defined as ; = Uyes, with max; |;| = (log()). In this case, we can
+solve the DOP in poly() time via an enumerating algorithm. This result can be applied to a sparse network. For
+example, if the network is sparse enough such that the size of largest connected component of the network is
+(log()), support  will be separable in this case.
+CONCLUSIONS
+
+In this paper, we examined the security game under multiple attacker resources and non-additive utility functions.
+In particular, we utilized the transformation and projection of the polytope to compactly represent the game in
+polynomial size. Further, based on the geometric structure of the projected polytope, we designed two poly()
+time vertex mapping algorithm and showed that the equilibrium computation problem is equivalent to a defender
+oracle problem. Finally, we proved that such a defender oracle problem is essentially a combinatorial optimization
+problem over a set system. This result not only resolves some open problems in the security game domain, but
+also provides a new path to explore the polynomial solvable classes in more complex scenarios. Our proposed
+theoretical framework is significantly different from the state-of-the-art techniques used in the security game
+domain and greatly extends both the NP-hard and polynomial solvable classes.
+For future work, we plan to investigate the following direction:
+
+ The computation of Nash equilibrium of non-zero-sum and non-additive security game. We
+have utilized a constructed linear transformation to convert the non-zero-sum and additive security
+game to a — dimensional saddle point problem. Instead, when the utility function is non-additive, the
+construction of such a transformation is still open.
+
+ The approximate version of our equivalence theorem. It is interesting to understand how an approximate defender oracle relates to the approximate equilibrium computation, since the problem is easy
+to falls into the category of NP-hard when we consider non-additive utility functions. One possible path
+is to exploit the no-regret learning framework proposed in [12].
+
+
+

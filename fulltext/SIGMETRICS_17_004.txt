@@ -1,0 +1,693 @@
+Hieroglyph: Locally-Sufficient Graph Processing
+via Compute-Sync-Merge
+
+
+ABSTRACT
+---
+Despite their widespread adoption, large-scale graph processing
+systems do not fully decouple computation and communication, of
+ten yielding suboptimal performance. Locally-sufficient computation—
+
+computation that relies only on the graph state local to a computing
+host—can mitigate the effects of this coupling. In this paper, we
+present Compute-Sync-Merge (CSM), a new programming abstraction that achieves efficient locally-sufficient computation. CSM enforces local sufficiency at the programming abstraction level and
+enables the activation of vertex-centric computation on all vertex
+replicas, thus supporting vertex-cut partitioning. We demonstrate
+the simplicity of expressing several fundamental graph algorithms
+in CSM. Hieroglyph—our implementation of a graph processing
+system with CSM support—outperforms state of the art by up tox, with a median speedup ofx and an average speedup ofx
+across a wide range of datasets.
+
+---
+INTRODUCTION
+Mainstream graph processing systems (such as Pregel [23], PowerGraph [12], and GraphX [13]) follow the bulk synchronous parallel (BSP) model [31] in which they iteratively and synchronously
+apply a vertex-centric algorithm on a graph. Inherent in their design
+is the tight coupling of computation and communication, where no
+vertex can proceed to the next iteration of computation until all vertices have been processed in the current iteration and graph states
+have been synchronized across all hosts. Especially for computationally-light graph algorithms, this coupling of computation and
+communication incurs significant performance penalty [35].
+
+Intuitively, if graph processing systems can fully decouple computation from communication, they should achieve higher performance because they can better overlap communication and computation. We argue that fully decoupling computation from communication can be achieved; it requires () restricted access to only
+local state during computation and (ii) independence of inter-host
+communication from computation. We call the combination of
+both conditions local sufficiency. Conceptually, local sufficiency
+allows all vertices to always make progress without blocking on
+input from remote vertices (.., those residing on remote hosts).
+
+Since all vertices are executing in parallel, local sufficiency can introduce state inconsistency in two ways: () vertices might make
+progress using incomplete input, and (ii) replicated vertices might
+make progress—in parallel—on different sets of inputs. As we will
+show in the paper, resolving both types of inconsistencies can be
+done efficiently.
+
+Local sufficiency is not efficiently supported by state of the art
+systems. Synchronous systems, by design, do not support local
+sufficiency due to their intrinsic computation-communication coupling. Even systems that implement asynchronous execution only
+partially achieve local sufficiency. For example, PowerGraph [12]’
+asynchronous mode satisfies local sufficiency by distributed scheduling. If a vertex-centric function uses remote state, then it will not
+be marked as ready for execution until its remote input becomes
+locally available after state propagation. Thus, the function itself
+is not locally sufficient. Furthermore, the scheduling overhead can
+be substantial. GiraphUC [14] avoids such a cost by concentrating
+computation on master vertex replicas, efficiently supporting local
+sufficiency for edge-cut partitioning. But this approach does not
+support vertex-cut and thus cannot benefit from its balanced workload distribution.
+
+Towards efficient support for local sufficiency, we set two design
+goals. The first goal is to activate vertex-centric computation on
+all vertex replicas, enabling each replica to independently update
+its local state. This relaxed consistency model would support vertex-cut and enable fast local state propagation without inter-host
+coordination. The second goal is to enforce local sufficiency at
+the programming abstraction level. This would eliminate any related coordination overhead at the system level. Additionally, any
+inconsistency would be resolved by user-defined functions, which
+are coordinated across all hosts to achieve globally-consistent state
+upon convergence.
+
+Following these design choices, we introduce a new programming abstraction called Compute-Sync-Merge (CSM). The Compute abstraction (Compute for short) defines locally-sufficient computation, which is iteratively and independently applied to all vertex replicas on each host. Local sufficiency is enforced by the abstraction. Compute has access only to local input state. The Sync
+and Merge abstractions (referred to as Sync and Merge henceforth)
+coordinate the execution on all hosts. The former is in charge of
+state propagation and the latter is responsible for the merging of
+remote updates with local state. Together, they resolve the inconsistency caused by locally-sufficient computation.
+
+We demonstrate the expressiveness and simplicity of CSM by
+implementing several widely-used single-phase algorithms, such
+as PageRank, single-source shortest path (SSSP), and weakly connected component.
+Figure Deficiency when executing SSSP over a Twitter followers graph with PowerGraph and Giraph onAmazon
+EC2 c3.8xlarge instances. (a) Instantaneous idle time (in gray)
+of PowerGraph. () Comparison of execution modes and graph
+partitioning.
+
+algorithms. In general, multi-phase algorithms limit the performance gains of locally-sufficient computation due to global synchronization at phase boundaries [14]. CSM, however, enables
+the design of multi-phase algorithms in which () locally-sufficient
+computation freely proceeds beyond phase boundaries and (ii) conflicting state due to computation with local input is resolved in Sync
+and Merge. We exemplify such use of CSM with an efficient new
+design of a multi-phase maximal bipartite matching algorithm.
+
+We have fully implemented Hieroglyph, a graph processing system supporting CSM on top of PowerLyra []. We extend PowerGraph’ gather-apply-scatter (GAS) abstraction [12] to realize the
+CSM abstraction, augmenting the portability of GAS-based algorithms to CSM. Experiments with real-world graphs show that Hieroglyph consistently and significantly outperforms state of the art
+systems. It outperforms PowerGraph and PowerLyra by up tox
+and GiraphUC by up tox, achieving a median speedup ofx
+and an average speedup ofx among all algorithm-dataset combinations in our evaluation.
+
+The contributions of this paper include:
+
+ the introduction of the Compute-Sync-Merge (CSM) abstraction, enabling efficient local-sufficiency on vertex-cut partitioning,
+
+ the design of several CSM algorithms to demonstrate the
+expressiveness, simplicity, and efficiency of the abstraction,
+and
+
+ the implementation of Hieroglyph, a graph processing system supporting the CSM abstraction and significantly outperforming state of the art systems.
+
+The remainder of the paper is as follows. Sectionprovides
+background information on state-of-the-art graph processing. We
+introduce the CSM abstraction in Sectionand present Hieroglyph,
+a CSM-compliant system, in Section Sectiondemonstrates
+Hieroglyph’ superiority by comparing its performance with three
+state-of-the-art systems. Related work is discussed in Section
+We then conclude the paper in Section
+
+. BACKGROUND
+
+Synchronous Model. In a synchronous model, vertex-centric computation proceeds in supersteps. Computation and communication
+iterations alternate. Such coupling can cause a significant performance penalty. Figurea shows the instantaneous idle time’ due to
+communication when running SSSP on a Twitter followers graph
+with PowerGraph. Along the course of the execution, the idle time
+
+'The instantaneous idle time is the percentage of execution time
+that is idle at time ¢. That is, if in a time interval (¢,¢ + dt), the
+total idle time is  dé, then the instantaneous idle time at time  is
+.
+
+remains substantial, indicating considerable blocking of computation due to communication.
+
+Asynchronous Model. Asynchronous execution [12] decouples
+computation and communication at the vertex boundary: per-vertex computation-communication tasks are no longer aligned by supersteps and can be independently performed, improving the computation-communication interleaving. Such cross-vertex computation-communication decoupling partially satisfies local sufficiency.
+For a given vertex, however, the coupling still exists, albeit hidden
+behind the scheduling of the processing system. Regarding performance, the scheduling overhead, along with the communication
+deficiency due to the lack of message batching and increased locking overhead, causes asynchronous execution to underperform synchronous execution for several common algorithms, despite the former’ faster convergence [21]. For example, Figureb shows that
+PowerGraph’ synchronous execution significantly outperforms its
+asynchronous mode, when running SSSP over the Twitter graph.
+
+GiraphUC [14] proposes barrierless asynchronous model, achieving local sufficiency with the observations that () inter-host communication is much more expensive than intra-host communication and () computation can proceed with partial input state propagated via intra-host communication. Remote input state is consumed when it becomes available. GiraphUC supports local sufficiency over edge-cut partitioning. That is, workload related to a
+vertex— including vertex state update and message passing—must
+be conducted by only one host. Prior work [, 12] shows that edgecut partitioning leads to more skewed computation workload and
+larger memory footprint compared to vertex-cut, the latter capable
+of distributing per-vertex workload onto multiple hosts, each holding a replica of that vertex. Figureb compares the performance
+of PowerGraph synchronous execution with Giraph [], an opensource implementation of Pregel. Using vertex-cut to produce balanced graph partitions and evenly distribute computation workload,
+PowerGraph yields ax speedup with respect to Giraph, the latter supporting only edge-cut.? Given the substantial performance
+discrepancy between vertex-cut and edge-cut, enabling local sufficiency only for edge-cut would miss an important opportunity for
+performance improvement.
+ COMPUTE-SYNC-MERGE
+
+In this section, we discuss the Compute-Sync-Merge (CSM) abstraction, including its challenge, design, workflow, consistency
+model, and expressiveness.
+ Challenge
+
+As mentioned in Section local sufficiency requires () restricting access to only local state available during vertex-centric computation and (ii) independence of inter-host communication from
+local computation. Most existing abstractions cannot fully support
+local sufficiency, because of the use of remote input state in vertexcentric computation. Such usage is expressed, for example, in the
+form of message exchanges in Pregel, vertex state synchronization
+in Distributed GraphLab [22] and Cyclops’ distributed immutable
+view [], and distributed gathering/scattering in PowerGraph. GiraphUC achieves local sufficiency for edge-cut, but lacks support
+for vertex-cut.
+
+Supporting local sufficiency on vertex-cut is challenging because
+of the partial distribution of vertex-centric computation. Specifically, vertex-cut distributes per-vertex computation workload onto
+multiple hosts, each maintaining a replica of that vertex. In order to
+
+Differences in systems implementation also contribute to the performance discrepancy.
+of local gather states to Compute, (ii) reducing the propagation
+of gather states, the generation of the updated master state in the apply function, and the synchronization of the master state, to Sync,
+and (iii) reducing the vertex state update in the apply function, as
+well as local scatter, to Merge. GAS algorithms can thus be converted to their corresponding CSM versions.
+ Hieroglyph
+
+We have fully implemented a CSM-compliant graph processing system called Hieroglyph. It is implemented as an integrated
+component of PowerLyra [], which is, in turn, built on PowerGraph [12]. Hieroglyph extends PowerLyra and PowerGraph’ vertex-centric abstraction to support CSM. It implements the CSM
+workflow in a standalone processing engine, parallel to existing
+ones in PowerGraph and PowerLyra. It also extends PowerGraph’
+graph analytics toolkit with algorithms implemented with the CSM
+abstraction.
+ Implementation of CSM in Hieroglyph
+
+Hieroglyph decomposes the CSM abstraction into several primitive functions (cf. Table). We detail this implementation along
+Hieroglyph’ workflow.
+
+Compute. In each locally-sufficient computation iteration (cf. Algorithm Line), the computation workers iterate through all active local vertices. Vertex-centric computation is implemented in
+a GAS style. The reuse of the GAS abstraction in CSM’ Compute increases the portability of existing GAS-based algorithms to
+CSM. For each vertex, information regarding its neighbor vertices
+and edges is accumulated through a gather-sum function pair or via
+a sum over messages sent by a previous scatter stage. Such information is then used to update the vertex state via an apply function. A scatter function concludes the vertex-centric computation
+by updating neighbor edges according to the new vertex state. Hieroglyph’ Compute differs from PowerGraph’ GAS in that (/) all
+of its three stages are executed on all active vertex replicas and (ii)
+its stage transition is autonomous, without inter-host coordination.
+
+Sync. After an iteration of computation, the computation workers
+resume the communication workers to perform metadata synchronization (cf. Algorithm Line). They then continue with locallysufficient computation. The goal of metadata synchronization is to
+achieve consensus among all hosts regarding the set of to-be-syn
+ 
+
+synchronized vertices. At the end of the metadata synchronization, if
+no progress can be made by any host since the last synchronization
+(cf. Algorithm Line), then the computation has completed.
+Otherwise, computation workers invoke a sync_switch function on
+to-be-synchronized vertices. The purpose of sync_switch is to create a standalone copy of the subset of vertex state used for communication, so that subsequent computation can freely proceed, updating vertex state without conflicting with communication. ? After
+switching state, the computation workers resume locally-sufficient
+computation tasks, delegating vertex state synchronization to the
+communication workers.
+
+The vertex state synchronization is divided into three stages, separated by global barriers (cf. Algorithm). In the first stage, all mirror replicas (I7"*""°") are sent to their corresponding master hosts.
+In the second stage, each host generates intermediate master copy
+(1m#"er) by combining master replicas with received mitror state
+in a sync_apply function and distributes the master copy to the corresponding mirroring hosts. In the third stage, each host creates the
+final merging state (,,) for all vertices participating in the current
+synchronization by combining the local synchronization state and
+the master copy in a sync_commit function. *
+Optimization related to benign contention is discussed in Section
+
+“Note that, when vertex state is updated independently by each
+replica, there is no distinction between master and mirror in the vertex-centric computation phase. As a result, synchronization cannot
+be simply reduced to overwriting mirrors with the master state and
+needs to be exposed at the programming abstraction. This explains
+the introduction of sync_apply and sync_commit in Sync.
+
+Merge. Upon communication completion, the computation workers enter the merging stage (cf. Algorithm Line). They first
+use a merge_apply function to merge remote state with the local
+counterpart. Another merge_scatter function is then invoked to update neighbor edges according to the newly merged state. *
+ CSM Algorithm Design: Case Studies
+
+We exemplify single- and multi-phase CSM algorithm designs
+with SSSP and bipartite matching.
+
+SSSP. For SSSP (cf. Algorithm), Compute is expressed similarly
+to its counterpart in common vertex-centric abstractions [12]. If
+the shortest distance of a vertex changes due to apply, it notifies its
+neighbors in scatter. Messages are combined with the min operator,
+as shown in sum.
+
+Sync involves the propagation of the minimum shortest distance
+among all replicas. Specifically, sync_switch first makes a copy of
+the local vertex state, which is then propagated from mirror replicas
+to the master. The shortest distances from mirror replicas are com
+Given that local vertex state may advance further during concurrent synchronization, simply overwriting the local state with the
+remote state may negate the progress of locally-sufficient computation. As a result, how to merge local and remote state also needs
+to be exposed at the programming abstraction, thus justifying the
+introduction of merge_apply and merge_scatter in Merge.
+
+bined with the min operator in sync_sum. The intermediate master
+value is the minimum of the shortest distance of the master replica
+and that of the received mirror replicas. It is then broadcasted to all
+mirror replicas. Sync_commit establishes the intermediate master
+value as the final merge value.
+
+As for Merge, merge_apply and merge_scatter have identical
+functionality to their counterparts in Compute. Thus, if the local
+vertex state has a shortest distance that is no larger than the merge
+value, then the merge value is ignored. This is the case when the
+current replica contributes the minimum shortest distance to the
+previous synchronization iteration. It can also happen because locally-sufficient computation further advances the vertex state during the previous synchronization. When merging, the current local
+vertex state may have become smaller than the minimum shortest
+distance of all replicas in the previous synchronization. Otherwise,
+the current local state is larger than the merge value and is overwritten by the latter in merge_apply. Such an update is then propagated
+to local neighbors in merge_scatter.
+
+In summary, SSSP demonstrates the simplicity and elegance of
+algorithm design using CSM. Compute handles locally-sufficient
+computation and is identical to PowerGraph’ GAS implementation, facilitating design reusing. In addition, Sync and Merge rely
+on the same message combining and vertex updating logic in Compute’ sum and apply, leading to simple inconsistency resolution.
+
+Regarding transient inconsistency resolution, SSSP’ Sync and
+Merge are designed so that all replicas of a vertex obtain a consistent view, that is, the minimum of local shortest distances. It also
+preserves forward progress: the resolved state is aligned to the local
+state that has advanced the most in locally-sufficient computation.
+In addition, the propagation of the resolution result in Merge—the
+new minimum—leads to the correction of neighbor vertex states, if
+they are generated using a previously inconsistent state.
+
+The CSM implementation of SSSP is guaranteed to converge to
+the correct final graph state. This is because, if a destination vertex vg is unreachable from the source vertex ,, then vg converges
+upon algorithm initialization (.., 00). If vg is reachable, then let 
+denote the minimum number of vertices along the shortest path()
+from , to vg (inclusive). vg enters the final converged state within
+ —iterations of synchronization: after at mostiterations, vertices  steps away from vs receive the correct final states, propagated via scatter or merge_scatter.
+
+Bipartite Matching. Multi-phase algorithms impose new challenges to locally-sufficient computation [14]. Due to the different
+functionality across computation phases, global synchronization is
+generally required to guarantee the correctness of execution. In
+addition, messages sent from a phase to be processed by the subsequent phase must be hidden until phase switching. Otherwise,
+they will be combined with messages targeting at the current phase,
+producing erroneous results. As a result, locally-sufficient computation is applied only phase-by-phase in GiraphUC, reducing the
+performance gain.
+
+CSM, in contrast, enables locally-sufficient computation to freely
+proceed across phase boundaries, when the following two conditions are satisfied. First, progress can be made across phases based
+only on local state. Second, inconsistent vertex state as a result
+of cross-phase locally-sufficient computation can be fixed without
+affecting the correctness of the final converged graph state.
+
+We demonstrate CSM’ potential in multi-phase algorithm design with our implementation of the bipartite matching algorithm.
+We adapt the four-phase matching algorithm in Pregel [23] for
+CSM’ Compute. When applying it to locally-sufficient computation with no inter-host coordination, that algorithm produces a
+maximal matching on each host. Inconsistent final state may oc(a) input state () partitioning () state after
+merge iteration
+can be made after an iteration of computation followed by an iteration of communication, then the execution terminates.
+
+The correctness of Hieroglyph’ termination condition derives
+from the following patterns in the workflow (cf. Algorithm): (@)
+one iteration of computation (Line) is performed after an iteration
+of merging (Line) and before the termination condition checking
+(Line), and (ii) the termination checking, in turn, precedes the
+subsequent iteration of synchronization (Line). If no progress
+can be made in any host since the last synchronization, after incorporating the remote states in the merging stage and a subsequent
+iteration of locally-sufficient computation, then no progress is possible. Convergence over the entire graph has thus been achieved.
+
+Computation-Communication Interleaving. In Hieroglyph, to
+achieve computation-communication decoupling, we use two groups
+of worker threads: one for computation and the other for communication. PowerGraph and PowerLyra, in contrast, rely on one group
+of threads to perform both computation and communication.®
+
+The two groups of worker threads in Hieroglyph are of an equal
+size, both equating the number of cores on a computing host. Hieroglyph supports fine-tuning of computation-communication interleaving. On the one hand, in order to expedite the integration
+of remote vertex state updates into locally-sufficient computation,
+the computation workers separate vertices into chunks and perform
+computation one chunk at a time, yielding to the communication
+workers at the chunk boundaries and thus improving their interleaving.” On the other hand, Hieroglyph can be configured to enforce
+algorithm-specific restrictions on computation-communication interleaving. Our bipartite matching algorithm, for instance, confines
+the interaction between the two groups of worker threads only to the
+boundaries of a four-phase computation cycle. It ensures that local
+matching decisions, instead of intermediate states during locallysufficient multi-phase computation, are used for synchronization.
+
+Deferred Switching. Deferred switching refers to postponing the
+preparation of the synchronization state from the beginning of the
+synchronization to when the state is accessed by the communication workers. Specifically, it delegates the invocation of sync_switch
+from the computation worker (cf. Algorithm Line) to the communication workers, before the sending of I'°°*! in the case of
+a mirror replica (cf. Algorithm Line) and before the invocation of sync_apply for a master replica (cf. Algorithm Line).
+In comparison, the original workflow of the computation workers (cf. Algorithm) invokes sync_switch before the start of the
+communication, isolating the vertex state used by computation and
+communication workers and thus guaranteeing lock-free access.
+Deferred switching relaxes such isolation, exploiting benign data
+race to expedite state propagation. For example, in SSSP (cf. Algorithm), sync_switch involves a copy of the locally-maintained
+shortest distance. Since this value is monotonically non-increasing,
+correctness remains intact if functions in Sync access a vertex state
+different from the one that would have been copied by sync_switch
+before the start of a synchronization iteration. It is also beneficial
+to defer the access of the vertex state during synchronization: the
+use of an updated state from one host potentially expedites convergence on other hosts. The monotonically non-increasing property,
+combined with read-only access from the communication workers,
+
+Our discussion focuses on threads used by the processing engine
+layer and does not include those used for background communication.
+
+°One iteration of computation over ail local vertices is performed
+immediately after an iteration of merging, regardless of chunk configuration, in order to maintain the validity of the termination condition.
+
+justifies benign data race: access to vertex state from both worker
+groups remains lock-free.
+
+In Hieroglyph, we support both the eager switching design and
+the deferred switching mode as an optimization.
+
+Local Synchronous/Asynchronous Execution. The CSM abstraction does not define whether locally-sufficient computation should
+be performed synchronously or asynchronously on each host. Assume PowerGraph GAS for locally-sufficient computation. For an
+iteration of computation, locally-synchronous execution involves
+running the gather, apply, and scatter phases each in a dedicated
+iteration, with a local barrier separating two consecutive phases.
+Messages produced in the current iteration can be processed only
+in the subsequent iteration. In locally-asynchronous execution [14,
+30, 35], on the other hand, the three phases are applied to a vertex
+as an integrated function. Messages sent from vertices ; to vj are
+processed in the same iteration, if ; is processed after ;.
+
+Locally-synchronous execution achieves lock-free access to vertex and edge data. Locally-asynchronous execution, in contrast, has
+the advantage of fast state propagation. Hieroglyph supports both
+execution modes and, for locally-asynchronous execution, supports
+different consistency models, similar to the  consistency in distributed GraphLab [22].
+
+Fault-Tolerance. Hieroglyph resorts to a checkpoint-based faulttolerance mechanism [, 12, 16]. Checkpoints are created by computation workers independently on each host. The checkpoint interval is specified with respect to synchronization iterations, which are
+globally consistent. Specifically, state in a checkpoint corresponds
+to that at the beginning of a metadata synchronization stage. When
+a fault occurs, all hosts are rolled back to their most recent checkpoints.
+
+Such a design minimizes the graph state stored in a checkpoint:
+only vertex state and intra-host messages used by Compute need to
+be checkpointed. This is because, at the time of checkpoint creation, there exists no state associated with either Sync or Merge.
+The next Sync stage is pending, with its initial state yet to be created
+based on the vertex state from Compute. The previous Merge has
+completed, with all its related state incorporated into vertex state.
+Also recall that no inter-host message exists in locally-sufficient
+computation. Thus, checkpointing intra-host messages is sufficient
+for the resumption of locally-sufficient computation.
+
+Optimizations such as computation-checkpointing overlapping
+apply to Hieroglyph as well. On each host, instead of first checkpointing all related state of its graph partitions and then resuming
+computation, we can resume the locally-sufficient computation for
+a vertex, as long as its state and local incoming messages are checkpointed. When such computation produces local outgoing messages, they can be delivered as long as the incoming messages of
+the receiving vertices are checkpointed. Similarly, inter-host communication and checkpointing can overlap.
+
+Regarding performance overhead, the cost of a fault—measured
+in the amount of computation lost due to a rollback—is higher for
+Hieroglyph than general-purpose BSP approaches. This is a direct outcome of the fact that Hieroglyph can progress faster than
+BSP, thanks to local sufficiency. On the other hand, the overhead of
+
+checkpointing in Hieroglyph—in terms of the slowdown of convergence—
+
+should be on a par with that of BSP. Assume that () a fixed checkpointing interval is configured for Hieroglyph and BSP, (ii) the cost
+of generating a checkpoint is the same for both approaches, and
+(iii) an algorithm in Hieroglyph converges % faster than BSP. The
+slowdown attributed to each checkpoint for Hieroglyph is°
+of that for BSP. The number of checkpoints taken by Hieroglyph is
+
+
+the same slowdown of convergence.
+ EVALUATION
+
+We compare the performance of Hieroglyph with three state-ofthe-art graph processing systems and show the superiority of our
+proposed CSM abstraction.
+ Experiment Setup
+
+To evaluate Hieroglyph’ performance, we use five realistic datasets
+(summarized in Table). Livejournal [, 19] describes the friendship relation in the LiveJournal social network. Wiki [,] compiles
+English Wikipedia pages. Twitter [17] captures the “who follows
+whom” relation in the Twitter social network. Road [11] is the road
+network of the great lakes area of the United States. Web [,] is a
+web graph generated by WebBase [].
+
+We evaluate Hieroglyph with four algorithms: bipartite matching
+(abbreviated as Bipart),'° weakly connected component (abbreviated as CC), PageRank, and SSSP, all common building-block algorithms in graph analytics.
+
+We compare Hieroglyph with PowerGraph '' [12], PowerLyra[], and GiraphUC ° [14]. PowerGraph uses vertex-cut partitioning and features efficient processing of high-degree vertices.
+PowerLyra extends PowerGraph to support hybrid-cut, enhancing
+computation efficiency for low-degree vertices. Hieroglyph augments PowerLyra with efficient locally-sufficient computation. Given
+such relation, regarding both design and implementation, a performance comparison between Hieroglyph and its two predecessors
+identifies the gain of locally-sufficient computation over vertexcut. GiraphUC is a vertex-centric graph processing system providing locally-sufficient computation over edge-cut. Despite the
+discrepancy between GiraphUC and Hieroglyph in terms of implementation details,'* a comparison between them sheds light on the
+potential of enabling efficient locally-sufficient computation over
+vertex-cut partitioning.
+
+All experiments are conducted in a cluster ofAmazon EC2
+c3.8xlarge instances, each with.8GHz vCPUs, 60GB memory,
+andGbps network connection. All instances run Ubuntu.
+LTS (Linux.-54-generic). PowerGraph, PowerLyra, and Hieroglyph are compiled with gcc.. GiraphUC is implemented
+on Giraph. and run with Hadoop. and jdk.0_79. Each
+data point is the mean of at least three runs. For all experiments,
+
+Treating vertices with an even id as left vertices and the rest
+as right vertices enables the evaluation of Bipart on all five
+datasets [26].
+
+"We evaluate GraphLab PowerGraph version (March).
+"We use PowerLyra release in April
+
+We use GiraphUC snapshot in May
+
+“Such discrepancy includes different vertex-centric abstractions,
+programming languages, and inter-host communication mechanisms.
+
+grid vertex-cut is used for PowerGraph by default, hybrid-cut with
+ginger heuristics for PowerLyra and Hieroglyph, and hash-based
+edge-cut for GiraphUC. PowerGraph and PowerLyra run in the synchronous mode by default.
+ Performance
+
+Figureshows that Hieroglyph outperforms all the other three
+systems for all algorithm-dataset combinations in our evaluation.
+Hieroglyph’ speedup varies fromx tox, with a median
+speedup ofx and an average speedup ofx.'
+
+Comparing against PowerGraph and PowerLyra. In most settings, the performance improvement of Hieroglyph with respect to
+both PowerGraph and PowerLyra maximizes on Road and minimizes on Twitter. This is because locally-sufficient computation
+is most effective with respect to synchronous execution, when local state propagation in synchronous execution is severely hindered
+by global synchronization. Hieroglyph’ effectiveness is thus amplified by Road, which has a large diameter and requires numerous
+
+supersteps—each concluded with an iteration of global synchronization—
+
+for local state propagation in PowerGraph and PowerLyra.'®
+
+The diminishing performance gap in Twitter can be understood
+from the perspective of computation-communication balancing. Given
+its size, Twitter imposes considerable computation workload on
+each participating host. On the one hand, it improves the computation-communication interleaving in PowerGraph and PowerLyra, effectively reducing the penalty of inter-host communication.
+On the other hand, it magnifies the computation overhead of Hieroglyph caused by () repeated per-vertex computation to process
+asynchronously-delivered input state and (ii) the need for resolving inconsistent local state. Indeed, compared to Livejournal and
+Wiki, we observe an increase in vertex update rate—an indicator
+of the computation efficiency—for PowerGraph and PowerLyra in
+the case of Twitter. The update rate for Hieroglyph, however, drops
+in the case of Twitter. The opposite trend thus reduces the performance improvement of Hieroglyph.
+
+Results for Bipart show the superiority of Hieroglyph due to
+its ability to perform locally-sufficient computation across phase
+boundaries. Given that each of the four phases in Bipart consists
+of only one superstep and that messages generated in one phase
+are always processed by the next phase, Hieroglyph’ performance
+would be identical to that of PowerLyra if local sufficiency is confined within phase boundaries. In other words, system-only support for locally-sufficient computation—without the flexibility introduced in the CSM abstraction—would miss the opportunity of
+performance enhancement in Bipart. With our CSM bipartite matching design, Hieroglyph achieves up tox speedup over PowerGraph andx over PowerLyra.
+
+Comparing against GiraphUC. GiraphUC achieves better performance than both PowerGraph and PowerLyra for all four algorithms on LiveJournal, Wiki, and Road. It, however, becomes
+inferior on Twitter and Web. GiraphUC’ performance variation
+mirrors that of Hieroglyph. When the computation workload increases in the synchronous execution, the relative effectiveness of
+local sufficiency reduces.
+
+Yet, speedups of Hieroglyph over GiraphUC for Twitter and Web
+
+'GiraphUC runs in BSP mode (.., reducing to Giraph) in our Bipart measurement. This is because GiraphUC terminates prematurely when executing our Bipart algorithm with locally-sufficient
+computation. Note, however, that GiraphUC’ execution time obtained in BSP mode lower-bounds that with locally-sufficient computation enabled, given the one-superstep-per-phase property of Bipart.
+
+'8Such pattern conforms to observations in GiraphUC [14].
+PowerGraph
+abs. time()-45
+
+
+Figure Performance comparison. Execution time is normalized to that of PowerGraph. Absolute average execution time of
+PowerGraph (in seconds) is marked atop each cluster. Normalized execution time of GiraphUC, when exceeding the plotting range,
+is also marked.
+Figure Results on performance breakdown, resource consumption, and scalability. (a) Performance breakdown of Hieroglyph’
+Compute and Merge. () Resource consumption, normalized to PowerLyra. () Scalability comparison, with the number of hosts
+
+varying fromto
+
+are larger than those for the remaining datasets. Although the reduced effectiveness of locally-sufficient computation affects both
+Hieroglyph and GiraphUC in Twitter and Web, Hieroglyph, with
+its vertex-cut support via CSM, gracefully handles the increasing
+workload with respect to GiraphUC.
+
+Performance Breakdown. Figurea shows the performance breakdown of the compute workers, which are responsible for both the
+
+compute and the merge stage. For the four algorithms used in our
+
+evaluation, the compute stage dominates the workload of the com
+pute workers in most cases. The compute-merge ratio is a function
+
+of algorithm and dataset. Figurea shows that, () the compute
+merge ratio related to the Twitter dataset is higher than that of Live
+journal and (ii) the ratios related to Bipart and CC are higher than
+
+those of PageRank and SSSP.
+
+In general, a larger portion of execution time in the merge stage
+indicates a higher cost of inconsistency resolution. This cost is determined by two factors: the frequency of the activation of merge
+stages and the cost of each activation with respect to the cost of
+compute stages. In the case of SSSP, for example, given that the
+costs of each activation of the merge stage and the compute stage
+are comparable, the large portion of execution time in the merge
+stage indicates frequent activation of the merging logic. Note, however, that both compute and merge stages contribute to the final
+graph state convergence. A low compute-merge ratio does not entail an insufficient CSM algorithm design.
+
+Resource Consumption. Figureb shows the resource consumption of Hieroglyph with respect to PowerLyra when executing SSSP.
+CPU consumption is measured by the number of vertex state updates. Hieroglyph conducts a substantially larger amount of vertex
+updates, due to the activation of the update function on all replicas
+of each vertex, instead of only the master replica. Such overhead is
+also due to the use of potentially inconsistent local state for update
+in Hieroglyph. Inconsistency resolution incurs a%-182% overhead regarding network traffic. Since the communication workers
+progress independently, however, the negative impact of such an
+overhead on the overall performance is minimized. Hieroglyph’
+
+memory overhead varies from% to%, thanks to the maintenance of additional states for Sync and Merge.
+
+Scalability. Figurec shows the scalability of the four systems
+when executing CC on Twitter. The execution time of all systems reduces with the increasing number of hosts. Yet, all systems demonstrate sublinear speedup with the increasing number of
+hosts, due to the intrinsic inter-host dependency of the workload.
+In terms of execution time, Hieroglyph outperforms the other systems in all our settings. Its speedup varies betweenx-.37x,
+.38x—.47x, .83x—.08x, andx—.08x, when the number of
+hosts are 16, 24, and respectively.
+
+Asynchronous Execution. When running in the asynchronous
+mode, the performance of PowerGraph and PowerLyra degrades
+significantly for CC, PageRank, and SSSP."’ Figurea compares
+the performance of PowerGraph, PowerLyra, and Hieroglyph when
+executing CC and SSSP on Twitter (summarized in Table). We
+choose Twitter for evaluating the asynchronous mode of PowerGraph and PowerLyra, because it produces the minimum speedup
+for Hieroglyph and thus provides a conservative view of the performance improvement.
+Figure Results on asynchronous execution, effects of graph partitioning, and Hieroglyph’ optimization using deferred switching
+and locally-synchronous and asynchronous modes. (a) Performance of PowerGraph and PowerLyra in asynchronous mode. ()
+Effect of graph partitioning. () Effect of regular vs. deferred switching and locally-synchronous vs. asynchronous execution in
+
+Hieroglyph .
+
+For CC, the speedup of Hieroglyph with respect to PowerGraph
+more than triples when comparing the latter’ synchronous execution to asynchronous execution. As for PowerLyra, the speedup
+of Hieroglyph triples, as well. The increase is even more significant in the case of SSSP. Hieroglyph’ speedup boosts fromx
+for synchronous PowerGraph tox for asynchronous PowerGraph, enlarging the performance gap byx. For PowerLyra, the
+gap enlarges by over an order-of-magnitude.
+
+Graph Partitioning. Figureb shows the performance of Hieroglyph using hash and ginger-heuristic graph partitioning [], measured with the Twitter dataset. Overall, Hieroglyph achieves high
+performance in both hash and ginger partitioning. Given its ability
+to perform locally-sufficient computation, Hieroglyph can mitigate
+the effect of unbalanced workload caused by graph partitioning.
+Yet, in general, Hieroglyph still benefits from more balanced ginger partitioning.
+Deferred Switching. The effect of deferring the switching of synchronization state from the beginning of a synchronization iteration to the time when such state is accessed is negligible for CC
+and SSSP, yielding a maximum of% reduction in execution time
+(cf. Figurec). Such ineffectiveness may be partly attributed to the
+high priority assigned to the communication workers in the current
+implementation of Hieroglyph. While the computation workers frequently yield to the communication workers (.., by reducing the
+vertex chunk size), the latter proceed until all available data have
+been exchanged. The rationale behind this default mode of Hieroglyph is that, when local state is updated, it is advantageous to
+propagate the update to all replicas. In other words, it is desirable to minimize the time window during which the vertex state
+remains inconsistent. Locally-sufficient computation proceeds opportunistically, aiming at making progress to hide communication
+cost yet minimizing additional communication delay (in the form
+of reduced responsiveness of the communication workers due to
+parallel locally-sufficient computation). The probability that the
+local vertex state is repeatedly updated before synchronization is
+thus minimized, so is the effect of deferred switching.
+
+There are, nevertheless, cases where it is beneficial to assign high
+priority to local state propagation [35].'® In those cases, we expect
+deferred switching to significantly shorten the execution time.
+
+Local Asynchrony. Figurec also compares the performance of
+locally-synchronous execution with that of locally-asynchronous
+execution. For all cases in Figurec, local asynchrony leads to superior performance, with the speedup ranging fromx tox.
+For both CC and SSSP, the gain of local asynchrony is larger for
+
+'8In graph-centric approaches [30,35], the same problem bares the
+form of whether to perform per-partition computation iteratively
+(.., until the partition converges) or to frequently propagate updated external vertex state to adjacent partitions.
+
+Road than for Twitter. This is because the effect of fast state propagation in locally-asynchronous mode is amplified by the large diameter of Road.
+
+It is also worth noting that, for CC and SSSP, vertex-consistency
+is sufficient for correctness [22]. Since during local-sufficient computation, vertex state can be updated only in the apply function,
+there is no write-write data race. In addition, read-write data race
+is benign in both CC and SSSP.'? Consequently, no lock is required
+for accessing vertex state. Regarding operations on the message
+queue, message enqueuing requires lock protection in both locallysynchronous and asynchronous modes. The only additional locking overhead induced by locally-asynchronous execution is thus for
+message dequeuing. This slight overhead is outweighed by the benefit of fast state propagation, leading to the significant improvement
+of locally-asynchronous execution.
+
+The performance improvement of local asynchrony is encouraging. Yet, locally-synchronous execution has its own merit. For
+example, it efficiently supports the bipartite matching algorithm, in
+which active vertices of the current phase send messages to be processed by the subsequent phase. Had Hieroglyph only supported
+locally-asynchronous mode, it would require the implementation
+of phase-related message tagging [14], complicating multi-phase
+algorithm design.
+
+Complexity. Tablecompares the complexity of CSM algorithms
+with their GAS counterparts, using lines of code as the metric. Using Hieroglyph’ implementation of the CSM abstraction, the four
+algorithms studied in the evaluation require%-106% more lines
+of code to be expressed in CSM. Note that, the complexity of algorithm design in CSM is also determined by the inconsistency resolution logic in Sync and Merge. For CC, PageRank, and SSSP, their
+corresponding inconsistency resolution logic resembles the logic
+used in their locally-sufficient computation, the latter an extension
+
+For example, assume that a vertex ; will not send a message to
+another vertex ,, if ; obtains (.., reads) the most recent update
+(.., write) of ;. Then, if ; sends a message to ; due to the
+access of a stale state of ; but the message arrives after ;’ update,
+it will be discarded due to program logic, for both CC and SSSP.
+Such race thus does not affect correctness.
+of the GAS implementation. As a result, these three algorithms
+are relatively easy to be implemented. Bipart is more difficult, in
+contrast, because of the dissimilarity between Compute and the inconsistency-fixing logic in Sync and Merge.
+ RELATED WORK
+
+We have discussed Pregel [23], PowerGraph [12], PowerLyra [],
+and GiraphUC [14]. Below we summarize other graph processing
+systems.
+
+Execution Modes. Many graph processing systems, such as Giraph [], Mizan [16], GPS [27], Pregel+ [37], GraM [33], Quegel [38],
+and Version Traveler [15], follow the bulk synchronous parallel
+model. Giraph [] is an open-source implementation of Pregel.
+Mizan [16] features dynamic workload balancing. GPS [27] supports master computation—computation performed by a master host
+and serialized to BSP supersteps on all hosts—and introduces dynamic graph repartitioning and large adjacency list partitioning for
+reducing communication overhead. Pregel+ [37] analyzes the benefit of vertex state mirroring [22] and extends the Pregel abstraction
+with a request-respond paradigm, enhancing the flexibility in state
+propagation. GraM [33] achieves overlapping of computation and
+communication at the architectural level, via a multi-core-aware
+RDMA-based communication stack. Quegel [38] extends BSP to
+support superstep-sharing execution, effectively amortizing the cumulative synchronization cost across the parallel execution of multiple queries. Version Traveler [15] enables fast version switching
+in multi-version graph processing.
+
+Besides BSP-style systems, PowerGraph [12], Trinity [28], and
+GRACE [32] support both synchronous and asynchronous modes.
+PowerSwitch [34] employs Hsync, a hybrid mode featuring adaptive switching between synchronous and asynchronous modes for
+better performance. Several parameter server frameworks, such as
+LazyTable [10] and the work of Li et al. [20], explore the stale synchronous parallel (SSP) model []—a relaxed synchronous model
+achieving high communication efficiency and bounded staleness.
+
+None of the above systems supports local sufficiency over vertex-cut with a vertex-centric abstraction. Hieroglyph enhances state
+of the art by closing this critical gap.
+
+Graph-Centric Programming. Graph-centric programming (.¢.,
+Giraph++ [30] and Blogel [36]) exposes graph partitions to users,
+enabling more efficient algorithm design. The use of per-partition
+local input state during computation resembles local sufficiency.
+The two differ, nevertheless, in the following aspects. Graph-centric programming, by definition, diverges from vertex-centric programming. It is synchronous in that computation proceeds in supersteps and computation and communication—over all vertices of
+a partition and/or the partition itself—alternate. It reduces the communication overhead via partition-oriented algorithm redesign. Local sufficiency is, in contrast, vertex-centric and intrinsically asynchronous due to the independence between computation and communication. It hides the communication overhead behind computation. Despite the substantial performance gain witnessed by prior
+work on graph-centric programming [30,35,36], vertex-centric programming remains dominant due to simplicity.
+Multi-Core/Out-of-Core Processing. Approaches towards efficient multi-core [29] and out-of-core processing [18,24, 25,39, 40],
+are orthogonal to Hieroglyph, the latter targeting a distributed inmemory scenario.
+
+Dataflow Operators. Pregelix [] and GraphX [13] both map a
+vertex-centric abstraction onto distributed dataflow operators, enabling graph processing over general purpose dataflow engines.
+
+Mapping CSM onto dataflow operators would enable locally-sufficient computation on graph processing systems built atop dataflow
+engines, thus improving the latter’ performance in the graph processing stage.
+ CONCLUSIONS
+
+In this paper, we introduced Compute-Sync-Merge, a vertex-centric abstraction supporting efficient locally-sufficient computation.
+CSM enforces local sufficiency at the abstraction level and supports
+vertex-cut by activating vertex-centric computation on all vertex
+replicas. We demonstrated the expressiveness of CSM by implementing several fundamental algorithms. Hieroglyph—our CSMcompliant prototype system—outperforms state of the art by up tox.
+ ACKNOWLEDGMENTS
+
+We thank the anonymous reviewers and our shepherd, Abhishek
+Chandra, for their feedback. The work reported in this paper was
+supported in part by Intel Corporation.

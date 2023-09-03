@@ -1,0 +1,751 @@
+Optimal Posted Prices for Online Cloud Resource Allocation
+
+ABSTRACT
+---
+We study online resource allocation in a cloud computing platform through posted pricing: The cloud provider publishes a unit
+price for each resource type, which may vary over time; upon arrival at the cloud system, a cloud user either takes the current
+prices, renting resources to execute its job, or refuses the prices without running its job there. We design pricing functions
+based on current resource utilization ratios, in a wide array of demand-supply relationships and resource occupation durations,
+and prove worst-case competitive ratios in social welfare. In the basic case of a single-type, non-recycled resource (allocated
+resources are not later released for reuse), we prove that our pricing function design is optimal, in that it achieves the smallest
+competitive ratio among all possible pricing functions. Insights obtained from the basic case are then used to generalize the
+pricing functions to more realistic cloud systems with multiple types of resources, where a job occupies allocated resources
+for a number of time slots till completion, upon which time the resources are returned to the cloud resource pool.
+---
+INTRODUCTION
+
+Over the past decade, cloud computing has proliferated as the new computing paradigm that provides flexible,
+on-demand computing services in a pay-as-you-go fashion. Various applications and systems are built upon
+cloud computing models, including big data analytics, cloud radio access networks (-RAN), network function
+virtualization (NFV), to name a few. Despite the common illusion that a cloud consists of an unlimited ‘sea’
+of resources, real-world clouds are constrained by finite system capacity [17, 24] (eg., physical capacity of a
+cloud data center), which may become tight in periods of peak demand [, 12]. A fundamental problem in cloud
+computing is cloud resource allocation, .. to determine which user demands to satisfy at each time point. A
+natural goal is to maximize the social welfare of the cloud eco-system, which represents the aggregated ‘happiness’
+of the cloud provider and the cloud users [].
+Cloud resource allocation in practice exhibits a nature of online decision making: cloud users with job requests
+arrive at the cloud system at arbitrary time points, and the cloud provider decides resource allocation upon each
+arrival. A natural, de facto standard of cloud resource allocation is through a posted pricing mechanism: the cloud
+provider publishes resource prices; cloud users act as price takers who utilize the resources if the prices are
+acceptable (.., its valuation of the job exceeds the cost of resource renting), and will otherwise give up the cloud
+service.
+
+Major cloud providers today, such as Amazon Web Services, Microsoft Azure, and Google Cloud, typically
+adopt fixed prices, ie., resource usage is charged at fixed unit prices posted on their websites. However, a dynamic
+pricing strategy based on realtime demand-supply is more efficient in many scenarios [], to fully exploit the
+resource capacity of a cloud system, and to better satisfy user demands. For practical cloud computing systems
+that employ dynamic pricing strategies, .., Amazon EC2 Spot Instances [], short-term prices may not be driven
+by realtime demand-supply []; however, the price differences across different service regions and over different
+time periods are still relevant to demand and supply. Inspired by the Spot Instances model, various dynamic
+pricing strategies have been proposed in recent literature, including auction mechanisms [13, 15, 23, 25, 27, 29, 30],
+and other dynamic pricing strategies for revenue maximization and efficient cloud resource utilization [14, 19, 26].
+
+This work studies effective pricing functions for a cloud provider to employ, for computing unit resource
+prices at each time point. The computed prices are posted as ‘take it or leave it’ prices for cloud users to decide
+whether to rent the cloud resources, while users’ job valuations are not revealed to the cloud provider. Such prices
+can also serve in a posted-price auction mechanism for cloud job admission and charging. With meticulously
+designed online prices, our goal is to maximize the social welfare of the cloud, which equals the overall valuation
+of executed user jobs, minus a possible operational cost, over the entire system span.
+
+Both social welfare maximization and provider revenue maximization are possible goals in cloud resource
+allocation [16, 20]. Social welfare represents the aggregate gain of the cloud provider and cloud users, indicating
+overall system efficiency. Compared to maximizing provider revenue, maximizing social welfare ensures good
+user experience, which is important for long-term market competitiveness of a cloud provider [28]. Furthermore,
+for public clouds operated by nonprofit organizations, and private clouds serving internal jobs, maximizing social
+welfare is more relevant than maximizing revenue [18]. In these cases, the pricing schemes studied in this paper
+can be used as mechanisms for allocating cloud resources to users based on their urgency and priorities. In the
+auction design literature, there further exist techniques that can relate social welfare maximizing mechanisms
+with revenue maximizing mechanisms [10].
+
+Our study of the pricing functions has been partly inspired by dual price design in competitive online algorithms
+based on the classic primal-dual framework [, ]. In primal-dual online algorithm design, a key idea is to update
+dual prices using exponential functions for making primal resource allocation decisions, leading to provable
+competitive ratios. Nonetheless, no explicit justification exists in the literature on the choice of using exponential
+dual price functions.
+
+In this work, we borrow the exponential form of the pricing function from the literature of primal-dual online
+algorithms, and propose the optimal form of the exponential pricing functions for a fundamental cloud resource
+allocation problem. We then provide an intuitive explanation of the optimality of the exponential pricing function.
+For the first time in the literature, we generalize the pricing function to scenarios with bounded total demand,
+where the optimal form is no longer necessarily an exponential function. Interestingly, this result also contributes
+to the literature on knapsack problems, in that our problem is closely related to a variant of the online knapsack
+problem [11], where the total weight of items is upper bounded.
+
+We start by investigating the basic case of a single type of cloud resource without resource recycling, and design
+resource pricing functions based on the current resource utilization levels that capture realtime demand-supply
+of cloud resources. We prove the optimality of our pricing function design. We then investigate the cases of
+multiple resource types, and limited resource occupation durations. Our contributions are summarized below.
+
+First, we justify the use of exponential pricing functions in the literature of both cloud computing [13, 21, 22,
+29, 30] and online algorithms [, ], both from a theoretical point of view and with intuitive interpretation. We
+prove the optimality of the pricing function under mild system assumptions that are standard in recent literature.
+
+Second, we derive the optimal pricing functions for more realistic cloud resource allocation scenarios, where
+the potential total demand for resources is bounded.
+
+Third, we extend the pricing functions to take into account multiple resource types. We propose a joint pricing
+and scheduling strategy when the cloud system runs over multiple time slots. We prove tight competitive ratios
+for these scenarios, which were not properly proven in previous literature. We make no assumptions on the
+arrival process and the distribution of user valuations.
+
+We further verify effectiveness of our price design in realistic cloud computing scenarios through simulation
+studies, with assumptions in theoretical analysis relaxed. We show that the parameters involved in our pricing
+functions can be practically optimized in different scenarios, to achieve consistently good performance ratios
+against the offline optimal social welfare.
+
+Finally, we note that our pricing models and algorithms are generally applicable to posted pricing mechanism
+design in other online resource allocation systems, which share similar characteristics as a cloud computing
+system.
+
+In the rest of the paper, we review related literature in Sec. The basic and general models of cloud resource
+pricing are studied in Sec.and Sec. respectively. Sec.presents simulation studies, and Sec.concludes the
+
+paper.RELATED WORK
+
+Recently, auction mechanisms have been extensively studied for online cloud resource allocation and pricing.
+Zhang et al. [29] design an online auction mechanism for IaaS clouds, aiming to maximize both social welfare and
+provider profit. Zhou et al. [30] extend the auction mechanism to deal with computing jobs with soft deadlines.
+Shi et al. [22] propose an online mechanism for virtual cluster allocation and pricing. These studies exploit
+the primal-dual framework for online mechanism design, and adopt exponential pricing functions to compute
+dual prices, for deciding resource allocation and user payments. Competitive ratios of the online mechanisms
+are proven, but the rational of adopting exponential pricing functions is lacking, and the optimality of such
+exponential functions are not studied. Indeed, a wide spectrum of increasing functions are conceivable for cloud
+resource pricing. Our pricing functions are applicable to both posted pricing mechanisms and online auctions.
+The analysis of optimality of our pricing functions is independent from the primal-dual framework.
+
+Apart from auction mechanisms, a wide range of resource pricing schemes have been studied in the literature.
+While static pricing is prevalent in today’ cloud market, dynamic pricing based on realtime demand-supply can
+be more efficient in many scenarios []. Li et al. [14] design a pricing algorithm for cloud resources, which updates
+current prices based on historical resource utilization ratios. Their experiment demonstrates the advantage of the
+pricing algorithm in terms of cost reduction and efficient resource allocation. Mihailescu and Teo [19] propose
+a dynamic pricing scheme for federated clouds, where different cloud providers share and trade resources for
+enhanced scalability and reliability. They show that user welfare and the percentage of successful requests are
+increased by dynamic pricing, as compared to fixed pricing. The pricing schemes developed in this work are both
+dynamic and usage-based, .., the unit price of cloud resource is driven by demand-supply dynamics, and the
+total price is proportional to the amount and service time of requested resources.
+
+The online social welfare maximization problem studied in this work is related to a variant of the online
+knapsack problem [11]. Two assumptions are made in this literature: the weight of each item is much smaller
+than the capacity of the knapsack, and the density (value to weight ratio) of every item falls in a known range
+[, ]. Under these assumptions, Buchbinder and Naor [, ] design an algorithm achieving a competitive ratio of
+ (log (/)), as well as an  (log (/)) lower bound on the competitive ratio of any algorithm. In the context
+
+set of users
+
+set of resource types
+set of all time slots
+
+set of time slots required by user 
+amount of resource  demanded by user 
+total amount of resource demanded by user 
+
+value of successfully finishing user ’ job
+unit resource price at the time of user arrival
+
+total value obtained by an optimal offline solution, given a final utilization level *
+
+
+of advertising auctions, Zhou et al. [31] design a (log (/) +)-competitive algorithm for an online knapsack
+problem under the above assumptions. Interestingly, their algorithm is equivalent to our proposed pricing strategy
+for the most basic case, as will be discussed in Sec... Nevertheless, our proof of optimality is different from
+that given by Zhou et al. [31], and leads to an intuitive interpretation on the choice of exponential pricing
+functions. More importantly, the total weight of items is assumed to be unbounded in the previous work, which
+is impractical in real-world applications. In this work, we develop a more general pricing strategy that achieves
+better competitive ratios for bounded total weight, and prove the optimality of the proposed strategy.
+CLOUD RESOURCE PRICING: THE BASIC CASE
+
+We start by designing pricing functions for a basic, yet fundamental version of the online resource allocation
+problem, following the posted pricing framework as described in Algorithm By analyzing the basic case of
+allocating a single-type, non-recycled resource, we develop necessary techniques and theoretical results, for the
+online pricing and scheduling of more realistic cloud resource allocation problems.
+The Basic Resource Allocation Problem
+
+Consider a cloud provider whose data center is for now assumed to provision a single type of resource, to be
+allocated to a large number of cloud users. The users in a set  come in an arbitrary sequence. Upon arrival, a
+user decides immediately whether to rent cloud resources, by comparing the valuation of its job with the overall
+price of required resources for executing the job. Let ; denote the amount of resource demanded by a user  € ,
+and ; be the value of successfully finishing ’ job. In practice, ; is often influenced by multiple factors, such as
+the purpose and priority of the job, and what is gained from the job’ completion. Without loss of generality,
+we normalize user resource demands, assuming the total amount of resource in the cloud is so that ; can be
+considered as the proportion of the entire resource pool demanded by user . Let  be the unit price of the resource
+posted by the cloud provider, which may vary over time. A user  accepts the price and rents resource at quantity
+;, if and only if ; > dip, where  is the current unit resource price at the time of user arrival. Effectively, vu;
+
+simply serves as a threshold for a price to be acceptable to user . In this section, we assume that each unit of the
+resource, once allocated, will not be returned to the resource pool.
+
+The utility of the cloud provider is the total payment received. The utility of a served user is the valuation of
+its job minus its payment. The utility of an unserved user is zero. Since payments cancel themselves, the social
+welfare of the entire cloud system is equivalent to the total valuation of served jobs, assuming no operational
+cost of the cloud.
+maximization problem can be formulated as an integer linear program (ILP):
+This is a- knapsack problem, and can be solved to optimum using dynamic programming in the offline
+setting. However, for the online problem we investigate, the columns of the coefficient matrix of constraint
+(1a), corresponding to different user arrivals, are revealed one-by-one, while the value of ; is to be determined
+immediately when a user comes to the cloud. We apply an online resource allocation algorithm, as shown in
+
+The performance of the posted pricing mechanisms in the online resource allocation algorithm clearly depends
+on the pricing function. We do not assume that users reveal their job valuations to the cloud provider. Consequently,
+the pricing strategy depends only on the demand-supply relationship of cloud resources. To evaluate the quality
+of a resource allocation solution, we resort to the standard notion of competitive ratio, defined as the ratio between
+the optimal objective value of the offline problem () and that of the online solution. The smaller (closer to) the
+competitive ratio is, the better the online resource allocation solution. We will focus on the worst-case competitive
+ratio, as opposed to the average-case competitive ratio. We first make the following two mild assumptions:
+
+ASSUMPTION The variability of users’ valuations is constrained, ..,  < uj/dj < ,Vi € , where  and  are
+lower bound and upper bound of the per-unit-resource job valuation of all users, respectively.
+
+
+ASSUMPTION The resource demand of each user is much smaller than the total resource capacity, .., dj «Viedu.
+
+Assumptionis standard in the literature of online resource allocation [29, 30] and online knapsack problems
+[, , 11, 31], and is reasonable in large-scale data centers. We make this assumption to facilitate theoretical
+analysis, such that techniques from calculus (differentiation) can be applied, and rare, extreme cases can be
+eliminated. For example, if a high-valued bid demanding almost all the resource from a cloud provider is rejected,
+because a small fraction of the resource is occupied by other users, then the worst-case competitive ratio can be
+arbitrarily high. Such an assumption.
+
+Nonetheless, it is possible to relax Assumptionto specifying an upper bound on ; instead, without significantly affecting our theoretical result. Specifically, differentiation and integration can be replaced with differences
+and summation, to derive similar results. We will relax this assumption in empirical studies later in the paper.
+ Pricing Function Design
+
+We design pricing functions that adjust resource prices based on realtime demand-supply. It is helpful to have
+some prior knowledge about the total resource demand. In practice, unlimited total resource demand is rare;
+an estimated upper bound on the overall resource demand can often be obtained. This is reflected through the
+following definition.
+
+Definition. Suppose the total resource demand of all users is upper bounded by+  times the total resource
+supply, ie, Mieqw di <+ with  > —. We refer to  as the scarcity level of the resource.
+
+It is possible to have a known lower bound on the overall resource demand as well, but our algorithm design
+and analysis do not rely on such a lower bound.
+
+We next present the optimal pricing function for  — oo, and then derive the optimal pricing functions for
+finite , based on the insight we gain from the analysis of the first case. We then further show in Sec. that the
+results can be extended to the case with linear operational costs of cloud resources.
+. Pricing Function for Large Total Demand. We begin with the case that the total demand for resource is
+much larger than the capacity of the cloud resource pool. We propose an optimal pricing function for the case
+that  — oo, and then show the same pricing function is in fact optimal as long as  >(.. the overall resource
+demand is at least twice of the resource capacity).
+
+Definition. In Algorithm oblivious of true valuations of users, a pricing function is optimal if it achieves
+the smallest possible worst-case competitive ratio in social welfare under Assumptionsand
+
+Let  be the resource utilization level, .., the amount of the resource already allocated. Note that  is a function
+of time, but this dependency is omitted for notational simplicity. The unit price of the resource at the respective
+resource utilization level is denoted by ; (), designed as follows:
+
+where . An illustration of the pricing function for  =  =is given in Fig.(blue lines in both
+subfigures). Intuitively, when  is quite small, it is desirable to keep the price at the lowest level (), to allow
+all potential users to rent the resource. As  increases, the amount of satisfied demand increases, as well as the
+obtained social welfare, and hence it is reasonable to raise price to filter out users with low valuations. When
+ = cloud resource is exhausted, so we use an infinitely high price to reject all subsequent users.
+Fig. An illustration of pricing function () for  =  =
+
+if we need the lower bound and upper bound of the per-unit-resource valuation in (), when applying this pricing
+function in online resource allocation, we can use estimates of the bounds, which can be further calibrated over
+time as more users arrive and more price taking decisions are learned.
+
+We next prove the worst-case competitive ratio of Algorithmwhen using the pricing function in (), as well
+as the optimality of the pricing function when  — oo (this default condition omitted in all lemmas, claims and
+theorems before Theorem), and then generalize the conclusion to the case  >in Theorem.
+
+Definition. * € [,] denotes the final utilization level of the resource after all users have decided whether
+to rent the cloud resource to execute their jobs.
+
+The following lemma implies that when the final resource utilization level is low, the total demand of potential
+users also tends to be low, thus it is possible to satisfy all user demands online.
+
+Lemma. If * € [,/(log  +)], the worst-case competitive ratio achieved by Algorithmusing the pricing
+function in () is a, =
+
+Proor. According to the pricing function in (), for  € [, /(log  +)], the unit price is a constant, , which
+by Assumptionis acceptable to any potential user, thus * € [, /(log  +)] implies that the total demand of
+all users is exactly *. The social welfare achieved by the pricing function in () is the total value of all users,
+
+which is also the maximum possible social welfare achieved by solving the offline problem (). Therefore, the
+worst-case competitive ratio is oO
+
+For a final utilization level *, let ,;(*) be the total value obtained by an online solution, and Vop;(") be that
+obtained by an optimal offline solution. Thus, in any worst case, the ratio Vop:(*)/Voi(*) is maximized.
+
+LEMMA. If * € , ], the worst-case competitive ratio achieved by Algorithmusing the pricing
+function in () is .
+
+Proor. For any * € (/(logy +), ], the worst case of the online solution is that the valuations of satisfied
+users are the same as the prices they accept. By Assumption the minimum total value of an online solution is
+
+as shown by the blue area under the curve (AUC) in Fig.. At the same time, any unsatisfied user has a unit value
+smaller than ; (*), because otherwise * cannot be the final resource utilization. Hence in the worst case, there
+can be a set of unsatisfied users with a total demand of(., >) €Uops ; =Vr € , where Up; is the set of
+users chosen by the optimal offline solution), and each with a unit value of , (*) — €;, where ; is an arbitrarily
+small positive number, such that the optimal offline solution is to satisfy their demands with all available resource.
+This yields the maximum optimal offline value given Eq. ():
+
+as shown by the red AUC (partially covered by the blue one) in Fig.. Here, € = Yieq,,, €, and hence can
+also be arbitrarily small. Note that, there can be a case which leads to a larger optimal offline total value, by
+increasing the online value corresponding to  € [, ”] (.., the blue AUC in Fig.) until it is large enough
+and becomes part of the optimal offline value. However, the online value will increase more than the optimal
+offline value does in this case, making it impossible to be a worst case. Therefore, the worst-case competitive
+An illustration of the worst-case competitive ratio at different final resource utilization levels is shown in
+Fig.a (red line).
+
+ 
+
+THEOREM. The worst-case competitive ratio of Algorithmusing the pricing function in () is
+()
+
+Proof. The worst-case competitive ratio of the pricing function in () is the maximum possible competitive
+ratio for all * € [, ]. Hence following Lemma and, a, = max {au,, a,} =logy +. oO
+
+We next show the optimality of the pricing function based on the observation that, to achieve a finite worst-case
+competitive ratio, any pricing function should contain a constant () part at the beginning of the function.
+
+Cam. Ifa pricing function  () achieves a finite worst-case competitive ratio of a, then () = ,Vp €
+[, /a]. Proor. If the claim does not hold and () > , there can be a case where * = such that the online
+total value ’, (") = while the optimal offline total value Voor (*) = () — € > where € is an arbitrarily
+Vop:(")
+Vii(")
+assumption that @ is finite.
+
+If the claim does not hold and  () = , there must be a pp € (, /a] such that  (p9) > (), Vp € [, po).
+There can be a case where * = po, such that the online total value
+
+small positive number. Thus the worst-case competitive ratio @ > sup... = +o0, which contradicts the
+
+while the optimal offline total value ,,, (*) =  ()—€. Thus the worst-case competitive ratio a > sup, vi (*)
+which contradicts po </a.
+
+Optimal Posted Prices for Online Cloud Resource Allocation +
+
+THEOREM. the pricing function in () is optimal according to Definition, .., using it Algorithmachieves
+the smallest worst-case competitive ratio.
+
+Proor. We prove this theorem by way of contradiction. Assume that there exists a pricing function, ; (),
+which achieves a worst-case competitive ratio a] < a. According to Claim and Theorem, we have
+
+where , () is the pricing function in ().
+If there exists some  € (/a/, ) such that / () > ; () we find the smallest one, and denote it by ;. Then
+there can be a case where * = p1, such that the online total value
+
+We next generalize the optimality result for all>
+
+ 
+
+ 
+
+ratio a = a, contradicting the assumption that a} < a. Oo
+
+THEOREM. For  > the pricing function in () is optimal according to Definition, and the corresponding
+worst-case competitive ratio is a.
+
+Proof. For any possible input set of users, we can prune the users that can be satisfied by neither the online
+solution or the optimal offline solution, without affecting the online or offline social welfare, given a certain
+pricing function. Clearly, the resulting set of users has a total demand no greater than which can also happen
+given any  > Consequently, all the discussions above can be generalized to  > Oo
+
+The following property (which holds for all>) is useful for guiding the design of pricing functions in more
+realistic cloud computing scenarios.
+
+Property For the pricing function in (), and any * € (/a@,], .., the monotonically increasing part of
+, (), we have
+
+and a constant (wrt. ”) worst-case competitive ratio, a.
+
+
+Proof. This a corollary that follows from Eq. (), (), Lemma and Theorem. Oo
+Propertyis illustrated in Fig., where the light red area corresponds to endl?) ny? and the light blue
+ =.
+
+area corresponds to
+
+*
+ =.
+competitive ratios corresponding to different * values. That is, any changes to the pricing function in () that
+may decrease the competitive ratio for some *, will increase the competitive ratio for some other *, and thus
+
+can only lead to a worse competitive ratio over all possible values of *.
+ . Intuitively, this property implies the best trade-off between the worst-case
+.. Pricing Function for Small Total Demand. In the case that€ (—, ], the total resource demand is no
+larger than the total resource supply. The optimal strategy is simply serving all user demands by setting a unit
+resource price below the smallest per-unit-resource valuation of cloud users.
+
+THEOREM. For  € (—,], pricing function
+is optimal according to Definition, and the corresponding worst-case competitive ratio achieved by Algorithmis
+The proof is straightforward and hence omitted.
+. Pricing Function for Total Demand Up to Twice of Supply. In the case that £ € (, ), we first derive pricing
+functions that have Property and then prove the optimality of the functions. In the following derivation, we
+assume that all pricing functions are continuous and non-decreasing, for the solution existence of our differential
+equations. However, the assumptions are not required by the proof of optimality. The following claim will be
+useful in the derivation.
+
+It follows from Eq. (), (10) and (11) that
+
+Solving the differential equation above gives P2 () = Ce”, where  is a constant to be determined. Since we
+assumed the continuity of » (), we let ,+ Po () = P2(/a@) = , and then we obtain , and
+Pp () = pe@!, Wp & (/a, BI.
+
+When ”* ¢€ (, ), having a set of users with a unit value of , (*) — € to consume all resource is no longer
+possible in the worst case. Instead, there can be a set of unsatisfied users with a total demand of+  — ”, and
+with a unit value of P2 (*) — €, such that the optimal offline solution yields the maximum optimal offline total
+value given Eq. ():
+
+as shown by the red and yellow AUCs (partially covered by the blue one) in Fig.a. We have
+which is illustrated by the light red areas in Fig.a. Note that, there can be a case which leads to a larger optimal
+offline total value, by increasing the value corresponding to  € [, *] (., the yellow AUC in Fig.a). Suppose
+the increased optimal offline total value is Vop; (*) + A (A >), the online total value will also be increased to
+
+
+Voi (*) + A. However, since the competitive ratio now changes to sup,.,
+
+be the worst case.
+It follows from Eq. (), (10) and (14) that
+
+Solving the differential equation above gives , () = (+  — )"™, where  is a constant to be determined.
+Again, due to the continuity of , (), we let limp_,g1 P2() = P2() = pe”? . Then we obtain  = pewh
+and , () = pe! (+ — )™,Vp € (, ]. To have a constant competitive ratio at * =— and * = as
+
+suggested by Property we let , () = pe”?-1p-™ =  = yp, which leads to
+
+
+Here,  (-) is the Lamber -function (a..a. the omega function or the product logarithm), which is the inverse
+function of  () = We™. Therefore, for  € (fo, ), the pricing function is
+
+where A = I; [Po () - Py ()| dp. However, as the resource is exhausted, subsequent users will not be satisfied
+regardless of their valuations. There can be a case where the optimal offline total value Vopt (*) = Vop: (*) —A
+
+Case  € (, fo]. From the definition of fp, we have  </a3, where a3 is the worst-case competitive ratio of
+the optimal pricing function in this case. According to Claim, the pricing function P3() = , Vp € [, /a3].
+When * € (/a3, ), Vor (*) follows Eq. (10) with P2 (*) replaced by P3 (*); Vop: (*) follows Eq. (13), (14) with
+, (*) replaced by P3 (*). Then, following Eq. (15), we have P3() = ( +  — )"®. As discussed for Eq. (16),
+we let ,+ Ps () = P3 (/a3) = , P3 () =  = yp. Solving the resulting equations:
+
+
+An example of P3 () is shown in Fig. by the dashed line corresponding to  =.
+
+THEOREM. For  € (, Bo], the pricing function in (20) is optimal according to Definition, and the
+corresponding worst-case competitive ratio is a3.
+
+Proof. The proof is similar to that of Theorem and is omitted. Oo
+
+For better illustrating how  € (, ) affects the competitive ratio as dictated by Theorems, .10 and,
+we plot the competitive ratio as a function of £ in Fig. As shown in the figure, for a certain value of , the
+competitive ratio decreases with the decrease of , and reaches the minimum valuewhen  drops to
+
+Putting Eq. (), (18) and (20) together, we have obtained a-dimensional piecewise pricing function,  (; ).
+An illustration of the pricing function is given in Fig.
+
+.. Linear Operational Cost
+
+Resource provisioning in real-world cloud computing systems often incurs an operational cost. If such cost is
+proportional to the amount of resources provisioned, then we have a linear operational cost [29]. We can extend
+
+the proposed pricing strategy to accommodate such linear operational cost by making two modifications. First,
+we replace Assumptionby:
+
+ASSUMPTION The variability of users’ valuations is constrained, .. +< vuj/dj < pte.
+
+Here,  >is the operational cost of using a unit of resource. Second, we replace the pricing functions (), (18)
+and (20), by / () = Pi () + ¢, ) () = Po () + and ; () = P3() +. Then all discussions about the proposed
+
+pricing strategy remain valid, including the proof of optimality. In the rest of this paper, we ignore operational
+cost for simplicity.
+PRICING MULTIPLE RESOURCE TYPES WITH RESOURCE RECYCLING
+
+In this section, we extend our resource allocation problem in () to one with multiple types of resources (Sec.),
+and then further investigate the practical case where resource occupation spans multiple time slots (Sec.). We
+show that, by carefully designing the pricing and scheduling strategy, the worst-case competitive ratio in social
+welfare will not be influenced by the number of resource types, or by the number of requested time slots.
+ Pricing Function for Multiple Types of Resources
+
+Now we consider a cloud system that provisions multiple types of resources in a set , as exemplified by CPU,
+GPU, RAM, and disk storage. Let ;,, be user ’ demand for resource , Vr € . Again, we assume the total
+
+amount of each type of resource is so that ;,, is the proportion of the overall supply of resource  demanded
+by .
+
+The offline social welfare maximization problem is:
+
+The online resource allocation algorithm we apply to determine ; immediately after user  arrives at the cloud,
+is the same as Alg. except that ; and the pricing function will be redefined.
+
+Given the optimal pricing functions () (for  >), (18) (for  € (fo, )), (20) (for  € (, Bo]) and () (for
+ € (—, ]) in case of a single resource type, we can simply price each type of resource independently as ,,
+using these pricing functions, and sum them up by }',-cg di,rpr to form a total price; a user  accepts the prices
+and rents resources at quantities ;,-’, if and only if ; is no smaller than the total price. Before doing So, we
+need to redefine  and . One way is to define them for each type of resource independently, as = = inf; ae , and
+, = sup; a , as done by Zhang et al. [29]. However, a drawback of this definition is that , can be infinite, as
+we do not assume that every user demands all types of resources. A remedy is to define the same  and  for all
+types of resources, as  = inf; a and  = sup; ie where dj = )'-cx di,. In this way, Assumptionorremains
+intact. The definitions of  and  are a simple extension of Assumptionto the multi-resource case. Compared
+to the former definition, they do not make any (implicit) assumptions on the ratio of different resources each
+user demands, and thus are more practical. Moreover, summing up the demand for different types of resources is
+reasonable when each ; , is normalized by the total supply of the corresponding resource, such that their values
+are all in the range of [, ]. Then given the resource utilization , and scarcity level £, of each type of resource
+ € , we define an average unit price for any resource for user  as
+
+where  denotes the vector of ,, Vr € , and  (;; ,) is defined by Eq. (), (18), (20) and (). Therefore, ; ; ()
+is the total price for user . Note that we omit in #; () for notation simplicity, but different £, will lead to
+different ; ().
+
+While it is traightforward to adapt the pricing strategy for a single resource type to multiple resource types,
+the resulting worst-case competitive ratio will be different. Specifically, we denote the final resource utilization
+level of resource  by ,”, Vr € , according to Definition, and analyze competitive ratios in three cases: ()
+pr” € [,/a,], Vr € ; (ii) there exists an  €  such that ,* € (/a;,), but no  €  such that ,* =; (iii)
+there exists an  €  such that ,* = Here, a; is defined by Eq. (), (16) or (19) for  = ,. We denote the three
+cases by * € Q1, * € Q2 and * € Qs, respectively, and observe that )  Q2  Qs covers all possible values of
+’. Without loss of generality, here we assume not all £, <; otherwise the worst-case competitive ratio would
+be
+
+LEMMA. For * € Q4, the worst-case competitive ratio achieved by Alg.using pricing function (22) for
+multiple types of resources is a! =
+
+Proor. For * € according to the pricing function in (22), ; (*) = , which by Assumptionis
+acceptable to any potential users, thus the total demand of all users for resource  is exactly ,*. The social welfare
+achieved by the pricing function in (22) is the total value of all users, which is also the maximum possible social
+welfare achieved by solving the offline problem (21). Therefore, the worst-case competitive ratio a! = Oo
+
+only one specific type of resource, driving the average unit price to slightly beyond .
+
+Cram. Let ,* € [,/a,] forr € Ri, pr* € (/ay, ) forr € Ro, where ;  Re = . For * € Qo, there
+exists a worst case that happens when ,* =forr € Ry, and ,* =/a, + forr € Ro, where |Ro| = Here, € is
+an arbitrarily small number.
+
+The proof can be found in the appendix.
+Lemma, For * € Qo, the corresponding worst-case competitive ratio a” = ar Y1-cg min {,+ ,}, where ar
+is defined by Eq. (), (16) or (19) for  = Br, andr = arg max,cg Gr.
+
+Proor. According to Claim, we let ;* =for  € Ri, and ,;* =/a, + € for  € Ro, and let |R2| =
+Then from Eq. (31) and (32), Ro = {} maximizes @ (*), and thus is a worst case for * € Q2. The corresponding
+competitive ratio
+
+For * € Qs, the following claim states that worst cases happen when all users satisfied by an online solution
+demand only one specific type of resource until it is exhausted.
+
+The proof can be found in the appendix.
+Lema. For * € Qs, the corresponding worst-case competitive ratio a> > az Yipee min {, + ,}.
+
+Proor. According to Claim, we let ,* =for  € R3, and ,* =for  € Rg, and let |R4| = Then from
+Eq. (33) and (34), we have the worst-cast competitive ratio for * € Qs
+By Lemma, . and, we have the following theorem:
+
+THEOREM, The worst-case competitive ratio achieved by Alg.using the pricing function in (15) for multiple
+types of resources is given by Eq. (24).
+
+As shown by Lemma, the worst-case competitive ratio for multiple resource types increases roughly linearly
+with the number of resource types. However, from Claim, ., and the analysis above, it is clear that the
+worst cases happen in rather extreme scenarios, where all satisfied users demand only one type of resource,
+unrealistic in practical cloud computing systems. In fact, the supply of and the demand for resources in a cloud
+computing system are often balanced to some extent, since otherwise the supply would be adjusted to better meet
+the demand of users and to improve the system efficiency. Hence, we make the following realistic assumption:
+
+ASSUMPTION All types of resources share a common scarcity level, Bp > and hence a common ag as defined
+by Eq. (), (16) or (19) for= Be; and the final utilization vector, ”, follows
+
+Assumptionleads to an improved competitive ratio.
+
+THEOREM. Under Assumption the worst-case competitive ratio with the pricing function in (15) is upper
+bounded by a constant with respect to ||.
+
+Proor. It can be shown that Claim and are still valid under Assumption For * € Q2, any worst
+case gives Vo; (*) = [ + (IR| -) ] /ag and Vop: (*) = IRI , and hence the corresponding competitive ratio
+
+
+Theorem justifies the pricing function in (22) by showing that, a direct extension of the optimal pricing
+functions for the single resource type case can achieve a reasonably good (degraded by a constant factor ...
+||) competitive ratio in scenarios with multiple resource types.
+ Pricing Function for Multiple Time Slots
+
+In real-world cloud systems, a user job runs over its specified resource bundle in the cloud, across one or more
+time slots. Once the job is completed, the resources that it occupies are then released back to the cloud pool.
+
+Therefore, cloud resources can be reused over time. Let  denote the set of all time slots that the system spans,
+and; be the set of time slots when user  requires to use resources. yj; (£) is an indication function as follows:
+ otherwise
+The offline social welfare maximization problem becomes:
+
+Since ; (¢) is input (not a variable) in this optimization problem, problem (27) is still an ILP. The online resource
+allocation algorithm we apply to determine ; upon the arrival of user  is still the same as Alg. except that ;
+and the pricing function will be redefined, and ; (¢) needs to be further determined.
+
+In fact, problem (21) and problem (27) are equivalent if we consider resource  in different time slots to be of
+different resource types. More specifically, let ; ++) = di,ryi (), where  () € (), and  € . Then problem
+(27) will have exactly the same form as problem (27). Therefore, according to Lemma and Theorem,
+the worst-case competitive ratio will increase roughly linearly with the number of time slots, | |, if no other
+assumptions are made. If the number of slots required by each user is upper bounded, then the worst-case
+competitive ratio will increase roughly linearly with the maximum number of slots required by each user, which
+is also undesirable. Intuitively, this issue is caused by the fact that, if one of the time slots required by a user
+is unavailable (.., no available resources), then the demand of the user cannot be satisfied as a whole, even if
+other required slots are all available.
+
+To address the aforementioned problem, we propose a strategy that satisfies users’ demand in an elastic manner.
+Specifically, assuming we are allowed to satisfy user  with any |;| slots in a larger set of time slots, ,’ > Ji, we
+can significantly improve the competitive ratio by choosing |;| slots from’ that yield the lowest total price.
+Concretely, the corresponding online resource scheduling strategy is that, we try to satisfy each user  with |Jj|
+time slots chosen from;’, and I7;’| = [A |%|], where A is a constant factor. Here’ can be interpreted as the
+allowed (loosened) time interval for completing the user’ job. The overall price to user  is computed as the
+minimum possible total price of |Jj| time slots selected from’.
+
+From the user perspective, the price each user receives is determined upon its arrival in the system, and does
+not change afterwards. A user  accepts the price and leases resource at quantities ; ,’ in the chosen |;| time
+slots, if and only if ; is no smaller than the overall price. Once a user accepts the price, its job is guaranteed to
+be completed within A |7j|. If the provider tells that a job cannot be completed within A |7j|, the job will receive
+an infinitely high price according to the pricing function upon arrival (ie., the user will reject the price and the
+job will not be executed).
+
+In fact, similar non-consecutive execution schemes have been implemented on Amazon EC2 Spot Instance
+[], and have been discussed in the literature [30]. Here, we further justify the use of non-consecutive execution
+schemes from a theoretical point of view.
+
+Without loss of generality, we assume both; and’ are consecutive time slots; and if Fj = [;,  + |Fi] —],
+we let ,’ = [, +’ -]. To formulate the offline version of the modified social welfare maximization
+
+problem, we can add the following constraints to problem (27):
+
+» yi () = [Fil Vie  (27c)
+tes;
+() € {,} VieU,teT (27d)
+
+Note that ; (ft) now follows Eq. (27c) and (27d), instead of Eq. (26), and ; (¢) becomes a variable. Therefore, the
+new problem is no longer an ILP.
+
+We reuse the notation #; (-) to denote the pricing function for user ; and we reuse the symbols, ; and , to
+taken into account different time slots, ie, dj = |Fi| Der dir and  denotes the vector of ; (), Wr Ee , eT.
+The definitions of  and  remain the same, ..  = inf; and  = sup;  Then under Assumption our
+pricing strategy for online resource allocation can be described by the following pricing function:
+
+
+In general, ; () sets different unit prices for different time slots, according to the scheduled resource
+utilization levels. Note that, the overall price that each user receives for its resource demand over the requested
+resource usage duration is determined when the user comes to the system and requests resources, and does not
+change over the course.
+
+Given an arbitrary set of time slots , and the corresponding time horizon | |, any ;   can be ignored
+since it cannot be satisfied anyway. Furthermore, we ignore the marginal effect of any ,’  , since || is
+usually significantly larger than I7;’|. Thus, we assume Jj, ;’  , Vi € . As we did to analyze competitive
+ratios for multiple resource types, we divide possible values of final resource utilization levels into three cases: ()
+
+LEMMA. For * € Il, the worst-case competitive ratio achieved by our online resource scheduling strategy
+using pricing function (28) is a! =
+
+Proor. The proof is similar to that of Lemma and is omitted. Oo
+
+Lemma. For * € Iz, the corresponding worst-case competitive ratio a? < ay + where  is defined in
+Assumption
+
+Proof. Let ; = {|,-* @) € [, /ag], Vr € }, and Jz = {tlp-*  € (/ag, ), 4dr € }, and FUR =aT.
+For * € Ty, following the proof of Lemma, there exists a worst case that happens when ,* (¢) =for all
+ré€Randt € ; while for  € I, ,* () =/a, + € for some ’ € , and ;* () =(/a, + €) forr € \ {’}.
+Here, € is an arbitrarily small number. Following the proof of Theorem, as € — we have
+
+Vor (*) = [Fl [ + (|-) ql /ar,
+
+as the minimum total value of the online solution. For any Jj, since I7;’| = [A|%;|], the demand will be satisfied
+regardless of the user’ valuation, unless’ nN ,| > pat. In other words, if the demand of user  is not
+satisfied by the online solution, there must be at least pa FI] time slots in;’ that also belong to ; or
+equivalently, for any   , and any’   that is not satisfied by the online solution, |; | < x4 ISN Zl],
+
+and hence |;| < Loo |  Fl]. Let ,’ be the union of all sets of consecutive time slots that contain Jj, and
+have a cardinality ofx4 |%| | — When || < Lx |  J2|], since at least one type of resource in at least one
+required time slot has a unit price above , there can be a set of users in a worst case, demanding all resources in
+|,’| time slots, with ; () = , where |%’| <Lz4 Il] + |. Thus we have the maximum optimal offline
+total value
+
+Lemma. For * € IIs, the corresponding worst-case competitive ratio a? < Ly , where ’ = -  (; Be) dp/.
+
+Proof. Let= {|,*() € [,), Vr € }, and % = {|,* () = ar € }, and Js  Jy = . For * € Te,
+following the proof of Lemma, there exists a worst case that happens when ,* () =for allr €  andi €;
+while for  € %, ,-* (¢) =for some ’ € , and ,* () =for  € \ {’}. Following the proof of Theorem,
+we have
+
+as the minimum total value of the online solution. For anyj, since I7;’| = [A|%;|], the demand will be satisfied
+regardless of the user’ valuation, unless’ nN ,| > pat. In other words, if the demand of user  is not
+satisfied by the online solution, there must be at least patime slots in ,’ that also belong to %; or
+equivalently, for any   , and any’   that is not satisfied by the online solution, ,'| < x4 ISN ll,
+and hence |;| < Lx | %|]. Let ,’ be the union of all sets of consecutive time slots that contain , and
+have a cardinality of L4 |%a|| — When |Jj| < Loo |%], since at least one type of resource in at least one
+required time slot is fully occupied, there can be a set of users in a worst case, demanding all resources in I7;’|
+time slots, with ; () = , where |;,’| <|; |%al] + |Tal. Thus we have the maximum optimal offline total
+value
+
+THEOREM. The worst-cast competitive ratio achieved by our online resource scheduling strategy using pricing
+
+function (28) is upper bounded by Att max{ag/,/'}, which is a constant with respect to both || and | |. Here,
+
+ar is defined by Eq. (), (16) or (19) for  = Br, and  is defined as in Assumption
+
+Proof. The theorem follows immediately from Lemmas, . and.
+Fig. Online/offline social welfares and competitive ratios given different total demands.
+EMPIRICAL STUDIES
+
+In this section, we evaluate the proposed pricing and scheduling strategies through simulation studies. To simulate
+realistic cloud computing scenarios, we relax the assumptions made previously for theoretical analysis. We use a
+Poisson process to model the arrival of users, with arrival rate betweenandper time slot. Each user requeststime slots on average anddifferent types of resources at most, unless otherwise specified. Each user demandstopercent of each type of resource on average,! with different standard deviation for different resource types
+ranging from% to%. We set A = by default. The time horizon of simulations istime slots, which is
+large enough compared to the demand of each user. The statistics of the random input variables are stationary in
+all cases except the last one (shown in Fig.). The optimal offline total values are obtained by solving problem
+(27) with constraints (27c) and (27d).
+
+By relaxing the assumptions, we can now optimize the parameters in our pricing functions, eg., ,  and , to
+maximize average social welfare. Specifically, we employ pattern search for the optimization: we repeat each
+experiment for multiple iterations; in the first iteration, we fix the parameters to random estimates; then we add a
+perturbation (decays with iterations) to each parameter and run the experiment again; a perturbation is retained
+from one iteration to the next if the total value is improved. In practice, similar probing of parameter values can
+be done through online learning techniques such as reinforcement learning.
+
+Our theoretical analysis suggests that, under mild assumptions, the worst-case competitive ratio is mainly
+influenced by the total demand level (Fig.), but not by the number of resource types (Theorem), nor by
+the number of requested time slots (Theorem). We now investigate the impact of the three factors on social
+welfare and competitive ratio, as well as the robustness of the theoretical results, when the assumptions are
+relaxed.
+
+To quantify different demand levels, we define the relative total demand as the ratio between the total demand
+of all potential users and the total resource supply Fig.shows that, the optimal offline total value, Vop;, increases
+almost linearly with a slope of as the total demand increases. At the same time, the online total value, ;,
+increases with a smaller slope. Consequently, the competitive ratio increases noticeably from to.
+Although the results depict average system performance (rather than worst-case competitive ratios), it coincides
+with our worst-case analysis on the scarcity level, , where larger  leads to a larger competitive ratio (see Fig.).
+
+Next, we vary the number of resource types, ||, fromtoto see how it affects the competitive ratio. As
+shown in Fig. due to the increase in total demand and supply, both Vop; and Vo; increase linearly with |],
+while Vop: increases slightly faster than ,. Consequently, the competitive ratio only increases mildly (from
+
+These percentages are quite high as compared to practice. We set such percentages to evaluate performance of our pricing functions in the
+case that Assumptionis not true.
+Fig. Performance of the elastic scheduling strategy discussed in Sec..
+
+to) as || increases. The results may indicate that Assumptionis slightly violated in practice, since larger
+|| can increase the chance of unbalanced resource utilization.
+
+Similarly, it is also interesting to see how the number of time slots required by each user affects the competitive
+ratio. Different from the case of varying ||, only the total demand will increase with the average number of
+required time slots. Thus we adjust the demand of each user accordingly to eliminate the effect of increasing
+relative total demand (Fig.). As we can see in Fig.a, Vop; and Vo; remain almost the same as the average number
+of required time slots increases, and so does the competitive ratio (varying slightly from to). To further
+verify the proposed strategies, we vary the value of A fromto as shown in Fig.. We test the performance
+for two levels of total demands, . and In this case, Vopr stays almost the same as A changes and is omitted
+from the figure. Clearly, ,; increases more from . than from A = to A =, indicating A =
+is a good trade-off between the availability and timeliness of service.
+
+The simulations conducted so far are based on stationary arrival processes of users. In practice, however, the
+arrival rate may change over time (.., fluctuating periodically). To capture this characteristic, we vary the arrival
+rate according to a sine curve with a period oftime slots. In Fig. as we increase the amplitude of the sine
+curve fromto(normalized by the average arrival rate), both Vop; and Vo; decrease significantly, while the
+competitive ratio remains at around.
+Fig. Online/offline social welfare and competitive ratios given different levels of arrival rate fluctuations,
+
+the resource utilization ratios stay low, and almost all demands can be satisfied; when the arrival rate is very high,
+a high proportion of the demands cannot be satisfied by either the optimal offline solution or the online solution.
+CONCLUDING REMARKS
+
+We studied online posted pricing strategies in a number of cloud resource allocation scenarios. We started by
+investigating the basic case of a single type of cloud resource without recycling, and proved optimality of a
+set of exponential pricing functions in terms of social welfare, which compute unit resource prices based on
+realtime demand-supply. Exploiting the insights acquired, we further derived pricing functions in more practical
+scenarios with multiple resource types and limited resource occupation durations, and proved tight competitive
+ratio bounds of these functions, without assumptions on user arrival process or valuation distribution. Empirical
+studies further reveal good performance of our pricing functions under realistic settings. Though set up in a
+cloud computing environment, our models and algorithms are also applicable to posted pricing in other related
+online resource allocation problems.
+
+

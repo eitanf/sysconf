@@ -1,0 +1,890 @@
+Investigation of theLinux TCP Stack Vulnerability at
+Scale
+
+ABSTRACT
+---
+To combat blind in-window attacks against TCP, changes
+proposed in RFChave been implemented by Linux
+since late While successfully eliminating the old vulnerabilities, the new TCP implementation was reported in
+Augustto have introduced a subtle yet serious security
+flaw. Assigned CVE-2016-5696, the flaw exploits the challenge ACK rate limiting feature that could allow an off-path
+attacker to infer the presence/absence of a TCP connection
+between two arbitrary hosts, terminate such a connection,
+and even inject payload into an unsecured TCP connection.
+
+In this work, we perform a comprehensive measurement
+of the impact of the new vulnerability. This includes ()
+tracking the vulnerable Internet servers, () monitoring the
+patch behavior over time, () picturing the overall security
+status of TCP stacks at scale. Towards this goal, we design a
+scalable measurement methodology to scan the Alexa topmillion websites for almostmonths. We also present how
+notifications impact the patching behavior, and compare the
+result with the Heartbleed and the Debian PRNG vulnerability. The measurement represents a valuable data point in
+understanding how Internet servers react to serious security
+flaws in the operating system kernel.
+
+---
+INTRODUCTION
+In July researchers reported a serious vulnerability in Linux TCP implementations that subject all
+TCP connections to off-path/blind attacks [11], which
+raised significant awareness [, 17,32]. This TCP flaw,
+which we call the “challenge ACK vulnerability” [19],
+is particularly dangerous not only because TCP is one
+of the most widely used protocols, but also because it
+is completely remotely exploitable. The fact that Linux
+servers are dominating the server market makes matters
+worse. Simply put, the vulnerability allows a blind offpath attacker to infer if any two arbitrary hosts on the
+Internet are communicating using a TCP connection.
+Further, if the connection is present, such an off-path
+attacker can also infer the TCP sequence numbers in
+use, from both sides of the connection; this in turn al
+*Both authors contributed equally.
+
+lows the attacker to cause connection termination and
+perform data injection attacks. The last time a TCP
+flaw as serious as this dates back towhich was
+discovered by Morris [28].
+
+Despite being deployed since the inception of the Internet, TCP has been evolving steadily over the years
+to counteract various types of attacks [28, 29, 36, 38].
+Interestingly and ironically, the recent TCP vulnerability was introduced as a defense against blind in-window
+attacks [36]. In particular, RFC[14] proposed inintroduced the notion of challenge ACKs and how
+they should be rate limited. Since late Linux has
+fully implemented RFCand is the only operating
+system that is “fully compliant” to the standard. Unfortunately, Linux’ rate limit on the challenge ACKs was a
+global one shared by all connections, effectively allowing an attacker to deduce information about a target
+connection by creating congestion on the shared challenge ACK counter and then measuring the changes by
+probing packets [19].
+
+In this work, we study the impact of the vulnerability
+in the wild and the patching behaviors. Different from
+a user-space application or library vulnerability that
+is relatively easy to patch, .., OpenSSL and Heartbleed [20], our measurement presents a unique data
+point on kernel vulnerability patching, which involves
+additional steps such as waiting for Linux distributions
+to backport the changes from upstream Linux.
+
+Due to the nature of the vulnerability and the applied
+patches, we are able to clearly differentiate the servers
+that are vulnerable, non-vulnerable (those did not implement RFC), or patched, allowing us to picture
+the community’ reaction to this security event. Also, to
+facilitate large-scale scans, we present a highly efficient
+parallel scanning methodology that operates on a fixed
+period to accommodate the strict timing requirement.
+
+Through extensive scanning on top Alexamillion
+websites (primarily Linux servers) on a daily basis for
+almostmonths, we can picture a detailed and finegrained patching behavior at scale. We estimate about
+half of the Alexa topmillion websites were initially
+vulnerable, We find that only% of the IPs for the
+Alexa topand% of top websites are
+patcheddays after the vulnerability went fully public.
+Interestingly the topwebsites eventually caught up
+with a higher patch rate (over two months after the disclosure). We also examine the various hosting services
+that are behind the websites and show a surprisingly
+diverse range of patching behaviors. For instance, some
+CDN providers (.., CloudFlare) hosting the websites
+we studied have a perfect% patch rate from the first
+day of our measurement; while some other providers
+(.., Amazon CloudFront) never patched their servers
+evenmonths after disclosure.
+
+Finally, we survey the impact of the TCP vulnerability on other services, including Tor and telnet servers,
+and conclude with an vulnerability notification study.
+
+Drawing upon the observations, we map out a comprehensive picture of the TCP stack vulnerabilities. By
+better understanding how Linux servers react to kernel
+vulnerabilities, we hope to shed light on what can be improved in the future in reacting to such Internet-wide
+security events.
+ BACKGROUND
+
+A TCP connection is identified by a four-tuple:
+<source IP, source port, destination IP, destination
+port>. In addition, sequence numbers and acknowledgment numbers (32 bits each) are key TCP states.
+As a blind attacker who is not able to eavesdrop on the
+communication (off-path), it is necessary to guess or infer the four-tuple as well as the sequence/acknowledgment numbers to be able to launch any attacks against
+the connection. Once thekey states are known, an
+attacker can inject any malicious traffic to either the
+client or server by spoofing the IP of the server or client.
+The threat model is illustrated in Fig. To resist simple attacks that attempt to predict these values (..,
+source port and initial sequence number), modern TCP
+standards already produce randomized values [13, 15].
+Unfortunately, it is proven that this is not sufficient
+against persistent attackers [19, 36].
+ Blind in-window attacks
+
+A blind in-window attack is a blind TCP packet
+spoofing attack where an off-path attacker targets a particular client and server pair (running known services)
+to cause disruption on their ongoing connection [36]. In
+particular, RFCoutlines three such types of blind
+in-window attacks:
+
+ Spoofed RST, attempting to forcefully terminate a
+target connection.
+
+ Spoofed SYN, attempting to fool the server into believing that the client restarted and thus close the
+current connection.
+
+ Spoofed Data, attempting to corrupt data on either
+
+end of the transmission.
+
+Before RFC all such spoofed packets will be accepted by the client and server as long as the packets
+satisfy the following criteria: () comes with the correct
+four-tuple; () has a sequence number that falls in the
+receive window. To target a connection between a particular client and server running known services (known
+destination port), an attacker only needs to guess the
+source port (or ephemeral port) and the sequence number. The source port is only-bit and not the entire
+range is utilized by default [19]. Even though the sequence number is-bit, it is only necessary to send one
+packet per receive window to exhaust the entire space
+(and ensure that at least one packet has an in-window
+sequence number). An attacker with sufficient network
+bandwidth can therefore bruteforce both the source port
+and the sequence number and perform the above blind
+in-window attacks [36].
+
+Interestingly, in addition to end hosts being vulnerable to blind in-window attacks, TCP-aware middleboxes
+can introduce the same vulnerability as well. A stateful
+middlebox, such as the NAT of a firewall, may terminate a connection upon seeing an in-window RST, SYN,
+or even FIN packet [29].
+ Off-path attacks utilizing challenge ACK
+rate limit as a side-channel
+
+RFCwas proposed to set much more stringent
+rules on when incoming packets are considered valid.
+In particular, the high-level philosophy is that instead
+of blindly trusting an incoming packet, when in doubt,
+a challenge ACK packet can be sent to confirm its validity. Unfortunately, part of this proposal was demonstrated to result in a side-channel vulnerability in August[19]. We outline the key changes in RFCbelow. In addition to a matching four-tuple, the
+following changes are made for dealing with different
+incoming packets:
+
+ Incoming RST - If the sequence number is outside
+the valid receive window, the receiver simply drops
+the packet (same as before). Only if the sequence
+number exactly matches the next expected sequence
+number (RCV.NXT), is the connection reset. If the
+sequence number is in-window but does not exactly
+match RCV.NXT, the receiver must send a challenge
+ACK to the sender, and drop the RST packet.
+
+ Incoming SYN - Regardless of the sequence number,
+a challenge ACK is sent back to the sender to confirm
+the loss of the previous connection.
+
+ Incoming Data - If the sequence number is in window, the ACK number of the incoming packet needs
+to be within a much smaller range: [SND.UNAMAX.SND.WND, SND.NXT]. If the ACK number is
+
+ready made publicly available, and certain vendors such
+as Red Hat had already started to prepare patches, although many vendors were likely not fully aware of this.
+Later on Augth, the research paper was presented at
+USENIX Security and received significant press coverage, which prompted many more vendors to look into
+the matter. According to the information collected from
+the public sources on the same day, Cloud.gov and Akamai have patched the vulnerability. On Augth, Verizon Edgecast claims to have patched it as well, using
+the temporary fix.
+ MEASUREMENT METHODOLOGY
+AND GROUND TRUTH
+
+Our basic approach is to initiate a regular TCP connection with a server and then test whether the vulnerability is present by sending a series of probing packets.
+As will be shown later, since the signature of the vulnerability is distinctive, we are able to make an accurate
+determination on its vulnerability.
+
+For each scanned server, we aim to find the following:
+() whether it has the challenge ACK vulnerability,
+
+() whether it is patched and how,
+() whether it is not vulnerable due to other reasons,
+€.., server not compliant to RFC
+
+To test the vulnerability on a high level, we need to
+confirm that there are indeed challenge ACKs in response to packets containing either the SYN, ACK, and
+RST flags. The absence of them would indicate that a
+server is not compliant to RFCand therefore not
+vulnerable. Second, we need to check if it has a default
+limit ofchallenge ACKs per one second interval.
+The presence of the limit is indicative that it is a vulnerable and unpatched Linux kernel. The absence of
+any observed rate limit (higher than what we can measure) would indicate that the server is likely patched.
+Challenges. There are three challenges we need to
+overcome: First, there exist a variety of operating systems and versions running on the Internet [33], we need
+to be able to reliably identify the vulnerable Linux hosts
+and exclude others. Second, we must also consider the
+possibility that middleboxes such as firewalls that may
+interfere or distort any measurements that we perform
+(.., as described in [29]). Third, due to the nature of
+the vulnerability, a relatively large number of packets
+
+need to be sent, in order to test the rate limit behavior.
+If not managed carefully, packet losses can occur and
+servers can timeout.
+
+Ethical Considerations. First of all, it is important
+to note that our scan merely tests for the presence of
+challenge ACK vulnerability without actually conducting a full-fledged attack, which has many more steps
+(.., IP spoofing) and packets exchanged [19]. Secondly, to minimize the impact on the scanned server,
+we choose a very low scan intensity so as to not overwhelm the server or its network. Finally, for the vulnerable servers, the scan does require interacting with the
+challenge ACK rate limit mechanism, which may prevent challenge ACKs (pertaining to other connections
+on the server) from being sent out. However, considering that challenge ACKs are rarely triggered in regular
+connections and the fact that challenge ACKs are expected to not always be delivered (due to rate limit and
+packet loss), the negative impact on other connections
+is limited.
+ The Basic Scan
+
+We start by describing a basic scan that can answer
+only the first question: whether a server has the challenge ACK vulnerability. Later we will expand the scan
+method to be able to answer other questions.
+
+Scan Components. There are in total five components. Besides the handshake and termination, a scan
+consists of ACK test, SYN/ACK test, and RST test.
+Each test attempts to trigger and exhaust the challenge
+ACK rate limit (if any) by crafting packets according
+to RFC
+
+Interleaved between all five components are data
+packets comprised of three packets (for redundancy)
+that use in-order sequence numbers, checking whether
+the connection is still alive. In the case of the data check
+after the handshake, it fulfills the additional goal of advancing the connection to the ESTABLISHED state in the
+event that the server uses TCP deferred accept [].
+
+Each of the three tests is comprised of three rounds of
+packet exchanges. Every round haspackets of the
+corresponding packet type to solicit challenge ACKs.
+
+For ACK test, three rounds ofpackets are sent
+with an in-window sequence number (RCV.NXT+10) and
+ACK number acknowledging old data (SND .NXT—°°).
+
+For SYN/ACK test, three rounds ofpackets are sent with an out-of-window sequence number (RCV.NXT+°°) and out-of-window ACK number
+(SND .NXT—°).
+
+For RST test, three rounds ofpackets are sent
+with an in-window sequence number (RCV.NXT+10).
+packets are chosen as it is a high enough number to distinctly differentiate whether a server responds
+withchallenge ACKs. If all tests returnchallenge ACKs, we can safely assert that it contains the
+challenge ACK vulnerability, as Linux is the only operating system that has implemented the rate limit feature.
+
+
+Scan Timing Instead of synchronizing the clock
+with the server (and wasting three seconds [19]) to ensure that allpackets fall in the one second interval,
+we arrange the packets such that it can avoid the synchronization delay while still providing reliable results.
+To do so, each round ofpackets are sent over a/3second interval with asecond delay before the next
+roundpackets are sent.
+
+The/-second interval ensures that we are able to
+send all our packets fast enough within asecond time
+interval, yet is long enough to not cause congestion and
+packet losses. Thesecond delay ensures that we have
+enough time to collect all response packets from the
+server; it also allows us to skip over any “dirtied”second intervals where the round of probing lands on the
+border of twosecond intervals. Withrounds of tests,
+if a server is vulnerable,  out ofrounds are expected
+to receivechallenge ACKs, and the remaining round
+may have a number in betweenandif it happens
+to be crossing the twosecond intervals. For brevity, we
+only illustrate this (instead of offering proofs) in Fig.
+
+. Complete Scan
+
+Building on the basic scan, we now expand it to
+a complete scan to be able to answer the two additional questions: () whether it is patched and how, ()
+whether it is not vulnerable due to other reasons. The
+complete scan has branches and effectively translates to
+a decision tree as depicted in Fig.
+
+.. Patch and baseline behaviors
+
+To understand how we can differentiate the patching
+behavior from non-patched/other operating systems, we
+profile a set of major operating systems offline in a lab
+environment to obtain a baseline. Fortunately, during
+our study, we find responses to be distinct from operating system to operating system. Based on this, we can
+identify patched cases reliably as shown in Fig.
+
+Note that we are less interested in the specific OS
+
+Early = Prior to .. Late = and above.
+: The TCP stack of Mac OS is based on FreeBSD.
+: These OS’ can be differentiated through a forward ACK test.
+Table Operating system responses.
+
+versions. Instead, we classify the OSes based on their
+challenge ACK behaviors (whether RFCis implemented), and list them in Table For instance, upon
+inspecting the Linux kernel source code, we are able to
+distill two types of vulnerable challenge ACK behaviors (before patching): () old vulnerable Linux which
+does not have a per-socket challenge ACK rate limit.
+() new vulnerable Linux which does have a per-socket
+rate limit. Note that the per-socket rate limit does not
+eliminate the vulnerability as it can be bypassed as long
+as there is at least one byte in the payload (and it does
+not carry the SYN flag). This means that only SYN/ACK
+test is affected and will receivechallenge ACK while
+the other two will still see These behaviors are
+verified through a range of Linux distributions including the default Ubuntu, 14.04, 16.04, Red Hat,
+SUSE Linux and CentOS released prior to the
+patch date.
+
+For patched hosts, as we discussed, there are in total three types of patching behaviors; two derived from
+the kernel patches [,11] and the temporary fix recommended by the researchers and the industry [18, 35].
+They can all be clearly differentiated from non-patched
+cases. As the temporary fix and V1 patch yield the same
+results to our tests (both appearing to be raising the
+rate limit to higher than), we always seechallenge ACKs during ACK test. For SYN/ACK test however, it is possible that we seeorchallenge ACKs,
+depending on whether the kernel prior to patch already
+had the per-socket rate limit. The only case that comes
+close is the recent FreeBSD versions that have partially
+implemented RFC(tested on FreeBSD). On
+the surface, it behaves identically to that of a patched
+Linux server. However, we are able to differentiate them
+from Linux servers due to how they respond to ACK
+packets that are acknowledging data in the future (..,
+ACK number too advanced). In Linux servers, such
+ACK packets are silently dropped while FreeBSD will
+send a regular ACK packet in response. Exploiting this
+unique behavior, we follow up cases during the initial
+ACK test (shown in Fig.) where we see a potentially
+patched server with a second round of Forward ACK
+
+test. FreeBSD will returnresponses while Linuxbased servers always return Interestingly, Solaris is
+similar to FreeBSD except it will only respond withACK packets. For Windows, we tested Windows ,
+10, and Windows ServerR2, 2008 R2, 2012 R2,
+andDataCenter (all are fresh installs) and the results are consistent. They can be easily differentiated
+from the unpatched and patched Linux cases.
+
+In addition, it is evident that V2 patched Linux is
+unique enough by looking at just ACK test result, as
+onlychallenge ACK can be observed. The reason
+is that V2 patch has a per-connection rate limit which
+allows onlychallenge ACK to be sent every second.
+This is because our ACK test sendspackets in/
+of a second (less than second).
+
+Finally, in some cases during the RST test as shown
+in Fig. we may encounter two interesting corner cases
+that are likely caused by firewalls. By the time we reach
+the RST test, it is already evident that it is a vulnerable
+Linux host (no other major OS fingerprints match it).
+However, we note that the in-window RST packets either are discarded (after which the connection with the
+server is still alive), or terminate the connection directly
+(a classic stateful firewall behavior [29]). In both cases,
+they are still considered vulnerable cases according to
+the alternative attack strategy designed in [19] which
+can replace the RST-based probing with ACK-based.
+.. Other Non-Vulnerable Cases
+
+As we see in Table if a host is not even RFCcompliant, it is definitely not vulnerable. This includes
+Windows, FreeBSD, Solaris, and OpenBSD. In the decision tree (Fig.), we can see that FreeBSD cases can be
+uniquely captured and other non-RFC5961-compliant
+cases will be discovered after the initial ACK test aschallenge ACKs are received.
+
+In addition, there is a partially vulnerable case caused
+by firewall interference. As briefly discussed in §., a
+certain type of stateful firewalls check TCP sequence
+numbers [29] and drop TCP packets that have out-ofwindow TCP sequence numbers. In this case, if the
+server is behind such a firewall, the probing SYN/ACK
+packets (with out-of-window sequence numbers) will be
+dropped by the firewall, resulting inchallenge ACKs.
+
+This defeats the connection (four-tuple) inference attack (discussed in §.) as it is now impossible to craft
+SYN or SYN/ACK packets soliciting challenge ACKs
+without knowing a valid in-window sequence number.
+However, an attacker already knowing the four-tuple
+can still perform sequence number inference using the
+SYN/ACK packets where only those with in-window sequence numbers can solicit challenge ACKs (exactly the
+requirement of sequence number inference §.); ACK
+number inference is also possible as ACK test still seeschallenge ACKs; hence this case is labeled as partially vulnerable.
+ Parallelizing the Scan
+
+Even though the complete scan based on the decision
+tree can correctly classify a TCP stack, we need something more efficient than probing a single IP at a time
+to carry out a large-scale scan. A parallel scanner aims
+at maximizing network utilization by scheduling probing packets for multiple targets at appropriate times
+and recording/maintaining the state for each scanned
+target. In the past, scanners such as ZMap [22] are
+able to achieve this by simply scheduling the probing
+packets for different targets without any constraint (except not to saturate the bandwidth). However, in our
+scan, we need to not only maintain the state for each
+probed target IP address, but also enforce the strong
+timing requirement as described in §, .., sendingpackets spread out in one third of a second in each
+round of test, and one full second of delay in between
+rounds. This unique timing constraint makes it difficult
+to schedule the probing packets for multiple targets and
+achieve high bandwidth utilization.
+
+To this end, we develop a general probing methodology to overcome the challenge. Similar to ZMap, we operate with only two dedicated threads: one for sending
+and one for receiving. A single sender thread allows us
+to precisely schedule the timing of each outgoing packet.
+Now the challenge is that we need to manage a timer
+for each IP somehow.
+Figure Scheduling of parallel scanning. The figure is simplified with each test (.., ACK test) done once
+instead of three times. The connection establishment and teardown phases are omitted.
+
+riod in between tests which can be time-multiplexed for
+scheduling  other batches (=).
+
+Specifically, we scan different IP batches in a timemultiplexed fashion as shown in Fig. Each time slot
+is/ second, allocated one IP batch (210 probing packets will be sent per IP). The scan has a/-second
+period that allowsdifferent IP batches to be timemultiplexed, where probing packets for each batch will
+receive a gap of a full second (as intended). The time
+slots are assigned to different batches in rotation This
+ensures that we always have some IPs to scan in each
+time slot.
+
+The batch in its assigned time slot is managed together wherex  packets are sent in total; here  is
+the number of IPs in each batch. To avoid congestion,
+these packets are scheduled evenly (one IP after another) over the/-second duration. Besides the timer
+state maintained for each batch, a more fine-grained
+state for each IP in the batch is maintained indicating
+where it is on the decision tree; this allows the sender
+to know what packets to send for a specific IP (or if it
+is already done).
+
+With this strategy, the scanning speed is roughlyxk
+times the speed of a sequential scanning (one IP after
+another). In practice, on our network,  =(thereforeX speedup) is the maximum number we can go
+without experiencing significant packet losses.
+
+Our parallel scanning tool can also be easily applied
+to measurement scans sharing similar characteristics:
+() Packet-intense scan that requires sending multiple
+packets in a short period of time for each IP. If the
+scanner has a poor scheduling decision, packet losses
+may occur, .., bursty packets scheduled sent to the
+same destination at once. Our batch design allows us
+to pace packets for each IP while still fully utilizing the
+bandwidth resource by rotating among different IPs.
+() Stateful scan that consists of multiple rounds of
+tests, and the scan state changes according to the response of each round of test. To track the scan state,
+we maintain a fine-grained per-IP state using a finite
+state machine.
+
+() Fixed-time-period scan that has strict requirement on when packets need to be delivered. This allows
+us to perform the time-multiplexed scan with multiple
+
+time slots designed to accommodate the time requirement. Otherwise, we have to seek suboptimal solutions
+such as per-IP time management, which is difficult to
+administer.
+
+In theory, any large-scale scans that have strong timing requirements and fixed time period may leverage a
+similar design.
+ Data Cleaning
+
+Due to the sheer volume of traffic sent at a relatively
+high rate, we are bound to experience losses which make
+it challenging to interpret and classify the results. To do
+so, we cross-validate results across days to correct misclassified data when possible. Specifically, we conduct
+two types of data cleaning: () forward cleaning and
+() backward cleaning. In forward cleaning, whenever
+we classify an IP as patched reliably, it cannot go back
+to vulnerable in the future (we argue that the chances
+that it does go back are extremely small). Similarly,
+in backward cleaning, whenever we classify an IP as
+vulnerable reliably, it cannot be possibly patched in the
+earlier days. Through our manual analysis, we discover
+that these rules are effective in eliminating mis-classified
+results due to packet losses.
+ IMPACT ON TOPK WEBSITES
+
+Since the vulnerability was introduced in all Linux
+kernels since late we expect a large percentage
+of the Internet servers to be vulnerable, as it was estimated that more than% of the topmillion Alexa
+websites use Linux servers [].
+ First day of scan
+
+We conducted our first scan on the IPs that host the
+top websites of Alexa’ top sites on Augth, 
+days after the vulnerability went public. We excluded
+the duplicate IPs and those that timeout before we
+can finish our scan, which leaves us to unique
+IPs. Since the vulnerability received significant attention and is quite severe, it is likely that many of the
+websites would have patched their Linux servers by the
+time we started our scan. For instance, as we noted,
+popular CDN services like Akamai have even patched
+their servers before the vulnerability went public.
+IPs.  for Vulnerable,  for Non-Vulnerable and Unk
+for Unknown.
+
+Non-RFC | pinterest.com
+
+TopK vs. Top In Table we see that% of the unique IPs for the topK websites
+were vulnerable, and% were patched already, indicating significant patching has indeed been performed
+prior to our first day of scan. Note that a large fraction
+(30.85%) of IPs are running extremely old TCP stacks
+(at leastyears old), indicating that they may have
+other kernel vulnerabilities.
+
+We were surprised to find that the Alexa topwebsites actually have a much smaller fraction of patched
+servers than the top. As shown in Table only% of theunique IPs corresponding to the topwere patched and% were vulnerable. As the
+topwebsites all belong to large Internet companies,
+it is extremely unlikely that they were unaware of the
+vulnerability. Instead, we hypothesize that it is because
+they have a larger share of global traffic which makes it
+more challenging to find time to apply patches to the
+kernel and reboot the server. In Table we list the vulnerability status of the topwebsites on the first day
+of scan. It is apparent that Google servers are all vulnerable even though the developer who submitted the
+initial Linux patch was from Google [11]. In addition,
+yahoo.co.jp, weibo.com, linkedin.com, vk.com, and pinterest.com were found to be vulnerable. Upon further
+inspection, Google servers are patched finally between
+Octth and Novrd gradually.
+ Patching
+
+Linux distribution patch timeline. Unlike Windows or Mac OS, upstream Linux kernel patches often
+need to be backported and tested on various Linux dis
+Non-RFC
+
+
+tributions (.., Red Hat) who then finally push the update to their users. This can be a relatively long delay
+as most Linux distributions are operating on old base
+kernel versions. We list the timeline of Linux distribution patch releases in Table(some are still operating
+on Linux kernel.).
+
+Coincidentally, Fedoraandrunning kernel.
+are the fastest to push out patches, onlydays after
+the initial patch (V1) was proposed by the Linux kernel
+developers. It is likely because the kernel is so new that
+it is the easiest to incorporate the patch from upstream
+Linux (which fixed the vulnerability in). They are
+ahead of the next fastest distribution - Red Hat (patch
+released on/17) — by almost a month, even though
+Red Hat was involved in the patching process early on
+(publicizing the CVE [31]). Overall, the fastest release
+(Fedora) and the slowest release (Debian) aredays
+apart, leaving some Linux servers vulnerable for much
+longer than others.
+
+In addition, as described earlier, there are two different upstream Linux patches (V1 and V2) which were
+committed on  respectively. Interestingly, almost all Linux distributions except Red Hatpicked up the first patch instead of the second even
+though the second is more secure, indicating that they
+were eager to pick up the earliest possible patch.
+
+Finally, to mitigate the vulnerability, even though
+Linux distributions can be slow in releasing patches,
+system administrators do have the option to apply a
+temporary fix which will look similar to V1 patch (in
+our scan results, they both look like raising the global
+rate limit) [18].
+
+Patching behaviors. We continued our scan for almost six months, ending on Febth, 2017. The scans
+were conducted mostly daily in the beginning and every two days towards the end. We end up with a set ofunique IPs, all of which are successfully scanned
+on all days. When we look at the beginning few days
+in Fig. it is evident that the fraction of vulnerable
+IPs for the topK dataset reduced dramatically, likely
+representing the tail end of the initial burst in patching.
+The spike in patch rate also correlates roughly with the
+patch releases of several popular Linux distributions, including Red Hat and CentOS (shown in Table). Howtn
+Figure Percentage of V1 patched/V2 patched
+IPs over time (Left: TopK. Right: TopM)
+
+ever, since some distributions pushed out updates late,
+it is likely that a significant portion of vulnerable IPs
+applied the temporary patch, .., Akamai claimed that
+they did so [18].
+
+Interestingly, after the initially burst, the number of
+vulnerable hosts is mostly steady, except three notable
+drops starting mid October, early November, and early
+December respectively (.., including Google server
+patches).
+
+Finally, in Fig. we show that V2 patches are catching up extremely slowly until a surge from Decto
+Deccaused by CloudFlare upgrading their already
+V1 patched servers. Besides CloudFlare, however, most
+V1 patches never turned into V2 patches during the-month period. This indicates that either these companies are aware of the fact that thend patch is noncritical and intentionally delayed it, or their patching
+cycle is simply very slow in general (on the order of
+several months). We can thus infer that patching kernel vulnerabilities is indeed a painful process and the
+frequency of patching is being minimized by most.
+
+Topvs. TopK vs. TopK. Fig.provides
+a clear view on how the patching behaviors differ for top
+websites at various ranks. As mentioned earlier, topwebsites generally patch more slowly compared to topK. We suspect that it is because many topwebsites maintain their own infrastructure (.., Google)
+that is not only large in scale but also customized to tailor for their own service needs. In contrast, the topK
+
+ hosting companies. Derived from the result of topk.  for Unmanaged,  for Managed and  for
+Both. The numbers in the legend indicate unique IPs
+belonged to the company in the dataset.
+
+are mostly hosted by third-party hosting services such
+as Amazon EC2 (more detailed on this later). However, if we look at the patching behavior over time, topwebsites eventually catch up from late Oct to mid
+Nov (more thanmonths after disclosure). During the
+catch-up period, the list of patched IPs in topincludesgoogle IPs, andIP each for stackoverflow,
+github, ok.ru, pinterest, yahoo.co.jp, adobe, imgur efc.
+
+Between topK andK, a similar (although not as
+obvious) trend shows that topK websites initially have
+lower patch rate, but eventually catch up from a similar
+time frame. As expected, as will be described in more
+details in the next section, topM websites ultimately
+have the lowest patch rate.
+
+Managed vs. Unmanaged hosting. Besides Internet giants such as Google that have dedicated infrastructure to host their own websites, most top websites
+are hosted on infrastructures managed by professional
+hosting companies such as Amazon EC2 and various
+CDNs. We divide the hosting services into two types
+(managed and unmanaged) according to whether the
+operating systems are managed by a particular hosting company. For instance, Amazon EC2 and OVH allow users to run guest operating systems of their choice
+inside virtual machines, which means tenants are responsible for managing and patching their own operating systems (and hence we call them unmanaged hosting). In contrast, CDNs such as Cloudflare never expose the operating system details to tenants, which implies that CDNs themselves are responsible for managing the underlying operating system. Besides CDNs,
+some hosting services also offer managed hosting, ..,
+Rackspace [12], which takes care of patching.
+
+We are interested in the patching behaviors among
+the managed and unmanaged hosting services. For each
+scanned IP address, we map it to their corresponding
+corporation using the Whois database, which usually allows us to determine whether it is a managed or unmanaged hosting (or both). To further distinguish Amazon EC2 and Cloudfront CDN (both of which belong to
+Amazon), we consult the published IP ranges provided
+by Amazon []. As shown in Fig. we show the topcompanies in the topK dataset; all of them are hosting companies (Google did not have enough unique IPs).
+It is interesting to see that the patch rate of different
+hosting services varies significantly (even among CDN
+providers). CDNs such as CloudFlare and Akamai are
+fully patched (% vulnerable) from the very first day of
+our measurement. Surprisingly, the Amazon Cloudfront
+CDN have never patched any of their servers even six
+months after disclosure. The Fastly CDN is somewhere
+in between where initially all their servers are vulnerable and they get fully patched over a period of aboutdays, starting early Nov. This shows that applying
+kernel patches to a large set of servers is very challenging, as only a subset of servers can afford to have their
+services shutdown and reboot.
+
+On the other hand, unmanaged hosting such as Amazon EC2 has significantly less patching. This is understandable as it is completely up to tenants on Amazon
+EC2 to decide their patch schedule. Note that many
+unmanaged hosting companies sometimes do optionally
+provide managed hosting at an extra cost (.., AWS
+Managed Services []). For Amazon EC2, we observe a
+significant drop in the first few days in the number of
+vulnerable IPs, and it is likely because either a small
+portion of tenants chose the managed services, or they
+patched their servers themselves. However, given that
+Amazon CloudFront CDN did not patch any of their
+servers, it seems unlikely that they would be patching
+the same vulnerability for their EC2 customers.
+
+Finally, for hosting services such as Rackspace and
+SoftLayer that offer both managed and unmanaged services, irregular and small patching is observed.
+ Comparison to Debian Weak Keys and
+Heartbleed
+
+There were two major historical security vulnerabilities that are documented in the literature for their corresponding Internet-wide patching responses: () the
+weak keys generated in the Debian OpenSSL package [37] reported in; () the Heartbleed vulnerability (CVE-2014-0160) which is an information leakage bug in the OpenSSL cryptographic library that can
+leak private keys [16,20]. Both security vulnerabilities
+are extremely dangerous as they can cause the cryptographic keys to be guessed easily or even directly read
+by a remote attacker.
+
+The most interesting aspect for comparison is the
+timeliness of patching in all three events (including the
+TCP stack vulnerability).
+Figure Comparison to Heartbleed and Debian PRNG. The initial number of vulnerable hosts of
+Heartbleed and Debian PRNG at dayare estimated
+based on data in [20,37].
+
+patching). () Heartbleed is an application-layer vulnerability which is relatively easy to patch. () The
+TCP vulnerability here is a kernel vulnerability which
+requires rebooting to apply the patches.
+
+We acknowledge that it is difficult to perform a direct
+“apple-to-apple” comparison as there are several differences in the way datasets are collected: () the Debian
+weak key study has a small sample of affected hosts
+(onlyout of servers displayed weak keys); ()
+our TCP scan is against the Alexa top while the
+Heartbleed is against the topmillion; () we started
+our scandays after the vulnerability disclosure while
+Debian and Heartbleed scans starteddays anddays
+after, respectively. Nevertheless, we believe the data
+can already shed some light on answering the following question — how fast the affected hosts get fixed in
+respect to the disclosure date.
+
+To this end, we use the metric of fraction of affected
+hosts, which is computed as “the number of affected
+hosts” divided by “the total number of hosts that were
+vulnerable prior to disclosure”. If the number drops
+quickly early on, it means that patching is very responsive. Fig.captures this trend. For Heartbleed, only% of the hosts are reported to be vulnerable on their
+initial scan conducteddays after the disclosure. Given
+that it is estimated that the total fraction of vulnerable hosts is around% to% prior to disclose [20],
+this means that the vulnerable rate afterdays is from%/55% =% to%/24% =%, and more than
+half of the hosts (54% to%) have already been fixeddays after disclosure. Even if we use%, it is an
+impressive patch rate from the very beginning. For the
+TCP case, we consider all patched hosts to be vulnerable prior to disclosure. Clearly, the patch rate is not as
+impressive as Heartbleed. In our study, we see that still
+% of the affected hosts remaindays after disclosure,
+while only about% affected hosts remain for Heartbleed on the same day. For Debian weak key, no estimate is available on the total number of affected hosts
+prior to disclosure. We there retroactively generate the
+number according to the relatively stable curve which
+starteddays after disclosure. We admit that theoretically there could be more affected hosts than what we
+estimated, so the starting point for Debian curve needs
+to be taken as a grain of salt. Nevertheless, the patch
+trend since dayremains accurate. Overall, we can see
+that both TCP kernel vulnerability and Debian weak
+key have a more steady patching behavior than Heartbleed. In contrast, the patching for Heartbleed is much
+more aggressive early on and dies off very quickly.
+ IMPACT ON TOPM WEBSITES
+
+To measure the impact on a larger scale, we began to
+conduct scans on the Alexa Topmillion websites since
+Sep 2016, almost a month since the vulnerability went
+fully public, until Feb 2017. Again, we excluded
+the duplicate IPs (which lead to unique IPs
+remaining) and those that timeout before we can finish
+our scan, which leaves us to unique IPs.
+
+In terms of vulnerable websites, on the day of Sep 26.% of IPs were vulnerable for the topmillion
+(shown in Fig.) as opposed to% for the top.
+This is perhaps expected as the top websites
+are typically operated by larger companies and possibly
+CDNs. Interestingly, there is a large fraction of servers
+(34.%) that are not compliant to RFC We further verified that most of them in fact are vulnerable to
+traditional blind in-window attacks [14], even though
+they are not vulnerable to the challenge ACK attacks.
+
+Patching behavior. Since ourmillion websites
+measurement started on Sep a large proportion
+(23.% of all IPs) of the RFCcompliant Linux
+hosts are already patched before our scan started. As
+shown in Fig. over the course of the scan, we find
+mostly steady and measurable patching throughout, except a few notable drops in vulnerable hosts that are
+somewhat more significant than others. Upon closer inspection, they correspond to large companies such as
+Google patching their servers during the same period.
+
+Interestingly, towards the end of the scan ( months
+after disclosure), we see that the patched hosts keep increasing with no signs of leveling off. At this point, it
+is unclear if the hosts are really patching against the
+specific vulnerability. It is more likely that the system
+administrators simply have a very loose maintenance
+schedule for kernel updates. In general, it is worrisome to see that kernel vulnerabilities are being patched
+this slowly as opposed to application-layer vulnerabilities such as heartbleed, especially considering that slow
+kernel patching could leave many other kernel vulnera
+ open as well.
+
+Also, Fig.shows that, similar to the topK case,
+the V2 patch has a surge from Decto Dec again
+due to CloudFlare upgrading all of their already V1
+patched servers.
+
+Middlebox behaviors. According to our measurement, the most common middleboxes that may affect
+the challenge ACK attack is the TCP sequence number checking firewall [29]. As shown in the decision tree
+(Fig.), such firewalls block SYN/ACK packets that
+come with out-of-window sequence numbers, and makes
+the hosts partially vulnerable. Overall, around% of
+the IPs (10741 in total) are behind such sequence checking firewalls (we conservatively exclude them from the
+set of vulnerable IPs). Interestingly, as shown in [29],
+sequence number checking firewalls themselves can introduce security vulnerabilities; this is worth looking
+into in the future.
+
+In addition, we observe a very small fraction of firewalls (affecting% orIPs) that terminate connections upon seeing an in-window RST, which renders the server vulnerable to the traditional blind inwindow attacks, even when the servers are already
+patched against them. We also confirm another type
+of firewalls (affecting% orIPs) simply drop inwindow RST packets silently, whose behavior was not
+publicly known. However, both such firewalls do not
+prevent the challenge ACK attack as suggested by the
+researchers [19].
+ OTHER IMPACT
+ Impact on other services
+
+Tor services. The challenge ACK attack is particularly dangerous for Tor services [19], as users may
+be forced to go through attacker-controlled relays when
+connections with other relays are repeatedly shut down.
+We extract a full list of publicly advertised online Tor
+relays on Sepwhich consists of IPs. Among
+them, 37.% are vulnerable, 21.% are patched, 35.%
+are non-RFCcompliant, and the rest are unknown.
+
+Telnet services. Hosts that run telnet services incur
+significant risks against off-path attacks who can inject
+malicious commands. We conducted a one-time scan
+on Octover telnet servers in the IPv4 range, based
+on the IP set with an open port offrom Censys [].
+We have measured a total of,179 unique IPs. As
+expected, telnet services are not commonly enabled on
+Linux servers, only% of them are found to be vulnerable to the challenge ACK attack. Interestingly, we
+do observe that% are patched Linux, a much better
+patch rate compared to web servers.
+
+vulnerabilities; however, we are curious if notifications will in fact make any difference in improving the
+patching behavior. On Dec we started our notification study following a similar methodology described
+in [26,34]. We constrain the study to the top
+URLs. Out of them, we randomly selectvulnerable URLs, among which are further divided into into
+our notification set (593) and control set (592). Specifically, we send a verbose email every week to the IPs in
+the notification set, describing the vulnerability and the
+associated IP addresses to the WHOIS abuse contacts
+obtained from Abusix. We then measure whether these
+IPs have patched the vulnerability over the course of
+three weeks. In the case that we have multiple URLs
+for the same email contact, we performed aggregation
+when possible to reduce the number of emails we send.
+
+From our observations, we noticed that sending
+emails to abuse contacts generally helped in increasing patch rates. As of Decemberth, we found that
+patching rates were double that of the control group% for the notification group and% for the control group, despite some emails sent to the notification
+group not reaching their destinations (bounced back).
+Interestingly, this improvement is generally in line with
+the prior studies [26,34] even though the vulnerabilities
+used in their studies are not kernel ones. The underlying factors that determine how successful vulnerability
+notifications will be (.., severity, who manages the affected services, and how easy is it to patch) remain an
+important research question.
+ RELATED WORKS
+
+Off-path TCP attacks. The oldest off-path TCP
+attack can be dated back to[28], which allows an
+attacker to predict the initial sequence number of the
+SYN/ACK packet from the server without actually observing the packet. This effectively allows an attacker
+to establish connections with the server using spoofed
+IP addresses. In Linux had an interesting vulnerability [] where it allows an off-path attacker to create
+a legitimate connection using any spoofed IP address.
+In the famous blind in-window attack is discovered [36] where an off-path attacker can craft various
+types of spoofed packets to interfere with a victim connection. The attack succeeds as long as any such packet
+has a sequence number within the receive window of the
+
+receiver. In recent years, a number of new off-path TCP
+attacks have been reported that can infer (instead of
+guessing blindly) what sequence number can be used to
+carry out attacks that can either forcefully terminate a
+connection or inject arbitrary content to the victim connection. Most attacks require executing malicious code
+on the client side [, 19, 23-25, 29, 30], either in the form
+of malware [29,30] or malicious javascript [23-25]. The
+most recent one reported in Aug[19] is the only
+one that does not have any requirement of executing
+malicious code, rendering it the most powerful attack to
+date. It is also the only off-path TCP attack that primarily targets servers, which prompts many Internetfacing services to patch their Linux servers. In our
+study, we developed a fast and scalable methodology
+for conducting the measurement of this latest vulnerability to measure their impact on Internet servers.
+Large-scale measurement on Internet servers
+and security patching. Recent advances in Internet measurement has allowed much more to be learned
+about the behaviors of Internet servers at scale. ZMap is
+one of the pioneering tools that enabled Internet-wide
+(IPv4 range) scans [22]. Subsequently, significant research has been performed leveraging ZMap or similar
+concepts [21,33]. A recent Internet measurement studied the resilience of TCP stacks against off-path/blind
+in-window attacks [27]. The conclusion is that there
+is still a significant fraction of TCP stacks (of top web
+servers) on the Internet that are using extremely old and
+vulnerable implementations (which are confirmed in our
+study as well, .., the servers whose 'CP stacks are
+prior to RFC). There are two other recent Internet measurement was on the matter of Heartbleed and
+Debian weak keys [20,37]. We compare our measurement results extensively with them in §.. Recently,
+researchers have also started to explore Internet-wide
+vulnerability notification as a proactive approach to improve the security patch rate [26,34]. We also conduct
+a notification study on the challenge ACK vulnerability
+and show that the patch rate does improve drastically.
+ CONCLUSION
+
+In this work we analyzed the impact of the recent
+challenge ACK vulnerability in Linux kernel, including
+() who was initially vulnerable, () patching behavior
+over time, by hosting services, and by network services
+(.., Tor and telnet), () how notification affects the
+patching behavior. In general, we find that many in
+the top websites were vulnerable and remain vulnerable
+for an extended period of time. Interestingly, compared
+to topK andM websites, a larger fraction of Topwebsites were initially vulnerable but eventually
+they caught up and have smaller fraction of vulnerable
+servers. We find that the hosting services behind many
+of the top websites in fact have a surprisingly diverse
+and sometimes opposite patching behavior. We show
+that Linux kernel patching has some interesting differences from the recent Heartbleed and the Debian weak
+key event. The lessons and data collected will hopefully
+help the community better react to future Internet-wide
+security events.
+
+ACKNOWLEDGEMENTS
+
+Research was sponsored by National Science Foundation under grant #1464410 and grant #1528114. The
+views and conclusions contained in this document are
+those of the authors and should not be interpreted as
+representing the official policies, either expressed or implied, of the National Science Foundation or the ..
+Government. The .. Government is authorized to
+reproduce and distribute reprints for Government purposes notwithstanding any copyright notation here on.
+
+
+

@@ -1,0 +1,532 @@
+Hadoop on Named Data Networking:
+Experience and Results
+
+ABSTRACT
+---
+The Named Data Networking (NDN) architecture retrieves content by names rather than connecting to specific
+hosts. It provides benefits such as highly efficient and resilient content distribution, which fit well to data-intensive
+distributed computing. This paper presents and discusses our experience in modifying Apache Hadoop, a popular
+MapReduce framework, to operate on an NDN network. Through this first-of-its-kind implementation process, we
+demonstrate the feasibility of running an existing, large, and complex piece of distributed software commonly
+seen in data centers over NDN. We show advantages such as simplified network code and reduced network traffic
+which are beneficial in a data center environment. There are also challenges faced by NDN, that are being
+addressed by the community, which can be magnified under data center traffic. Through detailed evaluation, we
+show a reduction of% for overall data transmission between Hadoop nodes while writing data with default
+replication settings. Preliminary results also show promise for in-network caching of repeated reads in distributed
+applications. We also show that overall performance is currently slower under NDN, and we identify challenges
+and opportunities for further NDN improvements.
+---INTRODUCTION
+
+In today’ data centers, clusters of servers are arranged to perform various tasks in a massively distributed
+manner: handling web requests, processing scientific data, and running simulations of real-world problems.
+These clusters are very complex, and require a significant amount of planning and administration to
+ensure that they perform to their maximum potential. Planning and configuration can be a long and
+complicated process; once completed it is hard to completely re-architect an existing cluster. In addition
+to planning the physical hardware, the software must also be properly configured to run on a cluster.
+Information such as which server is in which rack and the total network bandwidth between rows of racks
+constrain the placement of jobs scheduled to run on a cluster. Some software may be able to use hints
+provided by a user about where to schedule jobs, while others may simply place them randomly and hope
+for the best.
+
+ 
+
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee
+provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and
+the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored.
+Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires
+prior specific permission and/or a fee. Request permissions from permissions@acm.org.
+
+Every cluster has at least one bottleneck that constrains the overall performance to less than the optimal
+that may be achieved on paper. One common bottleneck is the speed of the network []: communication
+between servers in a rack may be unable to saturate their network connections, but traffic flowing between
+racks or rows in a data center can easily overwhelm the interconnect switches. Various network topologies
+have been proposed to help mitigate this problem by providing multiple paths between points in the
+network, but they all suffer from the same fundamental problem: it is cost-prohibitive to build a network
+that can provide concurrent full network bandwidth between all servers. Researchers have been working
+on developing new network protocols that can make more efficient use of existing network hardware
+through a blurring of the line between network layer and applications. One of the most well-known
+examples of this is Named Data Networking (NDN) [] [22], a data-centric network architecture that has
+been in development for several years [20].
+
+While NDN has received significant attention for wide-area Internet, a detailed understanding of NDN
+benefits and challenges in the data center environment has been lacking. The questions that have been
+researched for Internet deployment of NDN need to be answered for the data center. Will NDN offer
+benefits for data center applications? If so, the data center can become a new venue for potential benefits
+brought by NDN. A prime example of a large data center application is Apache Hadoop [18], a widely-used
+open-source MapReduce framework and distributed file system for use in large, massively-distributed
+computation clusters. It is used extensively for solving problems that can be divided into arbitrarily-sized
+units of independent work, such as sorting, searching, data mining and machine learning.
+
+To a large distributed system like Hadoop, network performance, reliability, and adaptation to failures
+are at the core of overall performance []. This makes Hadoop a prime choice for evaluating NDN’
+performance when used by a complex, distributed system. In this paper, we will focus specifically on the
+distributed file system and data movement among nodes to study and understand how NDN impacts data
+movement in data center applications. We make the following contributions: () We redesign Hadoop
+to use NDN for all of its network communication; () We discuss and identify benefits and challenges
+to implementing Hadoop over NDN; () We show pilot research applying the NDN protocol in a data
+center-scale distributed computing and storage environment; and () We present a detailed evaluation of
+the benefits and challenges of such an implementation.
+MOTIVATION
+
+NDN has several features, such as in-network caching, native multicast, and in-band failure detection and
+recovery, which can potentially benefit data center networks significantly. Popular applications, such as
+Hadoop, can take advantage of the capabilities of NDN to improve their performance and resilience.
+ Hadoop
+
+Hadoop is a complex system with many types of nodes, although they can be generally categorized as
+master or slave nodes as shown in Figure A cluster can consist of only a few nodes, or even upwards
+of hundreds of thousands of nodes. Master nodes, such as the JobTracker, NameNode, and Secondary
+NameNode, maintain the overall state of the cluster and perform tasks such as scheduling jobs on different
+nodes or ensuring a consistent global view of the Hadoop Distributed File System (HDFS). Slave nodes,
+such as the DataNode and the TaskTracker, store data in the cluster or perform the actual computation.
+There may be any number of slave nodes, each of which receives instructions from a master node, such as
+reading and storing data, running a task, or reporting their status. The JobTracker and TaskTracker
+nodes are involved with the scheduling and execution of MapReduce tasks in the cluster, while the
+NameNode and DataNodes are responsible for storing data within HDFS. For the remainder of this paper,
+
+we will focus specifically on the data storage side of Hadoop and therefore will deal primarily with the
+NameNode and DataNode components.
+
+Hadoop was designed with the core assumption that failures will occur while a cluster is running [19].
+Especially with a large number of nodes, even very low failure rates will still result in the regular failure
+of nodes across the cluster. Hadoop relies on detailed monitoring of node state using heartbeat messages,
+which, if not received, will trigger an automatic task restart on a different node and transparent replication
+of data stored on the failed node. The default replication of data to three DataNodes ensures that data
+is not lost if a node fails. While these mechanisms were designed to provide fault resiliency, they can
+have a significant impact on performance. For example, a network delay or temporary link failure can
+delay heartbeats and trigger unnecessary task recovery and data replication, further increasing network
+congestion. To account for this, there is an adjustable timeout before the recovery operation begins.
+However, increasing this timeout can delay recovery of actual failures. A more intelligent and adaptive
+network protocol could alleviate this situation.
+
+Hadoop’ ability to maintain data integrity even as nodes fail comes at a price: a significant amount of
+state needs to be maintained by the NameNode (excess code complexity) and a large amount of redundant
+data is transmitted when replicating stored data (network hot spots can easily form and overwhelm
+the data center network). For Hadoop to achieve maximum performance, its network must be properly
+configured. Hints can be given about where nodes are located in the network topology, but this is not an
+automatic process. The cluster administrator must manually assign each node to a rack or row before
+Hadoop can use the information for scheduling tasks in close proximity to existing data or other resources.
+Therefore, large clusters require very careful network planning to provide optimal performance. This
+configuration is complex and relies on many different variables being set properly [], as misconfiguring a
+cluster can significantly impact its performance. Again, a more intelligent network protocol could reduce
+the configuration complexity and even offer adaptive mechanisms to changing network conditions that
+maximize performance under current network load and configuration.
+
+Even a properly optimized network can pose a limit for scalability of a distributed system. Adding
+more nodes to a cluster will result in a near-linear increase in computational power; however, eventually a
+point will be reached where the network will become the bottleneck, causing overall system performance
+to level out, or even decrease. Mehrotra et al [11] explored the direct impact of network communication on
+the overall speed of two clusters, one in Amazon’ EC2 and the other at NASA. Overall, NASA’ cluster
+performed better, as it utilized a faster InfiniBand network, rather thanGigE Ethernet. Illustrating this
+were results showing that adding additional nodes to the EC2 cluster began to result in worse throughput.
+This resulted from the communication delay becoming greater than the computation time. Switching to a
+
+faster network alleviated this problem. While upgrading a cluster’ network can reduce the bottleneck, it
+is an expensive undertaking, due to labor and hardware costs. A more efficient network protocol could be
+deployed on existing hardware to improve efficiency.
+
+Similarly, Hadoop has events that can result in significant network congestion. These events are: ()
+the beginning of each step in the MapReduce process, during which each node is sent the data it requires
+to perform the computation; and () data replication, during which data is written to the cluster, since,
+by default, each data block is replicated on three different nodes. A node cannot begin its task until it
+has all the necessary data, so network congestion and delay can have a dramatic negative impact on the
+performance of the cluster as a whole. Subsequently, a smarter protocol may be able to find a better path,
+avoiding congestion and potentially utilizizing different nodes for data retrieval and placement based on
+network conditions.
+ Named Data Networking
+
+The NDN architecture can offer solutions to some of the network challenges encountered in Hadoop
+clusters. NDN is a data-centric architecture, meaning that it focuses on the what (content) rather than
+the where (IP address). In NDN, data are referred to by a unique name - if the data changes, so does the
+name by which it is referred. NDN data are usually versioned by including a component in the name,
+as demonstrated in the following example: /. NDN nodes request data by
+their names rather than directing requests to certain destination nodes, and any node that has the data
+can respond to the requests. Every piece of data contains a digital signature that binds the data names
+with its content, and will be verified by the data consumer. This architecture provides three features that
+can significantly benefit Hadoop:
+
+ In-Network caching - The NDN Forwarding Daemon (NFD) at each node automatically caches
+data sent in response to a request. Data is referred to by a globally unique name that enables
+transparent data caching in an application-agnostic fashion.
+
+ In-Network de-duplication - Each instance of NFD will only forward one copy of a request or
+response along a given network link. If additional requests for the same content arrive, they can
+be either served by the local cache, or recorded locally and responded to when the data for the
+first request returns. This allows data to be multicasted efficiently in the network without any
+additional protocols like IP does.
+
+ Fast failure detection and recovery - In NDN, a request and its response take the same network
+path. Thus if there is a failure that prevents the response from returning, the network node can
+quickly detect it after the round-trip-time (RTT) expires, and can then retransmit the request
+and/or send it onto a different path. This intelligence can greatly benefit applications in data
+center networks. However, it is lacking in existing TCP/IP networks.
+
+The above can translate to the data movement heavy Hadoop system and can potentially reduce
+congestion and hotspots in Hadoop networks. Data aggregation in NDN enables more efficient use of
+network links and in-network caching can help reduce strain on individual nodes that would otherwise be
+required to serve duplicate requests. Depending upon the caching policy, frequently requested data can
+remain cached in close proximity to the requesters, even if the original source is far away or overloaded.
+
+NDN also differs from IP in that it uses a “pull” network model where the client always initiates transfer
+of data with an initial request - it is not possible for a host to “push” data to a host. When a client
+wants to obtain a piece of data, it expresses an Interest that contains the data’ name into the network.
+Because NDN fundamentally uses content names for addressing, there is no concept of a “remote host’,’
+since any host in the network with the corresponding data can return it to the requester. The network
+then routes this Interest towards host() that can provide the requested data. As the Interest passes
+
+Hadoop on Named Data Networking:
+Experience and Results 
+
+through each router, a pending-Interest entry is made so that the response can be properly routed back
+to the requesting host. Additionally, if more identical Interests arrive (possibly from different hosts), they
+will be aggregated with the existing pending-Interest entry and will not be forwarded further upstream.
+
+Compared to traditional protocols like IP, NDN moves more logic to the network layer. This additional
+network logic requires more processing and memory, but provides a smarter and more robust network.
+Abstracting data control logic down to the network layer allows the application to take advantage of the
+protocol features and simplify network processing at the application layer. For example, switching to
+NDN for RPC calls allowed us to remove a significant amount of code related to processing heartbeats
+that was no longer required when using NDN. This can lead to improved performance at the compute
+and management nodes and simplify network programming. Both of those features offer tremendous
+benefits to data center application development and deployment.
+NDN in a data center
+
+To the best of our knowledge, this is the first implementation and evaluation using the NDN protocol in
+a software project of significant size. While several simple programs have been previously developed to
+use NDN [21], they have all been fairly small and served as basic proof-of-concept examples. Our work to
+modify Hadoop to run on NDN is significant for three reasons:
+
+ Significant and complex code - Hadoop consists of tens of thousands of lines of code and is very
+complex. When running, it heavily stresses the network and demonstrates that NDN is capable
+of handling real life traffic.
+
+ Explore the use of NDN in a data center - Research regarding NDN so far has not focused on
+the domain of the data center. Our work will allow for the identification of potential issues and
+further avenues of research.
+
+ Improve quality of NDN code - As part of the development process, we can provide feedback to
+the NDN developers as we exercise their code and use it in ways that may not have received
+much testing in the past. This will extend beyond this project to benefit any other projects that
+utilizes the NDN protocol.
+DESIGN
+
+The goal we undertake in this paper is to enable Hadoop to work on top of the NDN network and
+observe the potential for benefits and further optimizations. Subsequently, we keep our changes to Hadoop
+minimal, and perform only necessary changes to enable NDN communication. The minimal changes
+allow us to observe the core benefits and challenges of NDN before we proceed with more advanced
+optimizations in future work. Better understanding of NDN challenges and benefits will serve as a guide
+for future development, and will identify the greatest benefits that can be addressed first.
+ Hadoop vs. NDN Sockets
+
+Apache Hadoop makes use of traditional Sockets and SocketChannels from Java’ Socket class family
+for network communication. The NDN API is very different from the Socket API in Java, and after a brief
+bit of exploration it was determined that totally replacing all instances of these classes in Hadoop with
+direct NDN instances would be much too intrusive and distract us from the goal of studying core NDN
+functionality. As a result, we developed fairly generic NDNSocket and NDNServerSocket classes (along
+with the corresponding Channel classes!) that can be used as drop in replacements for most code that is
+
+lWe did have to patch the sun.nio.ch.{,Server}SocketChannelImp1 classes to be properly visible outside of their package.
+We are unsure if this is a legitimate bug in the Java distribution or not.
+
+already using TCP/IP sockets. The core required methods for Sockets are implemented, although some
+TCP-specific operations are simply ignored in our code; one significant difference between our NDNSocket
+and the traditional implementation is that while both expose InputStream and OutputStreams, the
+NDN implementation is not truly a stream of bytes. Data is queued on either end and only transmitted
+when a call to flush or close occurs. Fortunately, Hadoop largely follows this convention and we
+only had to make minor changes to accommodate this difference.
+
+Like any network transport protocol, NDN has a maximum packet size. Currently, this is bytes
+in the Java client library. Our implementation automatically handles the slicing of Data packets larger
+than this into a series of smallerKB packets and reassembles them on the remote end. Interests larger
+than the maximum size are more difficult to handle, but all observed Interests in our Hadoop cluster
+have been below this limit.
+
+Figureshows how the NDNServerSocket interfaces with NFD and client requests on the server side.
+During startup, NDNServerSocket sets up a NDN Interest handler that will queue any incoming Interests
+routed to it and then enters an accept loop until an Interest arrives. A new NDNSocket object is
+created for the first Interest to arrive from a remote host; any subsequent Interests arriving from the
+same source are then handled by the same NDNSocket, similar to how a normal Socket handles a TCP
+stream. The NDNSocket class is more complex and handles most of the NDN logic. As each Interest from
+a single client is received, its contents are placed into a buffer for reading. Data written to the Socket is
+buffered until it is flushed or closed, at which point a Data packet is created with the response.
+
+On the client side, the handling of Interest and Data packets is reversed: Interests are created based on
+bytes which are written to the Socket and an appropriate NDN URI is generated. Data packets which are
+returned are read and placed into a buffer which is then exposed for reading from. Because all networks
+experience some packet loss or corruption, if a Data packet is not received within a timeout a new request
+will be made automatically. However, after three failures an IOException is raised to properly inform
+the system that something went wrong in the network transfer.
+ RPC Conversion
+
+Once we had the basic NDNSocket class working, we first looked at converting the RPC calls to use NDN.
+Fortunately, RPC calls can be mapped directly onto NDN’ concept of Interest and Data packets. The
+RPC setup in Hadoop is built upon a DataNode sending a heartbeat approximately every three seconds
+to the NameNode and receiving back a response. The NameNode maintains the full state of the HDFS
+(data replication, write operations, etc.
+Fig. Data pipelining in Hadoop under TCP. Fig. Flow of data transfer in Hadoop under NDN.
+
+initiate communication with a DataNode. The RPCs are used to send status updates as well as receive
+new commands from the NameNode.
+
+Because it is critical for the correct host to receive the appropriate RPC, we need to maintain
+the unique mapping between client and server that exists in TCP/IP. This concept does not exist
+natively in NDN; we chose to map the IP address and port given to the Socket into the second
+and third NDN URI components. For example, 192.168..:9000 would be mapped to a prefix of
+/nadoop/192.168../9000/. Additionally, because multiple clients may connect to a given node, each
+client will also tack on a nonce to the prefix used for all communication while the Socket is open. This
+allows the remote end to maintain proper state for each client, such as when the NameNode last received
+a heartbeat from a DataNode. Finally, we do not want to cache the results of a RPC call. Consider what
+would happen if a DataNode received a status of “OK” from the NameNode in response to a heartbeat it
+sent. Unknown to the DataNode is that the NameNode actually has new instructions for this DataNode,
+but because of network caching it may be quite some time until the cached response is evicted from
+all the caches between the DataNode and NameNode. This will cause the NameNode to erroneously
+mark the DataNode as non-responsive and remove it from the cluster. To avoid this, we append the
+current Unix time stamp to the NDN prefix. Thus, for a given RPC client, the NDN prefix will look like
+/nadoop/192.168../.
+
+Hadoop uses the protobuf library [] for the encoding and decoding of RPCs. The bytes are then
+written to or read from the Socket. For our implementation, on the calling side, we append the RPC call
+buffer to the Interest prefix, and then express it to the NDN network. The receiver then picks up the
+Interest, removes the last component and passes the bytes back to Hadoop to be decoded. When the
+method is completed and a response is ready to be returned, the bytes are placed in a response Data
+packet and sent back to the originator to satisfy the Interest.
+Block Transfer Conversion
+
+While the implementation of RPCs over NDN was fairly straight forward, getting Block data transfer
+working was much more challenging. When writing data to the HDFS, Hadoop uses a pipeline setup
+between all the DataNodes that will be storing a copy of the data. The developers have spent time
+highly optimizing this setup to maximize the throughput and speed of the Hadoop cluster. This comes at
+the cost of being very specific in how Hadoop sends data as well as the sort of issues it will expect to
+encounter. Introducing NDN to transport data required us to change the network model employed by
+Hadoop and adjust internal state that is updated when data is sent.
+
+The transfer of data in Hadoop is performed via dedicated TCP streams and optimized pipelines (refer
+to Figure). When new data is written to the cluster, the client first interacts with a DataNode (),
+either locally or over the network. The data is then stored on the originating DataNode in temporary
+storage, but is not yet included in the HDFS. At the next scheduled heartbeat, the node will inform the
+
+NameNode that it has new data that needs to be replicated to other nodes (). The NameNode will look
+at the state of the cluster and select additional nodes that should replicate the data. The return message
+from the master will include a list of other nodes that the DataNode should send the data to (). The
+originating node will then construct a pipeline from itself to the first node in its list (), then that node
+to the next () and so on. The data is then concurrently sent and written to each designated node. The
+initial write operation does not return success () until after every node has confirmed that its own write
+has been successful ( &).
+. Changing the network model. The pipeline that Hadoop establishes between DataNodes can be
+described using a “push” network model: the initial node that has the data to be written is told which
+nodes it needs to send data to for the cluster to maintain sufficient replication of the data. It then pushes
+the data to the first node, which then continues pushing the data to the second node, etc. However, NDN
+operates on a “pull” network model where the client initiates the transfer of data over a network. This
+change in behavior needs to be addressed.
+
+To handle this change from pushing data to pulling, we modified the behavior of the DataNodes
+(Figure). Now, instead of using the NameNode provided list of DataNodes to setup a pipeline, the
+originating DataNode will express a ReadCommand Interest to each DataNode in the list it received ().
+The content of the Interest is simply the Block’ ID that each remote DataNode will then request and
+store locally. Each DataNode will then express an Interest for the Block it needs to store (). Initially,
+only the first node that wanted to write the data will be able to respond (), since the data only exists
+on that node in temporary storage. However, as soon as another DataNode starts receiving the Block, it
+too could potentially serve requests for the pieces of the Block that it has. Furthermore, as the responses
+make their way through the network, the data can be cached on the routers and be used to answer
+multiple aggregated Interests. The net result is that data is still replicated from one DataNode to another,
+but is done in parallel using NDN’ pull model. Once all DataNodes have their copy of the Block, they
+inform the first DataNode () which then returns success to the client’ write request ().
+
+The use of an extra ReadCommand Interest can be optimized further by having the NameNode inform
+each target DataNode to request the Block by using the existing heartbeat system, rather than having
+the originating DataNode initiate the read. However, this would require the introduction of a new HDFS
+command, which will be considered in our future work.
+. Serving Blocks via NDN. Each DataNode registers a special NDN prefix that will be used to
+transport Block data: /blocks/. Unlike the RPC handler, we wish for any node that can provide a
+Block’ data to respond, so the generic prefix is used by all DataNodes. Furthermore, since each Hadoop
+cluster has a unique HDFS blockpool ID that is included as the second component, in case there are
+multiple Hadoop clusters on the same NDN network. Finally, the Block ID itself is appended to any
+Interest requesting that specific data. For example, the full NDN path for a Block is represented as
+/blocks/BP-2005120925-192.168..11-1444104333081/1073741825.
+
+The first Interest to request a Block will receive back a Data packet that contains solely the total size
+of the Block. Based on this information, the DataNode will determine how manyKB slices are required
+to fully transfer the data. Multiple Interests are then expressed, each containing the unique slice number
+appended as the fourth element of the URI. Each DataNode that receives a request will return the slice
+of data, if it exists locally. If a pending Interest times out, the code will retry up to three times. If it still
+fails, Hadoop will then leverage its existing error handling code to deal with the failure to write the Block.
+
+When Hadoop writes a Block, it is not marked by the NameNode as “finalized” until all the DataNodes
+have successfully received the data. Normally this would not be a problem, but since the NDN serving code
+queries the local DataNode for information about the Block such as size and underlying file name, this
+
+information is not available when needed during an initial Block write. This causes a circular dependency,
+since writing the Block requires information that cannot be queried until after the Block is written. To
+handle this, when a DataNode sees that it is creating a brand new Block, it will provide a copy of the
+bytes in the Block to the NDN serving code before the Block is marked as “finalized” by the NameNode
+after the necessary DataNodes have replicated the Block. This allows the requests from other DataNodes
+to complete before the initial write is completed.
+
+The original data pipeline works in a synchronous fashion while the pull model replicates data in parallel.
+However, Hadoop is still able to maintain its data integrity guarantees. Under normal operation, the
+write call does not return success until every node along the pipeline has forwarded back its own success
+to the initial DataNode. Under the new approach, the initial DataNode still waits to receive a success
+message from each DataNode that was to replicate a Block. If this does not happen for some reason,
+Hadoop handles the failure just as it would if a DataNode failed during a normal pipeline replication.
+
+One surprising discovery made while converting Block transfer to NDN was that the DFSOQutputStream
+class contained a subclass that is used to divide up a Block into individual packets, each of which contained
+a checksum header and could contain one or more chunks of the Block. Because Hadoop uses TCP for data
+transport, we were unsure why at the bottom most layer of data transfer Hadoop would be performing
+its own packeting and computing checksums over the data it was sending. This is redundant, since TCP
+guarantees the integrity of data being transmitted, and Hadoop has already verified the checksum of the
+entire Block when reading it. We speculate this may be legacy code that has been carried through from a
+time when perhaps UDP was an option for data transfer. We removed this redundant layer of code from
+Hadoop, and instead rely on NDN and our Sockets to ensure data packeting integrity during transport.
+. Transport layer and data integrity. At the moment, NDN only provides basic packet-level transport
+of data. This can be fine for basic use, but to achieve full utilization of the network’ bandwidth a
+transport layer is required. Adding a transport layer brings many benefits: multiple concurrent Interests
+can be in flight at once; Data packets being returned can arrive out of order and be properly ordered
+then assembled before being returned to the application; and a transport layer can help hide some of
+the low-level details that would otherwise be exposed to the user. One of the major challenges when
+multiple Interests are in flight concurrently is how to handle network congestion to ensure the best
+possible performance for the application. NDN is still under active development and a solution to network
+congestion under different network conditions is proposed in [13]. Once it is implemented in NFD our
+transport layer will be able to take full advantage of it. However, at the moment we have created a basic
+transport layer that supports up toconcurrent Interests for a given Block transfer. This number was
+configured to adapt to our cluster’ environment and chosen benchmarks as we attempted to strike a
+balance between throughput and the possibility of seeing network congestion.
+
+Hadoop takes great care to ensure that data is not corrupted, either during transport or when at rest
+on disk. TCP is used to provide this guarantee, in addition to a packeting system as previously described.
+Our implementation maintains the same guarantee of data integrity. We leverage NDN data integrity
+mechanisms that use cryptographic hashes to verify data at any point in the network. If for some reason
+there is a mismatch, the data can be requested again to ensure that the requesting host receives the
+correct data. Writing data to disk is unchanged under NDN: a cumulative checksum is computed for the
+entire Block when it is written and verified when reading the Block in the future.
+Table Benchmark details forandnode clusters.
+
+Amazon’ EC2 cloud service so we could explore the possibility of caching in a more realistic setup. The
+local cluster consisted of a total ofphysical machines /virtual nodes that were arranged in a basic
+two-level tree topology, as shown in Figure
+
+Each physical server in our lab hostedidentical Xen guests, each of which ran Ubuntu LTS with
+twoGhz vCPUs, .5GB RAM and a dedicated Gigabit NIC via PCI pass-through. Physical backing
+for each Xen guest’ storage was a RAID- SATA disk array. Hadoop version. and NFD version.
+were installed on each Xen guest; only basic configuration changes were made, such as specifying the IP
+address of the NameNode and other changes required to successfully start up a Hadoop cluster. The jndn
+client library version was used to interface Hadoop with the NDN protocol. An isolated network
+with dedicated Gigabit Ethernet links between each Xen guest and Linux machines acting as network
+routers with bridged network connections was configured; no other external traffic was present. Each
+Linux router machine had five NICs bridged at the MAC layer and ran Ubuntu LTS with NFD
+version.. The default routing policy for Interests was set to be “broadcast” and the virtual NDN
+network configuration followed the physical network topology. The EC2 cluster ran Hadoop version.
+and similar to the smaller cluster only basic configuration for cluster configuration was modified.
+
+There are several widely-used benchmark suites for evaluating the performance of a Hadoop Cluster.
+One of the most well-known benchmark is Intel’ HiBench []. Hadoop also comes with several example
+programs can be used to compare performance of a cluster. Tableshows benchmarks we have selected to
+evaluate the performance of our system as well as the dataset size and runtime when executed on both thenode local andnode EC2 clusters.
+Table Broadcast traffic comparison while replicating a singleMB Block.
+
+In a default block replication of the additional traffic due NDN broadcasts is only%. NDN
+developers are currently working on a way to reduce the amount of erroneous broadcast traffic that needs
+to be processed by NFD [17] which will make NDN perform more like TCP/IP. While the broadcast
+traffic is higher, its overall impact amongst all data traversing the network is minimal. Withreplicas,
+we see the total amount of traffic is approximately equal under both TCP and NDN, as sending only one
+copy of the Block to another DataNode does not offer any opportunities to aggregate or cache the data
+in the network. The default of-Block replication in Hadoop results in% less traffic in NDN than in
+TCP. As the number of replicas increases, so does the gap between NDN and TCP. Withreplicas, a
+total ofGB of data is seen compared toGB under NDN -— a reduction of%!
+
+Tableexplains the benefit seen under NDN by showing a detailed accounting of the traffic sent and
+received from three active DataNodes as well as an idle one when writing a singleMB Block to the
+Hadoop cluster. The three active nodes (H3, H5, and H13, shown in Figure) are the three nodes that
+Hadoop chose to use when establishing the pipeline write for the new Block . The idle node (H12) is
+simply a node that was not directly involved during the write of this specific Block and serves as a
+baseline for nominal network activity. Under normal Hadoop, nodes H3 and H5 must transmit the data
+over the pipeline, while H5 and H13 receive the data. (If Hadoop is configured to make  replicas of the
+data, then DataNodesthrough  —will mirror that data during the write to DataNodesthrough
+.) However, as NDN can leverage content aggregation, we see that DataNode H5 sees half of the total
+traffic under NDN as compared to TCP since it does not have to both send and receive the Block data
+as part of the pipeline. The other two active nodes see slightly increased traffic, but not a significant
+amount. Overall, the amount of traffic seen between these nodes is reduced by%. The increase in
+broadcast traffic for the idle node (H12) does not introduce a significant amount of load on the network
+as compared to the overall data transferred.
+ Caching potential in NDN
+
+NDN caching can offer benefits during any phase in addition to the data replication phase seen earlier.
+Figurepresents a caching potential in the-node cluster. Each trace is normalized to the total number
+of cache hits seen up to that point in time and is separated into three distinct phases: a startup phase,
+before the benchmark fully begins; the “Map” phase where data is transferred to the necessary nodes;
+and the “Reduce” phase where the computation is performed and a final result returned. The -axis
+represents the execution time in-second bins, .. the time elapsed from-on the -axis represents
+the-90th seconds of execution time. Since the benchmarks did not all take the same amount of time to
+run, some lines end sooner than others in each graph.
+
+Only two benchmarks, TeraSort and WordCount, had a small amount of reads that could potentially
+be served from a cache during startup as seen in Figurea and Table The other benchmarks did
+not have significant startup phases and data transfers as seen in Table Even in case of TeraSort and
+
+relating to the HDFS code were modified. The final four classes listed in the table are the most significant
+parts of our NDN “glue” code to interface Hadoop with NDN.
+
+Overall, we were able to eliminate overhundred lines of code and many edge cases by switching to
+NDN rather than IP. As this was just an initial attempt where we bolted on NDN, we tried not to make
+too many significant changes. In our future work, we will attempt an implementation that is designed
+to use NDN from the ground up, rather than relying on wrapper classes, reducing the amount of code
+needed to interface to NDN.
+RELATED WORK
+
+Named Data Networking (NDN) is a general Internet architecture that can be applied to different network
+environments. Most existing work focuses on the wide-area Internet. There has been some work done on
+applying or adapting NDN to data center networks. IC-DCN [] uses an information-centric data plane
+to get the benefits of caching, while using a centralized control plane to coordinate multipath routing
+and cache-aware routing. CCDN [23] works as a shim layer between applications and HDFS to provide a
+caching benefit from the storage at the end hosts. These works focus only on the network aspect of the
+system, but do not have empirical performance evaluation of applications on top of the network system.
+
+The effort most relevant to this paper was attempted inat Stetson University by Sherwood [15, 16]
+using CCNx [12], an earlier project from which NDN was forked. The initial intent was to rewrite the
+networking-related components of Hadoop with CCN-based counterparts. This was abandoned in favor of
+creating an adapter that would appear as a traditional socket interface to Hadoop, while utilizing CCN
+for data transport, in a manner similar to our approach. However, Sherwood was unable to successfully
+get Hadoop working over a content-centric network.
+
+A significant amount of research has been done looking to improve the performance of Hadoop, and
+distributed computation in data centers in general. Shafer et al in [14] performed an analysis of Hadoop
+clusters trying to determine where performance bottlenecks exist, and what could be done to solve them
+by taking advantage of the underlying system. Various attempts have been made to add more and faster
+caches to servers in a transparent manner, such as Mercury []. While these can be useful, they suffer from
+being generic and unable to leverage their full potential without knowing details about the applications
+currently running.
+
+Software-Defined Networking (SDN) [10] is an emerging architecture that decouples the network’
+control plane from its forwarding hardware. It enables the control plane to be programmable and offers
+
+fine-grained network traffic control. For example, SDN has been deployed in Google’ network to provide
+dynamic and accurate traffic engineering across different data centers []. While SDN empowers the
+control plane of any type of networks, NDN provides an upgrade of the data plane from address-based IP
+architecture to data-centric. Both of them can improve the performance of networks and applications,
+and they can complement each other to achieve maybe greater benefits.
+CONCLUSION AND FUTURE WORK
+
+In this paper, we showed through our first-of-its-kind work that it is possible to run Hadoop, a large,
+complex piece of software over a NDN network. While currently not as fast as TCP/IP, using NDN
+in a data center shows great potential to assist in better utilization of the network and a reduction in
+the aggregate amount of traffic seen. This can help provide better performance for compute clusters
+while at the same time requiring less direct administration in terms of network topology or compute job
+placement.
+
+From experiments we found that the total observed network traffic in a Hadoop cluster between nodes
+can be reduced by over% and the overall aggregate network traffic with default replication settings can
+be reduced by% by blurring the separation between network and application layers. A strong potential
+for additional caching during actual execution of jobs is also present. Leveraging the features of NDN
+allowed us to simplify parts of Hadoop’ code and promises future benefits.
+
+There are still several areas of improvement and exploration that we will investigate, including: caching
+optimizations to further reduce transmission of duplicate data; optimization of NDN performance to
+address the issues identified that are negatively impacting performance; more native use of NDN, rather
+than using Socket wrappers; and leveraging NDN to decentralize some of the cluster state to improve
+reliability.
+ACKNOWLEDGMENTS
+
+This material is based upon work supported by the National Science Foundation under Grant No.
+1551057, 1345142, 1064963.
+
+

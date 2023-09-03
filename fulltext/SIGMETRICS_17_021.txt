@@ -1,0 +1,699 @@
+On Optimal Two-Sided Pricing of Congested Networks
+ABSTRACT
+---
+Traditionally, Internet Access Providers (APs) only charge end-users for Internet access services; however, to recoup infrastructure costs and increase revenues, some APs have recently adopted two-sided pricing schemes under which both
+end-users and content providers are charged. Meanwhile, with the rapid growth of traffic, network congestion could seriously
+degrade user experiences and influence providers’ utility. To optimize profit and social welfare, APs and regulators need to
+design appropriate pricing strategies and regulatory policies that take the effects of network congestion into consideration.
+In this paper, we model two-sided networks under which users’ traffic demands are influenced by exogenous pricing and
+endogenous congestion parameters and derive the system congestion under an equilibrium. We characterize the structures
+and sensitivities of profit- and welfare-optimal two-sided pricing schemes and reveal that) the elasticity of system throughput plays a crucial role in determining the structures of optimal pricing, ) the changes of optimal pricing under varying
+AP’ capacity and users’ congestion sensitivity are largely driven by the type of data traffic, .., text or video, and) APs
+and regulators will be incentivized to shift from one-sided to two-sided pricing when APs’ capacities and user demand for
+video traffic grow. Our results can help APs design optimal two-sided pricing and guide regulators to legislate desirable policies.
+---
+INTRODUCTION
+
+Internet Access Providers (APs) build massive network platforms by which end-users and Content Providers
+(CPs) can connect and transmit data to each other. Traditionally, APs use one-sided pricing schemes and obtain
+revenues mainly from end-users. With the growing popularity of data-intensive services, .., online video
+streaming and cloud-based applications, Internet traffic has been growing more than% per annum [10], causing
+serious network congestion, especially during peak hours. To sustain such rapid traffic growth and enhance
+user experiences, APs need to upgrade network infrastructures and expand capacities. However, they feel that
+
+ 
+
+the revenues from end-users are insufficient to recoup the corresponding costs. Consequently, some APs have
+recently shifted towards two-sided pricing schemes, .., they start to impose termination fees on CPs’ data traffic
+in addition to charging the end-users. For example, Comcast! and Netflix” reached a paid peering agreement in[28], under which Comcast provides a direct connection to Netflix and improve its content delivery quality
+for a fee. Another example is sponsored data proposed by AT&?, under which CPs are allowed to subsidize
+end-users the fees induced by their data traffic. Since subsidizations indirectly transfer value to the APs, sponsored
+data is really a two-sided pricing scheme in disguise. Although charging CPs directly or indirectly may increase
+APs’ revenues and thus motivate APs to deploy network capacities and alleviate congestion, it has raised concerns
+over net neutrality [27], whose advocates argue that zero-pricing [11] on CPs are needed to protect content
+innovations of the Internet. Although the .. FCC has recently passed the Open Internet Order‘ to protect net
+neutrality, existing two-sided schemes such as paid peering and sponsored data are exempt from the ruling,
+because these pricing schemes are common practices in the Internet transit context and the FCC is not yet clear
+about the policy implications on the utilities of various market participants and social welfare.
+
+Although prior work [, 16, 19] has studied the economics of two-sided pricing in network markets, the
+resulting network congestion and its impacts on the utilities of different parties were often overlooked. However,
+the explosive traffic growth has caused severe congestion in many regional and global networks, which degrades
+end-users’ experiences and reduces their data demand. This will strongly affect the profits of APs and the utilities
+of end-users and CPs. To optimize individual and social utilities, APs and regulators need to reflect the design of
+pricing strategies and regulatory policies accordingly. So far, little is known about) the optimal two-sided pricing
+structure in a congested network and its changes under varying system parameters, .., the users’ congestion
+sensitivity and the APs’ capacities, and) potential regulations on two-sided pricing for protecting social welfare
+from monopolistic providers. To address these questions, one challenge is to accurately capture the endogenous
+congestion in the network. Although the level of congestion is influenced by network throughput, the users’
+traffic demand and throughput are also influenced by network congestion. It is crucial to capture this endogenous
+congestion so as to faithfully characterize the impacts of two-sided pricing in congested networks.
+
+In this paper, we propose a novel model of a two-sided congested network built by an AP, which transmits
+data traffic between end-users and CPs. We model network congestion as a function of AP’ capacity and system
+throughput, which is also affected by the congestion level. We capture users’ population and traffic demand under
+pricing and congestion parameters and derive an endogenous system congestion under an equilibrium. Based on
+the equilibrium model, we analyze the structures of profit-optimal and welfare-optimal two-sided pricing and
+their sensitivities under varying system environments, .., congestion sensitivity of users and capacity of the AP.
+We also compare the two types of optimal pricing and derive regulatory implications. Our main contributions
+and findings include the following.
+
+ We derive the congestion equilibrium of two-sided networks, identify a property of elasticity (Theorem
+and), and study the equilibrium dynamics under varying pricing and system parameters (Proposition and).
+
+ We characterize the structures of optimal two-sided pricing (Theorem and) and show that the
+profit-optimal pricing equalizes the demand hazard rates on the user and CP sides; however, the welfareoptimal counterpart differentiates them based on the elasticity of throughput and per-unit traffic welfare
+of both sides.
+
+ We analyze the sensitivities of optimal two-sided prices under varying capacity of APs (Corollary
+and) and congestion sensitivity of users (Corollary and). The results imply that when network
+traffic is mainly for online video, APs would increase two-sided prices under expanded capacity, while
+regulators may want to tighten the price regulation on the side of higher market power. However, when
+network traffic is mostly for text content, they should take the opposite operations.
+
+ We compare two-sided pricing with the traditional one-sided counterpart. We find that with the growing
+capacities of APs and demand for video traffic, APs and regulators will have strong incentives to shift
+from one-sided to two-sided pricing because the benefits of increased profits and social welfare will
+continue to grow.
+
+We believe that our model and analysis could help APs design two-sided pricing schemes in congested networks
+and guide regulatory authorities to legislate desirable policies.
+RELATED WORK
+
+Several works have studied two-sided pricing in the Internet markets. Njoroge et al. [19] showed that two-sided
+pricing could help APs extract higher profits and maintain higher investment levels than one-sided pricing.
+Altman et al. [] analyzed the impacts of CP’ revenue models, either subscription or advertisement, on AP’
+pricing strategies. Choi and Kim [20] found that expanding capacity will decrease the CP-side price. In [16],
+Musacchio et al. concluded that two-sided pricing is more favorable in terms of social welfare than one-sided
+pricing when the ratio between CPs’ advertising rates and user price sensitivity are extreme. All of the above
+works do not consider the impact of network congestion on user throughput, which strongly influences the AP’
+pricing strategy. In this paper, we characterize the interactions among network congestion, throughput, and
+price, based on which we analyze both the profit-optimal and welfare-optimal pricing.
+
+Whether APs should be allowed to charge CPs for their content traffic has been a focus of debate on net
+neutrality [27]. To sidestep this debate and extract revenue from CPs, some APs, .., AT&, have recently
+provided sponsored data plans, which allow CPs to partially or fully subsidize users the fees induced by their
+data traffic for increasing market share. Since the sponsorship offers a way for CPs to subsidize their users
+and indirectly transfer value to APs, it could be seen as a variant of the two-sided pricing model. Some work
+[, 14, 29] have studied this variant and showed that it benefits both CPs and APs. Because APs charge users
+different prices for content traffic from different CPs, the sponsored data plan is also considered as a type of price
+discrimination in disguise and has raised concerns from the FCC who says that they will be monitoring and
+prepared to intervene if necessary [18]. In this paper, rather than pursuing the price differentiation, we focus on
+the two-sided pricing under which users are charged entirely based on their traffic volumes.
+
+From the perspective of modeling and analysis, our model extends Rochet and Tirole [23], in which the
+two-sided network platforms do not incur congestion. To capture the endogenous network congestion and
+its effect in Internet markets, we introduce a system congestion under a market equilibrium and use a gain
+function to model the decline degrees of network throughput under different congestion levels. Besides, we also
+analyze the sensitivities of two-sided pricing under the varying network environments, which are instructive and
+meaningful for APs and regulators to adjust pricing schemes and regulatory policies with the evolution of the
+Internet. Ma [13] and Chander and Leruth [] also consider the service markets with congestion externalities. Ma
+[13] analyzed the pay-as-you-go pricing and competition among multiple ISPs. Chander and Leruth [] studied
+the quality differentiation strategy of a monopoly provider. Both of them focused on the one-sided markets while
+we consider the more general two-sided markets.
+MACROSCOPIC NETWORK MODEL
+
+We consider a two-sided network platform built by an AP which transmits data traffic between users and CPs.
+Unlike physical commodities, the quality of network service is intricately influenced by a negative network effect:
+higher traffic will induce a more congested network with worse performance. To characterize the congestion, we
+
+start with a macroscopic model that captures the physical and economic dynamics among the AP, users, and CPs
+in this section.
+ Basic Terms and Definitions
+As a preliminary, we first introduce two basic economic and statistical terms that will be used in our model.
+Definition (Elasticity). For two variables  and , the elasticity of  with respect to , or -elasticity of , is
+defined bye!al
+In economics, elasticity captures the responsiveness of a variable  to a change in another variable . Specifically,
+it can be equivalently expressed as €% = |(Oy/)/(Ox/)| and interpreted as the absolute value of the percentage
+
+change in  (numerator) in response to the percentage change in  (denominator). Intuitively, when the value e4
+is higher,  responds to the change of  more strongly and we say that  is more elastic to .
+
+ 
+Definition (Hazard Rate). For a function (), the hazard rate of  with respect to  is defined by * + ¥ a
+In statistics, hazard rate is used to measure the rate of decrease in the function  with respect to the variable
+. In particular, it can be expressed as * = —(Oy/)/0x and interpreted as the proportion of  that is reduced
+due to a marginal change of . Note that the function  can have different values of its hazard rate at different
+starting points of the variable .
+ Baseline Physical Model
+
+We denote a metric of congestion, .., delay or loss rate, by ¢ to model the congestion level of the AP’ network.
+We denote the AP’ user population by  and the users’ average desirable throughput by , ie., the maximum
+amount of data rate consumed under a congestion-free network with ¢ = When network congestion exists,
+ie., @ > the users’ desirable throughput might not be fulfilled; and therefore, their achievable throughput is
+lower than their desirable throughput. We define the users’ average achievable throughput under a congestion
+level ¢ by(¢) = np(¢), ie., the desirable throughput  multiplied by a gain factor (¢).
+
+Assumption. (¢): Ry + (, ] is a continuously differentiable, decreasing function of ¢. It has an upper
+bound () =and satisfies that Pa (¢) =
++00
+
+Assumption states that the throughput gain or simply the gain decreases monotonically when the network
+congestion ¢ deteriorates. In particular, the gain and the users’ achievable throughput reach the maximum under
+no congestion.
+
+In practice, users’ throughput is usually a mixture of multiple types of traffic flows. Based on the characteristics
+of applications and protocols, different types of traffic throughput may have dissimilar responses to network
+congestion. For instance, inelastic traffic such as online video streaming cannot tolerate high delays and loss rates,
+and therefore its throughput gain declines sharply with the deterioration of congestion; however, the throughput
+gain of elastic traffic [25] such as -mail does not respond to congestion drastically. Notice that the terms inelastic
+traffic and elastic traffic in networking refer to the traffic whose throughput gains are sensitive and insensitive
+to congestion, respectively; however, based on the classic definition of elasticity in economics (.., Definition), traffic throughput has higher congestion elasticity if it is more sensitive to congestion, and therefore the
+throughput gain of inelastic traffic is more elastic to congestion than that of elastic traffic.
+
+In this paper, we adopt the elasticity defined in economics to characterize how the throughput gain responds to
+congestion. By Definition, the elasticity ? characterizes the percentage decrease in the gain  in response to
+the percentage increase in the congestion ¢. Based on this characterization, different forms of the gain function
+ with different elasticities ? can be used to model responses of different mixtures of traffic types to congestion.
+For example, when users’ traffic throughput includes more online video or file sharing traffic, gain functions
+with higher or lower elasticities can be adopted, respectively.
+
+Given a fixed level of congestion ¢, we define the aggregate network throughput by A(¢) = ml(¢) = mnp(¢),
+ie., the product of the number of users  and the users’ average achievable throughput np(¢) under the congestion
+level ¢. On the one hand, under the given level ¢ of congestion, the network accommodates certain throughput
+A(@); on the other hand, the network congestion ¢ is also influenced by this throughput A. We denote the AP’
+capacity by py and characterize the induced system congestion as a function ¢ + ®(A, py) of the system throughput
+A and capacity .
+
+Assumption, ®(A, ) : R2 / , is continuously differentiable, increasing in A, decreasing in .
+ip  +    in yp
+
+Assumption characterizes the physics of network congestion: the congestion level is higher when the
+system accommodates larger throughput or has less capacity, and vice-versa. Besides, different forms of the
+congestion function ® can be adopted to capture the congestion metric based on different models of network
+services. For example, the function ®(A, ) =/( — A) models the  queueing delay for network services
+and ®(A, ) = A/ captures the capacity sharing [] nature of general network congestion.
+
+By far, we have described the system by a triple (, , ). Because the congestion increases with the network
+throughput, which decreases with the deteriorated congestion, the resulting system congestion is defined under
+an equilibrium.
+
+Definition. ¢ is an induced equilibrium congestion of a system (,, ) if and only if it satisfies ¢ =
+(A(¢), ).
+
+Definition states that the system congestion ¢ should induce the aggregate throughput A(¢) such that it
+leads to exactly the same level of congestion ¢ = ®(A, ).
+
+We define the inverse function of ®(A, ) with respect to A by A(¢, ) = ©71(, ). A(@, ») can be interpreted as
+the implied amount of throughput that induces a congestion level ¢ for a system with a capacity . By Assumption, A(@, /) is strictly increasing in both ¢ and py. To characterize the system congestion, we define a gap function
+ between the supply and demand of throughput under a fixed level of congestion ¢ by
+
+IG) = A(, ) — ACP).
+
+THEOREM (CONGESTION EQUILIBRIUM). For any system (,, ), (@) is an increasing function of ¢. The
+system operates at a unique level of equilibrium congestion ¢, which solves  =
+
+Theorem characterizes the uniqueness of the system equilibrium congestion ¢ under which the throughput
+supply A(¢, ) equals the aggregate throughput demand A(¢). Based on Theorem, we denote the unique
+equilibrium congestion and the corresponding aggregate throughput of the system (,, ) by @ = (, , )
+and A = A(, , ), respectively. We define the marginal change of the throughput gap  due to a marginal change
+
+where the first (second) term captures the change of throughput in supply (demand). Next, we characterize the
+impacts of the user population , users’ average desirable throughput  and system capacity  on the system
+congestion ¢ and throughput A as functions of @ as follows.
+
+Proposition derives the impacts of ,  and  on the induced system congestion » and throughput A.
+It states that) if the user population  or the desirable throughput  increases, the system congestion and
+throughput will increase, and) if the AP extends its capacity py, the system congestion will decrease and the
+system throughput will increase.
+
+THEOREM (ELASTICITY OF THROUGHPUT). Under the equilibrium of any system (, , ), the elasticities of the
+system throughput A with respect to the user population  and the desirable throughput  are equal and both satisfy
+Theorem shows that under an equilibrium of any physical system (, , ), the marginal impact of user
+population on the system throughput e4, equals that of the user’ desirable throughput on the system throughput
+. Fundamentally, this result is due to the product form of network throughput A = mnp(¢) that is symmetric in
+mand , although both quantities have very different physical natures. Thus, we define this elasticity of system
+
+throughput by
+where |0A/@| and GA/O0g measure the marginal decrease and increase in the throughput demand and supply
+with respect to congestion, respectively. This e7 can be interpreted as a metric of relative congestion elasticity
+of throughput demand: when the traffic demand is elastic, ie., |AA/A¢| is large, and the throughput supply is
+inelastic, .., 9A/¢ is small, + —and the system can accommodate higher throughput mostly due to the
+elasticity of the demand; otherwise, + >and the elasticity of the supply plays a bigger role in adopting higher
+throughput. Notice that our model generalizes that of Rochet and Tirole [23], under which congestion does not
+exist and the throughput supply can be regarded to be infinitely elastic, ie., 0A/Og = +, and therefore, the
+elasticity of throughput alway satisfies e7 =
+
+.. Two-Sided Pricing Model
+
+We consider usage-based pricing schemes [] imposed on users and CPs, which are adopted by most wireless APs,
+.., -Mobile® and AT&, and some wired APs, .., Comcast []. In our two-sided pricing model, we assume
+that the AP charges prices of  and  per-unit data traffic to users and CPs, respectively.
+
+On the user side, we model each user by her value ,, of per-unit traffic and denote the number of the users of
+value , by ,,(,), which can be regarded as a value density function of users. We assume that a user subscribes
+to the AP’ access service if and only if she can obtain a positive utility, ie., her value , of per-unit traffic is
+higher than the price . As a result, the population  of active users of the AP is a function of , defined by
+On the CP side, we model each CP by a tuple (,, ,). ue is the average desirable throughput of end-users
+for the CP’ content. uv, is the CP’ per-unit traffic value, which models the CP’ profit obtained by charging
+its customers or advertisers. Similar to the user side, we denote the density of the CPs of characteristic (uc, vc)
+by fe(uc, Uc) and assume that a CP uses the AP’ access service if and only if it can obtain a positive utility, ie.,
+its value , of per-unit traffic is higher than the price . Consequently, the average desirable throughput  of
+end-users for all active CPs is a function of , defined by
+
+From Equation () and (), we know that the population () of users decreases with the user-side price , and
+the average desirable throughput () of users decreases with the CP-side price . Since the two-sided prices
+ and  impact the network throughput A via the user population  and the average desirable throughput ,
+respectively, () and () can be interpreted as demand functions on the user and CP sides. Intuitively, the
+higher price  () results in the smaller demand  () on the user (CP) side. Furthermore, by Definition, we
+adopt the hazard rate rm? (77) to measure the decreasing rate of the demand  () with respect to the price  ().
+In addition, the inverse of the hazard rate/? (/n7) is often regarded as the AP’ market power [26] on the
+user (CP) side, which reflects the AP’ ability to profitably raise the price of its network service. Intuitively, if the
+AP has higher market power on the user (CP) side, .., the demand hazard rate ? (17) is lower, the AP can set a
+higher price  () to optimize its profit, since the demand  () decreases slower with the price.
+
+Under a two-sided pricing (,), the aggregate network throughput can be represented as A(,,¢) =
+()()(¢), .., the product of the AP’ user population (), the users’ average desirable throughput (),
+and the throughput gain factor (¢) under the congestion level ¢. Furthermore, we can write the unique
+equilibrium congestion as (,,#) = ((),(), #) and define the corresponding system throughput by
+A(, , ) = A(, . (, , )). As the prices  and  determine the congestion ¢(, , #) and throughput A(, , )
+under any fixed capacity yz, we investigate their impacts on the congestion and the throughput as follows.
+
+PRoposiTION. For a system with a fixed capacity, the system congestion  and throughput A under two-sided
+prices  and  satisfy
+Furthermore, the price elasticities of throughput A satisfy that eh : ed = €' : €.
+
+Proposition explicitly shows the impacts of prices  and  on the system congestion  and throughput A
+and states that the congestion and throughput will decrease if higher prices are charged. Intuitively, higher prices
+reduce the demands in terms of  and , which further reduce the equilibrium congestion  by Proposition. As
+the system has a fixed capacity, the aggregate throughput A = A(@, ) would decrease consequently. Proposition also tells that the price elasticity of throughput is proportional to that of the corresponding demand. This
+again shows that the demands  and  play similar roles on the two sides of the market.
+STRUCTURE OF OPTIMAL PRICING
+
+In the previous section, we modeled a two-sided network in which the effect of congestion is taken into consideration. In this section, we further explore the structures of the profit-optimal and welfare-optimal pricing in the
+network. In particular, we will show the impact of system congestion on the structures of optimal pricing. Structure of Profit-Optimal Pricing
+
+We first study the optimal two-sided pricing used by the AP to maximize its profit. We assume that the AP incurs
+a per-unit traffic cost of , which models the recurring maintenance and utility costs like electricity. We define the
+AP’ profit by (, ¢, np) = (+—)A(, , ), Le., the per unit traffic profit  +  —  multiplied by the aggregate
+throughput A. Under any fixed capacity , the AP can maximize its profit by determining the optimal prices that
+solve the following optimization problem.
+
+Before solving the profit maximization problem, we first characterize the impacts of the AP’ capacity and
+prices on its profit as the following result.
+
+ProposirIon. The impact of the capacity  on the profit  is
+
+and the impacts of the prices  and  on the profit  are
+
+Proposition intuitively shows that the AP’ profit increases with its capacity under fixed prices; however,
+increasing prices might reduce demands, which could either increase or decrease the profit. Next, we characterize
+the optimal two-sided prices of the AP that maximize its profit.
+
+THEOREM. If prices  and  maximize the AP’ profit, the following condition must hold:
+
+Theorem provides necessary conditions for prices to be profit-optimal. Equation () shows the connections
+among the optimal prices, the demand hazard rates on both sides, and the elasticity of system throughput. In
+particular, the optimal prices will equalize the hazard rates of demands on both sides, which equals the inverse of
+the product of the profit margin  +  —  and the elasticity of system throughput *. This implies that the AP
+will always balance its market power on both sides of the market so as to maximize its profit. Notice that the
+formula of Equation () also generalizes the result of Rochet and Tirole [23] for the structure of the profit-optimal
+two-sided pricing under endogenously congested networks. Besides, Equation () characterizes the relationship
+between the elasticities and price margins of the profit-maximizing AP, where the total price  +  follows a form
+of the Lerner index [12], -., the ratio of profit margin to price equals the inverse of the total elasticities of the
+system throughput with respect to the prices.
+
+By Equation (), we see that the profit-optimal two-sided prices are related to the elasticity of system throughput
+*, which depends on the level of network congestion by Equation (). To see more clearly, we illustrate it with
+an example where the gain function is (¢) = ~%, the congestion function is ®(A, ) = A/ and the demand
+functions are () =—  and () = ( — )” (, € [,]). For this example, we can derive the explicit
+profit-optimal prices based on Theorem:
+
+where ¢ is the equilibrium congestion of the system. Equation () shows that the congestion level directly affects
+the profit-optimal prices. Therefore, the AP should fully take the congestion effect into consideration when
+designing two-sided pricing schemes.
+ Structure of Welfare-Optimal Pricing
+
+We next analyze the welfare-optimal pricing structure that maximizes social welfare and contrast it with the
+profit-optimal counterpart. On the user side, given any fixed price , a user of value , obtains the surplus (, —)
+for per-unit traffic, and therefore the total surplus of all users, when each of them consumes one unit traffic, can
+be defined by
+
+where ,,(,) measures the population of the users of value ,, for per-unit traffic. Thus the per-user average
+surplus for per-unit traffic can be defined by .() = Sm()/(), where () is the user population. Accordingly,
+we define the total user welfare for the aggregate throughput by
+
+Wm(, 4s) * Sm()A(, 4s ) = Sm()()((. #))
+
+Le., the users’ average per-unit traffic surplus ,,() multiplied by the aggregate traffic throughput A(, , /).
+Similarly, on the CP side, given any fixed termination fee , a CP of characteristic (,,-) generates a surplus
+(ve — ) for per-unit traffic and the average desirable throughput per user on this CP is ,; and therefore, the CP
+can obtain a surplus of (vu, — )ue per user. As a result, the total surplus of all active CPs, when each of them
+accommodates their users’ average desirable throughput, can be defined by
+
+where -(uc, Ve) measures the population of the CPs of characteristic (ue, vc). Thus, the total surplus of all active
+CPs for per-unit traffic can be defined by ,() = Sn()/(), where () is the end-users’ average desirable
+throughput on all active CPs. Accordingly, we define the total CP welfare generated from all end-users by
+
+Walp, aH) * sn()A(, oH) = Sn()() (op. #)),
+
+iLe., the aggregate per-unit traffic CP surplus ,() multiplied by the aggregate traffic throughput A(, , :).
+Notice that because the welfare ,,(, , ) and Wn (,, #) of the two sides are the system throughput A(, , )
+multiplied by ,,() and ,(), respectively, ,, and , can also be interpreted as the per-unit traffic welfare of
+the user and CP sides. Based on the above definitions, social welfare can be denoted as the summation of the
+end-users’ welfare, the CPs’ welfare, and the AP’ profit, defined by
+Because social welfare usually increases as the two-sided prices decrease, it might be maximized at a point
+where the AP incurs a loss. To ensure that the AP does not incur a loss and the welfare-optimal pricing scheme is
+practically feasible, we consider the framework of Ramsey-Boiteux pricing [21] which tries to maximize social
+welfare, subject to a constraint on the AP’ profit. In our context, we typically constrain the AP’ profit to be zero,
+ie.,  = under which the total price  +  is equal to the traffic cost . We formulate the welfare optimization
+problem as follows.
+
+Before we solve the welfare maximization problem, we first characterize the impacts of the capacity and prices
+on social welfare as follows.
+
+ProposiTIon. The impact of the AP’ capacity j1 on social welfare  is
+
+
+In particular, if ?, and S4 increase with  and , respectively, social welfare  decreases with  and .
+Proposition intuitively shows that) under fixed prices, social welfare increases with the AP’ capacity,
+
+and) under the commonly assumed monotone conditions [] on the hazard rates $, and $? of surpluses, social
+
+welfare decreases as the two-sided prices increase. It implies that to protect social welfare, regulators should
+
+encourage APs to expand capacity and regulate the prices of both sides. Next, we characterize the optimal
+two-sided prices which maximize social welfare.
+
+THEOREM, If prices  and  maximize the social welfare (, ), the following condition must hold:
+
+Theorem provides a necessary condition for the prices to be welfare-optimal. Equation () describes the
+relationship among the elasticity of system throughput, the demand hazard rates and per-unit traffic welfares
+of the two sides. Compared to the result of Theorem where the profit-optimal pricing always equalizes the
+demand hazard rates on both sides, the welfare-optimal counterpart differentiates them based on the per-unit
+traffic welfares of the two sides as well as the elasticity of system throughput. To see this more clearly, we consider
+a special case of * = ie., the model of Rochet and Tirole [23] where network congestion does not exist. Under
+this case, Equation () simplifies to the condition in Propositionof [23], ie.,
+
+Sm Sn
+me And “
+Equation () shows that when the congestion does not exist, the demand hazard rate is proportional to the
+per-unit traffic welfare of the same side under the welfare-optimal pricing. This implies that the welfare-optimal
+prices result in a higher demand hazard rate, and therefore induce lower market power, on the side of higher
+welfare. When the network becomes mildly congested, the elasticity of system throughput ? will slightly decline
+below If the AP has higher per-unit traffic welfare on the user side, -., sy, > Sy, the right-hand side of Equation
+() will increase. Since Equation () has to hold under the welfare-optimal pricing, the prices need to adjust to
+balance the equation again, ie., to increase the ratio of demand hazard rates on the left-hand side of Equation ().
+This implies that the market power of the side of high per-unit traffic welfare will decrease, and vice versa. In
+general, we can expect that when the network becomes more congested, the elasticity of throughput decreases,
+and under the welfare-optimal pricing, the ratio of the demand hazard rates of the sides with higher and lower
+per-unit traffic welfare will further increase.
+Similar to the profit-optimal prices, the welfare-optimal prices are also related with the elasticity of throughput
+* by Equation (), which depends on the level of network congestion by Equation (). Under the same example
+where the gain function is (¢) = ~%, the congestion function is (A, ) = A/ and the demand functions are
+
+where (@) is the positive solution ofk” + gk —=andis the equilibrium congestion of the system. Equation
+(10) shows that the congestion level also directly affects the welfare-optimal prices. Thus, regulators need to
+consider the congestion effect adequately when making the regulatory policies on the two-sided pricing.
+
+Summary of Implications: The theoretical results in this section could help APs and regulatory authorities
+to design two-sided pricing strategies and the corresponding regulatory policies. First, to optimize their profits,
+APs should set two-sided prices to equalize the demand hazard rates at both sides, whose optimal value changes
+with the elasticity of system throughput (by Theorem). Second, to protect social welfare, regulators might
+want to regulate the prices of both sides (by Proposition). In particular, the prices should be regulated such
+that the difference in the demand hazard rates of the two sides will enlarge as the elasticity of system throughput
+decreases (by Theorem).
+SENSITIVITY OF OPTIMAL PRICING
+
+With the rapid development of Internet, characteristics of APs, CPs, and end-users are continuously changing.
+For example, APs are using new wireless technologies, .., 4G orG, to expand their capacities, and as the
+real-time video traffic grows rapidly, users often become more sensitive to network congestion. In this section,
+we explore the sensitivities of the profit-optimal and welfare-optimal pricing under these varying characteristics
+of the market participants.
+
+Because Theorem and in the previous section only provide necessary conditions for the two-sided prices
+ and  to be profit- and welfare-optimal, they are not sufficient to guarantee the optimality. To analyze how the
+optimal prices change with varying parameters, we make the following assumption on the hazard rates of the
+demands  and  so as to guarantee the (local) optimality of the prices  and gq.
+
+Assumption. The demand hazard rates ? and ? are increasing in the prices  and , respectively.
+
+The monotonicity conditions on the demand hazard rates ? andstated in Assumption indicate that at a
+higher price level  (), the proportion of demand  () reduced due to a marginal increase in price is larger. These
+monotone conditions are widely assumed in various contexts in statistics [] and economics, .., Myerson’
+optimal auction [17]. In particular, the hazard rate of any concave function satisfies the monotone property,
+.., a concave demand () implies that the hazard rate ? must be increasing in . Under Assumption, we
+consider a system that has unique profit-optimal and welfare-optimal two-sided prices, denoted by (*, *) and
+(°, °), respectively.
+
+As the previous section shows that the structure of optimal pricing depends on the elasticity of throughput
+”, we will see in this section that the sensitivities of optimal prices largely depend on the changing direction
+of * as congestion increases, ie., the sign of de*/A¢@. This quantity is determined by the type of data traffic: if
+the network traffic is mostly video (text), its throughput gain (@) often decreases convexly (concavely) in ¢,
+as its traffic is quite sensitive (insensitive) to mild congestion. As a result, we will show that + often increases
+(decreases) when congestion increases.
+
+A
+ Impact of AP’ Capacity
+
+In this subsection, we first show how the sensitivity of optimal pricing under varying AP’ capacity is impacted
+by the changing direction of e7 under changing congestion. We then explain why this changing direction is
+determined by the type of data traffic. The following two corollaries show the impacts of the AP’ capacity yz on
+the optimal prices.
+
+Coro.iary. The derivatives of the profit-optimal prices  respect to the capacitysatisfy that
+
+
+Corollary shows that the signs of the marginal profit-optimal pricesp*/Oy andq*/Op (with respect to
+capacity) are the same as that of the marginal elasticity of system throughput de+/A@ (with respect to congestion).
+This result implies that if the elasticity of system throughput increases with deteriorated congestion, the AP’
+profit-optimal prices will increase with its capacity, and vice-versa. In general, the system congestion ¢ will be
+alleviated with the expanded capacity  by Proposition. If the elasticity of throughput decreases (increases)
+with alleviated congestion, .., de+/ >(Ge*/¢@ <), the marginal increase of throughput demand |0A/¢|
+increases faster (slower) than that of throughput supplyA/@ by Equation (). As a result, the profit-optimal
+prices will increase (decrease) as the basic economics principle of demand and supply implies.
+
+Furthermore, Equation (11) shows that the marginal profit-optimal prices (with respect to capacity) are
+proportional to the marginal demand hazard rate (with respect to price) on the opposite sides. Because the profitoptimal prices always equalize the demand hazard rates of both sides by Theorem, .., ?(*) = n7("*), the
+changes in demand hazard rates with respect to capacity : should also be the same at both sides. Mathematically,
+this balanced marginal effect can be used to deduce Equation (11) and expressed as
+
+Corollary shows that the marginal pricesp°/Oy andq°/Oy with respect to capacity have opposite signs.
+This is due to the constraint of fixed total price of the two sides, which further implies that the values ofp°/Oy
+andq°/Op are always opposite. Corollary also shows that the sign of marginal price of the side of higher
+(lower) demand hazard rate will be the same as (opposite to) that of the marginal elasticity of throughput. This
+implies that if the elasticity of throughput increases (decreases) with congestion, the welfare-optimal price of the
+side whose demand hazard rate is higher would increase (decrease) with the capacity. As explained earlier, if
+the elasticity of throughput increases with expanded capacity and alleviated congestion, ie., de+/@ < the
+marginal increase of throughput demand |0A/@| increases slower than that of throughput supplyA/@. As a
+result, the network would be under-utilized if the two-sided prices are unchanged, and therefore under fixed
+total price, the price of the side of higher demand hazard rate should be reduced to increase system throughput
+so as to maximize social welfare. Similarly, if de /Og > the network would be overloaded and the price of the
+side of higher demand hazard rate should be increased to reduce the throughput.
+
+By comparing the results of Corollary and, we see that if the elasticity of throughput ¢ increases
+(decreases) with congestion the price of the side of lower demand hazard rate will decrease (increase) with
+capacity under the welfare-optimal pricing but will increase (decrease) with capacity under the profit-optimal
+counterpart. This suggests that, to protect social welfare, if + increases (decreases) with , regulators might
+want to tighten (relax) the price regulation on the side of higher AP market power, .., the side of lower demand
+hazard rate, when APs expand capacities.
+
+ 
+
+From Corollary and, we have seen that under expanded capacity, the sensitivities of both profit- and
+welfare-optimal prices really depend on the changing direction of + with deteriorated congestion, ie., the sign
+of de*/A@. Next, we explain why it is determined by the type of data traffic. From Equation (), the elasticity of
+throughput e7 is a function of the marginal gain |9p/¢| and supplyA/¢@ of throughput. The former and the
+latter are determined by the type of data traffic, .., text or video, and the congestion model of network service,
+.., capacity sharing [] or  queue, respectively. Since the congestion model is usually fixed, while the
+data type changes rapidly with the emerging new applications and contents, we focus on the impact of data
+traffic type. For example, we consider the congestion function (A, ) = A/ that captures the capacity sharing
+nature of network services. As mentioned at the beginning of this section, when the data traffic is mostly for
+online video (text content), the throughput gain (¢) often decreases convexly (concavely) in congestion  and
+thus is more (less) elastic as the congestion is milder. Consequently, the congestion elasticity of gain eS usually
+decreases (increases) with congestion. The next proposition builds the relationship between ep and the elasticity
+
+of system throughput .
+
+Proposition. If the network congestion meets the form ®(A, ) = A/, the elasticity of system throughput
+satisfies that + =/( + €) € (,).
+
+Proposition implies that under capacity sharing, the elasticity of throughput ¢ will increase as the
+congestion elasticity of gain eb decreases. Furthermore, if the network traffic is mostly for text content (online
+video), the congestion elasticity of gain ep usually increases (decreases) with congestion, resulting in de+/d9 <(de4/A¢@ >). Although this relationship is established under the capacity sharing scenario, other service models,
+..,  queue, can be studied in the same way and have the similar conclusion about the impact of traffic
+type on the elasticity of throughput®. Based on the above discussions, the results of Corollary and can
+provide important implications for APs and regulators to choose pricing strategies and regulatory policies under
+expanded system capacities.
+
+Summary of Implications: From Corollary and, whether an AP would decrease or increase its prices
+and whether regulators should relax or enhance price regulation largely depends on the changing direction of
+the elasticity of system throughput with changing congestion, which is influenced by the type of data traffic. In
+particular, in the early years of the Internet, data traffic was mainly for text content under which the elasticity of
+throughput often decreases with congestion. Under this case, when APs expand their capacities, they would lower
+the two-sided prices and regulators should relax the price regulation on the side of high market power. However,
+in recent years, data traffic is mostly for online video streaming under which the elasticity of throughput usually
+increases with congestion. Under this case, APs would increase the prices on both sides with expanded capacity,
+while regulators might want to tighten the price regulation on the side of high market power.
+ Impact of Users’ Sensitivity
+
+In this subsection, we study the sensitivity of optimal pricing under varying users’ sensitivity to congestion.
+To model how sensitive end-users are to network congestion, we extend the gain function to be (¢, ), where
+the parameter  measures the congestion sensitivity of users. Because when users become more sensitive
+to congestion, their throughput gain decreases more sharply with deteriorated congestion, we assume that
+Op(¢, s1)/¢ > Op(, s2)/¢ for all ; < so, which indicates that under any fixed level of congestion if users
+become more sensitive to congestion, the marginal change in their throughput gain |0p/¢| increases. Besides,
+we assume that the inverse A(¢, ) of the congestion function satisfiesA(¢, ,)/¢ < OA(¢, H2)/¢ for all
+Lh < He, which intuitively states that if the AP’ capacity is more abundant, the marginal change in the implied
+throughputA/¢ will not decrease. Both the congestion functions ® = A/ and ® =/( — A) used before
+
+®Interested readers are referred to Appendix A for details of the case of  queuing delay.
+
+satisfy this assumption. The following two corollaries show the impacts of the congestion sensitivity  of users
+on the profit- and welfare-optimal prices, respectively.
+
+Corottary. If the elasticity of system throughput increases with congestion, .., de /Og > the prices *
+and ®* both increase with the users’ sensitivity to congestion , ..,
+ae > and ot >
+Furthermore, it satisfies that
+
+Corollary states that if the elasticity of throughput ¢ increases with congestion , the profit-optimal prices
+ increase with the users’ sensitivity . As explained before, the monotonicity condition de often holds when network throughput is mostly constituted of inelastic traffic, .., online video streaming. This
+result implies that as video traffic continues to grow, users will become more sensitive to congestion and as a
+result, APs are expected to increase the prices on both sides so as to optimize their profits, which also leads to
+alleviated congestion and improved users’ experiences. Similar to Equation (11), Equation (12) shows that the
+marginal profit-optimal prices (with respect to sensitivity) are proportional to the marginal demand hazard rates
+(with respect to price) on the opposite sides.
+
+Corotiary. If the elasticity of system throughput increases with congestion, .., de+/Og > the derivatives
+of the prices ° and ° with respect to the users’ congestion sensitivity  satisfy that
+
+Corollary shows that under the monotonicity condition de*/@ > if the demand hazard rate of the user
+side mP is higher than that of the CP side the derivate of ° (°) with respect to the congestion sensitivity  is
+positive (negative), and vice-versa. This result implies that when users become more sensitive to congestion,
+the welfare-optimal price of the side whose demand hazard rate is higher (lower) would increase (decrease). By
+comparing the results of Corollary and, we find that when the users’ sensitivity to congestion increases,
+the price of the side of lower demand hazard rate needs to be reduced under the welfare-optimal pricing, but
+would be raised under the profit-optimal counterpart. This suggests that, to protect social welfare, when users
+become more sensitive to congestion, more stringent price regulation might need to be imposed on the side
+where the AP has a higher market power and lower demand hazard rate.
+
+Summary of Implications: Corollary and show how APs and regulators should adjust pricing strategies
+and regulatory policies under increasing congestion sensitivity of users, when data traffic is mostly for inelastic
+applications. In particular, as video traffic keeps growing rapidly, end-users will become more sensitive to the
+network congestion, and consequently APs would increase the two-sided prices to alleviate the congestion and
+improve users’ experiences so as to maximize profits. From a perspective of social welfare, regulators might want
+to impose more stringent price regulation on the side of high market power.
+
+ 
+
+ 
+EVALUATION OF OPTIMAL PRICING
+
+In the previous sections, we studied the structures and sensitivities of the profit-optimal and welfare-optimal
+pricing through theoretical analysis. In this section, we further evaluate the pricing schemes by numerical
+
+simulations’.
+Presently, APs usually implement the two-sided schemes in the form of paid peering or sponsored data plan on the CP side, whose pricing
+information has remained trade secrets. So there is no public data trace yet to evaluate our two-sided pricing model.
+
+
+Fig, . * under varying  and different .
+ Setup of Model Parameters
+
+We first choose the forms of congestion function ®(A, ) and gain function (¢, ) to capture detailed characteristics
+of network services. In particular, we adopt the congestion functions ®(A, ) = A/ and ®(A, pw) =/(—- A).
+The former models the capacity sharing [] nature of network services and was used in much prior work [, ];
+the latter models the  queueing delay, which was also widely used in prior work [, 24]. We adopt the
+gain functions (¢, ) =/(¢ +) and (¢,) = ( +)~% for  > which were used in prior work [13, 15].
+Their congestion elasticities are &% =-/(¢ +) and &% = ¢In( +) and both increase with the congestion
+sensitivity of users . This indicates that the throughput gains will be more elastic to congestion if users become
+more sensitive to congestion.
+
+Although our analyses have focused on a single AP, market competition among multiple APs could be captured
+by the function () of user population. In particular, we choose a family of population functions  parameterized
+by a: (, a) =-pz for<  <a@ > which satisfies that (, a1) > (, a2) for alla: < a2. The parameter
+a can be regarded as a metric of competition in the user market, ie., given the same price , if the competition
+level a increases, the user population  will fall.
+
+The users’ desirable throughput may change rapidly as the traffic demand of content services change. For
+example, a new SuperHD video format launched by Netflix requires a% increase in traffic flows per video
+overp content [22]. Similarly, we extend the function () of average desirable throughput to capture this
+dynamics. In particular, we choose a family of throughput function  parameterized by : (, ) *— gq? for<4q<, > which satisfies (, £) < (, B2) for all : < fo. The parameter  can be regarded as a metric
+
+of traffic demand of content services, .., given the same price gq, if the traffic demand  increases, the desirable
+throughput will increase.
+
+In the following simulations, we will compare various scenarios with a static baseline with 
+and  =, under which the AP’ capacity, the users’ congestion sensitivity, the level of market competition and
+the traffic demand of content services are all normalized to one.
+ Comparison with One-Sided Pricing
+
+Now we evaluate the AP’ incentive to adopt the two-sided pricing instead of the traditional one-sided pricing that
+only charges on the user side. To this end, we denote the AP’ profits by },,. and ;\,,, under the profit-optimal
+one-sided and two-sided pricing, respectively. We define the growth rate of the profit by the two-sided pricing
+over the one-sided pricing by * = (Uf, — USne)/USne- A larger value of * corresponds to a higher profit growth
+for the AP; and therefore, leads to a stronger incentive for the AP to adopt the two-sided scheme.
+
+Figuresandplot the profit growth rate * as a function of the competition level a@ and the AP’ capacity 
+under different traffic demand  and users’ sensitivity , respectively. The subfigures (a) are under the congestion
+function ® = /(¢ +). From Subfigures (a) to (), the gain function is changed to
+ = (+)-%. From Subfigures (a) to (), the congestion function is changed to ® =/( — A). In Figure we
+observe that * increases with a when the competition level on the user side becomes more intense, and larger
+values of the traffic demand  induce higher values of *. In Figure we observe that * increases with » when
+
+the AP expands its capacity. Although * decreases with the sensitivity  in general, it increases with  under
+
+small capacity » when ® =/(— A). Because under the  queueing delay/(— A), the network congestion
+would be severe if the capacity is scarce. The increase of the users’ sensitivity to congestion makes the network
+service more valuable for both users and CPs; and therefore, the AP can obtain a higher profit growth by adopting
+the two-sided pricing. In fact, the non-monotonic trends in * happen only when the capacity  is scarce. To
+see this more clearly, we plot the case of  >in Figure(a). From all of Figures(a), () and(a), we observe
+that a high value of  induces a lower value of *. In summary, our observations imply that the AP gets a higher
+profit growth and has stronger incentive to adopt the two-sided pricing if) the AP expands its capacity, ) the
+competition level on the user side becomes fiercer, and) the content services require higher traffic throughput.
+
+Next, we evaluate how regulators should deal with the shift from the one-sided pricing to the two-sided pricing.
+For this purpose, we denote the social welfare under the welfare-optimal one-sided and two-sided pricing by
+Wone and ,,,,, respectively. Similarly, we define the growth rate of social welfare by the two-sided pricing over
+the one-sided pricing by ° = (We, — Wone)/Wone- A larger value of ° indicates that social welfare gets a higher
+growth when shifting from the one-sided to the two-sided pricing, and thus regulators might want to encourage
+this transformation.
+
+Figuresandplot the welfare growth rate ° as a function of the competition level a and the AP’ capacity 
+under different traffic demand  and users’ sensitivity , respectively. As a complement to Figure(), Figure() plots the case of large capacity under the  queueing setting. By comparing Figures  and() with
+Figures  and(a), respectively, we observe that the welfare growth rate ° has the same changing trend as the
+profit growth rate * when the parameter pi, , a or  varies. This observation provides justifications for regulators
+to encourage the AP to shift from the one-sided to the two-sided pricing, especially when the AP has strong
+incentive to do so.
+Impacts of Competition and Demand
+
+Since we have studied the changes of the optimal pricing under varying capacity  and sensitivity  and provided
+analytical results in the previous section, we next focus on understanding the impacts of the competition level a
+and traffic demand  on the optimal prices. Figureplots the profit-optimal prices (*, *) and the welfare-optimal
+prices (°, °) as functions of a and  under the congestion function /(¢ +).
+From Figure we observe that) when a or  increases, the user-side prices *, ° decrease and the CP-side
+prices *,° increase, and) the welfare-optimal prices ° and ° are always lower than the profit-optimal prices
+” and *, respectively. The first observation implies that as the APs’ competition in the user market becomes
+more intense or the content services have larger traffic demand, the user-side price will decrease and the CP-side
+price will increase, regardless whether the objective is the AP’ profit or social welfare. The second observation
+
+Fig. The profit-optimal and welfare-optimal pricing schemes under varying @ and .
+
+indicates that, to optimize social welfare, regulators might want to regulate the prices on both the user and CP
+sides, which coincides with the implication of Proposition. Note that we omit the cases when the congestion
+function is ® =/( — A) or/and the gain function is  = ( +)~%. Because in the cases, the changing trends of
+the optimal prices under varying @ and  are the same as those shown in Figure
+
+Summary of Implications: Our observations in this section imply that as the capacities of APs and the
+demand for video traffic grow in the current Internet, APs will have increasing incentives to transform from the
+traditional one-sided pricing on the user side to the two-sided pricing. Under these cases, regulators might want
+to encourage this transformation, since it will bring higher growth rates for both social welfare and APs’ profits.
+CONCLUSIONS
+
+In this paper, we study the optimal two-sided pricing for congested networks. We present a novel model to capture
+end-users’ population and throughput demand under pricing and congestion parameters and derive the system
+congestion under an equilibrium. Based on this model, we characterize the structures of the profit-optimal and
+welfare-optimal pricing schemes. Our results reveal that the profit-optimal pricing always equalizes the demand
+hazard rates at both sides, while the welfare-optimal counterpart differentiates them based on the elasticity of
+system throughput. We also explore the sensitivities of the optimal pricing under varying system parameters.
+We find that with the growth of APs’ capacities and end-users’ traffic demand in the current Internet, APs will
+have increasing incentives to shift from the traditional one-sided pricing to the two-sided pricing, because it
+brings higher growth rates for their profits. Furthermore, as online video streaming becomes the main source
+of network traffic and keeps growing rapidly, end-users become more sensitive to the network congestion and
+APs are expanding their capacities. Under such scenarios, APs may increase two-sided prices to alleviate the
+congestion and improve users’ experiences so as to maximize profits. From the perspective of social welfare,
+regulators might want to tighten the price regulation on the side where APs have higher market power and lower
+demand hazard rate.
+
+

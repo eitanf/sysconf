@@ -1,0 +1,642 @@
+Outward Influence and Cascade Size Estimation
+in Billion-scale Networks
+ABSTRACT
+---
+Estimating cascade size and nodes’ influence is a fundamental task in social, technological, and biological networks. Yet
+this task is extremely challenging due to the sheer size and the structural heterogeneity of networks. We investigate a new
+influence measure, termed outward influence (OJ), defined as the (expected) number of nodes that a subset of nodes  will
+activate, excluding the nodes in . Thus, OI equals, the de facto standard measure, influence spread of  minus ||. OI is not
+only more informative for nodes with small influence, but also, critical in designing new effective sampling and statistical
+estimation methods,
+
+Based on OI, we propose SIEA/SOIEA, novel methods to estimate influence spread/outward influence at scale and with
+rigorous theoretical guarantees. The proposed methods are built on two novel components) IICP an important sampling
+method for outward influence; and) RSA, a robust mean estimation method that minimize the number of samples through
+analyzing variance and range of random variables. Compared to the state-of-the art for influence estimation, SIEA is (log* )
+times faster in theory and up to several orders of magnitude faster in practice. For the first time, influence of nodes in the
+networks of billions of edges can be estimated with high accuracy within a few minutes. Our comprehensive experiments on
+real-world networks also give evidence against the popular practice of using a fixed number, .. orK, of samples to
+compute the “ground truth” for influence spread.
+---
+INTRODUCTION
+
+In the past decade, a massive amount of data on human interactions has shed light on various cascading processes
+from the propagation of information and influence [17] to the outbreak of diseases [21]. These cascading processes
+can be modeled in graph theory through the abstraction of the network as a graph  = (, ) and a diffusion
+model that describes how the cascade proceeds into the network from a prescribed subset of nodes. A fundamental
+
+ 
+ We introduce a new influence measure, called Outward Influence which is more effective in differentiating
+nodes’ influence. We investigate the characteristics of this new measure including non-monotonicity,
+submodularity, and #-hardness of computation.
+
+ Two fully polynomial time randomized approximation schemes (FPRAS) SIEA and SOIEA to provide
+(€, )-approximate for influence spread and outward influence with only an () observed influence in
+total. Particularly, SOIEA, our algorithm to estimate influence spread, is (log* ) times faster than the
+state-of-the-art INFEST [23] in theory and is four to five orders of magnitude faster than both INFEST and
+the naive Monte-Carlo sampling.
+
+ The robust mean estimation algorithm, termed RSA, a building block of SIEA, can be used to estimate
+influence spread under other stochastic diffusion models, or, in general, mean of bounded random variables
+of unknown distribution. RSA will be our favorite statistical algorithm moving forwards.
+
+ We perform comprehensive experiments on both real-world and synthesis networks with size up tomillion nodes and billion edges. Our experiments indicate the superior of our algorithms in terms
+of both accuracy and running time in comparison to the naive Monte-Carlo and the state-of-the-art
+methods. The results also give evidence against the practice of using a fixed number of samples to estimate
+the cascade size. For example, usingsamples to estimate the influence will deviate up to% from
+the ground truth in a Twitter subnetwork. In contrast, our algorithm can provide (pseudo) ground truth
+with guaranteed small (relative) error (..%). Thus it is a more concrete benchmark tool for research
+on network cascades.
+
+Organization. The rest of the paper is organized as follows: In Section we introduce the diffusion model and
+the definition of outward influence with its properties. We propose an FPRAS for outward influence estimation in
+Section Applications in influence estimation are presented in Sectionwhich is followed by the experimental
+results in Sectionand conclusion in Section We cover the most recent related work in Section
+
+ DEFINITIONS AND PROPERTIES
+
+In this section, we will introduce stochastic diffusion models, the new measure of Outward Influence, and showcase
+its properties under the popular Independent Cascade (IC) model [17].
+
+Diffusion model. Consider a network abstracted as a graph  = (, ), where  and  are the sets of nodes
+and edges, respectively. For example, in a social network,  and  correspond to the set of users and their social
+relationships, respectively. Assume that there is a cascade starting from a subset of nodes   , called seed set.
+How the cascade progress is described by a diffusion model (aka cascade model)  that dictates how nodes gets
+activated/influenced. In a stochastic diffusion model, the cascade is dictated by a random vectorin a sample
+space Qg. Describing the diffusion model is then equivalent to specifying the distribution  of
+
+Let rs(@) be the size of the cascade, the number of activated nodes in the end. The influence spread of ,
+denoted by I(), under diffusion model  is the expected size of the cascade, ..,
+
+() = doen, Yo() Pr[] for discrete Qo, ()Teens re()dP() for continuous Q4
+
+For example, we describe below the unknown vector @ and their distribution for the most popular diffusion
+models.
+
+ Information diffusion models, .. Independent Cascade (IC), Linear Threshold (LT), the general triggering
+model [17]:€ {, }!!, and (, ) € , ,) is a Bernouli random variable that indicates whether 
+activates/influences . That is for given (, ) € (, ), (,) =if  activates  with a probability
+(, ) and otherwise.
+ Epidemic cascading models, .., Susceptible-Infected (SI) [10, 26] and its variations:¢ /!, and
+(, ) € , Oy,) is a random variable following a geometric distribution.,,) indicates how long it
+takes  to activates  after  is activated.
+
+ Continuous-time models [12]:€ !#!, and ,) is a continuous random variable with density function
+Tu,(). Ou,) also indicates the transmission times (time until  activates ) like that in the SI model,
+however, the transmissions time on different edges follow different distributions.
+
+Outward Influence. We introduce the notion of Outward Influence which captures the influence of a subset
+of nodes towards the rest of the network. Outward influence excludes the self-influence of the seed nodes from
+the measure.
+
+DEFINITION(OUTWARD INFLUENCE). Given a graph  = (,), a setS   and a diffusion model , the
+Outward Influence of , denoted by Ioyr(), is
+
+Thus, influence and outward influence of a seed set  differ exactly by the number of nodes in .
+
+Influence Spread/Outward Influence Estimations. A fundemental task in network science is to estimate
+the influence of a given seed set . Since the exact computation is #-hard (Subsection), we aim for estimation
+with bounded error.
+
+DEFINITION(INFLUENCE SPREAD ESTIMATION). Given a graph  and a set   , the problem asks for an
+(€, )-estimate I() of influence spread I(), ..,
+The outward influence estimation problem is stated similarly:
+
+DEFINITION(OUTWARD INFLUENCE EsTIMATION). Given a graph  anda set   , the problem asks for an
+(€, )-estimate Ipyr() of influence spread Ipyr(), ie.,
+
+A common approach for estimation is through generating independent Monte-Carlo samples and taking the
+average. However, one faces two major challenges:
+ How to achieve a minimum number samples to get an (, )-approximate?
+ How to effectively generate samples with small variance, and, thus, reduce the number of samples?
+For simplicity, we focus on the well-known Independent Cascade (IC) model and provide the extension of our
+approaches to other cascade models in Subsection.
+ Independent Cascade (IC) Model
+
+Given a probabilistic graph  = (, ) in which each edge (, ) €  is associated with a number (, ) € (, ).
+(, ) indicates the probability that node  will successfully activate  once  is activated. In practice, the
+probability (, ) can be mined from interaction frequency [17, 32] or learned from action logs [13].
+Cascading Process. The cascade starts from a subset of nodes   , called seed set. The cascade happens in
+discrete rounds ¢ = ,...||. At round only nodes in  are active and the others are inactive. When a node 
+becomes active, it has a single chance to activate (aka influence) each neighbor  of  with probability (, ).
+An active node remains active till the end of the cascade process. It stops when no more nodes get activated.
+Sample Graph. Associate with each edge (,) €  a biased coin that lands heads with probability (, )
+and tails with probability— (, ). Deciding the outcome when  attempts to activate  is then equivalent to
+the outcome of flipping the coin. If the coin landed heads, the activation attemp succeeds and we call (,) a
+
+live-edge. Since all the activation on the edges are independent in the IC model, it does not matter when we flip
+the coin. That is we can flip all the coins associated with the edges (, ) at the same time instead of waiting until
+node  becomes active. We call the graph  that contains the nodes  and all the live-edges a sample graph of .
+Note that the model parameterfor the IC is a random vector indicating the states of the edges, ice. live-edge
+or not. In other words, 2g corresponds to the space of all possible sample graphs of , denoted by Qg.
+Probabilistic Space. The graph  can be seen as a generative model. The set of all sample graphs generated
+from  together with their probabilities define a probabilistic space Qg. Recall that each sample graph  € Qg
+can be generated by flipping coins on all the edges to determine whether or not the edge is live or appears in
+. Each edge (, ) will be present in the a sample graph with probability (, ). Thus, the probability that a
+Influence Spread and Outward Influence. In a sample graph  € , let rg() be the set of nodes reachable
+from . The influence spread in Eq.is rewritten,
+
+and the outward influence is defined accordingly to Eq.
+
+.. Outward Influence under the IC model
+
+We show the properties of outward influence under the IC model.
+
+Better Influence Discrepancy. As illustrated through Fig. the elimination of the nominal constant ||
+helps to differentiate the “actual influence” of the seed nodes to the other nodes in the network. In the extreme
+case when  = (), the ratio between the influence spread of  and  is pte. = suggesting  and  have the
+same influence. However, outward influence can capture the fact that  can influence roughly twice the number
+
+of nodes than , since  rout = ete ~/.
+
+Non-monotonicity. Outward influence as a function of seed set  is non-monotone. This is different from the
+influence spread. In Figure Iou:({}) = < Ipur({, }) =, however, Ipu:({}) = > Ioue({, }) =. That is adding nodes to the seed set may increase or decrease the outward influence.
+
+Submodularity. A submodular function expresses the diminishing returns behavior of set functions and are
+suitable for many applications, including approximation algorithms and machine learning. If © is a finite set, a
+submodular function is a set function  :° — , where° denotes the power set of , which satisfies that for
+every , €  with    and every  €  \ , we have,
+
+Similar to influence spread, outward influence, as a function of the seed set , is also submodular.
+
+ 
+
+ 
+
+LEMMA Given a network  = (,, ), the outward influence function Ioy:() for  €'Vl\ is a submodular
+function.
+ Hardness of Computation
+
+If we can compute outward influence of , the influence spread of  can be obtained by adding || to it. Since
+computing influence spread is #-hard [], it is no surprise that computing outward influence is also #-hard.
+
+LEMMA Given a probabilistic graph  = (,, ) and a seed set   , it is #-hard to compute Iput().
+However, while influence spread is lower-bounded by one, the outward influence of any set  can be arbitrarily
+small (or even zero). Take an example in Figure node  has influence of I({}) =+ +” >for any value of
+. However, ’ outward influence Ipy4;({}) =  +” can be exponentially small if  = * This makes estimating
+outward influence challenging, as the number of samples needed to estimate the mean of random variables is
+inversely proportional to the mean.
+
+Monte-Carlo estimation. A typical approach to obtain an (, )-approximaion of a random variable is through
+Monte-Carlo estimation: taking the average over many samples of that random variable. Through the Bernstein’
+inequality [], we have the lemma:
+
+LEMMA Given a set X1,X2,... of ... random variables having a common mean pix, there exists a Monte-Carlo
+estimation which gives an (€, )-approximate of the mean ix and uses  = (a In) random variables where
+ is an upper-bound of ;, .. ; < .
+
+To estimate the influence spread I(), existing work often simulates the cascade process using a BFS-like
+procedure and takes the average of the cascades’ sizes as the influence spread. The number of samples needed to
+obtain an (, )-approximation is Os log () iy) samples. Since I() > in the worst-case, we need only a
+
+polynomial number of samples, Os log ($)).
+
+Unfortunately, the same argument does not apply for the case of Ip,(), since I,42() can be arbitrarily close
+to zero. For the same reason, the recent advances in influence estimation in [, 23] cannot be adapted to obtain a
+polynomial-time algorithm to compute an (, )-approximation (aka FPRAS) for outward influence. We shall
+address this challenging task in the next section.
+
+We summarize the frequently used notations in Table
+Table Table of notations
+
+Notations Descriptions
+ OUTWARD INFLUENCE ESTIMATION VIA IMPORTANCE SAMPLING
+
+We propose a Fully Polynomial Randomized Approximation Scheme (FPRAS) to estimate the outward influence
+of a given set . Given two precision parameters €, € (,), our FPRAS algorithm guarantees to return an
+(€, )-approximate I,,,;() of the outward influence Ip,,;(),
+For consistency, we also denote A;,, the event that none of the neighbors are activated, ie.,
+
+Note that A;,; is also the event that the cascade stops right at round Such a cascade is termed a trivial cascade.
+As we can compute exactly the probability of trivial cascades, we do not need to sample those cascades but focus
+only on the non-trivial ones.
+
+Denote by fp the probability of having at least one nodes among wv, ..., vj activated by , ie.,
+
+
+We now explain the details in the Importance IC Polling Algorithm (IICP), summarized in Alg. The algorithm
+outputs the size of the cascade minus the seed set size. We term the output of IICP the outer size of the cascade.
+The algorithm consists of two stages.
+
+Stage By definition, the events Aj, Ao, ..., Az, Aj41 are disjoint and form a partition of the sample space. To
+
+generate a non-trivial cascade, we first select in the first round ;, =..., / with a probability ae =,...,
+(excluding A;,,). This will guarantee that at least one of the neighbors of  will be activated. Let ; be the selected
+node, after the first round ; becomes active and vw, ..., vj_1 remains inactive. The nodes ; among vj+,...,
+
+are then activated independently with probability Ps,., (Eq.).
+
+Stage After the first stage of sampling neighbors of , we get a non-trivial set of nodes directly influenced
+from . For each of those nodes and later influenced nodes, we will sample a set of its neighbors by the naive
+BFS-like IC polling scheme [17]. Assume sampling neighbors of a newly influenced node , each neighbor
+vj € °! () is influenced by  with probability (, ;). The neighbors of those influenced nodes are next to be
+sampled in the same fashion.
+In addition, we keep track of the newly influenced nodes using a queue  and the number of active nodes
+outside  using ‘),
+
+The following lemma shows how to estimate the (expected) cascade size through the (expected) outer size of
+non-trivial cascades.
+
+Lemma Given a seed setS  , let ) be the random variable associated with the output of the IICP algorithm.
+The following properties hold,
+ FPRAS for Outward Influence Estimation
+From Lemma we can obtain an estimate [,,, () of Ioue() through getting an estimate EY) of [] by,
+
+where the estimate {94;() = [®] - Bo. Thus, finding an (, )-approximation of Ip,;() is then equivalent to
+finding an (, )-approximate [©] of [©].
+
+The advantage of this approach is that estimating [‘)], in which the random variable ) has value of at least requires only a polynomial number of samples. Here the same argument on the number of samples to estimate
+influence spread in subsection can be applied. Let ¥®), ¥), ... be the random variables denoting the output
+of IICP. We can apply Lemmaon the set of random variables ¥®), ), ... Satisfying<) < ||— SI.
+Since each random variable ©) is at leastand hence, py = [®] > we need at most a polynomial
+= (()( — ||)) random variables for the Monte-Carlo estimation. Since, IICP has a worst-case time
+complexity ( + ), the Monte-Carlo using IICP is an FPRAS for estimating outward influence.
+
+THEOREM. Given arbitrary< €, <anda set , the Monte-Carlo estimation using IICP returns an
+(€,)-approximation of Tous () using (In($)( — ||)) samples.
+
+In Section we will show that both outward influence and influence spread can be estimated by a powerful
+algorithm saving a factor of more than + random variables compared to this FPRAS estimation. The algorithm is
+built upon our mean estimation algorithms for bounded random variables proposed in the following.
+EFFICIENT MEAN ESTIMATION FOR BOUNDED RANDOM VARIABLES
+
+In this section, we propose an efficient mean estimation algorithm for bounded random variables. This is the
+core of our algorithms for accurately and efficiently estimating the outward influence and influence spread in
+Section
+
+We first propose an ‘intermediate’ algorithm: Generalized Stopping Rule Estimation (GSRA) which relies on a
+simple stopping rule and returns an (, )-approximate of the mean of lower-bounded random variables. The
+
+GSRA simultaneously generalizes and fixes the error of the Stopping Rule Algorithm [] which only aims to
+estimate the mean of [, ] random variables and has a technical error in its proof.
+
+The main mean estimation algorithm, namely Robust Sampling Algorithm (RSA) presented in Alg. effectively
+takes into account both mean and variance of the random variables. It uses GSRA as a subroutine to estimate the
+mean value and variance at different granularity levels.
+ Generalized Stopping Rule Algorithm
+
+We aim at obtaining an (, )-approximate of the mean of random variables ;, X2, .... Specifically, the random
+variables are required to satisfy the following conditions:
+
+where< a < Bb are fixed constants and (unknown) px.
+Our algorithm generalizes the stopping rule estimation in [] that provides (,) estimation of the mean of
+Lid. random variables Xj, Xo, ... € [,]. The notable differences are the following:
+
+ We discover and amend an error in the stopping algorithm in []: the number of samples drawn by that
+algorithm may not be sufficient to guarantee the (, )-approximation.
+
+ We allow estimating the mean of random variables that are possibly dependent and/or with different
+distributions. Our algorithm works as long as the random variables have the same means. In contrast, the
+algorithm in [] can only be applied for .. random variables.
+
+ Our proposed algorithm obtains an unbiased estimator of the mean, ie. [jix] = ux while [] returns a
+biased one.
+
+ Our algorithm is faster than the one in [] whenever the lower-bound for random variables a >
+
+
+Our Generalized Stopping Rule Algorithm (GSRA) is described in details in Alg. Denote (,) = (+
+Ze) In = .
+
+The algorithm contains two main steps:) Compute the stopping threshold  (Line) which relies on the
+value of ’ computed from the given precision parameters ,  and the range [a, ] of the random variables;)
+Consecutively acquire the random variables until the sum of their outcomes exceeds  (Line-). Finally, it
+returns the average of the outcomes,  (Line), as an estimate for the mean, j1x. Notice that  in GSRA
+depends on (— a) and thus, getting tighter bounds on the range of random variables holds a key for the efficiency
+of GSRA in application perspectives.
+
+The approximation guarantee and number of necessary samples are stated in the following theorem.
+
+THEOREM. The Generalized Stopping Rule Algorithm (GSRA) returns an (€, )-approximate fix of jx, ie.,
+
+The hole in the Stopping Rule Algorithm in []. The estimation algorithm in [] for estimating the mean
+of random variables in range [, ] also bases on a main stopping rule condition as our GSRA. It computes a
+threshold
+
+
+where  is the base of natural logarithm, and generates samples ; until a4 ; = . The algorithm returns
+
+fix = a as a biased estimate of px.
+
+Unfortunately, the threshold , to determine the stopping time does not completely account for the fact that
+the necessary number of samples should go over the expected one in order to provide high solution guarantees.
+This actually causes a flaw in their later proof of the correctness.
+
+To amend the algorithm, we slightly strengthen the stopping condition by replacing the  in the formula of
+(2426) SaNea)
+assume .Lo.. that</, it follows that ’ >. Thus the number of samples, in comparison to those in
+the stopping rule algorithm in [] increases by at most a constant factor.
+
+Benefit of considering the lower-bound a. By dividing the random variables by , one can apply the
+stopping rule algorithm in [] on the normalized random variables. The corresponding value of  is then
+ in our proposed algorithm is however smaller by a multiplicative factor of bea Thus it is faster than the algorithm
+in [] by a factor of bea on average. Note that in case of estimating the influence, we have a = =  - |].
+Compared to algorithm applied [] directly, our GSRA algorithm saves the generated samples by a factor of
+
+Martingale theory to cope with weakly-dependent random variables. To prove Theorem, we need
+a stronger Chernoff-like bound to deal with the general random variables X1, >,... in range [a, ] presented in
+the following.
+
+Let define random variables ; = Wha &% — ux), Vi > Hence, the random variables ,, Y2,... forma
+Martingale [24] due to the following,
+ Robust Sampling Algorithm
+
+Our previously proposed GSRA algorithm may have problem in estimating means of random variables with small
+variances. An important tool that we rely on to prove the approximation guarantee in GSRA is the Chernoff-like
+bound in Eq.and Eq. However, from the inequality in Eq. we can also derive the following stronger
+
+
+In many cases, random variables have small variances and hence max{epix( — a), Var[]} = eptx( — a). Thus,
+Eq.is much stronger than Eq.and can save a factor ofin terms of required observed influences translating
+into the sample requirement. However, both the mean and variance are not available.
+
+To achieve a robust sampling algorithm in terms of sample complexity, we adopt and improve the AA
+algorithm in [] for general cases of [a, ] random variables. The robust sampling algorithms (RSA) subsequently
+will estimate both the mean and variance in three steps:) roughly estimate the mean value with larger error (Ve
+or a constant);) use the estimated mean value to compute the number of samples necessary for estimating the
+variance;) use both the estimated mean and variance to refine the required samples to estimate mean value
+with desired error (, ).
+
+Let X1,X2,... and {,},... are two streams of .. random variables. Our robust sampling algorithm (RSA)
+is described in Alg. It consists of three main steps:
+) Ife >/, run GSRA with parameter ,  and return the result (Line-). Otherwise, assume € </ and
+use the Generalized Stopping Rule Algorithm (Alg.) to obtain an rough estimate fi, using parameters
+of €’ = Ve </, ’ =/ (Line).) Use the estimated ji}, in stepto compute the necessary number of samples, ,, to estimate the variance
+of ;, %. Note that this estimation uses the second set of samples, /,},...) Use both ji, in stepand} in stepto compute the actual necessary number of samples, , to
+approximate the mean px. Note that this uses the same set of samples , X2,... as in the first step.
+The numbers of samples used in the first two steps are always less than a constant times  - €/j1x which is the
+minimum samples that we can achieve using the variance. This is because the first takes the error parameter -Ve
+which is higher than € and the second step uses Ng = Y2 - €/ji, samples.
+
+At the end, the algorithm returns the influence estimate jix which is the average over  samples, .
+
+The estimation guarantees are stated in the following theorem.
+
+THEOREM, Let  be the probability distribution that X1,X2,... and {,},... are drawn from. Let jix be the
+estimate of [] returned by Alg.andT be the number of drawn samples in Alg.wrt. €,. We have,
+() Pripx( —€) < fix < (+ €)yx] >-54,
+() There is a universal constant ’ such that
+Pr[ > ¢/Ypx/(uk(—a))] <(25)
+where pz = max{€yux( — a), Var[]}.
+Compared to the AA algorithm in [], first of all, we replace their stopping rule algorithm with GSRA and
+
+also, we change the computation of ; which is always smaller than that of [] by a factor of+ -Ye — >when € </.
+INFLUENCE ESTIMATION AT SCALE
+
+This section applies our RSA algorithm to estimate both the outward influence and the traditional influence
+spread.
+ Outward Influence Estimation
+We directly apply RSA algorithm on two streams of iid. random variables yi), yf), ... and /), ¥;), wba
+which are generated by [ICP sampling algorithm, with the precision parameters , .
+
+The algorithm is called Scalable Outward Influence Estimation Algorithm (SOIEA) and presented in Alg.which generates two streams of random variables ), ¥), ... and / () yz), ... (Line) and applies RSA
+algorithm on these two streams (Line). Note that outward influence estimate is achieved by scaling down py by
+Bo (Lemma).
+
+We obtain the following theoretical results incorporated from Theorem of RSA and IICP samples.
+
+THEOREM. The SOIEA algorithm gives an (,) outward influence estimation. The observed outward influences
+
+respectively, where py = max{eloue()( — || —)/Bo, Varl¥"}}.
+
+ Influence Spread Estimation
+
+Not only is the concept of outward influence helpful in discriminating the relative influence of nodes but also its
+sampling technique, IICP, can help scale up the estimation of influence spread (IE) to billion-scale networks.
+
+Naive approach. A naive approach is to) obtain an (, )-approximation I,,,,() of Igy:() using Monte-Carlo
+estimation) return,,() + ||. It is easy to show that this approach return an (, )-approximation for I().
+This approach will require (In($)yn) IICP random samples.
+
+However, the naive approach is not optimized to estimate influence due to several reasons:) a loose bound
+py = [)] >is applied to estimate outward influence;) casting from (€, )-approximation of outward
+influence to (, )-approximation of influence introduces a gap that can be used to improve the estimation
+guarantees. We next propose more efficient algorithms based on Importance IC Sampling to achieve an (, )approximate of both outward influence and influence spread. Our methods are based on two effective mean
+estimation algorithms.
+
+Our approach. Based on the observations that
+
+< YS) < -—||, ie, we know better bounds for ) in comparison to the cascade size which is in the
+range [, ].
+
+ As we want to have an (, )-approximation for () + |], the fixed add-on || can be leveraged to reduce
+the number of samples.
+
+We combine the effective RSA algorithm with our Importance IC Polling (IICP) for estimating the influence
+spread of a set . For influence spread estimation, we will analyze random variables based on samples generated
+by our Importance IC Polling scheme and use those to devise an influence estimation algorithm.
+
+Since outward influence and influence spread differ by an additive factor of ||, for each outward sample ‘)
+
+
+Recall that to estimate the influence() of a seed set , all the previous works [, 17, 21] resort to simulating
+many influence cascades from  and take the average size of those generated cascades. Let call ) the random
+variable representing the size of such a influence cascade. Then, we have [“)] = I(). Although both ) and
+‘) can be used to estimate the influence, they have different variances that lead to difference in convergence
+speed when estimating their means. The relation between variances of ZS) and “) is stated as follows.
+
+Lemma Let ‘) defined in Eq.and ) be random variable for the size of a influence cascade, the variances
+of ‘) and ®) satisfy,
+Var[)] = By - Var[®] — ( — BoE y2() (27)
+
+Note that< fy <and I() > |]. Thus, the variance of ) is much smaller than ®), Our proposed RSA
+on random variables ; makes use of the variances of random variables and thus, benefits from the small variance
+of ‘) compared to the same algorithm on the previously known random variables “),
+
+ALGORITHM SIEA Alg. to estimate influence spread
+
+Input: A probabilistic graph , a set  and €,
+
+Output: I() - an (, )-estimate of I()
+
+Thus, we apply the RSA on random variables generated by IICP to develop Scalable Influence Estimation
+Algorithm (SIEA). SIEA is described in Alg.which consists of two main steps:) generate ... random variables
+by IICP and) convert those variables to be used in RSA to estimate influence of . The results are stated as
+follows,
+
+THEOREM. The SIEA algorithm gives an (, ) influence spread estimation. The observed influences sum of
+random variables ‘)) and the number of generated random variables are in (In($)%) and (In($)
+
+Consider ,  as constants, the observed influences is ().
+ Influence Spread under other Models
+
+We can easily apply the RSA estimation algorithm to obtain an (, )-estimate of the influence spread under other
+cascade models as long as there is a Monte-Carlo sampling procedure to generate sizes of random cascades. For
+most stochastic diffusion models, including both discrete-time models, .. the popular LT with a naive sample
+generator described in [17], SI and SIR [10] or their variants with deadlines [26], and continuous-time models
+[12], designing such a Monte-Carlo sampling procedure is straightforward. Since the influence cascade sizes are
+at least the seed size, we always needs at most () samples.
+
+To obtain more efficient sampling procedures, we can extend the idea of sampling non-trivial cascade in IICP
+to other models. Such sampling procedures in general will result in random variables with smaller variances and
+tighter bounds on the ranges. In turns, RSA, that benefits from smaller variance and range, will requires fewer
+samples for estimation.
+ Parallel Estimation Algorithms
+
+We develop the parallel versions of our algorithms to speed up the computation and demonstrate the easyto-parallelize property of our methods. Our main idea is that the random variable generation by IICP can be
+run in parallel. In particular, random variables used in each step of the core RSA algorithm can be generated
+simultaneously. Recall that IICP only needs to store a queue of newly active nodes, an array to mark the active
+nodes and a single variable ‘). In total, each thread requires space in order of the number of active nodes in
+that simulation, (‘)), which is at most linear with size of the graph (). In fact due to the stopping condition
+of linear number of observed influences, the total size of all the threads is bounded by () assumed the number
+of threads is relatively small compared to .
+
+Moreover, our algorithms can be implemented efficiently in terms of communication cost in distributed
+environments. This is because the output of IICP algorithm is just a single number “) and thus, worker nodes
+in a distributed environment only communicate that single number back to the node running the estimation
+task. Here each IICP node holds a copy of the graph. However, the programming model needs to be considered
+carefully. For instance, as pointed out in many studies that the famous MapReduce is not a good fit for iterative
+graph processing algorithms [14, 22].
+EXPERIMENTS
+
+We will experimentally show that Outward Influence Estimation (SOIEA) and Outward-Based Influence Estimation
+(SIEA) are not only several orders of magnitudes faster than existing state-of-the-art methods but also consistently
+return much smaller errors. We present empirical validation of our methods on both real world and synthetic
+networks.
+ Experimental Settings
+Algorithms. We compare performance of SOIEA and SIEA with the following algorithms:
+ INFEST [23]: A recent influence estimation algorithm by Lucier et al. [23] in KDD’15 that provides
+approximation guarantees. We reimplement the algorithm in ++ accordingly to the description in [23].
+ MCiox, MCioox: Variants of Monte-Carlo method that generates the traditional influence cascades [17, 21]
+to estimate (outward) influence spread.
+ MC,,: The Monte-Carlo method that uses the traditional influence cascades and guarantees (, )estimation. Following [23], MC., is only for measuring the running time of the normal Monte-Carlo
+Through communication with the authors of [23], the released code has some problem and is not ready for testing.
+
+interpolating from that from MC ox, ..
+Table Comparing performance of algorithms in estimating outward influences
+
+Datasets. We use both real-world networks and synthetic networks generated by GTgraph []. For real world
+networks, we choose a set ofdatasets with sizes from tens of thousands to millions. Tablegives a summary.
+GTgraph generates synthetic graphs with varying number of nodes and edges.
+
+Metrics. We compare the performance of the algorithms in terms of solution quality and running time. To
+compare the solution quality, we adopt the relative error which shows how far the estimated number from the
+Outward Influence Estimation
+
+We compare SOIEA against MCiox and MCyo9x in four different edge models on NetHEP and NetPHY dataset.
+The results are presented in Tableand Figure
+
+.. Solution Quality. Tableillustrates that the outward influences computed by SOIEA consistently have
+much smaller errors in both average and maximum cases than MCx and MCx in all edge models. In particular,
+on NetHEP with  = edge model, SOIEA has average relative error close to% while it is% and% for
+MC ox, MCio0x respectively; the maximum relative errors of MC19x, MC100x in this case are%, 26.% which
+are much higher than SOIEA of%. Apparently, MC1o0x has smaller error rate than MCyiox since it usestimes more samples.
+
+Figureshows error distributions of SOIEA, MCx, and MCk on NetHEP. In all considered edge models,
+SOIEA’ error highly concentrates around% while errors of MCi9x and MCio9x wildly spread out to a very
+large spectrum. In particular, SOIEA has a huge spike at theerror while both MCi9x and MCio9x contain two
+heavy tails in two sides of their error distributions. Moreover, when  gets smaller, the tails get larger as more
+and more empty influence simulations are generated in the traditional method.
+. Running Time. From Table the running time of MCiox and MCx is close to that of SOIEA while
+MC,, takes up totimes slower than the others. Thus, in order to achieve the same approximation guarantee
+as SOIEA, the naive Monte-Carlo will needmore time than SOIEA.
+
+Overall, SOIEA achieves significantly better solution quality and runs substantially faster than Monte-Carlo
+method. With larger number of samples, Monte-Carlo method can improve the quality but the running time
+severely suffers.
+ Influence Spread Estimation
+
+This experiment evaluates SIEA by comparing its performance with the most recent state-of-the-art INFEST and
+naive Monte-Carlo influence estimation. Here, we use WC model to assign probabilities for the edges. We set the
+€ parameter for INFEST to since we cannot run with smaller value of € for this algorithm. Note that INFEST
+guarantees an error of (+€), which is equivalent to a maximum relative error of%. For a fair comparison, we
+also run SIEA with € =. We use the gold-standardsamples for the Monte-Carlo method (MCiox). We
+set a time limit ofhours for all algorithms.
+. Solution Quality. Tablepresents the solution quality of the algorithms in estimating sizeseed sets,
+Le. [| = It shows that SIEA consistently achieves substantially higher quality solution than both INFEST and
+MCyox. Note that INFEST can only run on NetHEP and NetPHY under time limit. The average relative error of
+INFEST istotimes higher than SIEA while its maximum relative error is up to% compared to the ground
+
+truth. The large relative error of INFEST is explained by its loose guaranteed relative error (320%). Whereas, the
+average relative error of MCiox is up totimes higher than SIEA. The maximum relative error of MC1ox is
+up to% higher than the ground truth on Twitter dataset that demonstrates the insufficiency of usingtraditional influence samples to get the ground truth.
+
+Differ from Table Tableshows the results in estimating influences of seed sets of size% the total number
+of nodes. Underhour limit, INFEST can only run on NetHEP, NetPHY, and Epinions while MCx could not
+handle the large Twitter and Friendster graph. INFEST still has a very high error compared to the other two while
+SIEA and MCyjox returns the similar quality solutions. This is because% of the nodes is an enormous number, ..
+>for Friendster, and thus, the influence is huge and very few samples are needed regardless of using the
+traditional method or IICP.
+. Running Time. In both cases of two seed set sizes, SIEA vastly outperforms MC,  and INFEST by several
+orders of magnitudes. INFEST is up to° times slower than SIEA and can only run on small networks, ice.
+NetHEP, NetPHY and Epinions. Compared with MC,,, the speedup factor is around*, thus, MCx cannot
+run for the two largest networks, Twitter and Friendster in case || =%|].
+
+We also test the parallel version of SIEA. Withcores, SIEA runs abouttimes faster than that on a single
+core in large networks achieving an effective factor of around%.
+
+Overall, SIEA consistently achieves much better solution quality and run significantly fastest than INFEST and
+the naive MC method. Surprisingly, under time limit ofhours, INFEST can only handle small networks and has
+very high error. The MC method achieves better accuracy for large seed sets, however, its running time increases
+dramatically resulting in failing to run on large datasets.
+
+Figurereports the time SIEA spent to estimate influence spread of seed set of size With the same number
+of nodes, we see that the running time of SIEA does not significantly increase as the average degree increases.
+Figureb views Figurea in logarithmic scale to show the linear increase of running time with respect to the
+increases of nodes. As expected, SIEA speeds up proportionally to number of cores used. As a result, SIEA withcores is able to estimate influence spread of a random node on a synthetic graph ofmillion nodes and
+billion of edges in justminutes.
+. On Twitter Dataset. Figureevaluates the performance of SIEA in comparison with MC1ox on various
+seed set sizes || = {, 10, 100, 1k, 10k} on Twitter dataset. On all the sizes of seed sets, SIEA consistently has
+average and maximum relative errors smaller than% (Figurea). The maximum relative error of MC1ox goes
+up to% with seed set size || = As observed in experiments with large size seed sets, both SIEA and MCiox
+have similar error rate with seed set size || =
+
+In terms of running time, as the seed set size increases in powers of ten, SIEA’ running time increases in much
+lower pace, .. few hundreds of seconds, while MC,,s5 consumes proportionally more time (Figureb). Figureb
+also evaluates parallel implementation of SIEA by varying number of CPU cores  = {, , , , 16}. The running
+time of SIEA reduces almost two times every time the number of cores doubles confirming the almost linear
+speedup.
+
+Altogether, the parallel implementation of SIEA shows a linear speedup behavior with respect to the number
+of cores used. On the same network with size of seed sets linearly grows, SIEA requires slightly more time to
+estimate influence spread while Monte-Carlo shows a linear runtime requirement. Throughout the experiments,
+SIEA always guarantees small error rate within .
+ Influence Estimation under LT Model
+
+We illustrate the generality of our algorithms in various diffusion model by adapting SIEA for the LT model
+by only replacing IICP with the sampling algorithm for the LT [17]. The algorithm is then named SIEA;. The
+setting is similar to the case of IC.
+Table INFEST is initially proposed for the IC model, thus, we results for INFEST under the LT model are not
+available.
+
+The results are mostly consistent with those observed under the IC model. SIEAz7 obtains significantly smaller
+errors and runs in order of magnitudes faster than the counterparts. The results again confirm that the estimation
+quality of MC usingK samples is not good enough to be considered as gold-standard quality benchmark.
+RELATED WORK
+
+In a seminal paper [17], Kempe et al. formulated and generalized two important influence diffusion models, ..
+Independent Cascade (IC) and Linear Threshold (LT). This work has motivated a large number of follow-up
+researches on information diffusion [, , , 18, 23, 29] and applications in multiple disciplines [16, 19, 21]. Kempe
+et al. [17] proved the monotonicity and submodularity properties of influence as a function of sets of nodes. Later,
+Chen et al. [] proved that computing influence under these diffusion models is #-hard.
+
+Most existing works uses the naive influence cascade simulations to estimate influences [, 17, 21, 23]. Most
+recently, Lucier et al. [23] proposed an estimation algorithm with rigorous quality guarantee for a single seed set.
+The main idea is guessing a small interval of size ( + €) that the true influence falls in and verifying whether the
+guess is right with high probability. However, their approach is not scalable due to a main drawback that the
+guessed intervals are very small, thus, the number of guesses as well as verifications made is huge. As a result,
+the method in [23] can only run for small dataset and still takes hours to estimate a single seed set. They also
+developed a distributed version on MapReduce however, graph algorithms on MapReduce have various serious
+issues [14, 22].
+Influence estimation oracles are developed in [, 29] which take advantage of sketching the influence to
+preprocess the graph for fast queries. Cohen et al. [] use the novel bottom- min-hash sketch to build combined
+reachability sketches while Ohsaka et al. in [29] adopt the reverse influence sketches. [29] also introduces the
+reachability-true-based technique to deal with dynamic changes in the graphs. However, these methods require
+days for preprocessing in order to achieve fast responses for multiple queries.
+
+There have also been increasing interests in many related problems. [, 13] focus on designing data mining or
+machine learning algorithms to extract influence cascade model parameters from real datasets, .. action logs.
+Influence Maximization, which finds a seed set of certain size with the maximum influence among those in the
+same size, found many real-world applications and has attracted a lot of research work [, , 17, 21, 25, 27, 28, 31].
+CONCLUSION
+
+This paper investigates a new measure, called Outward Influence, for nodes’ influence in social networks. Outward
+influence inspires new statiscal algorithms, namely Importance IC Polling (IICP) and Robust Mean Estimation
+(RSA) to estimate influence of nodes under various stochastic diffusion models. Under the popular IC model,
+the IICP leads to an FPRAS for estimating outward influence and SIEA to estimate influence spread. SIEA is
+(log*()) times faster than the most recent state-of-the-art and experimentally outperform the other methods
+by several orders of magnitudes. As previous approaches to compute ground truth influence can result in high
+error and long computational time, our algorithms provides concrete and scalable tools to estimate ground-truth
+influence for research on network cascade and social influence.
+
+

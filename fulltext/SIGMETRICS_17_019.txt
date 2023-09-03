@@ -1,0 +1,641 @@
+Portfolio-driven Resource Management for Transient Cloud Servers
+ABSTRACT
+---
+Cloud providers have begun to offer their surplus capacity in the form of low-cost transient servers, which can be revoked
+unilaterally at any time. While the low cost of transient servers makes them attractive for a wide range of applications, such
+as data processing and scientific computing, failures due to server revocation can severely degrade application performance.
+Since different transient server types offer different cost and availability tradeoffs, we present the notion of server portfolios
+that is based on financial portfolio modeling. Server portfolios enable construction of an “optimal” mix of severs to meet an
+application’ sensitivity to cost and revocation risk. We implement model-driven portfolios in a system called ExoSphere, and
+show how diverse applications can use portfolios and application-specific policies to gracefully handle transient servers. We
+show that ExoSphere enables widely-used parallel applications such as Spark, MPI, and BOINC to be made transiency-aware
+with modest effort. Our experiments show that allowing the applications to use suitable transiency-aware policies, ExoSphere
+is able to achieve% cost savings when compared to on-demand servers and greatly reduces revocation risk compared to
+existing approaches.
+---
+INTRODUCTION
+
+Cloud computing has become popular in recent years for a wide range of applications, including latency-sensitive
+web services, computationally-intensive scientific workloads, and data-intensive parallel tasks. Due to their flexible
+resource allocation and billing model, cloud platforms are especially well-suited for running applications with
+dynamically varying workloads, or those that require compute resources for only short periods of time. Recently,
+cloud platforms have introduced a new class of servers, called transient servers, which they may unilaterally revoke
+at any time [46, 47]. Transient servers increase the utilization of cloud platforms, while enabling them to reclaim
+resources at any time for higher priority users.
+
+Transient servers typically incur a fraction of the cost of their regular (“on-demand”) server counterparts, making
+them a popular choice for running large-scale data-intensive jobs involving tens or hundreds of servers due to
+their low cost. However, revocations of some, or all, of an application’ transient servers can seriously disrupt its
+performance or cause it to fail entirely. Thus, despite the low cost of transient servers, making effective use of this
+new class of server remains challenging.
+
+On some cloud platforms, such as Amazon EC2, transient servers have dynamically varying prices that fluctuate
+continuously based on supply and demand. In addition, the availability of transient servers (in terms of their
+mean time to revocation), can also vary significantly across server configurations and based on changing market
+conditions. Unfortunately, cloud platforms generally do not directly expose availability statistics for transient
+servers, requiring users to indirectly infer them, .., via a price history or active probing [39]. Thus, it is challenging
+  « Prateek Sharma, David Irwin, and Prashant Shenoy
+
+for a cloud application to judiciously select the most appropriate server configuration based on historical pricing
+or availability data to satisfy its needs. The problem is compounded by the large number of transient server
+configurations available to applications—there are overdistinct types of transient servers in EC2 and overin Google’ cloud platform. Recent research suggests that mitigating revocation risk requires a parallel application
+to diversify across multiple transient server types, which further complicates decision making [43].
+
+The preemptible nature of transient servers also imposes new requirements on cloud applications. Specifically,
+applications must determine whether and how to save their computation’ intermediate state to gracefully handle
+server revocations, which are akin to server failures. Further, they must also define recovery policies to determine
+how to re-acquire new transient servers upon revocation, and how to restore state and resume their computation
+on these new servers. Different applications, such as Spark, MapReduce, and MPI, also have different tolerances
+to revocations, and require different application-specific mechanisms to handle revocations and their subsequent
+recovery. However, prior research has largely focused on separately designing custom modifications to support
+transiency for each narrow class of application [36, 43, 57].
+
+To address this problem, we introduce a model-driven framework called server portfolios. Portfolios represent a
+virtual cloud cluster composed of a mix of transient server types with a configurable cost and availability depending
+on the application’ tolerance to revocation risk and price sensitivity. Our portfolio model derives from Modern
+Portfolio Theory in financial economics [37, 38], which enables investors to methodically construct a financial
+portfolio from a large number of underlying assets with various risks and rewards.
+
+The flexibility and explicit risk-awareness that portfolios offer is not provided by prior work on transient server
+selection. A majority of prior work [19, 25, 49, 59] on transient servers solves the problem of choosing one server
+type (among the hundreds that cloud providers offer). Choosing multiple server types has received relatively little
+attention, and mostly relies on application-specific, ad-hoc approaches to optimize either cost or revocation-risk [43].
+In contrast, portfolios are a general technique that allow server selection for a wide range of risk tolerances and
+application preferences.
+
+We use portfolio modeling as part of the design of an application-independent framework for supporting
+transiency, called ExoSphere. ExoSphere uses portfolio modeling to expose virtual clusters of transient servers
+of different types to different applications. Along with portfolio modeling, ExoSphere also supports custom
+application-specific policies for handling transiency. In particular, ExoSphere adopts an Exokernel approach [27]
+by exposing a set of basic mechanisms that are common to all transiency-enabled applications. These mechanisms
+can be used by applications to design policies for handling revocations, saving state, and performing recovery.
+Thus, ExoSphere’ mechanisms simplify modifying distributed applications to effectively run on transient servers.
+
+Although ExoSphere’ design is general, its implementation builds on existing cluster managers, which often
+serve as the “operating system” for data centers and support multiple concurrent distributed applications, .., Spark
+and Hadoop. These systems, including Mesos [32] and Kubernetes [], support a wide range of applications by
+exposing a core set of functions related to resource allocation, revocation, and scheduling. ExoSphere adapts and
+extends these functions to implement its portfolio abstraction and application-facing APIs. By using an existing
+cluster manager (Mesos), ExoSphere makes a useful practical contribution by extending it to run on transient cloud
+servers. In designing and implementing ExoSphere, this paper makes the following contributions:
+
+Portfolio Modeling. We introduce a portfolio model for selecting transient cloud servers, and show how it can be
+used by different applications to create virtual clusters with configurable cost and revocation risk. Our portfolio
+model adapts and extends concepts from financial portfolio modeling to select a diverse set of servers for a
+distributed application. We show how portfolios allow applications to explicitly navigate the risk versus reward
+tradeoff.
+
+Risk Management Framework. In addition to providing applications with model-driven portfolios, ExoSphere
+also allows applications to define transiency-specifc policies for managing server revocation risk. We show that
+these policies for handling transiency are inherently application-specific, and depend on a particular application’
+
+Transient Server Pricing. Different cloud providers have employed different approaches for pricing transient
+servers. Google’ transient servers, called preemptible instances [], offer a fixed% discount but also have a
+maximum lifetime ofhours (with the possibility of earlier preemption). In contrast, Amazon’ transient servers
+(which are called spot instances []) offer a variable discount—the price of spot instances varies continuously based
+on market supply and demand for each server type (Figure). The customer specifies a maximum price (called a
+bid) that they are willing to pay when requesting spot servers. Amazon then runs a continuous sealed-bid multi-unit
+uniform price auction based off of the bids submitted, and determines a market price for the server [14]. If the
+market price increases above the bid price, then the server is immediately revoked after the warning period.
+
+Since transient servers are surplus idle machines, the resources available in the transient server pool fluctuate
+
+continuously depending on the supply and demand of on-demand servers. Thus, whether a certain transient server
+is available depends on current market conditions. Furthermore, once allocated, the mean time to revocation may
+also vary over time. Importantly, cloud providers expose current prices for transient servers, but do not expose the
+surplus pool size or other availability metrics.
+Transient Server Applications. Due to their preemptible nature, transient servers are typically not suitable for
+running interactive applications, such as web services, or any application that cannot tolerate downtime caused by
+server revocations. Batch-oriented disruption-tolerant applications are particularly well-suited for transient servers,
+since they can often tolerate longer completion times caused by occasional downtimes. A common scenario is to
+use tens or hundreds of transient servers to run highly parallel CPU-or-data-intensive applications at very low costs
+(when compared to standard on-demand server prices). However, if some fraction (or all) of the servers are revoked
+before the job has finished, the application has to resort to the following methods to resume computation.
+
+The simplest approach (which is also the most wasteful) is to restart the entire job on new transient servers.
+Alternatively, if the data-intensive application supports checkpointing, then its state can also be checkpointed
+periodically and the job can be resumed from the most recent checkpoint after reacquiring lost servers. A final
+approach is to simply live migrate to new servers after receiving the revocation warning. However, migration is
+only feasible if an application’ memory footprint is small enough to be completely copied before termination.
+Making Applications Transiency-aware. To effectively use transient cloud servers to run parallel batch-oriented
+applications, we must address three key factors:
+) Choosing the “right” server types. Different server models offer different price and availability tradeoffs. Thus,
+server selection must consider the application’ risk tolerance to revocation, as well servers’ expected price,
+availability, and revocation frequency.
+) Choosing appropriate fault-tolerance mechanisms. The revocation rates and delay-tolerance of the application
+influence the choice of fault-tolerance mechanisms such as checkpointing/restart, replication, or migration.
+
+iil) Recovering from server revocations. If some fraction (or all) of an application’ transient servers are revoked,
+the application must determine when and how many servers to reacquire and how to resume the computation via
+the chosen fault-tolerance mechanism.
+
+In the rest of the paper, we present our model-driven portfolio framework for selecting transient servers and
+show how it can be used to run transiency-aware parallel applications. We also describe how ExoSphere can
+simplify the development of transiency-aware versions of applications, such as Spark, MPI, and BOINC with
+modest implementation overhead.
+ PORTFOLIO-DRIVEN SELECTION
+
+A key factor in making effective use of transient servers is judiciously choosing the most appropriate server
+configuration for each application. Due to their preemptible nature and variable pricing, picking the “correct” server
+configuration is surprisingly complex in today’ cloud platforms due to the following reasons:
+
+Large number of potential choices. A typical cloud platform offers a large number of transient server markets.
+Amazon’ EC2 cloud offersdistinct markets, while Google Cloud Platform offers more thanmarkets
+
+for predefined machine types alone. Assuming an application imposes a certain base requirement on the desired
+per-server compute and memory capacity, it must still choose from a large number of feasible configurations.
+Pricing idiosyncrasies. Cloud operators such as Amazon EC2 use demand-supply driven pricing to price their spot
+servers [10, 14]. Each server type has different demand-supply characteristics, and this can lead to some interesting
+idiosyncrasies, which can be seen in Figure In this example, the m3.medium in availability zone a has the most
+stable prices, g2.2xlarge in the same availability zone has a lower average price but high variance, and the
+m3.medium in availability zone  has higher price than in zone a. The g2.xlarge price spikes are not correlated
+with the other two servers. The example shows that smaller servers may occasionally be more heavily discounted
+than smaller servers, and that identical servers in two availability zones may also be discounted differently.
+
+Importantly, choosing a server configuration based on price alone may yield sub-optimal results. For instance,
+server configurations with cheap prices may also see higher customer demand and consequently higher volatility
+and frequent revocations. Frequent revocations add substantial overheads to an application in terms of increasing
+checkpointing costs and adding recovery overheads. Instead, sometimes the choice of a slightly more expensive
+server configuration that sees a lower revocation rate may be a better choice and yield lower overall costs.
+
+Revocation rates may also not be related to average prices—neither the willingness to pay higher prices (by
+using a higher bid) nor choosing higher priced configurations necessarily yield lower revocation rates [44]. It is
+not practical to expect applications to analyze detailed price histories and volatilities across hundreds of transient
+servers when choosing a server type.
+
+Due to the challenges above, cloud providers such as Amazon have begun offering server selection tools. Amazon
+SpotFleet [] automatically replaces revoked servers. However, SpotFleet provides a limited choice in terms of
+the combinations of server configurations it offers, and does not alleviate many of the challenges above. While it
+enables applications to specify their combination of server configurations, it is up to applications to choose their
+specific server configuration. While tools, such as Amazon Spot Bid Advisor [], may help users in selecting
+servers based on price, they expose only coarse volatility information, .., low, medium, or high.
+ Reducing Risk through Diversification
+
+We use two key insights for reducing server revocation risk for a distributed batch-oriented application. The first
+insight is to choose servers which have mean time between revocations (MTTR) that significantly exceed the
+expected job length. For example, if a batch job has an expected length ofhours, then it will have a higher
+probability of completion if it runs on a server with MTTR ofhours, when compared to running it on a server
+with MTTR ofhours. Thus, choosing server configurations where the MTTR is much greater than the job length
+also increases the chances of a job completing without any revocations.
+
+Each transient server configuration in a cloud platform represents a market with its own supply and demand
+conditions. If a parallel batch-oriented job chooses homogeneous servers from a single cloud market, then any
+revocation event will cause all servers to be lost simultaneously (in Amazon’ EC2 spot market, if the spot price
+rises above bid price, then all the servers with that bid-price are revoked.). Our second insight for reducing the
+impact of concurrent revocations is to choose a heterogeneous mix of transient servers drawn from multiple markets.
+
+Empirical analysis indicates that price fluctuations across markets are largely uncorrelated with each other
+(Figure). Thus, the revocation events in one market may not cause revocations in certain other markets, since
+surging demand and revocations in one market will not impact available capacity in other independent markets. As
+a result, use of a heterogeneous mix of transient servers drawn from independent or weakly correlated markets can
+mitigate the impact of revocations—since revocations now only impact a fraction of an application’ servers. This
+enables jobs to make forward, albeit degraded, progress on the remaining transient servers.
+
+However, constructing such a heterogeneous mix of servers from multiple markets is not trivial. It involves
+selecting transient servers that are “cheap” and yield high savings compared to their on-demand counterparts, yet at
+the same time we must minimize the risk of simultaneous revocations—if all markets fail simultaneously, there is
+little value in diversification. Thus we must satisfy two objectives: pick markets to minimize cost and minimize
+their failure correlation. The large number of possible markets (>,500 spot markets on Amazon EC2), means
+that achieving this dual objective is intractable with ad-hoc techniques [45] and heuristics [43] that past work on
+multiple transient server selection has used. We describe our solution to this multiple server selection problem
+using portfolio theory next.
+ Server Portfolios
+
+Intelligent server selection is key to minimizing the frequency and magnitude of disruptions seen by applications
+running on transient servers. To address this problem, we present server portfolios, a new model-driven framework
+to create virtual clusters composed of a mix of transient server types which offer flexible costs and availability.
+
+Portfolios enable ExoSphere to construct a mix of cloud servers tailored to application needs. Server portfolios
+draw inspiration from finance [17, 37, 38]. Intuitively, a financial portfolio involves creating a suitable mix of
+financial investments for an investor that are drawn from an underlying mix of assets such as stocks, bonds, etc.
+The goal is to construct a mix that matches the investor’ tolerance for risk and reward. The risk tolerance dictates
+whether the portfolio contains a more risky mix of high-reward assets, or a mix of lower-reward but lower-risk
+assets.
+
+Similarly, server portfolios comprise a mix of transient servers that are drawn from an underlying mix of all
+transient server markets. Like financial assets, transient server markets exhibit different price and revocation
+characteristics. Some markets may have low prices but higher revocation rates, while others have higher, more
+stable, prices with infrequent revocations. Consequently, depending on the risk tolerance of an application, server
+portfolio construction involves maximizing the risk-adjusted returns by designing an appropriate mix of server
+markets.
+
+ExoSphere instantiates the model-driven portfolio mechanism to create virtual clusters for applications. At
+startup time, applications specify their aggregate resource requirements (CPU-cores and memory) in the form of a
+resource vector  = [Fepu, mem] , and their risk tolerance!. It then uses portfolio creation models and algorithms that
+are rooted in Modern Portfolio Theory [37, 38] to construct a mix of servers for the application, as discussed next.
+Model-driven Portfolio Construction
+
+We now present ExoSphere’ portfolio model, which is based on Modern Portfolio Theory”from financial economics [17, 37, 38]. The goal in ExoSphere is to maximize risk-adjusted returns for each application, where the
+returns are the cost savings from using transient servers (over the on-demand prices), while risk is the application’
+tolerance to server revocation events. Formally, ExoSphere finds a suitable mix of transient servers that maximize
+the risk-adjusted expected return given by:
+
+ [Return] — @ - Risk ()
+where  [Return] is the difference between the cost of an on-demand server and the expected cost of the transient
+
+server. To formally define [Return], assume that the cloud platform offers servers in  distinct markets. Let ;
+denote the on-demand price, and let [;] denote the mean of the transient server price. Then,
+
+Let  denote the vector representing the returns for all  markets, where ¢ = [Return;, ...,Return,]. Let ; denote
+
+the fraction of servers from market  chosen in our portfolio ( < ; <). Then  = [x1,---,] denotes the portfolio
+lf available, the estimated job length can be provided, and only markets with MTTR >> job-length are considered.
+
+'Modern Portfolio Theory was first proposed in[37] and remains the foundational basis for much of portfolio optimization in finance even
+today [38].
+
+allocation vector, and ’ is its transpose. The effective expected return of a portfolio is then:
+ [Return] = cx’ ()
+
+The parameter @ (in Equation) denotes the risk-averseness of the application or user. A low value of @
+indicates that the application places lower emphasis on avoiding server revocation risk. Conversely, a high value of
+@ indicates that an application is highly risk-averse, and is willing to incur an extra cost for this. We also use the
+term risk tolerance to mean the inverse of risk-averseness.
+
+To capture risk, we draw an analogy with financial portfolio selection, where investments are chosen such that
+their prices are not correlated. The rationale is that if one asset (say, a particular stock) sees a decline in price, then
+the other assets (.., a bond) are unlikely to see a concurrent decline. This way, we avoid large declines in the
+overall portfolio value.
+
+In our case, we wish to select server markets with independent revocation events—thus if there is a revocation in
+one market, others will not see a concurrent revocation. This reduces the total number of allocated servers that are
+revoked. To do so, we define a covariance matrix  that captures pairwise correlations between all pairs of markets.
+,; is the correlation between markets , and captures their simultaneous revocations. Higher values indicate that
+the two markets are highly correlated in their revocations, and the chances of closely spaced revocations are greater.
+We use this formulation to define the revocation risk of a portfolio as:
+Our portfolio construction problem can then be formulated as the following optimization problem:
+
+We can solve Equationfor a wide range of risk-aversion parameters (@) to compute the lowest-cost portfolios
+for any given risk. The expected returns and revocation risks of these portfolios are shown in Figure which shows
+the expected cost savings for a range of revocation risks. As the revocation risk is reduced, so is the cost savings.
+We also see from Figurethat expanding the candidate-set from r3 servers in the US-east- region to ail the servers
+in the US-east- region results in a% increase in savings, and a-50% reduction in revocation risk. This occurs
+because a larger set of candidate markets both allows more freedom in choosing markets, and increases the number
+of markets with low correlations.
+
+The effectiveness of the risk-averseness parameter can also be seen in Figure which shows the distribution
+of servers in portfolios with different risk-averseness parameters. We can see that the portfolios become more
+diversified as the risk-averseness increases.
+
+Constructing the covariance matrix. The covariance matrix  captures the pairwise correlation between markets.
+Our formulation allows multiple types of correlation to be used. The different correlation functions (and their
+corresponding  matrices) allows ExoSphere to adjust the portfolios to the users’ perceptions of risk.
+
+The first and most basic form of correlation is simply the correlation between the spot prices. In the case of
+Amazon EC2, we can use price histories of spot servers, which are publicly available, to compute the mean returns
+and the covariance matrix. That is, we compute the pairwise covariances by using spot prices to capture revocation
+events and using the standard covariance formulation. Let ;, ¥, denote the spot price of markets , respectively
+at time . Then the standard definition of covariance applies:
+
+Since the covariance matrix is positive semidefinite, ! Vx is strictly convex, and thus the problem formulation in
+Equationis a quadratic convex optimization problem [16, 38]. The formulation can be solved by an off-the-shelf
+convex solver, such as cvxopt []. This allows us to exactly solve the portfolio modeling problem and get portfolios
+that maximize the risk adjusted returns, without having to rely on heuristics or approximation. For Amazon EC2
+spot instance portfolios, we use the publicly available time series of spot prices for each spot market. We can then
+compute the average spot price for each market and can get the returns vector ¢, as well as the covariance matrix .
+ Server Allocation using Portfolios
+
+ExoSphere considers the risk-averseness requirements of the application along with the computing resource
+requirements. Based on these requirements, ExoSphere first constructs a portfolio of resources on cloud servers,
+and then allocates the resources to the applications in the form of containers on these servers.
+
+Applications submit CPU and memory resource requests in the form a resource-vector  = (cpu, mem), and their
+placement constraints. The placement constraints comprise primarily of the risk-averseness factor @ € [,inf), and
+any server preferences they might have (gpu-enabled servers only, no small servers, etc).
+
+We then construct portfolios based on these requirements, which gives us the weights for each market in the
+form of a weight-vector . These weights represent the fraction of resources that must be allocated in a market. For
+each market , we compute the CPU and memory resources that must be allocated in that market by multiplying the
+portfolio-weight of that market (;) by the resource-vector (1r). ExoSphere then determines the actual number of
+servers to allocate in market ; based on the CPU and memory capacities of the servers in that market (CPU;, MEM;)
+as follows:
+We take the maximum of the servers required to satisfy both the CPU and memory requirements so that the
+application’ resource allocation meets or exceeds the requirements in all resource dimensions. This approach can
+be extended to other resource types (disk/network bandwidth, etc.). Upon deciding the number of servers that an
+application needs in each market, ExoSphere then requests new servers (with bid price set as the on-demand price)
+from the cloud operator. ExoSphere also allows applications to dynamically adjust their resource requirements,
+which is useful for auto-scaling. Applications can adjust their CPU and memory requirements () at any time, and
+ExoSphere adds or removes servers from each market.
+ Statistical Multiplexing of Servers
+
+In the above described server allocation policy, it may be possible for an application’ resource requirements to be
+smaller than the resources offered by the server portfolio. This can occur because of two reasons. The first reason is
+that ExoSphere maximizes the (risk adjusted) cost-savings relative to the on-demand price, which may require
+selection of larger servers. Such price inversions are common in EC2 spot markets, and can occur if smaller transient
+servers have a larger demand compared to their larger counterparts. The second reason for surplus resources in a
+portfolio is that ExoSphere’ allocation ensures that sufficient servers are available to meet the demands across all
+resource types .., both CPU and memory. For example, an application requestingCPUs andGB memory
+may be allocated a portfolio ofm3. large servers each havingCPUs and GB memory, resulting infree
+CPUs andGB of free memory across both the servers.
+ExoSphere reduces the surplus unused resources in a portfolio by relying on statistical multiplexing. The key
+idea is that transient servers can be multiplexed across multiple portfolios. This allows multiple applications to
+share the servers in their virtual clusters such that the free and unused resources of a server can be used by other
+applications. In addition to increasing server utilization, this also reduces costs, since the cost of transient servers is
+also proportionally shared between the applications sharing a server.
+
+ExoSphere’ statistical multiplexing, also referred to as the shared-cluster policy, works as follows. We use the
+portfolio modeling and creation process described earlier. This gives us the portfolio weights vector , indicating
+the weights of each market in the portfolio. The application’ actual resource requirements () are first met by
+trying to use as many surplus resources as possible across all the servers in a given market. That is, for each market
+in the application’ portfolio, we first find surplus resources on existing servers in that market, and then request the
+cloud servers required to meet the unmet resource demand in that market instead of all ; servers (Equation).
+Finding surplus resources involves finding servers such that their allocated-resource vector is less than the available
+resources. ExoSphere uses the “best-fit” policy: it sorts the servers in each market in descending order of their free
+resource availability, and then proceeds to allocate resources (as containers) from these servers until either all free
+resources in the market are allocated or if the application’ resource requirements in that market are satisfied.
+
+Finally, we note that this multiplexing of servers is only effective if there exist multiple applications to exploit
+the free resources, and if there is a steady stream of applications leaving and entering a system. We evaluate the
+cost effectiveness of this multiplexing scheme in Section. In the next section, we describe how applications can
+use the API provided by ExoSphere to design and implement their own transiency-specific policies.
+APPLICATION INTEGRATION
+
+In addition to supporting the portfolio abstraction, ExoSphere provides a number of key mechanisms to support
+the execution of batch-oriented applications on transient servers. ExoSphere’ design is based on the Exokernel
+philosophy, where it provides a small set of mechanisms to make an application transiency-aware, and leaves the
+design of transiency-specific policies to the application.
+
+Unlike much of prior work on running applications on transient servers, ExoSphere gives applications the ability
+to define their own policies for handling revocations. This allows applications to define policies to suit their fault
+tolerance requirements, and also allows more efficient fault tolerance. For example, using application-level fault
+tolerance such as application-level checkpointing [43] may significantly reduce the overhead of checkpointing
+compared to application-agnostic system-level checkpointing.
+
+ExoSphere uses a two-level architecture (Figure), where ExoSphere provides the portfolio abstraction and
+transiency-specific “up-calls” to the applications, which may use them to implement their own policies. Associated
+with each application is a job-manager, which communicates with ExoSphere to implement these policies.
+
+Given any vanilla batch-oriented application, converting it into a transiency-aware variant of that application
+involves defining three policies: a () portfolio policy, which specifies its resource needs and risk tolerance, (ii)
+fault-tolerance policy, which specifies whether and how the application state is saved to deal with potential server
+revocation, and (iii) recovery policy, which specifies the policy to replenish servers upon a revocation event and to
+resume the application after recovering saved state.
+
+The portfolio policy is implemented using ExoSphere’ portfolio abstraction described in the previous section.
+
+To implement a broad range of fault-tolerance and recovery policies, ExoSphere supports three key mechanisms
+via the up-call API described in Figure
+Exposing the Portfolio MTTRs: Since cloud platforms only expose transient server prices but not revocation
+statistics, ExoSphere provides MTTR information immediately after portfolio creation and periodically (everyminutes) via the portfolioMTTR upcall. ExoSphere provides the mean MTTR of an application’ portfolio, as
+well as the specific MTTRs of the individual transient servers within the portfolio. An application can use this
+knowledge of how frequently a portfolio server is likely to be revoked to tune how frequently to save its state.
+
+risk-averse, and thus request highly diversified portfolios with a high @ to reduce the performance impact of
+revocations (but at potentially higher cost).
+Fault-tolerance Policy. Spark includes a built-in RDD checkpointing mechanism, which serializes RDDs to stable
+storage. However, Spark leaves it to the application to decide which RDD to checkpoint. A checkpoint operation
+imposes significant overhead, since it causes a substantial amount of in-memory data to be written to disk.
+Designing a fault-tolerance policy for our transiency-aware version of Spark is straightforward using this
+checkpoint operation—we periodically checkpoint recent RDDs. Due to the overhead imposed by checkpointing,
+the checkpoint interval must be carefully chosen. Since ExoSphere exposes the MTTR of the portfolio, we can use
+it to set the checkpointing interval to tT =- -MTTR, whereis the time it takes to write a checkpoint to disk,
+and the MTTR is Mean Time To Revocation of the portfolio. This expression follows directly from a classic result
+in fault-tolerance [21] and has been used in other Spark-based systems such as Flint [43]. To implement this policy,
+we modify the Spark job-manager to periodically checkpoint RDDs, and use saved checkpoints when resuming
+after a revocation. The pseudo-code for the Spark periodic checkpointing is below:
+Recovery Policy. The recovery policy comprises of two parts: how to recover the application upon a revocation
+event, and how to resize the cluster to handle lost servers. Upon receiving a hard revocation signal from ExoSphere,
+the job-manager in our transiency-aware Spark triggers recomputation from the last saved RDD checkpoint. The
+decision on whether to replenish lost servers depends on the job progress and workload characteristics. Due to
+Spark’ in-built fault-tolerance mechanisms, jobs are able to continue execution on remaining servers. However,
+continuing in this degraded mode increases job completion times (even when resuming from a saved checkpoint),
+due to the potential of spilling RDDs to disk, or reduction in the size of the RDD cache.
+
+For pure batch jobs, we can use job progress (by comparing against estimated job-length), and intelligently
+
+decide whether to replenish (.., replenish if job-progress <%). For batch-interactive or streaming workloads,
+an immediate replenishment policy is always preferred due to the latency requirements.
+Comparison with other Spark-based systems. Flint [43] and TR-Spark [57] are two recently proposed transiencyaware versions of Spark. Both systems use an application-level fault-tolerance and require significant complex
+modifications in Spark to embed new mechanisms and policies. Our version uses ExoSphere abstractions and
+mechanisms to implement similar policies. We model our version on Flint’ design. However, while Flint requireslines of code changes [43] to Spark, ExoSphere requires adding onlylines, and benefits from separating
+issues such as portfolio construction out of the application. ExoSphere also allows a richer server selection policy,
+since portfolios can be tailored to the workload’ risk tolerance.
+
+TR-Spark [57] is another attempt to make Spark transiency-friendly, and changes task-scheduling in Spark to
+avoid scheduling jobs to nodes that face imminent revocation. These changes can also be supported by ExoSphere,
+since TR-Spark also uses MTTR information. Mostly, ExoSphere’ Spark benefits from separation of concerns and
+requires less changes to the application (Spark) in order to run on transient servers.
+ Parallel HPC Application: MPI
+
+Message Passing Interface (MPI) is the predominant framework for scientific and high-performance computing.
+MPI jobs tend to be parallel compute-intensive tasks and their large degree of parallelism can benefit from running
+
+on low-cost transient cloud servers [36]. However, unlike Spark, MPI’ message-passing model is highly intolerant
+to revocations. In particular, revocation of a single server can cause the entire MPI job to fail.
+
+Portfolio policy. Since even a single server revocation requires the entire job to be restarted (from the beginning
+or from a checkpoint), a policy that attempts to limit failures to a fraction of the servers is not adequate—any
+revocation, whether it is one server or all servers, has the same impact. Thus, stability is more important than server
+diversity, .., choosing servers with MTTR >> the job length, which reduces the probability of revocation, is
+more important than portfolio diversity. Thus, MPI’ job-manager requests portfolios by specifying the expected
+job-length, and specifies a low risk-averseness parameter to ensure selecting high-MTTR servers.
+Fault-tolerance policy. Many MPI platforms, such as OpenMPI [], support checkpointing. In such cases, the
+MPI job can periodically checkpoint its state similar to ExoSphere’ Spark. If checkpointing is not supported or is
+undesirable, then no fault-tolerance policy is necessary and the job is simply restarted from the beginning.
+Recovery policy. Due to the inability of MPI jobs to continue computation after partial failures, the immediate
+replenishment policy must be used to restore the cluster to its original size upon a failure of one or more servers.
+Once replenished, the job is restarted from the most recent checkpoint or the beginning. The pseudo-code of the
+revocation-handling policy for MPI is shown below:
+
+
+The ExoSphere MPI version required a modest effort oflines of code for the portfolio and recovery policy.
+ Delay Tolerant Application: BOINC
+
+Volunteer computing frameworks such as BOINC [12] are an example of “embarrassingly parallel” workloads that
+are delay-tolerant and do not have strict deadlines.
+
+Portfolio policy. Since reducing cost is more important than mitigating failures, a low-to-moderate risk-averseness
+parameter (@) can be specified when constructing a portfolio for BOINC. For highly price-sensitive workloads, a
+low value may be used, but it risks losing a large fraction (or all) servers. Use of a moderate value provides some
+diversification, which allows progress to be made when part of the portfolio is revoked.
+
+Fault-tolerance policy. Typically no fault-tolerance mechanisms are needed, since if a server is lost in a volunteercomputing scenario, the task is restarted. In some cases with long-running tasks, a lazy-checkpointing policy can
+be used, which checkpoints the task after receiving a soft or hard revocation warning. Soft warnings increase the
+chances of completing the checkpoint, since a lazy-checkpoint may not complete within the hard-warning duration
+( minutes on EC2, 30 seconds on GCP).
+
+Due to its price sensitive nature, BOINC can use soft signals to set a price threshold and upon receiving a
+notification of rising prices, can voluntarily relinquish servers and wait for the price to reduce to maintain a budget.
+Recovery policy. The price sensitive nature implies that immediate replenishment of lost servers is not strictly
+necessary. The BOINC job-manager can monitor the price of portfolios offered by ExoSphere to wait until prices
+drop. Tasks that were affected due to server revocations are simply queued on other remaining nodes and are
+restarted (from the beginning or from the last checkpoint).
+
+The transiency-aware BOINC required aboutlines of additional code—most of which pertain to the
+implementation of lazy checkpointing and recovery.
+
+Revocation Risk Probability Revocation Risk Probability Revocation Risk Probability le-
+
+ 
+Portfolio-driven Resource Management for Transient Cloud Servers +
+
+any server-type or job-length constraints, portfolio construction usually only involves a simple look-up/search in
+the portfolio cache.
+
+ExoSphere does explicit, fixed resource allocation, and does not use Mesos’ Dominant Resource Fairness
+allocator. Once the application terminates or voluntarily relinquishes its resources, its servers are placed on a
+free-list of servers for a short duration (2x allocation latency), instead of immediately terminating them. Similar
+to anticipatory scheduling, holding on to recently relinquished servers in the free-list speeds up the allocation of
+servers for future applications, since launching transient servers takes a few (~) minutes.
+
+New cloud servers are requested using the standard EC2 APIs, and are started with either the application provided
+disk-image (containing the required application dependencies), or a default image (AMI) which has a few common
+applications installed. We assume that most applications will use S3 or EBS for storing data, since the content of
+local disks is lost upon server revocation. The resources on cloud servers are offered to the applications using the
+Mesos abstraction of resource offers.
+
+ExoSphere’ portfolio-based policy may over-allocate resources, which can lead to idle resources on some
+servers. For example, an application requestingCPUs is allocated a cloud server withCPUs results insurplus
+CPUs. To increase cluster utilization and reduce costs, ExoSphere also implements a server packing policy as an
+optimization, which first tries to meet resource demands of the application (in each market) from the idle resources
+on the servers in that market. For this, we use a simple first-fit approach to allocate resources. Note that applications
+run inside containers (.., Mesos executors), which provide security and performance isolation. Nevertheless,
+applications which do not wish to face the potential interference because of other co-resident applications can still
+request private cloud servers not shared with other applications.
+
+ExoSphere Upcalls. The ExoSphere master also interacts with the servers and the cloud provider in order to issue
+transiency-specific notifications. Revocation hard-warnings are first detected by the servers, which then inform
+the master, which relays them to the applications via the Mesos inverseOffers API, which includes a list of
+affected servers/containers and the remaining time until termination. Soft revocation warnings are provided by
+monitoring the state of each server, and notifying the application if it reaches the marked-for-termination state.
+Additionally, the master can also bid much higher than the on-demand price and monitor for price increases to
+increase the soft-warning duration. Price notifications are used by applications to know if the price of their portfolio
+has increased above a threshold. The ExoSphere master uses the describe-spot-price-history EC2 API to
+continuously monitor prices of all the active markets and delivers the notification if the price crosses the threshold.
+EXPERIMENTAL EVALUATION
+
+Our experimental evaluation focuses on answering two key questions: ) What is the effectiveness of the portfolio
+abstraction in reducing cost and revocation risk? and ii) What is the impact of different policies for handling
+revocations and with different risk tolerances? We evaluate ExoSphere on EC2, and also show results for Google
+Cloud Platform (GCP). We use spot price traces over a six month period (Apr-Sept) for evaluating portfolios,
+and restrict ourselves to a single region (us-east-), since many applications have geographic locality constraints
+that prevent using servers from multiple regions. We evaluate the performance of transiency-aware variants of
+Spark, MPI, and BOINC on ExoSphere.
+
+Spark. We use the Spark version modified to work with ExoSphere, and use Amazon S3 for storing input/output
+data and RDD checkpoints. We use a combination of batch and low-latency workloads for Spark. We use KMeans,
+an iterative machine-learning algorithm with ~16GB of input data as a batch workload. For the low-latency,
+interactive scenario, we use TPC- database queries served by a Spark application. Spark supports SQL queries by
+translating them into equivalent RDD operations, with each query akin to a short running job.
+
+MPI. We use MPICH [] v2., which supports Mesos. We use MPI as an example of a “rigid”, transiency-agnostic
+application, which responds to revocations by requesting new servers and restarting its job. We use the NAS parallel
+benchmark [13] as an MPI workload.
+
+
+trace using four different distributions: all jobs requiring low risk-averseness portfolios; all high risk-averseness
+portfolios; equally distributed among low-medium-high; and distributed in a: ratio. Figureshows the total
+cost incurred with the private and the cluster sharing policy, which uses first-fit bin-packing to find idle resources
+in servers in each market to satisfy portfolio requirements. By sharing servers among multiple applications, this
+packing policy lowers costs by%.
+ Black Swans: Multiple market failures
+
+Finally, it is important to note that while the portfolio construction technique gives the best expected portfolios, it
+assumes that the historical price trends will continue to hold. In extreme situations, it is possible that even when
+selecting servers with low risk of concurrent revocations, all (or a large majority) of markets might be revoked.
+These events are akin to stock market crashes and are the black-swan events that have a high impact and are
+hard to predict. We show the performance implications of such extreme events in Figure which shows the
+relative performance of applications running on their ideal portfolios and using the “best” fault-tolerance policy.
+We compare the application performance in the expected case of a single-market failure versus the worst case when
+all markets fail. We see that the impact on different applications is varied. BOINC and MPI see no difference in
+their expected and worst-case, since their preferred portfolios have only a single market. For a batch workload in
+Spark, the increase is significant (50%), and for the interactive Spark workload, the increase is more thenx. We
+note that these black-swan events only cause a one-time performance-hit, and don’ affect expected cost savings.
+Discussion: The real-world success of any portfolio-based technique relies on the ability to model the returns and
+risks of the underlying markets. However, there are many events that cannot be modeled using historical price
+traces alone. Black-swan and other rare events are hard to model, since they may have never occurred in the past.
+We also note that transient instances can be unilaterally revoked by the cloud provider, and cannot be modeled by
+price-traces alone. While price-based modeling has led to great gains in financial markets, spot markets are different
+from classic financial markets in a number of ways. Spot prices show higher volatility—prices can increaseX
+in a single jump. The high volatility makes spot markets harder to model and also means that existing financial
+models that assume low volatility cannot be applied directly.
+RELATED WORK
+
+Our work leverages prior work on transient servers, cluster management, and portfolio theory.
+
+Systems for Transient Servers. Recent work has looked at developing systems and middleware for transient
+servers like EC2 spot instances. SpotCheck [45] introduced the notion of a derivative cloud which combines spot
+and on-demand instances to run arbitrary applications on top of spot instances with high availability. SpotCheck
+relies on nested virtualization and continuous memory checkpointing to live-migrate to on-demand instances
+upon revocation. For batch jobs, SpotOn [49] performs spot market selection by considering the market cost and
+availability, and showed that the fault tolerance mechanism has an important influence on the server selection.
+OptiSpot [25] uses a combination of queueing-based application performance models and a markov chain based
+spot price models to select the right server type and bid price for a given application.
+
+Transient server selection. ExoSphere’ portfolio based server selection differs from prior work in regards to its
+flexibility and generality. The risk tolerance knob introduced in ExoSphere allows easy and explicit characterization
+of portfolio risk. Transient server selection policies in earlier systems [20, 36, 43, 45, 49, 57] do not have explicit
+support for managing revocation risk. This is because these systems have mostly targeted a single class of
+applications, and have server selection policies suited to that. For example, Flint [43] runs Spark [61] applications
+on transient cloud servers, and selects markets with the lowest effective cost for batch Spark jobs, and uses a greedy
+multi-market strategy for batch-interactive jobs.
+
+Transiency-aware Applications. Prior work on making applications transiency-aware has involved applicationlevel application-specific approaches. For example, Flint [43] and TR-Spark [57] modify Spark to better support
+
+transiency, .., via checkpointing, while related work focuses on optimizing MPI jobs for spot servers [36]. Similar
+work has modified Hadoop and other batch applications for transient servers as well [56, 59]. Checkpointing and
+scheduling policies for data processing and machine learning workloads on transient resources have been developed
+more recently in [31, 58].
+
+Portfolios. In contrast to prior work which focused on supporting narrow classes of applications on transient servers,
+ExoSphere’ goal is to provide a common platform for a wide range of applications. ExoSphere distills common
+abstractions based on the experience of past work to enable easy modification of current and future applications to
+support transiency. Our portfolio abstraction is inspired from financial economics, where investment portfolios are
+created for diversification and to reduce risk [26, 28, 37, 38] . In transient server markets, diversification reduces the
+probability of simultaneous revocations, and thus plays a crucial role in server selection. The idea of risk-reduction
+using diversification formalized in Modern Portfolio Theory in the’ remain the basis for other popular
+portfolio creation techniques such as Black-Litterman [40]. Exploring other portfolio construction techniques for
+server selection remains part of our future work.
+
+A significant amount of prior work has gone into optimizing multiple objectives in the context of server selection.
+Server selection to optimize for performance and cost of on-demand servers (but without transiency considerations)
+is discussed in [29, 55], and in [53] which uses genetic algorithms to find spot/on-demand pareto-efficient frontier.
+CherryPick [11] uses bayesian optimization to select cost-optimal on-demand servers. Utility-based selection of
+servers is shown in [19], which selects homogeneous cloud servers for different applications. In contrast, ExoSphere
+selects a heterogeneous mix. Our use of portfolios is not to be confused with portfolios of policies/algorithms—
+wherein a portfolio of multiple policies and algorithms are run to find the most efficient algorithm. This approach is
+commonly used in SAT solvers [33], and has also been applied to cloud scheduling [48].
+
+Cluster Management. There has been a significant amount of work on designing cluster resource managers [15,
+32, 41, 51, 52] and resource management policies for running multiple applications in data center [22, 30, 34, 35]
+and cloud environments [23, 24]. In particular, ExoSphere builds on Mesos [32] and can be viewed as a transiencyaware cluster manager. To our knowledge, current cluster managers do not support transiency and variable pricing
+as first-class primitives.
+
+Resource Allocation in Data Centers. There has also been a significant amount of work in allocation of surplus
+resources and risk-driven resource allocation in data centers. [18] allows idle resources to be reclaimed and uses
+resource usage traces to predict resource availability for long running services. Services can run uninterrupted with
+a high probability by maintaining slack between the resource allocation and usage. Risk-aware overbooking of
+resources by using admission-control policies is discussed in [50]. [42] considers job task placement to mitigate
+correlated failures in the data center, where a failure in a power component can affect multiple machines and hence
+multiple tasks. Using surplus resources in computational clusters has a long history—Spawn [54] introduced a
+market based system for selling idle resources to applications, similar to what public cloud operators are doing now.
+ExoSphere’ portfolio-driven allocation policies can work in data center environments where the resource allocation
+involves optimizing two different and possibly competing objectives. For example, ExoSphere can be used to
+minimize performance interference adjusted costs, where instead of revocation risk, there is risk of performance
+interference due to co-located applications. We note that the transiency specific API that we have developed for
+applications can be used “as-is” in data center environments, where the resources of low priority jobs are revoked
+in favour of higher priority applications.
+CONCLUSION
+
+The effective use of transient servers is predicated on their careful selection. In this paper, we introduced portfolio
+modeling for transient server resource management. Unlike prior resource management schemes, portfolios
+allow the easy creation of virtual clusters with different revocation risk tolerances. Existing convex optimization
+
+techniques can compute portfolios efficiently—computing portfolios for spot markets takes well under one
+minute.
+
+We have prototyped and implemented a portfolio-driven cluster manager, ExoSphere, that exposes a narrow,
+
+uniform interface and allows multiple applications to develop and use their own transiency-aware policies for
+handling revocations. We have shown that existing applications such as MPI, Spark, etc., can use this interface to
+design their own policies and significantly increase their performance and cost saving on transient servers. Our
+experience with portfolios has shown that they are a powerful and promising resource management primitive, and
+can be especially useful in situations where multiple resource management objectives (such as cost and revocation
+risk) have to be minimized.
+Acknowledgments. We thank our shepherd Giuliano Casale and all the reviewers for their insightful comments
+that helped us improve the paper. This work is supported in part by NSF grants #1422245 and #1229059, a
+Google faculty research award, and by Amazon Web Services (AWS) Cloud Credits. Any opinions, findings, and
+conclusions or recommendations expressed in this material are those of the author() and do not necessarily reflect
+the views of the National Science Foundation.
+
+

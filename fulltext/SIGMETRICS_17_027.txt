@@ -1,0 +1,836 @@
+Deconstructing the Energy Consumption of the Mobile Page Load
+
+ABSTRACT
+---
+Several optimizations have been proposed to improve the performance of the mobile Web. However, these optimizations often
+overlook an important factor, energy. Given the importance of battery life for mobile users, we argue that such optimizations
+should be evaluated for their impact on energy consumption. Unfortunately, teasing out the effect of an optimization on
+the energy consumption of the page load process is difficult, even with the help of power monitors. This is because of the
+complexity of the page loads, the high variance in page load times, and the relatively short-lived page load process.
+
+In this paper, we present RECON, a modeling approach that predicts the energy consumption of any Web page load. Our
+key intuition is to model page load times using low-level information about the page load process. RECON combines the
+low-level page load information with coarse-grained resource monitoring to build a power model. Experiments acrossWeb
+pages and under four different optimizations show that RECON can predict energy consumption for a Web page load with an
+error of less than%. By leveraging low-level page load information, RECON can not only identify when a given optimization
+negatively affects energy, but can also reveal why. Importantly, RECON allows us to quickly evaluate various optimization
+choices with respect to both performance and energy.
+---
+INTRODUCTION
+
+Mobile Web page performance is critical to content providers [, 25], service providers [19], and users [], as Web
+browsers are one of the most popular apps on phones []. Slow Web pages are known to adversely affect profits
+[, 25] and lead to user abandonment []. The importance of Web page performance extends even to mobile apps:
+a recent Evans Data survey showed that three-quarters of mobile app developers polled said they include or plan
+
+The authors would like to thank Pavan Maguluri for his help. This work was supported by the National Science Foundation through the
+grant CNS-1551909, grant CNS-1566260, grant CNS-1617046, grant CNS-1464151, and a Google Research Grant R2-2015-839.
+
+
+to include mobile browsers/HTMLS5 in their apps []. Not surprisingly, several optimizations have been proposed
+to improve mobile Web performance [13, 14, 17, 19, 21].
+
+An important problem that is often overlooked is the energy consumption of Web page loads. Mobile devices
+are severely constrained by energy; in fact browser vendors tout their effect on battery life as a critical selling
+point [, 16]. The problem is that energy and performance are separate metrics. While Web optimizations or any
+changes to the Web ecosystem are often studied in terms of performance, their effect on energy is not easy to
+measure. Not knowing the effect of a Web enhancement on energy consumption can have severe consequences;
+a recent software update to Chrome resulted in excessive battery drain, leading to severe backlash [].
+
+Today, content providers and browser vendors use power monitors to measure the energy consumption of the
+page load process before and after an enhancement. Power monitors that are in-built in the phone are known to
+be grossly inaccurate [43]. Instead, external power monitors such as the Monsoon power monitor are commonly
+used to measure power consumption of Web page loads more accurately. These external monitors have higher
+accuracy, but are not easy to use (§). Importantly, the power monitors only provide aggregate power consumption of
+the device at any time, without providing any information on how much power was consumed by the individual
+page load activities such as image loading or JavaScript evaluation, or how an enhancement impacted the power
+consumption of these individual activities. For example, we find that certain ad blockers [] that remove ads and
+other malware significantly increase energy consumption. A power monitor can detect this energy increase, but
+can not explain why the energy changes.
+
+Our goal in this paper is to provide: (a) quick, accurate, and fine-grained estimations of the power and energy
+consumption for a page load instantiation, and () meaningful analyses of the power profile of the Web page load.
+
+Unfortunately, estimating the energy consumption of a page load is challenging because of:
+
+ Transience: The page load process is relatively short-lived, ranging from several milliseconds to a
+few seconds. Fine-grained resource monitoring on such short timescales to model energy consumption
+is known to incur substantial overhead [23, 33]; our experiments on a Galaxy S4 reveal that resource
+monitoring at a frequency ofHz can incur% CPU overhead.
+
+ Complexity: Web pages are complex [39]. A Web enhancement can have widely varying effects on
+different page load activities.
+
+Thus, studying the energy impact of a Web enhancement on page loads requires understanding its effects
+on each page load activity. Existing approaches to analyzing mobile energy typically focus on profiling and
+modeling the resource consumption of the device during execution [33, 34] (see §). Such approaches consider
+long-running services and apps such as games, audio, and video streaming [23, 43], for which low-overhead,
+coarse-grained resource monitoring suffices. For page loads, however, coarse-grained resource monitoring is not
+sufficient to analyze the energy consumption of individual, short-lived, page load activities.
+
+We present RECON (REsource- and COmpoNent-based modeling), a modeling approach that addresses the
+above challenges to estimate the energy consumption of any Web page load. The key intuition behind RECON is
+to go beyond resource-level information and exploit application-level semantics to capture the individual Web page
+load activities. Instead of modeling the energy consumption at the full page load level, which is too coarse grained,
+RECON models at a much finer component level granularity. Components are individual page load activities such
+as loading objects, parsing the page, or evaluating JavaScript.
+
+To do this, RECON combines coarse-grained resource utilization and component-level Web page load information available from existing tools (§.). During the initial training stage, RECON uses a power monitor to
+measure the energy consumption during a set of page load processes and juxtaposes this power consumption
+with coarse-grained resource and component information. RECON uses both simple linear regression and more
+complex neural networks to build a model of the power consumption as a function of the resources used and the
+individual page load components.
+
+Using the model, RECON can estimate the energy consumption of any Web page loaded as-is or upon applying
+any enhancement, without the monitor. It is important to note that RECON’ model does not have to be trained
+on all Web pages or on any enhancements. Since Web page loads exhibit high variance [40], RECON estimates
+the power consumption for a given instantiation of a Web page load.
+
+We experimentally evaluate RECON on the Samsung Galaxy S4, S5, and Nexus devices usingWeb pages.
+Comparisons with actual power measurements from a fine-grained power meter show that, using the linear
+regression model, RECON can estimate the energy consumption of the entire page load with a mean error of% and that of individual page load activity segments with a mean error of%. When trained as a neural
+network, RECON’ mean error for page energy estimation reduces to% and the mean segment error is%.
+We show that RECON can accurately estimate the energy consumption of a Web page under different network
+conditions, such as lower bandwidth or higher RTT, even when the model is trained under a default network
+condition. RECON also accurately estimates the energy consumption of a Web page after applying popular Web
+enhancements [] including ad blocking, inlining, compression, and caching.
+
+The key application of RECON is to analyze how and why Web page enhancements affect energy consumption. To this end, we look at four case studies where a Web enhancement exhibits non-intuitive results. The
+enhancements (and the non-intuitive behaviors) studied are: () An Ad blocker [] that significantly hurts energy
+even though the page load time is not significantly affected, (ii) Caching that improves energy disproportionately
+compared to page load time, (iii) A more powerful compression optimization providing worse performance
+than a less powerful one, and (iv) Inlining optimization that helps performance and energy under one network
+condition, but hurts them under another network condition. In each of these cases, RECON breaks down the
+energy consumption into its constituents, and provides useful insights into the energy behavior that are not
+possible using power meters or resource-based power models.
+BACKGROUND, MOTIVATION, & SCOPE Page Load Process
+
+The page load process starts with the user issuing a URL. As a first step, the browser downloads the html file
+corresponding to the URL. When the first part of the html file is received, html parsing begins; parsing is a
+computationally intensive process. When the parser encounters a tag for an image, JavaScript (js), or Cascading
+Style Sheets (css), it downloads the object, which is a networking process. If the object is a js or a css, then these
+are further evaluated, again a compute process. Progressively, the rendering engine renders the page on the
+browser. In effect, the page load process is a series of network and compute processes; we call each of these
+processes as components.
+
+In RECON, we leverage a tool called WProf- to obtain the component-level information. WProf- [31] is
+an in-browser profiler that, among other things, decomposes the mobile page load process into its constituent
+components. We use the WProf- tool to get detailed timing information about the start and the end of each
+component.
+
+While we use WProf-, other tools that provide component-level information, such as the Scout tool [32] ora
+combination of chrome: //tracing and Chrome developer tools [11], can also be used in RECON.
+ Energy versus Performance
+
+The components of the page load process together form a dependency graph [39]; many of the components can
+execute in parallel, while some components are serialized. Figureshows the components for an example page,
+with certain components occurring in parallel. WProf- provides enough information to visualize any Web
+page load similar to the visualization in Figure Naturally, when components occur in parallel, external power
+monitors can not isolate the power consumption of each component.
+Fig. An example page load process decomposed into various components such as HTML parsing, JavaScript, etc.
+
+It is important to note that energy and performance are fundamentally different metrics. Performance, usually
+measured using the Page Load Time (PLT) metric, is the length of the critical path on the dependency graph [39];
+the critical path in Figureis shown using a red dotted line. The power and energy consumption, of course,
+depend on all the components that make up the page load process, not just those on the critical path. In Figure
+the energy consumption includes components on the critical path as well as those off the critical path, such as
+img1 and img2.
+One implication of this difference is that energy consumption may not always correlate with PLT. For instance,
+an optimization may significantly shorten the critical path (and thus the PLT) in Figure but its effect on energy
+may be much less significant if it increases the loading time of images, especially if image loading turns out to be
+a power-hungry process. In some rare cases, optimizations that help PLT may even hurt energy consumption. In
+§, we show examples of real Web pages, where the PLT and energy consumption are poorly correlated when a
+given optimization or enhancement is applied.
+
+
+RECON usage model
+
+The energy consumption of a Web page load varies across different runs since Web page loads experience high
+variance [40]. This means that predicting the energy consumption of a Web page is difficult and prone to errors.
+Instead, RECON estimates the energy consumption for an instantiation of a Web page load; that is, the energy
+consumption for a single run or load of the Web page.
+Today, the energy consumption of a Web page is measured using external power monitors. While external
+power monitors, such as Monsoon [], are accurate, they are not easy to work with. The monitors are connected
+to the phone using battery bypass technology that requires connecting the phone’ battery leads directly to the
+external monitor and performing experiments in this tethered setting. Figureillustrates such a setting for our
+experimental setup.
+The user of the RECON system can accurately estimate the power consumption of several Web page loads
+without significant human effort. The user first learns the power models by training over a set of Web page loads,
+that we call the training set, using a power monitor. The only requirement is that the Web pages in the training
+set should contain at least one instance of all components that make up the target page load. The learnt power
+model is a function of the Web page components and resource consumption, which can be obtained at run time
+as the Web page loads. Then, the user simply loads the target Web page and obtains the component and resource
+consumption information (§.). RECON then estimates the power and energy consumption of that Web page
+instantiation using the model without requiring the power monitor.
+
+The estimation process is completely automated: the Web page loading and the component and resource
+information gathering is done programmatically. Similar to prior modeling work [33, 43], RECON builds predictive
+models for the user-specific network types (WiFi vs Cellular) and devices.
+ RECON users
+
+The RECON user could be the content provider, the Web designer, or the browser vendor, who wishes to quickly
+and accurately determine the energy consumption of Web pages. For instance, a Web designer can use RECON to
+design energy-efficient Web pages by continually estimating the energy consumption as she is designing the
+page. Since the process is automated, measuring the energy consumption of the Web page requires no effort from
+the designer.
+
+RECON estimates the energy consumption of Web page loads after an optimization or page enhancement
+and can thus help study pathological cases where energy increases in response to page enhancements. For
+instance, we find that certain Ad block extensions that remove ads from the Web page significantly increase
+energy consumption (§.). RECON can identify these cases and help understand why the energy increases. This
+capability can be invaluable for Web developers who wish to design useful Web optimizations.
+
+In some cases, phone vendors can train the power model and publish the RECON coefficients for their specific
+device. In this case, the RECON user does not even have to learn the RECON model, and can simply use the
+published model to estimate energy consumption on the specific device. In the future, we envision RECON also
+helping end-users and others assess the energy impact in-the-wild. This in-the-wild usage scenario requires
+models that work across various devices and network types. We hope to address this challenge as part of future
+work to extend the benefits of RECON.
+ RECON
+
+The key idea in our modeling approach is to exploit page-specific component-level information and integrate
+it with coarse-grained resource logging; hence the term RECON (resource- and component-based modeling).
+Because RECON leverages component-level information, it does not require fine-grained resource logging needed
+to model the power consumption of the short-lived page load process. The component-level information also
+allows imparts explanatory power to RECON for deconstructing the impact of a page enhancement on energy
+
+(see §).
+ The design of RECON
+
+Ata high-level, RECON works by developing a parameterized page-independent power model that incorporates
+the component- and resource-level information to make accurate estimations. We train the model by loading a
+few Web pages and monitoring the power consumption using a power meter. Once trained, we use the model to
+estimate the power consumption of any Web page, loaded as-is or under any enhancement, without the power
+meter.
+RECON modeling overview
+
+Building an accurate energy model using components and resource information is challenging. The monitored
+power consumption is a result of several simultaneously executing components and their aggregate resource demand.
+At any given time slice, the number of components of the page load process can be different. Given a new Web
+page load with an arbitrary distribution of components and aggregate resource utilizations, how can we estimate
+its power and/or energy consumption?
+
+Our modeling approach is to break down the page load process into “segments”, where a segment is defined
+as an interval of page load activity during which the components of the Web page do not change. FigureSegment
+
+(a) Component level decomposition of loading instagram.com
+
+() Power consumption corresponding to the load
+
+Average Power (Watts)
+
+shows the component-level decomposition for the instagram.com page, via WProf-, juxtaposed with its power
+consumption obtained via the power monitor. Segments of the instagram.com page are illustrated in Figure via dashed blue lines. By definition, a segment is composed of at least one component. Further, the entire page
+load process can be partitioned into discrete (non-overlapping) segments, as shown in Figure
+Component and resource information: For component-level information, we leverage WProf- [31] to
+obtain three pieces of information: () the set of all components, including their type and how often they appear,
+that make up the segment, (ii) the start time of each component, and (iii) the end time of each component. The
+specific component types we leverage for RECON are discussed in §..
+For resource-level information, we log several resource utilization values for the device; the set of resources we
+monitor and the frequency of monitoring is discussed in §.. We average the resource usage over the segment
+length.
+Modeling goal: Given a segmented page load process, our goal is to decompose the monitored power consumption
+of a segment to its constituent components and resource utilizations during that segment.
+To this end, we model the power consumption of a segment, , as a function:
+
+determine an appropriate function, , as in Eq. (), then we can estimate the power consumption of any segment
+given the distribution of its components and resource utilizations.
+
+Modeling techniques: We investigate two machine learning techniques to build our power model, , in Eq. ():
+() Linear Regression (LR, §.), and (ii) Neural Networks (NN, §.). These represent two very different learning
+techniques that model the dependent variable (segment-level power consumption, in our case) in terms of the
+independent input variables (component- and resource-level information). LR is a statistical technique that
+models the dependent variable as a simple linear weighted combination of the independent variables. NN is a
+learning algorithm that learns how to best combine the independent variables, possibly in a non-linear manner,
+using adaptive weights, to estimate the dependent variable. While LR is easy-to-use and quick to train, it cannot
+model non-linearities and dependencies between independent variables. NN, on the other hand, can model
+non-linearities and dependencies, but is more complex and slow to train.
+Linear Regression-based power model
+
+The key idea behind the LR model is to consider the per-component and per-resource power contributions as
+invariants, and model the device power consumption as a linear combination of these variables. That is, we
+assume that the power consumption of a given component, such as css, is constant, regardless of the Web page it
+appears in. Likewise, we assume that the power consumption for each unit of a given type of resource, such as
+CPU utilization, is constant. Lastly, we assume that the power consumption does not change during the length
+of a segment. In our experiments, we find that% of all segments have lengths belowms, a relatively short
+duration. Further, as we discuss in §., our resource sampling interval isms. Thus, we believe that our
+assumption about power being relatively constant during the segment length does not adversely affect our results
+since we only get one resource sample per segment in most cases. For longer segments, we average the resource
+utilization samples collected during the segment length. Of course, we can also impose an upper limit on segment
+length and split longer segments into multiple, shorter segments, each with its own constant power draw.
+Mathematically, we model the power consumption of a segment, , at any time as:
+
+where ; represents the average utilization for resource  during ;  represents a component type, and thus
+ € , is the set of all component types that make up segment ; ; is the frequency of component type ,
+meaning the number of type- components in the segment; finally, ; and ; are coefficients (independent of )
+representing the power contribution of the resources and components, respectively, and are variables that need
+to be determined. a represents the baseline power draw of the phone, and accounts for background activities,
+screen brightness, etc. Given this model, our goal now is to estimate the coefficients,  = (a, , ).
+
+Note that a component’ power consumption profile will not always be the same. While we model the power
+contribution of a component of type  using a constant, ;, we also capture the possibly changing resource usage
+during the component’ execution, which can account for its inconsistent power profile. In other words, we
+capture the variation between different instances of the same component by also considering their possibly
+different resource utilizations. The resource-level information thus complements the component-level information
+under RECON.
+
+We use multiple linear regression to derive the weights, , that are indicative of the power contribution of each
+component and resource. We obtain the components of a segment via Wprof- and represent their contribution
+to power using indicator variables; summing up all contributions/occurences of a component type in a segment
+
+gives us its frequency, which we use in Eq. (). Our use of a linear power model is motivated by the following
+observations: () for resources, prior work has shown that resource usage, such as CPU and network utilization,
+affect power consumption linearly to some extent [26, 41-43], and (ii) each Web component has its own modeled
+power draw (represented by ; in Eq. ()), so we linearly sum all component power contributions. Note that
+Eq. () implicitly assumes that the individual power contributions of resources and components are independent,
+and thus can be added together. While this is not necessarily true, we find that, in practice, the model represented
+by Eq. () accurately tracks total power consumption.
+ Neural Network-based power model
+
+We employ NN, more specifically, a multi-layer feed-forward network with a sigmoid activation function in the
+hidden layer, to model segment power consumption. NN offers a number of advantages, including the ability
+to implicitly detect complex non-linear relationships between dependent and independent variables [38]. A
+disadvantage is that NN is prone to over-fitting [24]. For more details, we refer the readers to Haykin [27].
+
+NN takes the component- and resource-level information detailed in §. as input nodes, and then learns how
+to best combine them, using adaptive weights, to estimate the segment power consumption that is close to the
+observed power. Note that these are the exact same inputs as we use for LR in Eq. (), namely, utilization ; for
+each resource , and frequency ; for each component type . We use a single hidden layer in our network since
+the Universal Approximation Theorem is well known for feed-forward networks with sigmoid functions [27].
+
+Mathematically, the NN model for power consumption of a segment, , is:
+where , ;,  and ; are the same as in Eq. ().  is the number of nodes in the hidden layer of the NN; we
+set  to be the average of the number of input and output nodes, as is commonly suggested for NN [28]. The ¥
+and  vectors, and the @ and @ matrices, are weights (independent of ) that need to be learned. Note that the
+number of weights to be learned for NN is at least a factor (of ) higher than that for LR. Also note that while the
+exponent for NN in Eq. () appears to be similar to the expression in the LR model, the weights can be different,
+and further, there are  different exponents in NN. We use the Truncated Newton algorithm [30] to derive the
+weight vectors and matrices that minimize the estimation error for the NN model in Eq. ().
+ Model training and testing
+We now discuss our methodology for model training and testing, which is common for both the LR and NN models.
+
+Training: We train our model on one set of Web pages and test on a different set of Web pages. In the training
+period, we randomly choose a subset of Web pages and train on multiple instantiations (or runs) of those selected
+Web pages. We then leverage the trained model to estimate the energy consumption of the remaining Web pages,
+once again for several instantiations.
+
+For each run, RECON records the power consumption values, page load component information, and resource
+utilizations. We use the instantaneous power measurements to calculate the average power, , for each segment.
+We then use regression for LL and the Newton algorithm for NN over the segments collected during the training
+runs to derive coefficients/weights for the models.
+
+Note that our models can be trained online without having to build detailed subsystem-level models as in prior
+work. For example, recent work [23] developed a CPU specific power model by running microbenchmarks at each
+possible frequency for each combination of CPU cores to train their model. Similar training experiments were
+carried out for other subsystems. For our LR and NN models, we can obtain all component- and resource-level
+coefficients and weights simultaneously by simply training over a set of Web page loads; we do not have to
+perform separate, controlled training experiments for each component or resource. Of course, our focus here is
+only on modeling the energy consumption for the browser, which allows for faster training.
+
+Testing: The coefficients/weights, derived via training, for our power models in Eqs. () and () can now be used
+to estimate the power and energy consumption of any new instantiation of any Web page without requiring
+the power monitor. The inputs are the set of components involved in the page load process and the resource
+consumptions for the new instantiation, all of which can be obtained at run time (see §.). We apply our trained
+model on the test data by substituting the learned weights,  in Eq. () for LR, and vectors ¥ andand matricesand ¢ in Eq. () for NN, along with the above-mentioned inputs. This gives us the estimated power consumption
+for every segment; we then estimate the energy consumption by multiplying the estimated power with the
+observed segment length (obtained via Wprof-). Summing up the energy consumption across all segments of
+the instantiated page gives us the estimated energy consumption of the new Web page load.
+EXPERIMENTAL SETUP
+
+We now discuss our experimental setup which we use for training, testing, and evaluation of RECON. Results for
+RECON validation and evaluation are presented in the subsequent sections (§ and §).
+ Devices and Network
+
+Our experiments are conducted using three phones: () Samsung Galaxy S4 (Android, Jelly Bean), (ii) Samsung
+Galaxy S5 (Android., Lollipop), and (iii) Galaxy Nexus (Android., Lollipop). Unless otherwise specified,
+we present results from the Galaxy S4.
+
+We experiment under several network conditions, including WiFi with different traffic conditions, and a cellular
+(4G) network. Unless specified otherwise, we use the default WiFi network withMbps download andMbps
+upload bandwidth, and ams RTT to a reference server hosted by pair Networks.
+ Power, Component, and Resource logging
+
+RECON logs the power, Web page components, and coarse-grained resources during the page load for modeling.
+We now describe each of these in turn.
+
+Logging power consumption: To measure the device power consumption, RECON uses an external power
+monitor, Monsoon [], which performs fine-grained power measurement at aKHz frequency. RECON uses the
+power monitor only to train the models and not for estimations.
+
+Figureshows our experimental setup with the Samsung Galaxy S54 device loading a sample mobile Web
+page, fico.com, while recording the instantaneous current draw and maintaining a constant voltage through the
+Monsoon power monitor.
+
+Logging Web page components: We leverage WProf- (described in §) to log the components of the Web
+page load. WProf- instruments the Android Chromium browser, Version.1626.. We run all our experiments
+on the instrumented mobile browser. The instrumentation logs provide fine-grained timing information to
+decompose the page load process into various components (an example decomposition is shown in Figure(a)).
+
+Since our focus is on Web page energy consumption, we classify components according to their expected
+energy behavior. Specifically, we group all components into: () downloads (all types, including text and images),
+(ii) js evaluation, (iii) css evaluation, and (iv) html evaluation; we group all downloads together since the energy
+consumption for a download should only depend on the object size, and not the object type.
+Fig. Our hardware setup showing the Samsung S4 under test connected to the Monsoon power monitor.
+
+extended to also consider the type of download, or even the type of image being downloaded, since the modeling
+is independent of the choice of component classification.
+
+Logging resource usage: RECON combines component-level modeling with coarse-grained resource monitoring.
+To monitor resources, we use a simple android service that records resource consumption values. Based on
+our prior work [31], we find that CPU and network are important power contributors for mobile browsers. For
+CPU, we collect per-core CPU utilization  and per-core CPU frequency .
+The device CPU power consumption is known to depend on the {utilization, frequency} pair [23, 44]; we use
+the product of utilization and frequency to account for this non-linear dependence. For network, we collect
+number of bytes transmitted and received during an interval . Although the screen power
+consumption is critical to Web page loads, Chen et al. [23] show that screen power remains fairly constant when
+displaying at a fixed brightness. Accordingly, we set the screen brightness to a constant and model the baseline
+power consumption of the device instead; in the future, we will study the impact of newer OLED displays, whose
+energy consumption changes with the content on the screen. We find that monitoring memory usage does
+not improve the estimation accuracy of RECON; we thus omit it from our logging. For our setup, we disable
+other functionalities such as GPS and audio, and do not consider them in our power model. The -value for theresource variables (12 for CPU andfor network) we consider are small, thus validating our selection (see §.).
+
+Logging methodology:
+
+Both WProf- and resource monitoring use logcat, Android’ logging software, to record raw data that is
+then analyzed offline. To maintain low monitoring overhead, we log resources every seconds, resulting in a
+less than% increase in CPU utilization. When we increase the resource monitoring frequency to once every seconds, the CPU utilization increases by more than%, which is clearly infeasible. WProf- and resource
+logging together add only aboutW to the total power consumption. Compared to the average device power
+consumption when loading a Web page without WProf- or resource logging, thisW accounts for less than% of the total power consumption.
+
+An important step in our methodology is to synchronize the power monitor measurements with the Web
+page load times. Our testing framework is completely automated using the calabash [10] scripting language that
+starts the power monitor and then loads the Web page programmatically. We let the power monitor run for a few
+
+Proc. ACM Meas. Anal. Comput. Syst., Vol. No. Article Publication date: January
+Fig. Average energy consumption (measured) across all runs for allWeb pages, sorted in ascending order.
+
+seconds to stabilize, and then load the Web page. The start of the Web page load creates a spike in current, that
+can be identified in the power monitor’ logs. We mark this time as the start of the Web page loading process.
+We note that this synchronization may not be accurate at a microsecond scale, but given that the page load
+times are on the order of several hundreds of milliseconds, this level of synchronization suffices for our purposes.
+We determine the end of the page load using WProf- logs; the page load ends when the DOMLoad event is
+fired [31]. These two events together allow us to identify portions of the power logs that correspond to the start
+and end time of the Web page load.
+ Web pages
+
+We experiment withWeb pages.Web pages are randomly selected from topAlexa Web Pages [18]
+acrossdifferent countries. The remainingWeb pages are randomly selected from pages ranked betweento on the Alexa site for diversity in page selection. We load each Web pagetimes in our experiments.
+
+The Web pages vary significantly in terms of their PLT and power/energy consumption. Figureshows the
+measured energy consumption for each of theWeb pages, averaged across theirruns, sorted in ascending
+order.
+
+Since Web pages change over time, we download the main html page locally on our server, and load the page
+from this local copy. Note that all the objects embedded in the page are still fetched from the original remote
+server over the network. Downloading the main html locally ensures that roughly the same set of objects are
+loaded in each run, though the object loads may vary because of dynamic JavaScript.
+Figure
+
+Unless specified otherwise, all Web page loads are cold loads and the cache is cleared after each load. We show
+in §. that the accuracy of our modeling remains high irrespective or whether we employ caching or not.
+RECON MODEL VALIDATION
+
+We now thoroughly validate our LR and NN models and contrast the results. We start by presenting the Web
+page-level error in §. and §., followed by the segment-level error in §.. We then contrast LR and NN in §.
+and finalize our power model for RECON.
+
+Fig. RECON validation: Percentage error in energy estimation for LR and NN models across theWeb pages, sorted by
+the error. The mean error is obtained by averaging acrossinstantiations of each Web page underruns of cross-validation.
+While this figure shows the average, Figureshows the complete CDF of the errors.
+ Modeling error for Web page energy
+
+We employ RECON to estimate the energy consumption ofWeb pages (as discussed in §.) using LR and NN
+models, and compare the model-estimated values with actual measurements from the Monsoon power meter.
+The-fold cross-validation error averaged across all instantiations of these Web pages is% under LR and% under NN. For cross-validation, we split the list ofWeb pages intosets ofpages each, and then train
+the models onof these sets. Note that each Web page is loadedtimes, so the training set consists ofpage
+loads and the test set consists ofpage loads. We then estimate the energy consumption of thepage loads
+in the test set, and compute the test error for each of theWeb pages by averaging over itsinstantiations. We
+repeat this training/testing over allcombinations of the sets and report the average test error across alltest
+sets spanning allWeb pages.
+
+Figureshows the (sorted) estimation error for all Web pages under LR and NN models. The low estimation
+error is obtained by computing the page-independent model coefficients and weights for Eq. () and Eq. (). If
+we instead train a separate model for each Web page by training over several runs of the same Web page to
+derive the weights, the error further reduces by about%. However, this severely limits the applicability of such
+page-dependent models in practice. Thus, RECON employs practical page-independent modeling which provides
+sufficiently high accuracy.
+ CDF of Web page energy modeling error
+
+Figureshows the energy estimation error for allruns of allWeb pages under LR and NN. We see that
+more than% of the errors for both LR and NN are below%, and more than% of the errors are below%.
+This shows that the error for almost all Web page loads (not just the average) is low.
+Modeling error for segment energy
+
+RECON can also be used to estimate fine-grained segment-level energy consumption directly using Eq. () for LR
+and Eq. () for NN. This is a valuable feature that allows us to analyze the impact of Web optimizations on the
+energy consumption of individual components of a page; we highlight this advantage later in §. The average
+segment-level modeling error, referred to as seg_error (to distinguish from full page estimation error), across
+
+Fig. RECON error CDF: The CDF shows the LR and NN energy estimation errors across all runs of all Web pages (800
+data points).% of the LR errors and% of the NN errors are below%.
+Fig. Average modeling seg_error (sorted) for LR and NN estimated segment energy consumption for all pages.
+
+allWeb pages is% under LR and% under NN. The full Web page estimation error is lower than
+seg_error as the over-estimation of energy for some segments is countered by the under-estimation of energy for
+other segments when computing full page energy.
+
+Figureshows the sorted energy estimation seg_error for theWeb pages under LR and NN; the order of the
+Web pages here is different from that in Figure
+
+Figureshows the actual and estimated segment-level power for specific instantiations of two Web pages
+using the LR model. We see that the estimated values closely track the measured values; results are similar for
+the NN model.
+
+To investigate the modeling error further, we consider page loads that have a high modeling error (such as
+those in the tail of Figure), and then focus on all segments in these page loads with seg_error >%. We find that
+downloads and html evaluation are among the most frequently occurring objects in these segments.
+Fig. Actual versus LR-estimated segment-level power consumptions for specific Web page instantiations.
+
+contributing significantly to the page load energy. Based on the above observations, we conclude that much of
+the modeling error can be attributed to the object downloads and html evaluation components. Note that it is not
+possible to evaluate the per-component modeling error since we cannot directly measure the actual power draw
+of each component; we can only measure the aggregate power consumption of the device.
+Why we pick LR over NN for RECON
+
+The LR model is motivated by its ease-of-use and the fact that LR is fast to train. In fact, we train our LR model
+online in a few seconds; each of our four folds of training takes aboutseconds. The possible disadvantage of LR
+is that the model is simplistic, and may result in poor accuracy.
+
+The NN model is motivated by the fact that it can model non-linearities in the input variables (componentand resource-level information) and any dependencies that might exist between them, thus providing higher
+accuracy. The disadvantage of NN is that the model training is time consuming, aboutmins for a single fold
+of our NN training, and requires expert knowledge to determine the model parameters such as the number of
+intermediate nodes and layers.
+
+The-fold cross-validation error for estimating the Web page energy consumption is% for LR and%
+for NN, as shown in Figure Clearly, both models have high accuracy, and LR has only marginally higher (by%) test error. Given the simplicity and fast training time for LR, we are inclined to employ LR in our modeling.
+
+But most importantly, LR allows us to easily deconstruct the individual power contributions of each component
+and resource, which is the main motivation for the design of RECON. Based on Eq. () for LR, the power
+contribution of component  is ;, and that of resource  is #; per unit of utilization. Using  [35], we find that the
+-values of all components and resources in the LR model are less than~°. The low -values indicate that the
+specific component and resource variables we choose in the LR model (see §.) are statistically significant.
+
+While NN modeling also provides weights for all nodes, it is not obvious what these values represent since they
+could be weights for non-linear combinations of components and resources, making it hard to deconstruct the
+individual power contributions of each component or resource. For example, collecting all weights for any ; or
+; in Eq. () is clearly non-trivial given the several exponent functions that appear in a summation of non-linear
+terms.
+
+For these reasons, we choose the LR model for RECON in the rest of this paper.
+
+Page loadnumber — Page loadnumber —> Page load number —>
+(a) Actual and estimated energy for newegg.com () Actual and estimated energy for () Actual and estimated energy for
+acrossdifferent runs. stackoverflow. com acrossdifferent runs. whatsapp.com acrossdifferent runs.
+Fig. Error across runs of the same page. Despite the variance in energy, RECON accurately estimates the energy
+consumption for each run for the above example Web pages. Numbers above the bars denote the error for each run.
+RECON EVALUATION
+
+In this section we provide further evaluation of RECON using our LR model. In particular, we evaluate RECON for
+different devices (§.), under different network conditions (§.), and in the presence of page load variance (§.)
+and Web enhancements (§.). Finally, we compare RECON, quantitatively and qualitatively, with resource-only
+and component-only modeling in §..
+ Evaluating RECON for different devices
+
+RECON’ online modeling approach is not specific to the $ device we use and can be extended to other devices
+as well. We use our modeling approach to train and estimate the energy consumption of ten Web pages on the
+Galaxy S5 and Galaxy Nexus devices (see §.). We obtain a low full page mean modeling error of% and
+seg_error of% for the S5, and modeling error of% and seg_error of% for the Nexus. Note that the
+model has to be retrained for each device because of the significant differences in the architecture and features
+between them; the need for device-specific models was also emphasized in prior work [33, 43]. However, we
+emphasize that, within the scope of our evaluation, our model is page-independent, as illustrated by the results
+in §. and §..
+ Evaluating RECON for different networks
+
+Thus far our experimental results employed the default WiFi network described in §.. It is interesting to
+ask whether the power model trained on this default network can be used to accurately estimate the energy
+consumption on a different network. Specifically, can the weights derived in Eq. () via training on one network
+provide accurate estimates for energy consumption on another network? We use the above-derived model, trained on
+the default network, to estimate energy consumption of ten different Web pages under three different networks.
+Lower bandwidth: We use Linux’ traffic control (tc) to lower the upload and download bandwidth toMbps;
+this increases the average PLT by about%. Our average energy estimation error across ten different Web pages
+is% and the seg_error is%.
+
+Higher RTT: We use tc to increase the RTT (150ms to the reference server) while keeping the default network
+bandwidth; this increases average PLT by about%. Our average estimation error across ten different Web pages
+is% and the seg_error is%.
+
+Cellular network: We also experiment with aG LTE cellular network (AT&) instead of WiFi. The cellular
+network hasMbps download andMbps upload bandwidth, andms RTT to the reference server. We
+train our model on the cellular network and then test on ten different Web pages also on the cellular network.
+The modeling error is% and the seg_error is%.
+Table RECON modeling error for different enhancements.
+
+the WiFi environment and tested on the cellular environment (21.% modeling error). As a result, the model has
+to be retrained for each network type.
+ RECON under page load variance
+
+There is significant variance between loads of the same Web page. It is thus interesting to ask whether RECON
+can accurately estimate the energy consumption for each instantiation of a Web page. While Figureshows the
+CDF across all instantiations of all Web pages, Figureshows the actual and estimated energy consumption for
+all instantiations ofspecific Web pages, newegg. com, stackoverflow. com and whatsapp.com. We see that the
+error for every instantiation is less than%. The energy consumption across different runs varies by as much as%. RECON’ estimated energy consumption is in agreement with the actual energy consumption across all
+instantiations, despite the variance.
+ RECON under page enhancements
+
+RECON can also be used to estimate Web page energy consumption under Web enhancements, including compression, inlining, ad blockers, and caching (that is, without cold loads). Tableshows the RECON modeling error
+for different enhancements; we explain these enhancements in detail, including their setup and implementation,
+in §.
+ Comparison with resource-only modeling
+
+RECON leverages both resource-level information and component-level information when modeling Web page
+and segment-level energy consumption. Instead, one could leverage only resources, as in prior work (..,
+PowerTutor [43], -edge [41], and WattsOn [29]), to construct similar models. However, such models do not
+perform as well as RECON.
+
+When we model power consumption using only resource-level information, the modeling accuracy is limited by
+the resource monitoring frequency which needs to be low (10/second, in our case) to ensure low CPU and power
+overhead (see §.). For example, using resource-only modeling increases the error by about% for bing. com
+and about% for craigslist.org when compared to RECON. This result was obtained using the exact sameresource metrics used for RECON, collected at the same frequency (once everys), and using the LR model.
+Although related works suggest logging resources every few seconds [23], we find that lowering the resource
+monitoring frequency to-seconds increases average modeling error across all page loads by%. In the
+context of this work, resource-only models can not provide visibility into the power consumption of individual
+page load activities. RECON, on the other hand, can provide such visibility, thus enabling the analyses of Web
+optimizations as presented in §.
+
+However, resource-level information is important and cannot be completely dismissed. In particular, models
+that only rely on component-level information perform poorly as they cannot distinguish between the resource
+utilization levels for various phases of a component load. For example, an image load might involve fetching
+the image from the server and possibly rendering it locally. These different phases are treated equally under
+WProf-, and can result in poor accuracy for such components when not leveraging resource information.
+Fig. The figure depicts the variations in power consumption (top) and resource usage (bottom) for a segment of fico.com
+where only one long component (image/gif download) was present.
+
+segment during the loading of fico.com. As shown, the power and resource usage vary considerably during the
+loading of this segment; component-only models cannot capture this information and often have poor accuracy.
+Using the same examples as for resource-only modeling above, component-only modeling increases the modeling
+error by about% for bing. com and about% for craigslist.org, when compared to RECON.
+ Comparison with PLT-only modeling
+
+We now compare RECON with a simple power model that only relies on PLT. In particular, we consider a linear
+regression model which uses PLT as the only explanatory variable:
+
+where Epage is the estimated energy consumption of the page load and cy and , are coefficients to be deterimined
+(via regression). We test this model on the full set of page loads, and find that the PLT-only model given by Eq. ()
+has a% higher-fold cross-validation error than RECON. This simple result highlights the need to incorporate
+information about components and resources into the model to account for variations in power throughout the
+page load.
+CASE STUDIES ENABLED BY RECON
+
+A key application of RECON is in providing visibility into both how and why Web page enhancements affect
+energy consumption. We show four case studies that exemplify RECON’ explanatory power. In each of the four
+cases, we find that an enhanced Web page results in non-intuitive energy behavior, and use RECON’ constituent
+(component- and resource-level) analysis to analyze this behavior. The enhancements (and the non-intuitive
+behavior) studied are: () An Ad blocker [] that significantly hurts energy even though the PLT is not significantly affected, (ii) Caching that improves energy disproportionately compared to PLT, (iii) A more powerful
+compression optimization providing worse performance than a less powerful one, and (iv) Inlining optimization
+that helps PLT and energy under one network condition, but hurts PLT and energy under another network
+condition.
+Fig. Normalized power contribution estimations for components and resources based on our LR modeling.
+
+Experimental setup: For each case study, we loadWeb pages with and without the enhancement, and
+measure the PLT and energy consumption over multiple runs. The Web pages were chosen from Alexa’ top
+million list to reflect a broad range of page sizes; for Ad blocker, we also consider sites that are known to contain
+ads so as to trigger the ad blocking. We note that, extensively studying each of these Web enhancements is
+outside the scope of this work. Our goal is to use RECON to explain certain non-trivial behaviors observed in
+our case study, thus highlighting the advantages of our main contribution, RECON. As shown in §., our mean
+estimation error for the four enhancements using this setup is less than%.
+
+To enable the enhancements, we serve these Web pages from our local Web server by downloading all contents
+from the remote servers; note that many of the Web enhancements are applied at the Web server requiring that
+we have control over the Web server. To maintain the links, we launch a separate virtual DNS and Web server for
+all domains involved.
+Breaking down energy consumption into its constituents using RECON
+
+We use RECON to analyze any non-intuitive behavior that we observe in our case studies. Specifically, RECON
+breaks down the estimated Web page energy consumption into the energy consumed by Web components and
+resources, both before and after the enhancement is applied. As discussed in §., we classify components as
+object downloads, and evaluation of js, css, and html; for resources, we focus on CPU and network related metrics.
+
+Recall, from §., that the coefficients () in the LR model (Eq. ()) correspond to the relative contribution of
+each component and resource to total power consumption. Multiplying the coefficients with the component
+and resource lengths gives us their energy contribution — the energy spent in downloading objects, the energy
+spent is evaluating js, css, and html, and the energy consumed by the device due to CPU and network activities
+unrelated to the components. This provides the needed visibility into the energy effects of the page enhancement;
+such visibility is not possible by relying solely on power meters that only report aggregate power consumption at
+any time, or resource-based power models that can not deconstruct the power into constituent Web component
+contributions.
+
+To illustrate this visibility, consider Figure which shows our model-estimated power contributions for
+components and resources. For ease of presentation, we normalize the contributions such that they lie in the
+[, ] range, with the smallest contribution, eval css, set to The components from left to right are evaluation of
+js, css, and html, and downloads; these are followed by resource variables which represent the power consumed
+by the CPU per unit of utilization, per unit of GHz, and per unit of (utilization -GHz), and the power consumed
+
+by the network transfer activities. Of course, these are only power contributions. We must also consider the
+component and resource lengths for each segment or page to obtain their energy contributions.
+ Case Study #: Ad Blocker
+
+One popular technique to block unwanted advertisements and malware is to block them at the name resolution
+phase. This technique, also called the hosts file ad blocking, maintains a blacklist of malware and ad domains.
+Before the browser loads an object, it checks this blacklist. If the object domain is blacklisted, it will be resolved
+to an IP address (.., 127...) with no service. We use a popular hosts file ad blocker called BSDgeek_Jake in
+our case study [36].
+
+For two Web pages that were known to have malware, the ad blocker significantly reduced both PLT and
+energy. This is not surprising, since the ad blocker saves time and energy by blocking blacklisted objects that will
+then not be loaded.
+
+However, for the remainingWeb pages (that did not have any blacklisted objects embedded in them), loading
+the Web page with the ad blocker increased energy by%. Surprisingly, the PLT did not increase correspondingly,
+and on an average, the PLT increase was only%. This non-correlation between PLT and energy is problematic
+for a Web developer or even the user. The BSDgeek_Jake is popular since the blocker either improves PLT or
+leaves PLT unaffected; but its negative effect on energy needs to be understood to make informed decisions about
+its use.
+
+Performing the energy break down of allWeb pages, we find that when using ad blocker, the CPU resource
+energy increases by an average of%. Recall (§.) that the CPU resource energy is the energy consumed by the
+CPU, not by the components. In fact, using RECON, we find that the other constituents that make up the total
+energy, including the Web components and network usage, see little change with and without the ad blocker for
+theWeb pages that have no blacklisted objects.
+
+This indicates that it is not the Web page components, but other external compute activities, that are causing
+this energy increase. This external computation activity likely involves scanning the entire blacklist file before
+loading each object. The BSDgeek_Jake has more thanK entries for ads/malware domain, and matching
+each domain against this list is known to be power hungry [36]. We note that while a power monitor can detect
+this increase in energy, it cannot explain why the energy increases. Similarly, resource-based power models can
+identify that the CPU energy is high, but cannot identify if the energy is high due to Web page load activities or
+other external factors.
+ Case Study #: Effect of Caching
+
+Caching objects locally at the client saves a round trip time during the Web page load process, improving
+performance. For our experiments, we load the page once and cache all the first-level embedded objects: css, js,
+and images. Other dynamic objects such as ads are still fetched from the server. The effect of caching is studied
+by reloading the Web page immediately after the first load.
+
+In most case, as expected, both PLT and energy reduces significantly when using caching, and the reduction
+is well correlated. But inof the Web pages, the reduction in energy is much more pronounced compared to PLT.
+In some cases, the original Web page load consumes double the energy compared to when objects are cached,
+but the PLT reduction is only%. Again, this observation has implications for Web developers. A developer
+may conduct performance tests, conclude that caching is not useful, and may disable caching, even though it can
+provide energy benefits.
+
+Figureshows the visualization of stackoverflow.com when the Web page is loaded with and without
+caching. Caching only eliminates one object on the critical path (shown in red). The other activities on the
+critical path are compute activities that are not affected by caching. As a result caching does not greatly help
+performance.
+
+www.irs.gov when compression levelis applied Time (ms)
+
+Finally, we analyze why other Web pages do not see improvements when using compression even under the slow
+network. We find that, for most of the Web pages in our experiment, the root html file is small, and compressing
+this file further does not provide enough benefits. Further, for these Web pages, either the js/css objects are small
+or not on the critical path. Therefore, compressing these objects provides only modest improvements to energy
+and PLT.
+ Case Study #: Inlining Optimization
+
+The inlining optimization embeds external js and css in the root html file; as in the case of caching, only the
+first-level objects are inlined. Inlining makes the initial html file larger, increasing the network latency and
+energy to download. However, once downloaded, there is no need to fetch the external js and css objects since
+the html file already has them inlined, thus avoiding several small downloads. Further, inlining reduces network
+dependencies.
+
+We load theWeb pages with and without inlining under two different network conditions: A fast network
+condition which is our typical experimental set up and a slower network condition, as described in the compression
+case study.
+
+In the fast network condition,  of theWeb pages benefit from inlining, with an average PLT reduction
+of% and average energy reduction of%. The remaining Web pages are small (load withinseconds) and
+do not benefit significantly from inlining. On the slower network, we see a surprising reversal of trends. The
+smaller Web pages are not affected by inlining, as before. However, for one of the Web pages, collegehumor. com,
+inlining hurts PLT by a median%. For this same Web page, inlining helped PLT by% in the fast network.
+Worse, under the slow network, energy increases by% upon inlining while the energy decreases under the
+faster network. This behavior has implications for Web developers, who need to consider the different effects of
+their optimization under different network conditions.
+
+Our constituent analysis shows that, under slow network conditions, the energy consumption of the download
+component increases upon inlining. In other words, the energy consumption for loading one large object (inlining)
+is higher than the energy consumption of smaller objects (default) under poor network conditions. In the fast
+network, there is not much difference in the energy of the download components.
+
+But our observation for the download component indicates that all Web pages should see poor performance
+under inlining under slow networks; however, we see this behavior for only one of the Web pages. Here we find
+that collegehumor .com has a large number of embedded images which are dependent on the html download.
+When the html download gets delayed, the subsequent image downloads also get delayed, leading to increased
+PLT and increased energy. Other Web pages did not have this dependency.
+
+Note that, in all the above examples, RECON can help identify which resources/components are causing the
+energy drain. Explaining the root cause of why these constituents are causing the energy drain is beyond the
+scope of RECON.
+RELATED WORK
+
+Given the importance of smartphone energy consumption, there has been considerable interest in modeling
+device power. Below, we categorize the related work in terms of the techniques used for modeling.
+
+Utilization-based power models: One of the most common modeling techniques for smartphone power is
+resource utilization-based models. These models leverage the correlation between resource utilization and the
+energy consumption. The typical modeling approach in to first establish a power model for individual hardware
+components on the phone including the CPU, GPU, Screen, and the Network. Data for the model training is
+typically collected using an external power monitor. PowerTutor [43] uses the Monsoon power monitor [] to
+measure the energy consumption under various CPU frequencies, WiFi data transfer rates, and screen brightness
+
+settings. PowerTutor estimates the power consumption on phones based on the battery discharge patterns and
+the utilization-based models.
+
+In many cases, utilization does not directly correlate with power consumption; for example, in cellular networks,
+the power consumption continues even after all data transfer finishes, because of tail effects [20]. To address this,
+researchers use advanced models, such as finite state machines (FSM), to represent the power consumption of
+resources that do not correlate well with utilization alone [34]. PowerTutor itself uses an FSM to build a model for
+cellular/WiFi power consumption. Chen et al. [23] use a hybrid model which uses a utilization-based model for
+CPU and GPU, an FSM-based power model for wireless interfaces, and the average power usage of activities such
+as WiFi beacon, cellular paging, and SOC suspension. Rather than using a commodity external power monitor
+to model the power consumption of resources, Carroll et al. [22] use special hardware to measure the power
+consumption. In most of the above works, the resource monitoring frequency is on the order of once per second
+[23, 33], which is insufficient for modeling Web pages (see §.).
+
+ARO [34] is a complementary approach that models the device’ radio power consumption by analyzing
+cellular packet traces to infer the RRC (Radio Resource Control) states. Since ARO focuses on radio, it does not
+take into account the energy consumed by CPU and Web components. As illustrated by our case studies in §,
+the energy consumed by these constituents is non-trivial and can be critical in reasoning about Web page energy
+consumption. Nonetheless, ARO’ bottom-up approach to track the radio energy can be invaluable to analyze
+high throughput apps, and is complementary to RECON.
+
+Power models using battery dynamics and system monitoring: The utilization-based approaches require
+external power monitors (or custom hardware) and exhaustive training. Instead, other research works [26, 41, 42]
+propose to build energy models without an external power monitor. Dong et al. [26] leverage the smart battery
+interface on phones to get accurate battery consumption, and use this to build power models. -edge [41] models
+smartphone power by leveraging the instant battery voltage dynamics. Voltage levels change as the battery
+drains, and -edge learns this correlation. Appscope [42] models power consumption by monitoring the changes
+at the kernel. AppScope monitors fine-grained utilization at the Android Binder level and at the system call
+level. Pathak et al. [33] perform fine-grained system call tracing to model power consumption. They combine the
+system call tracing with FSM power models to handle non-utilization-based power behaviors, such as the tail
+power [20].
+
+Building power models for in-the-wild studies: Shye et al. [37] employ the utilization-based modeling
+approach to study the power behavior in the wild. Thisstudy finds that CPU and screen are the two biggest
+power consumers. Recently, Chen et al. [23] perform a more sophisticated utilization-based power modeling. The
+paper describes a large-scale user study that examines the power consumption patterns ofdevices.
+Power consumption of mobile browsers: There have been relatively few studies on power consumption of
+specific applications, such as the mobile browser. While Qian et al. [34] study the resource and power consumption
+of mobile browsers, they focus on the power consumed by the networking component of the browsers alone.
+Our results (§.) show that browsers perform both networking and computing activities, and both consume
+considerable power. We thus study the power consumption of mobile browsers as a whole.
+
+The works described above, with the exception of Qian et al. [34], are macro-level studies: they study the
+power consumption of the entire smartphone or long-running apps. Instead, the goal of RECON is to study the
+power consumption at the micro-level for a specific application, namely mobile browsers. Leveraging utilization
+models [23, 43] for such small time scales incurs high resource overhead, and consequently results in poor
+modeling accuracy. System call or kernel tracing techniques [26, 41, 42] are operating system specific, and
+not application specific. Instead, RECON combines application-specific component analysis with coarse-grained
+resource modeling.
+
+Note that there are other works, such as Zhu et al. [45, 46], that aim to improve browser power consumption,
+but do not focus on modeling.
+
+CONCLUSION
+
+Accurate energy modeling of the page load process is challenging because Web pages are complex and short-lived.
+Deconstructing the energy consumption into constituent component- and resource-level contributions is even
+more challenging because power monitors only report aggregate power consumption values. We present RECON,
+a modeling approach that combines low-level page load information with coarse-grained resource monitoring. We
+show that RECON can predict the energy consumption ofWeb page loads with a mean error of less than%. We
+employ RECON to accurately predict the impact of four different Web page optimizations. Importantly, RECON’
+component- and resource-level energy deconstruction provides visibility into how and why an optimization
+affects energy consumption; this information can be invaluable to Web developers and content providers who
+wish to design efficient Web pages. The RECON model is currently implemented in MATLAB. Code and relevant
+scripts for RECON have been made available online [12].
+
+

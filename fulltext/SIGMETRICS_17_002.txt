@@ -1,0 +1,762 @@
+Optimal Service Elasticity in Large-Scale Distributed Systems
+
+ABSTRACT
+---
+A fundamental challenge in large-scale cloud networks and data centers is to achieve highly efficient server
+utilization and limit energy consumption, while providing excellent user-perceived performance in the presence
+of uncertain and time-varying demand patterns. Auto-scaling provides a popular paradigm for automatically
+adjusting service capacity in response to demand while meeting performance targets, and queue-driven autoscaling techniques have been widely investigated in the literature. In typical data center architectures and cloud
+environments however, no centralized queue is maintained, and load balancing algorithms immediately distribute
+incoming tasks among parallel queues. In these distributed settings with vast numbers of servers, centralized
+queue-driven auto-scaling techniques involve a substantial communication overhead and major implementation
+burden, or may not even be viable at all.
+
+Motivated by the above issues, we propose a joint auto-scaling and load balancing scheme which does not
+require any global queue length information or explicit knowledge of system parameters, and yet provides provably
+near-optimal service elasticity. We establish the fluid-level dynamics for the proposed scheme in a regime where
+the total traffic volume and nominal service capacity grow large in proportion. The fluid-limit results show that
+the proposed scheme achieves asymptotic optimality in terms of user-perceived delay performance as well as
+energy consumption. Specifically, we prove that both the waiting time of tasks and the relative energy portion
+consumed by idle servers vanish in the limit. At the same time, the proposed scheme operates in a distributed
+fashion and involves only constant communication overhead per task, thus ensuring scalability in massive data
+center operations. Extensive simulation experiments corroborate the fluid-limit results, and demonstrate that the
+proposed scheme can match the user performance and energy consumption of state-of-the-art approaches that do
+take full advantage of a centralized queue.
+---
+ INTRODUCTION
+
+Background and motivation. Over the last two decades, data centers and cloud networks have evolved
+into the digital factories of the world. This economical and technological evolution goes hand in hand
+with a pervasive trend where human lives are increasingly immersed in a digital universe, sensors and
+computers generate ever larger amounts of data, businesses move IT processes to cloud environments,
+and network functions are migrated from dedicated systems to shared infrastructure platforms. As a
+result, both the sheer volume and the scope of applications hosted in data centers and cloud networks
+continue to expand at a tremendous rate. Indeed, a substantial portion of the applications hosted in these
+systems increasingly have highly stringent performance requirements in terms of ultra-low latency and
+high reliability. There is strong empirical evidence thatms delay can have a major adverse impact on
+ecommerce sales, and just a few ms latency can have catastrophic consequences for real-time processing
+and control functions that are migrated to cloud networks. In addition, the energy consumption has risen
+dramatically and become a dominant factor in managing data center operations and cloud infrastructure
+platforms. The energy consumption in US data centers is estimated to be aroundmillion MegaWatt
+hours annually, the equivalent ofmillion homes, which has not only made cooling a challenging issue,
+but also carries immense financial and environmental cost.
+
+A crucial challenge in the above context is to achieve efficient server utilization and limit energy
+consumption while providing excellent user-perceived performance in the presence of uncertain and
+time-varying demand patterns. This is strongly aligned with the critical notion of service elasticity, which
+is at the heart of cloud technology and network virtualization. Service elasticity hinges on the basic
+premise that the sheer amount of available resources is abundant, and not likely to act as a bottleneck
+in any practical sense. Thus the key objective is to dynamically scale the amount of resources that are
+actively utilized with the actual observed load conditions so as to curtail cost and energy consumption,
+while satisfying certain target performance criteria. Achieving ideal service elasticity is highly challenging,
+since ramping up service capacity involves a significant time lag due to the lengthy setup period required
+for activating servers, which typically exceeds the latency tolerance of real-time processing and control
+functions by orders-of-magnitude. This can be countered by keeping an ample number of idle servers on,
+which however would result in substantial cost and energy wastage. As a further issue that adds to the
+above challenge, scalability requires low implementation overhead and minimal state exchange, especially
+in distributed systems with huge numbers of servers.
+
+Auto-scaling provides a popular paradigm for automatically adjusting service capacity in response
+to fluctuating demand, and is widely deployed by major industry players like Amazon Web Services,
+Facebook, Google and Microsoft Azure. While some auto-scaling approaches are primarily predictive in
+nature, and use load forecasts based on historical records, more advanced mechanisms that have been
+proposed in the literature operate in a mostly reactive manner. The latter mechanisms exploit actual
+load measurements or state information from a centralized queue to dynamically activate or deactivate
+servers, and are inherently better suited to handle unpredictable load variations. In typical data center
+architectures and cloud environments however, no centralized queue is maintained, and load balancing
+algorithms immediately distribute incoming tasks among parallel queues. In these distributed settings
+with vast numbers of servers, centralized queue-driven auto-scaling techniques involve a substantial
+communication overhead and major implementation burden, or may not even be viable at all. Indeed, even
+if global queue length information could be gathered, the lack of a centralized queueing operation implies
+that the overall system is not work-conserving, .., some servers may be idling while tasks are waiting at
+other servers. Aside from the communication overhead, it hence remains unclear what performance to
+
+
+expect in non-work-conserving scenarios from auto-scaling techniques designed for a centralized queue.
+
+Key contributions. Urged by the above observations, we propose in the present paper a joint auto-scaling
+and load balancing scheme which does not require any global queue length information or explicit
+knowledge of system parameters, and yet achieves near-optimal service elasticity. We consider a scenario
+as described above where arriving tasks must instantaneously be dispatched to one of several parallel
+servers. For convenience, we focus on a system with just a single dispatcher, but the proposed scheme
+naturally extends to scenarios with multiple dispatchers.
+
+The proposed scheme involves a token-based feedback protocol, allowing the dispatcher to keep track of
+idle-on servers in standby mode as well as servers in idle-off mode and setup mode. Specifically, when a
+server becomes idle, it sends a message to the dispatcher to report its status as idle-on. Once a server has
+remained continuously idle for more than an exponentially distributed amount of time with parameter
+ps >(standby period), it turns off, and sends a message to the dispatcher to change its status to idle-off.
+
+When a task arrives, and there are idle-on servers available, the dispatcher assigns the task to one of
+them at random, and updates the status of the corresponding server to busy accordingly. Otherwise, the
+task is assigned to a randomly selected busy server. In the latter event, if there are any idle-off servers,
+the dispatcher instructs one of them at random to start the setup procedure, and updates the status of
+the corresponding server from idle-off to setup mode. It then takes an exponentially distributed amount of
+time with parameter  >(setup period) for the server to become on, at which point it sends a message
+to the dispatcher to change its status from setup mode to idle-on.
+
+Note that tasks are only dispatched to ‘on’ servers (idle or busy), and in no circumstance assigned
+to an ‘off server (idle-off or setup mode). Also, a server only sends a (green, say) message when a task
+completion leaves its queue empty, and sends at most one (red, say) message when it turns off after a
+standby period per green message, so that at most two messages are generated per task.
+
+In order to analyze the response time performance and energy consumption of the proposed scheme,
+we consider a scenario with  homogeneous servers, and establish the fluid-level dynamics for the
+proposed scheme in a regime where the total task arrival rate and nominal number of servers grow large
+in proportion. This regime not only offers analytical tractability, but is also highly relevant given the
+massive numbers of servers in data centers and cloud networks. The fluid-limit results show that the
+proposed scheme achieves asymptotic optimality in terms of response time performance as well as energy
+consumption. Specifically, we prove that for any positive values ofand  both the waiting time incurred
+by tasks and the relative energy portion consumed by idle servers vanish in the limit. The latter results
+not only hold for exponential service time distributions, but also extend to a multi-class scenario with
+phase type service time distributions. To the best of our knowledge, this is the first scheme to provide
+auto-scaling capabilities in a setting with distributed queues and achieve near-optimal service elasticity.
+Extensive simulation experiments corroborate the fluid-limit results, and demonstrate that the proposed
+scheme can match the user performance and energy consumption of state-of-the-art approaches that do
+assume the full benefit of a centralized queue.
+
+Discussion of related schemes and further literature. As mentioned above, centralized queue-driven
+auto-scaling mechanisms have been widely considered in the literature [, 11, 17, 18, 20-22, 29, 35, 37].
+Under Markovian assumptions, the behavior of these mechanisms can be described in terms of various
+incarnations of  queues with setup times. A particularly interesting variant considered by Gandhi
+et al. [11] is referred to as . In this mechanism, when a server  finishes a service,
+and finds no immediate waiting task, it waits for an exponentially distributed amount of time with
+parameter ys. In the meantime, if a task arrives, then it is immediately assigned to server  (or one of the
+
+
+idle-on servers at random), otherwise server  is turned off. When a task arrives, if there is no idle-on server,
+then it selects one of the switched off servers ’ say (if any), starts the setup procedure in ’, and waits in
+the queue for service. The setup procedure also takes an exponentially distributed amount of time with
+parameter . During the setup procedure, if some other server completes a service, then the waiting task
+at the head of the queue is assigned to that server, and the server ’ terminates its setup procedure unless
+there is any task  waiting in the queue that had not started a setup procedure (due to unavailability
+of idle-off servers at its arrival epoch). In the latter event, the server continues to be in setup mode for
+task . Gandhi et al. [11] provide an exact analysis of this model, and observe that this mechanism
+performs very well in a work-conserving pooled server scenario. There are several further recent papers
+which examine on-demand server addition/removal in a somewhat different vein [26, 27]. Generalizations
+towards non-stationary arrivals and impatience effects have also been considered recently [29].
+
+Another related strand of research that starts from the seminal paper [38] is concerned with scaling
+the speed of a single processor in order to achieve an optimal trade-off between energy consumption
+and response time performance. In this framework, a stream of tasks having specific deadlines arrive
+at a processor that either accepts the task and finishes serving it before the deadline, or discards the
+task at arrival. The processor can work faster at the cost of producing more heat. To strike the optimal
+balance between the revenue earned due to task completions and the energy usage, the server can scale
+its speed, (possibly) depending on its current load. Dynamic versions of this speed-scaling scenario have
+been studied in [, , , 36, 37] A further research direction [, 17, 18, 20-22] considers online algorithms
+for the use of green-energy sources distributed across geographically different locations that meet the
+energy demands and reduce expensive energy storage capacity.
+
+In case standby periods are infinitely long, idle servers always remain active and the proposed scheme
+corresponds to the so-called Join-the-Idle-Queue (JIQ) policy, which has gained huge popularity recently
+[, 23, 25]. In the JIQ policy, idle servers send tokens to the dispatcher to advertize their availability.
+When a task arrives and the dispatcher has tokens available, it assigns the task to one of the corresponding
+servers (and disposes of the token). When no tokens are available at the time of a task arrival, the task is
+simply dispatched to a randomly selected server.
+
+Fluid-limit results in [32, 33] show that under Markovian assumptions, the JIQ policy achieves a zero
+probability of wait for any fixed subcritical load per server in a regime where the total number of servers
+grows large. Results in [25] indicate that the JIQ policy exhibits the same diffusion-limit behavior as
+the Join-the-Shortest-Queue (JSQ) strategy, and thus achieves optimality at the diffusion level. These
+results show that the JIQ policy provides asymptotically optimal delay performance while only involving
+minimal communication overhead (at most one message per task). However, in the JIQ policy no servers
+are ever deactivated, resulting in a potentially excessive amount of energy wastage. The scheme that we
+propose retains the low communication overhead of the JIQ policy (at most two messages per task) and
+also preserves the asymptotic optimality at the fluid level, in the sense that the waiting time vanishes
+in the limit. At same time, however, any surplus idle servers are judiciously deactivated in our scheme,
+ensuring that the relative energy wastage vanishes in the limit as well.
+
+Organization of the paper. The remainder of the paper is organized as follows. In Sectionwe present a
+detailed model description, and provide a specification of the proposed scheme. In Sectionwe state the
+main results, and offer an interpretation and discussion of their ramifications with the full proof details
+relegated to Section In Sectionwe describe how the fluid-limit results extend to phase type service
+time distributions. In Sectionwe discuss the simulation experiments that we conducted to support the
+analytical results and to benchmark the proposed scheme against state-of-the-art approaches. We make a
+few brief concluding remarks and offer some suggestions for further research in Section
+
+DETAILS OF MODEL AND ALGORITHM
+
+Model description. Consider a system of  parallel queues with identical servers and a single dispatcher.
+Tasks with unit-mean exponentially distributed service requirements arrive as a Poisson process of rate
+An() = NX() at time  > where (-) is a bounded positive real-valued function, bounded away from
+zero. In case of a fixed arrival rate, A() = A is assumed to be constant. Incoming tasks cannot be queued
+at the dispatcher, and must immediately and irrevocably be forwarded to one of the servers where they
+can be queued, possibly subject to a finite buffer capacity limit . The service discipline at each server
+is oblivious to the actual service requirements (.., FCFS). A turned-off server takes an Exp() time
+(setup period) to be turned on.
+
+We now introduce a token-based joint auto-scaling and load balancing scheme called TABS (Tokenbased Auto Balance Scaling).
+
+Algorithm specification. TABS:
+
+ When a server becomes idle, it sends a ‘green’ message to the dispatcher, waits for an Exp
+time (standby period), and turns itself off by sending a ‘red’ message to the dispatcher (the
+corresponding green message is destroyed).
+
+ When a task arrives, the dispatcher selects a green message at random if there are any, and
+assigns the task to the corresponding server (the corresponding green message is replaced by
+a ‘yellow’ message). Otherwise, the task is assigned to an arbitrary busy server, and if at that
+arrival epoch there is a red message at the dispatcher, then it selects one at random, and the
+setup procedure of the corresponding server is initiated, replacing its red message by an ‘orange’
+message.
+
+ Any server which activates due to the latter event, sends a green message to the dispatcher (the
+corresponding orange message is replaced), waits for an Exp() time for a possible assignment of
+a task, and again turns itself off by sending a red message to the dispatcher.
+
+The TABS scheme gives rise to a distributed operation in which servers are in one of four states (busy,
+idle-on, idle-off or standby), and advertize their state to the dispatcher via exchange of tokens. Figure
+illustrates this token-based exchange protocol. Note that setup procedures are never aborted and continued
+even when idle-on servers do become available. When setup procedures are terminated in the latter event,
+the proposed scheme somewhat resembles the delayed-off scheme considered by Gandhi et al. [11] in
+
+terms of auto-scaling actions. This comes however with an extra overhead penalty, without producing
+any improvement in response time performance or energy consumption in the large-capacity limit, as will
+be shown later.
+
+Notation. Let denote the system occupancy state, where QJ () is
+the number of servers with queue length greater than or equal to  at time ¢, including the possible task
+in service. Also, let Aq’ () and Aj’() denote the number of idle-off servers and servers in setup mode at
+time , respectively. Note that the process (QV (), Ay’ (), AY ())> provides a proper state description
+by virtue of the exchangeablity of the servers and is Markovian. The exact analysis of the above system
+becomes complicated due to the strong dependence among the queue length processes of the various
+servers. Moreover, the arrival processes at individual servers are not renewal processes, which makes
+the problem even more challenging. Thus we resort to an asymptotic analysis, where the task arrival
+rate and number of servers grow large in proportion. In the limit the collective system then behaves like
+a deterministic system, which is amenable to analysis. The fluid-scaled quantities are denoted by the
+respective small letters, viz. gN () := QN ()/, 66 () = Ad’ ()/, and() = AN (@)/. For brevity in
+
+
+denote the space of all fluid-scaled occupancy states, so that (%(),%()) €  for all . Endow 
+with the product topology, and the Borel -algebra €, generated by the open sets of . For stochastic
+boundedness of a process we refer to [28, Definition]. For any complete separable metric space ,
+denote by Dz[, 00), the set of all -valued cdédlag (right continuous with left limit exists) processes.
+
+By the symbol ‘’ we denote weak convergence for real-valued random variables, and convergence with
+respect to Skorohod-; topology for cadlag processes.
+OVERVIEW OF RESULTS
+
+In this section we provide an overview of the main results and discuss their ramifications. For notational
+transparency, we focus on the case of exponential service time distributions. In Sectionwe show how
+some of the results extend to phase type service time distributions, at the expense of more complex
+notation.
+
+
+We now provide an intuitive explanation of the fluid limit stated above. The term () corresponds to
+the asymptotic fraction of idle-on servers in the system at time ¢, and €() represents the asymptotic
+cumulative number of server setups (scaled by NV) that have been initiated during (, ]. The coefficient
+pi(,,) can be interpreted as the instantaneous fraction of incoming tasks that are assigned to some
+server with queue length when the fluid-scaled occupancy state is (, ) and the scaled instantaneous
+arrival rate is A. Observe that as long as  > there are idle-on servers, and hence all the arriving tasks
+will join idle servers. This explains that if  > po(,,A) =and ;(,,A) =fori =,...,—-.
+If  = then observe that servers become idle at rate q1 — g2, and servers in setup mode turn on at
+ratev. Thus the idle-on servers are created at a total ratey + q1 — qo. If this rate is larger than
+the arrival rate A, then almost all the arriving tasks can be assigned to idle servers. Otherwise, only a
+fraction (61 + q1 — q2)/A of arriving tasks join idle servers. The rest of the tasks are distributed uniformly
+among busy servers, so a proportion (; — qi+)¢] ' are assigned to servers having queue length For
+any=...,, ; increases when there is an arrival to some server with queue length— which
+occurs at rate Ap;_1(, , A), and it decreases when there is a departure from some server with queue
+length , which occurs at rate ; — qj-. Since each idle-on server turns off at rate ys, the fraction of
+servers in the off mode increases at rate wu. Observe that if d9 > for each task that cannot be assigned
+to an idle server, a setup procedure is initiated at one idle-off server. As noted above, &(¢) captures the
+(scaled) cumulative number of setup procedures initiated up to time . Therefore the fraction of idle-off
+servers and the fraction of servers in setup mode decreases and increases by &(¢), respectively, during
+(, ]. Finally, since each server in setup mode becomes idle-on at rate , the fraction of servers in setup
+mode decreases at rate v1.
+
+Fixed point. In case of a constant arrival rate () =  < the fluid limit in Theorem has a unique
+fixed point:
+that the derivatives of 69, and; become zero, and that these cannot be zero at any
+
+other point in &. Note that, at the fixed point, a fraction » of the servers have exactly one task while the
+remaining fraction have zero tasks, independently of the values of the parameters pu and .
+
+The next proposition states the global stability of the fluid limit, .., starting from any point in ,
+the dynamical system defined by the system of integral equations in Theorem converges to the fixed
+point () as  > oo.
+
+PROPOSITION (GLOBAL STABILITY OF THE FLUID LIMIT). Assume
+Then
+
+There are general methods to prove global stability if the evolution of the dynamical system satisfies
+some kind of monotonicity property induced by the drift structure [24, 34]. Here, it is not straightforward
+to establish such a monotonicity property, and harder to find a suitable Lyapunov function. Instead we
+
+exploit specific properties of the fluid limit in order to prove the global stability. Observe that the global
+stability in particular also establishes the uniqueness of the fixed point above. The proof of Proposition
+is presented in Subsection.
+
+The global stability can be leveraged to show that the steady-state distribution of the * system, for
+large , can be well approximated by the fixed point of the fluid limit in (). Specifically, in the next
+proposition, whose proof is provided in Subsection, we demonstrate the convergence of the steady-state
+distributions, and hence the interchange of the large-capacity ( — oo) and steady-state (¢ > oo) limits.
+Since the buffer capacity  at each server is finite, for each , the Markov process (” (¢), Ay (), AY’ ())
+is irreducible, has a finite state space, and thus has a unique steady-state distribution. Let% denote the
+steady-state distribution of the *" system, ..,
+
+PROPOSITION (INTERCHANGE OF LIMITS). As where  is given by the Dirac
+mass concentrated upon (*,*) defined in ().
+
+Performance metrics. As mentioned earlier, two key performance metrics are the expected waiting time
+of tasks [’] and energy consumption [] for the * system in steady state. In order to quantify
+the energy consumption, we assume that the energy usage of a server is Pry, when busy or in set-up
+mode, :gie when idle-on, and zero when turned off. Evidently, for any value of , at least a fraction
+ of the servers must be busy in order for the system to be stable, and hence AP;yy is the minimum
+mean energy usage per server needed for stability. We will define ["] = [%] — APiun as the relative
+energy wastage accordingly. The next proposition demonstrates that asymptotically the expected waiting
+time and energy consumption for the TABS scheme vanish in the limit, for any strictly positive values of
+ju and . The key implication is that the TABS scheme, while only involving constant communication
+overhead per task, provides performance in a distributed setting that is as good at the fluid level as can
+possibly be achieved, even in a centralized queue, or with unlimited information exchange.
+
+PROPOSITION (ASYMPTOTIC OPTIMALITY OF TABS SCHEME). In a fixed arrival rate scenario
+
+PROOF OF PROPOSITION. By Little’ law, the mean stationary waiting time [] in the *
+system may be expressed as (\)~![], where LN = peaQN represents a random variable with
+the stationary distribution of the total number of waiting tasks in the *" system. Thus, (WY] =
+A7} yeOna , where ™ is a random vector with the stationary distribution of () as too. Invoking
+Proposition and the fixed point as identified in (), we obtain that [%] = ye; =0as  > .
+
+Denoting by UN = -—QY — Ay’ — AW the number of idle-on servers, the stationary mean energy
+consumption per server in the ** system may be expressed as
+
+
+The quantitative values of the energy usage and waiting time for finite values of  will be evaluated
+through extensive simulations in Section
+
+Comparison to ordinary JIQ policy. Consider the fixed arrival rate scenario A() = . It is worthwhile
+to observe that the component  of the fluid limit in Theorem coincides with that for the ordinary
+JIQ policy where servers always remain on, when the system following the TABS scheme starts with
+all the servers being idle-on, and A+< To see this, observe that the component  depends on
+only through. Now, po = pj = for all ¢ > whenever  < irrespective of
+the precise values of (, ). Moreover, starting from the above initial state, , can increase only when
+Therefore, the fluid limit of  in Theorem and the ordinary JIQ scheme are identical if
+the system parameters (A, 44,) are such that qi() + do() < for all > Let () =— qi () — do(#).
+The solutions to the differential equations
+
+optimality of the JIQ scheme was shown in [32, 33]. This observation thus establishes the optimality of
+the fluid-limit trajectory under the TABS scheme for suitable parameter values in terms of response time
+performance. From the energy usage perspective, under the ordinary JIQ policy, since the asymptotic
+steady-state fraction of busy servers (qj) and idle-on servers are given by \ and— A, respectively, the
+asymptotic steady-state (scaled) energy usage is given by
+
+where  is the relative energy consumption of an idle server. Proposition implies that the
+asymptotic steady-state (scaled) energy usage under the TABS scheme is APjyy. Thus the TABS scheme
+reduces the asymptotic steady-state energy usage by APayy(A7! —)  = (— A) Piaie, which amounts to
+a relative saving of (A~! —)/(+ (A7! —)). In summary, the TABS scheme performs as good as
+the ordinary JIQ policy in terms of the waiting time and communication overhead while providing a
+significant energy saving.
+EXTENSION TO PHASE TYPE SERVICE TIME DISTRIBUTIONS
+
+In this section we extend the fluid-limit results to phase type service time distributions. Specifically, the
+service time of each task is described by a time-homogeneous, continuous-time Markov process with a
+finite state space {,,...,}, initial distribution  = (; :<  < ), transition probability matrix
+ = (14,), and the mean sojourn time in statebeing ,-Stateis an absorbing state, and thus
+represents a service completion, while stateis referred to as a type- service, and is assumed to be
+transient. For convenience, and without loss of generality, it is assumed that ;,; =for all and that any
+incoming task has a non-zero service time (ro =). Consider a time-homogeneous discrete-time Markov
+chain with the state space {,,..., A}, and transition probability matrix  = (;,;), where pi; = ri,; for
+
+The mean of the phase type service time distribution [31] is (oiM Jeno)’; and is assumed to be one.
+We assume now that the service discipline at each server is not only oblivious of the actual service
+requirements, but also non-preemptive, and allows at most one task to be served at any given time. Let
+
+denote the space of all fluid-scaled occupancy states, so that ((), % ()) €  for all , and as before,
+
+endow £ with the product topology, and the Borel -algebra €, generated by the open sets of FE.
+THEOREM (FLUID LIMIT FOR PHASE TYPE SERVICE TIME DISTRIBUTIONS). Let (’(),  ())
+
+converge weakly to where oes Then the sequence of processes
+
+
+..,  > incoming tasks are immediately assigned to one of those servers, and the initial service type
+is chosen according to the distribution . Notice that the busy servers and the servers in setup become
+idle at total rate) + vpn; —)737j,- For the case when  = we need to distinguish between
+
+two cases, depending on whether + pala; —)Vj7j, > A or not. In the first case, the incoming
+tasks are again assigned to idle-on servers immediately. However, if dv + Sie (41, —)T3, <A;
+
+then only a fraction A~(dyv + Dyan —)7j73, of the incoming tasks are immediately taken into
+service. In both of the above two subcases, the service types of the incoming tasks follow the distribution
+. This explains the expression for the po,; values. Also, given that an incoming task does not find an
+idle-on server, it is assigned to a server that has queue length  and is currently providing a type- service
+with probability (Sa aij) (Gi-145 —). This explains the expression for ;,; for  > Now, notice
+that the expressions for and remain essentially the same as in Theorem due to the fact that the
+dynamics ofp and; depend on ;,;’ only through the fraction of incoming tasks that join an idle-on
+server, which is determined by the coefficients po,;(, , A). Finally, ,; decreases if and only if there
+is a completion of type- service at a server with queue length at least . Here, we have used the fact
+ri; = Now, qi, can increase due to three events: () assignment of an arriving task, which occurs at
+rate Api_1,;(, , ), (ii) service completion of some other type, which now requires service of type ,
+and this occurs at rate ),.(4i, — %+,) Yk",, (iii) service completion occurs at some server, the task
+exits from the system, and the next task at that server starts with a type- service. This occurs at rate
+
+
+get 
+Fixed point of the fluid limit. In case of a constant arrival rate A() =< the unique fixed point of
+the fluid limit in Theorem is given by
+
+and ,...,. Indeed, it can be verified that the derivatives of
+ =,...,, 60, and; are zero at (*,*) given by (), and that these cannot be zero at any other
+point in EB. Thus, the fixed point is unique as before. Notice that in this case also at the fixed point a
+fraction » of the servers have exactly one task while the remaining fraction have zero tasks, independent
+of the values of the parameters yz and , revealing the insensitivity of the asymptotic fluid-scaled stead
+ystate occupancy states to the duration of the standby periods and setup periods. Further, note that
+ay %, jar from the fact that the mean service time is one, irrespective of the initial distribution ,
+transition probability matrix , and parameters ;. Thus the values of qj,...,% in the fixed point are
+insensitive in a distributional sense with respect to the service times. They only depend on the service
+time distribution through its mean, and higher-order characteristics like variance have no impact on the
+steady-state performance in the large capacity limit whatsoever.
+SIMULATION EXPERIMENTS
+
+In this section we present extensive simulation results to illustrate the fluid-limit results, and to examine
+the performance of the proposed TABS scheme in terms of mean waiting time and energy consumption,
+and compare that with existing strategies.
+
+Convergence of sample paths to fluid-limit trajectories. The fluid-limit trajectories for the TABS scheme
+in Theorems and are illustrated in Figuresandfor  =° servers and three scenarios
+
+(constant arrival rate, periodic arrival rate and hyper-exponential service time distribution).
+Fig. The figure considers a hyper-exponential service time distribution. An incoming task demands either type- or
+type- service with probabilities and, respectively. The durations of type- and type- services are exponentially
+distributed with parametersand, respectively, and thus the mean service time is
+
+scenarios the mean standby periods are ~! =and the mean setup periods are ~! = In all cases,
+
+the fluid-limit paths and the sample paths obtained from simulation are nearly indistinguishable. Notice
+that in case of a time-varying arrival rate the period of fluctuation is only=times as long as the
+mean service time, which is far shorter than what is usually observed in practice. Typically, service times
+are of sub-second order and variations in the arrival rate occur only over time scales of tens of minutes,
+if not several hours.
+Fig. Energy usage and mean waiting time for  = 10°, 10°, 10° servers, mean standby period a = and
+mean setup periods yls= 100.
+
+those with waiting tasks are negligible. In case of the hyper-exponential service time distribution, we
+note from Figurethat the long-term values of q1 = +, 92 = + g2,, 60 andagree with
+the corresponding quantities in the top chart for exponential service times. This reflects the asymptotic
+insensitivity in a distributional sense mentioned at the end of Section and in particular supports the
+observation that the proposed TABS scheme achieves asymptotically optimal response time performance
+and energy consumption for phase type service time distributions as well.
+
+Convergence of steady-state performance metrics to fluid-limit values. In order to quantify the energy
+usage, we will adopt the parameter values from empirical measurements reported in [, 11, 12]. A server
+that is busy or in setup mode, consumes Psy; =watts, an idle-on server consumes Pigie watts, and an idle-off servers consumes no energy.
+We will consider the normalized energy consumption. Thus, the asymptotic steady-state expected normalized energy consumption is given by.
+Note that the optimal energy usage (with no wastage,
+ie., do =—A =, ; = .) is given by/17. Also recall that the asymptotic expected
+steady-state waiting time is given by [] = \—! ya Qi.
+
+In Figure average values of the performance metrics, taken over timeto have been plotted. We
+can clearly observe that both performance metrics approach the asymptotic values associated with the
+fixed point of the fluid limit as the number of servers grows large. Comparison of the results for  =
+and  = shows that the convergence is substantially faster, and the performance correspondingly
+closer to the asymptotic lower bound, for shorter setup periods. This is a manifestation of the fact that,
+even though the fraction of servers in setup mode vanishes in the limit for any value of , the actual
+fraction for a given finite value of  tends to increase with the mean setup period. This in turn means
+that in order for the fluid limit values to be approached within a certain margin, the required value of 
+increases with the mean setup period, as reflected in Figure
+Fig. Comparison between TABS and  schemes as functions of the mean standby period pe
+
+in terms of mean energy consumption and waiting time, for mean setup periods 
+servers.
+Optimal Service Elasticity in Large-Scale Distributed Systems =
+
+In order to further examine the above observations and also investigate the impact of the mean standby
+period, we present in Figurethe expected waiting time of tasks [] and energy consumption [’ |
+for \ = and various values of  and , as a function of the mean standby period ~!. The results are
+based ontoindependent simulation runs, and we confirmed through careful inspection that the
+numbers in fact did not show significant variation across runs. In order to examine the impact of the
+load, we have also conducted experiments for= which show qualitatively similar results, and hence
+are omitted.
+
+The performance impact of the mean standby period ~! appears to be somewhat less pronounced.
+Both performance metrics generally tend to improve as the mean standby period increases, although
+the energy consumption starts to slightly rise when the standby period increases above a certain level in
+scenarios with extremely short setup periods. The latter observation may be explained as follows. For
+finite -values, if the standby period is extremely small relative to the setup period, then the servers
+tend to deactivate too often, and as a result, setup procedures are also initiated too often (which in turn
+involve a relatively long time to become idle-on). Note that the servers in setup mode use Py while
+providing no service. Thus the energy usage decreases by choosing longer standby periods (smaller ). On
+the other hand, again for small -values, very long standby periods (smaller) are not good either. The
+reason in this case is straightforward; the idle-on servers will unnecessarily remain idle for a long time, and
+thus substantially increase energy usage with very little gain in the performance (reduction in waiting time).
+
+As mentioned above, the required value of  for the fluid-limit regime to kick in increases with the
+mean setup period, and broadly speaking, the asymptotic values are approached within a fairly close
+margin for  =° servers, except when the setup periods are long or the standby periods are extremely
+short. By implication, for scenarios with  =° or more servers, the TABS scheme delivers near-optimal
+performance in terms of energy consumption and waiting time, provided the setup periods are not too
+long and the standby periods are not too short. It is worth observing that setup periods are basically
+determined by hardware factors and system constraints, while standby periods are design parameters that
+can be set in a largely arbitrary fashion. Based on the above observations, a simple practical guideline is
+to set standby periods to relatively long values.
+
+For smaller numbers of servers, long setup periods, or extremely short standby periods, finite- effects
+manifest themselves, and the actual performance metrics will differ from the fluid-limit values. This does
+not imply though that the performance of the TABS scheme is necessarily far from optimal, since the
+absolute lower bound attained in the fluid limit may simply not be achievable by any scheme at all for
+small  values.
+
+Comparison with centralized queue-driven strategies. To compare the performance in distributed systems
+under the TABS scheme with that of the corresponding pooled system under the 
+mechanism, we also present in Figurethe relevant metrics for the latter scenario. Quite surprisingly, even
+for moderate values of the total number of servers , the performance metrics in a non-work-conserving
+scenario under the TABS scheme are very close to those for the  mechanism.
+Thus, the TABS scheme provides a significant energy saving in distributed systems which is comparable
+with that in a work-conserving pooled system, while achieving near zero waiting times as well. In fact, it
+is interesting to observe that for relatively long setup periods the waiting time in the distributed system
+under the TABS scheme is even lower than for the  mechanism! This can be
+understood from the dynamics of the two systems as follows. When an incoming task does not find an
+
+idle server, in both systems an idle-off server  (if available) is switched to the setup mode. By the time 
+completes the setup procedure and turns idle-on, in the pooled system if a service completion occurs, then
+the task is assigned to that new idle-on server and the setup procedure of  is discontinued. Therefore,
+when a next arrival occurs, the setup procedure must be initiated again. As a result, this might cause the
+effective average waiting time to become higher. On the other hand, in the distributed system once a
+setup procedure is initiated, it is completed in any event. This explains why for relatively long setup
+periods the TABS scheme provides a lower waiting time than the  mechanism.
+PROOFS
+ Fluid convergence
+
+The proof of Theorem consists of describing the evolution of the system as a suitable time-changed
+Poisson process, which can be further decomposed into a martingale part and a drift part.
+This formulation can be viewed as a density-dependent population process (cf. [10, Chapter]). The martingale
+fluctuations become negligible on the fluid scale, and the drift terms converge to deterministic limits.
+While the convergence of the martingale fluctuations is fairly straightforward to show, the analysis of
+the drift term is rather involved since the derivative of the drift is not continuous. As a result, the
+classical approaches developed by Kurtz [10] cannot be applied in the current scenario.
+ In the literature, these situations have been tackled in various different ways [, , 13-16, 30, 34]. In particular, we
+leverage the time-scale separation techniques developed in [15] in order to identify the limits of drift terms.
+
+First, we verify the existence of the coefficients ;(-,-,-) for all tf >  =,...,. From the
+assumptions of Theorem, and the fact that A() is bounded away from(by some Amin say), we claim
+that if qi() = gf° > then qi() >for all ¢ > To see this, it is enough to observe that in the fluid
+limit the rate of change of qi(£) is non-negative whenever () < Amin. Indeed, if gi() < Amin, then
+
+and thus the claim follows. Therefore below we will prove Theorem until the time a’ hits and the
+above argument then shows that if gj () q7° > then on any finite time interval,
+with probability tending to the process gj\ (-) is bounded away from proving the theorem for any finite time interval.
+
+Let us introduce the variables
+and I() =AN ()>]° Note that represents the number of idle-on servers at time .
+
+Martingale representation. For a unit-rate Poisson process {()} ¢> and a real-valued cadlag process
+{A()}>, the random time-change [10, 28]  is the unique process such that
+
+(ii) When a server is requested to initiate the setup procedure, UV  must be zero at that epoch. Thus,
+Ay decreases by one while ™ remains unchanged, and this occurs at rate
+
+(iii) When a busy server becomes idle, or a server finishes its setup procedure to become idle-on, Ay’
+remains unchanged while  increases by one, and this occurs at rate
+
+(iv) When an arriving task is assigned to an idle-on server, A)’ remains unchanged while % decreases
+by one, and this occurs at rate Aw ()1jyny9)
+Let , = ,  {00} denote the one-point compactification of the set of non-negative integers, equipped
+with the Euclidean metric, and the Borel -algebra induced by the mapping  : , — [,] given by
+() =/(@ +). Let % (¢) denote the vector (¥ (), % ().
+
+Observe that {( (), ‘ ())}> is a Markov process defined on   ?. Further, equip [, 00) with
+the usual Euclidean metric and the Borel -algebra I. We define a random measure a™ on the product
+space [,00)  ? by
+
+Note that the process { ()}:> determines the system constraints (indicator terms IY and IX) in ().
+
+Thus, the process {(’ (), 5X ()) }.59 can be written in terms of the random measure a’ as
+
+
+We first show that the scaled martingale parts converge in probability to zero processes as  — oo.
+
+PROPOSITION. For any  > supzejor] |Mx()|/ for  = A,,, and supze() |Mi,|/,
+for alli=,... converge in probability to
+
+PROOF. We only give the proof for M4 and the other cases can be proved similarly. Fix any and.
+The proof makes use of the fact that the predictable quadratic variation process of a time-changed
+Poisson process is given by its compensator [28, Lemma]. Using Doob’ Martingale inequality [19,
+Theorem..], we have
+
+Letdenote the space of all measures on [,00)  ? satisfying >([,]  ?) = , endowed with the
+topology corresponding to weak convergence of measures restricted to [, ¢] xfor each . We have the
+following lemma:
+
+where {;} ranges over all partitions of the form= to < ty <...<tn_1< < ty with minjcj<(; —
+;-) > « and  > Below we state the conditions for the sake of completeness.
+
+THEOREM ([10, COROLLARY.]). Let (,) be complete and separable, and let {Xn}> be a
+family of processes with sample paths in Dp[,00). Then {Xyn}> ts relatively compact if and only if the
+following two conditions hold:
+
+
+PROOF OF LEMMA. From [10, Proposition.] observe that, to prove the relative compactness
+of the process (%(-), a’), it is enough to puave relaiiive compactness of the individual components.
+
+Let; denote the collection of measures yf where° is the restriction of  on [,¢]  ?. Note that,
+by Prohorov’ theorem, ; is compact, since ? is compact. The topology on & is defined such that any
+sequence {yv}> is relatively compact in  if and only if {{;}> is relatively compact in for
+any  > Since; is compact, any sequence {yv}> is relatively compact in Thus, the relative
+compactness of a follows. To see the relative compactness of {% (-)}>, first observe that  is compact
+and hence the compact containment condition (a) of Theorem is satisfied trivially by taking [, = .
+
+Let {% ()}:> denote the vector of all the martingale quantities appearing in (). Denote by || - ||,
+the Euclidean norm. For condition (), we can see that, for any< ti < tg <
+
+
+for a sufficiently large constant ' >where we have used gy <, for all ¢, A(¢) is bounded, and the fact
+that py - a) /ah <. From Proposition, we get, for any  >
+
+Now, the proof of the relative compactness of ( ())> is complete if we can show that for any>
+there exists a>and a partition (¢;);> with min, |; — ¢;-| >such that
+
+and the proof of the relative compactness of (% ())> is now complete. The fact that the limit (, a)
+of any convergent subsequence of (va) satisfies (10), follows by applying the continuous-mapping
+theorem. 
+
+We will now prove the fluid-limit result stated in Theorem.
+
+PROOF OF THEOREM. Using [15, Theorem], we can conclude that the measure a can be represented as
+
+for measurable subsets A;  [,00), and Ag  ?, where for any (,) € , Tq, is given by some
+
+stationary distribution of the Markov process with transitions
+
+
+
+Case-I:  > 69 > In this case, by the definition of stated above, %, = Thus,
+Tq,(R1) = %,(R2) =
+Case-II:  > d9 = Here by definition of, %,(Z2 =) = However, if Zz = oo, then by (16),
+, increases by one at rate yu, and decreases at rate Sinceq, is the stationary measure, we also
+haveg,(Z1 =) = and thus, 7g,(R1) =,(Re) =
+Case-ITI:  = d9 > . In this case, 7g,(Z1 =) = Again note that if , = oo, then by (16), 
+increases by one at rate q1 —+ vd1, and decreases by one at rate A1,,>). Thus,
+
+
+Case-IV:  = dg = Observe that in this case, due to physical constraints, it must be thatg,(Re) = To see this, recall the evolution equation from (10). Note that do() =forces its derivative to
+be non-negative (since Jp is non-negative), and thusg() > Now, 7qq),()(R2) >implies that
+do() < and hence, this leads to a contradiction. Furthermore, 7q,(Z2 =, >) =implies
+that(Z2 =) = aq,(Z2 = =). Again, if = then by (16),  increases by one at rate
+G1 —+ and decreases by one at rate \,/,>]. Thus, an argument similar to Case-III yields that
+Tq,(R1) = if q1 — qa + vd, > A, and mg.(R1) = A~"(q1 — go +), if qi — G2 + vd, < . Combining
+Cases I-IV, we have
+
+
+and the proof of Theorem follows from Lemma. Oo
+
+PROOF OF THEOREM. The proof of Theorem is identical to the proof of Theorem, which
+starts again by establishing the martingale decomposition for ay of the form
+
+
+The definitions of the sets  R2 remain exactly the same. Thus the convergence result Lemma
+holds for ™ = (ai )<<,<<- The arguments for the time scale separation part remain unchanged as
+
+well, except the transition rate (21, Z2) > (21, Z2) + (,) in (16) changes to Ypaay —q2aj)+uvd,. 
+ Convergence of stationary distribution
+
+PROOF OF PROPOSITION. The proof follows in three steps: in Lemma, we show that ,() > A
+as  > oo, using this we show in Lemma that go(¢) > and then finally we deduce that d9(£) ~—A
+and(¢) >
+
+LEMMA.
+
+First we will establish that () > A as  > oo. The high-level intuition behind the proof can be
+described in two steps as follows.
+
+() First we prove that lim inf;,. qi() > Assume the contrary. Because qi(¢) can be shown to be
+non-decreasing when qi(¢) < there must exist an € > such that
+If qi() were to remain below A by a non-vanishing margin, then the (scaled) rate q1() — qo() of busy
+servers turning idle-on would not be high enough to match the (scaled) rate A of incoming jobs. If there
+are idle-on servers or sufficiently many servers in setup mode, we can still assign incoming jobs to idle-on
+servers, but this drives up the fraction of busy servers qi(¢) and cannot continue indefinitely due to (18).
+This means that we cannot initiate an unbounded number of setup procedures. Since we cannot continue
+to have idle-on servers either, this also implies that a non-vanishing fraction of the jobs cannot be assigned
+to idle servers, and hence we will initiate an unbounded number of setup procedures, hence contradiction.
+
+() Next we show that lim sup,,,, qi() < A. Suppose not, ie., lim sup,,,, qi() = A+ for some « >
+Recall that () is non-decreasing when ;() < A. Hence, there must exist a to such that qi() > A
+  > to. If qi() were to get above A by a non-vanishing margin infinitely often, then the cumulative
+number of departures would exceed the cumulative number of arrivals by an infinite amount, which
+cannot occur since the (scaled) initial number of tasks is bounded.
+
+PROOF OF LEMMA. We first state four useful basic facts based on the fluid limit in Theorem.
+These are then used to prove Claimsandwhich together imply Lemma.
+
+Fact qi() is nondecreasing if qi ()—qa() < A. In particular, if () < A, then qi() is nondecreasing.
+
+Proor. Note that the rate of change of qi(¢) is determined by Apo((), ()) — qi () + ga(). So it
+suffices to show that the latter quantity is non-negative when qi() — go() < A. This follows directly from
+the fact that
+
+
+The above representation leads to Factsandstated below.
+
+where the second inequality follows from \ — ev/ — qi() <A <.In order to break down the proof of Lemma, we will establish the following two claims.
+CLAIM lim inf;q1() > A.
+
+Proof. Assume the contrary. Using Fact g1(¢) is non-decreasing when ,() < A, and thus there
+must exist an € > such that
+
+ProoF. Suppose not, .., limsup,,,, () = A+ for some  > Because q1(¢) is non-decreasing by
+Factwhen qi() < A, there must exist a tp such that qi(¢) > A  ¢ > to. In that case,
+
+
+This provides a contradiction with lim sup,,,, qi() =+, since the rate of decrease of qi() is at
+most 
+
+Claimsandtogether imply Lemma. 
+
+LEMMA. go() as  > oo.
+
+Based on the fact that gi(¢) — A as  > oo, we now claim that g2() >as  > oo. The high-level
+idea behind the claim is as follows. From the convergence of qi(), we know that after a large enough
+time, qi() will always belong to a very small neighborhood of A. On the other hand, if go() does not
+converge to then it must have a strictly positive limit point. In that case, since the rate of decrease
+of go() is at most go(), it will be bounded away fromfor a fixed amount of time infinitely often. In
+the meantime, the rate at which busy servers become idle-on will be strictly less than the arrival rate of
+tasks. This in turn, will cause g1() to increase substantially compared to the small neighborhood where
+it is supposed to lie, which leads to a contradiction.
+
+
+PROOF OF PROPOSITION. Note that the proof of the proposition follows from [, Corollary].
+The arguments are sketched briefly for completeness.
+
+Observe that% is defined on , and  is a compact set. Prohorov’ theorem implies that% is
+relatively compact, and hence, has a convergent subsequence. Let {nn }> be a convergent subsequence,
+with {Nn}> CN, such that% “, # as  + oo. We will show that # is unique and equals the
+measure
+
+
+Notice that if (%(), %"()) ~%", then we know (%»(),%"()) ~% for all  > Also, the
+process ((), %" ())> converges weakly to {((), ()) }:>, and nNn + # asin — oo. Thus, # is an
+invariant distribution of the deterministic process {((), ())}¢>. This in conjunction with the global
+stability in Proposition implies that # must be the fixed point of the fluid limit. Since the latter fixed
+point is unique, we have shown the convergence of the stationary measure. oO
+CONCLUSIONS
+
+Centralized queue-driven auto-scaling techniques do not cover scenarios where load balancing algorithms
+immediately distribute incoming tasks among parallel queues, as typically encountered in large-scale data
+centers and cloud networks. Motivated by these observations, we proposed a joint auto-scaling and load
+balancing scheme, which does not require any global queue length information or explicit knowledge of
+system parameters. Fluid-limit results for a large-capacity regime show that the proposed scheme achieves
+asymptotic optimality in terms of response time performance as well as energy consumption. At the same
+time, the proposed scheme operates in a distributed fashion, and involves only a constant communication
+overhead per task, ensuring scalability to massive numbers of servers. This demonstrates that, rather
+remarkably, ideal response time performance and minimal energy consumption can be simultaneously
+achieved in large-scale distributed systems.
+
+Extensive simulation experiments support the fluid-limit results, and reveal only a slight trade-off
+between the mean waiting time and energy wastage in finite-size systems. In particular, we observe that
+suitably long but finite standby periods yield near-minimal waiting time and energy consumption, across a
+wide range of setup durations. We expect that a non-trivial trade-off between response time performance
+and (normalized) energy consumption arises at the diffusion level, and exploring that conjecture would
+be an interesting topic for further research. It might be worth noting that in the present paper, we
+have not taken the communication delay into consideration, and assumed that the message transfer is
+instantaneous. This is a reasonable assumption when the communication delay is insignificant relative to
+the typical duration of the service period of a job. When the communication delay is non-negligible, one
+might modify the TABS scheme where a task is discarded if it happens to land on an idle-off server. In
+this modified scheme, the asymptotic fraction of lost tasks in steady state should be negligible, since the
+rate at which idle-on servers are turning of is precisely zero at the fixed point, and it would be useful to
+further examine the impact of communication delays.
+
+ACKNOWLEDGMENTS
+
+This research was financially supported by the Netherlands Organization for Scientific Research (NWO)
+through Gravitation Networks grant.003 and TOP-GO grant.012. The authors further
+gratefully acknowledge the valuable comments of the reviewers.
+

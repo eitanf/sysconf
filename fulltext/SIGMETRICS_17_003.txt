@@ -1,0 +1,1126 @@
+Queue-Proportional Sampling: A Better Approach to
+Crossbar Scheduling for Input-Queued Switches
+
+
+ABSTRACT
+---
+Most present day switching systems, in Internet routers and
+data-center switches, employ a single input-queued crossbar to interconnect input ports with output ports. Such
+switches need to compute a matching, between input and
+output ports, for each switching cycle (time slot). The main
+challenge in designing such matching algorithms is to deal
+with the unfortunate tradeoff between the quality of the
+computed matching and the computational complexity of
+the algorithm. In this paper, we propose a general approach
+that can significantly boost the performance of both Serena
+and iSLIP, yet incurs only () additional computational
+complexity at each input/output port. Our approach is a
+novel proposing strategy, called Queue-Proportional Sampling (QPS), that generates an excellent starter matching.
+We show, through rigorous simulations, that when starting
+with this starter matching, iSLIP and Serena can output
+much better final matching decisions, as measured by the
+resulting throughput and delay performance, than they otherwise can.
+
+
+---
+INTRODUCTION
+Most present day switching systems, in Internet routers
+and data-center switches, employ a single crossbar to interconnect input ports with output ports. A generic inputqueued switch is shown in Figure with  input and 
+output ports interconnected by a crossbar. Each input port
+has  Virtual Output Queues (VOQs). A VOQ  at input portserves as a buffer for packets going from input
+port  to output port The use of VOQs solves the Headof-Line (HOL) blocking issue [13], which severely limits the
+throughput of the switch system.
+
+In an input-queued switch, each input port can be connected to only one output port, and vice versa, in each
+switching cycle, or time slot. Hence, input-queued switches
+
+need to compute, per time slot, a one-to-one matching between input and output ports. With the relentless growth
+in the volume of network traffic across the Internet and in
+data-centers, switches capable of connecting a large number of ports and operating at very high port/link speeds are
+badly needed. The primary research challenge when designing such large single-crossbar switch architectures is to develop algorithms that can compute “high quality” matchings
+— .., those that result in high switch throughput (ideally%) and low queueing delays for packets — at high speeds.
+
+Unfortunately, there appears to be a tradeoff between the
+quality of a matching and the time needed to compute it
+{.., computational complexity). Maximum Weight Matching (MWM), with a suitable weight measure, is known to
+produce (empirically) optimal matchings in terms of queueing delay for a large variety of traffic patterns [34]. Each
+matching decision however takes (*) time to compute [].
+Researchers have been searching for alternatives that have
+complexity much lower than (*), but have performance
+(mostly in terms of delay) close enough to MWM.
+
+Serena [10] is one such algorithm. It outputs excellent
+matching decisions resulting in% switch throughput and
+queueing delay close to that of MWM. Each matching decision takes () time to compute. Another example is iSLIP [17], a distributed iterative algorithm where input and
+output ports compute a matching in parallel through multiple iterations of message exchanges. iSLIP has a per-port
+computational complexity of (log? ) ((log ) iterations
+that each has (log ) circuit depth) that is lower than Serena’ overall complexity of (). However, iSLIP computes
+a different type of matching called a Maximum-Size Matiching (MSM), which is of lower quality than MWM. Hence iSLIP cannot achieve% throughput except under uniform
+traffic, and has much longer queueing delays than Serena
+under heavy nonuniform traffic.
+ Starter Matching and Its Importance
+
+In Serena, a starter (partial) matching is first generated,
+via a proposing process, then populated into a full matching,
+and finally refined into the final matching. The proposing
+process works as follows. Each input port “proposes” to an
+output port that it would like to match with by sending the
+output port a message containing the length of the corresponding VOQ. An output port, upon receiving proposals
+from one or more input ports, accepts the one whose corresponding VOQ is the longest.
+
+Serena’ proposing strategy is the so-called arrival graph:
+each input port proposes to an output port corresponding
+to the destination of a packet that arrived in the previous
+time slot, if applicable. This is a sensible strategy because,
+in the steady state, an output port is proposed to with a
+probability proportional to the packet arrival rate of the
+corresponding VOQ.
+
+However, this proposing strategy has a subtle shortcoming: it is oblivious to the current lengths of  VOQs at
+each input port, so not enough attention is devoted to reducing the lengths of longest VOQs. For example, a VOQ
+with many packets but without recent arrivals, which could
+happen under bursty traffic (see §), will mostly be denied
+service until it has new arrivals.
+ Queue-Proportional Sampling (QPS)
+
+In this paper, we propose a general approach that can significantly boost the performance of both Serena and iSLIP,
+yet incurs only () additional computational complexity at
+each input/output port. Our approach is a novel proposing
+strategy, called Queue-Proportional Sampling (QPS), that
+generates an excellent starter matching, better than the arrival graph used by Serena. Scheduling algorithms that start
+from “scratch” (.., an empty matching), such as iSLIP, may
+also benefit significantly from QPS, by instead starting from
+a QPS-generated starter matching.
+
+Our proposing strategy, QPS, at any input port, is extremely simple to state: the input port proposes to an output port with a probability proportional to the length of the
+corresponding VOQ. QPS’ name comes from the fact that
+the output port proposed to by any input port is sampled,
+out of all  output ports, using the queue-proportional distribution at the input port. We note that, although this
+general approach — of serving queues at rates/probabilities
+proportional to their lengths — to resource allocation is classical [], QPS is a novel application of this approach to crossbar scheduling.
+
+We will show in § that QPS is also extremely cheap to
+execute: we developed an () data structure and algorithm
+for generating such a sample at each input port. This may
+be surprising to readers, since even to “read” the lengths
+of all  VOQs at an input port takes () time. Due
+to its () (per port) computational complexity, any QPSaugmented algorithm has the same asymptotic complexity
+as the original algorithm.
+
+In this work, we consider two QPS-augmented algorithms:
+QPS-iSLIP and QPS-Serena, which combine QPS with iSLIP [17] and Serena [10] respectively. Both QPS-augmented
+algorithms are shown to outperform the original algorithms,
+
+in both throughput and delay, under various load conditions
+and traffic patterns, by a wide margin in §. As the QPS
+approach is very general, it can be used to augment other
+low-complexity switching algorithms in the future.
+
+We make the following three major contributions in this
+work. First, we propose QPS, a simple yet effective approach
+to crossbar scheduling, and use it to augment both iSLIP and
+Serena. Second, we propose a data structure that carries out
+each QPS operation with only () computation per port.
+Third, for proving the stability of QPS-Serena, we derive a
+new and stronger theorem for proving the stability of a large
+family of switching algorithms.
+
+The rest of this paper is organized as follows. In §, we
+provide some background on input-queued crossbar scheduling. In §, we describe the QPS proposing strategy and
+two QPS-augmented crossbar scheduling algorithms, namely
+QPS-iSLIP and QPS-Serena. In §, we show how to carry
+out each QPS operation with only () computation. In §,
+we prove that QPS-Serena can achieve% throughput.
+In we evaluate the throughput and delay performance of
+QPS-iSLIP and QPS-Serena against other competing algorithms. In §, we describe related work before concluding
+the paper in §.
+ BACKGROUND
+
+In this section, we provide an overview of the input-queued
+crossbar switch architecture and formulate the research problem of crossbar scheduling.
+ Input-Queued Crossbar Architecture
+
+In an input-queued switch, packets arriving at an input
+port are queued first in their respective VOQs before being switched to their respective output ports by the crossbar. In this work, we adopt the standard assumption that
+all incoming variable-size packets are segmented into fixedsize packets (sometimes referred to as cells), which are then
+reassembled when leaving the switch. Hence we consider
+the switching of only fixed-size packets in the sequel, and
+each such fixed-size packet takes exactly one time slot to
+transmit. We also make the following standard homogeneity assumption that every input or output link/port has the
+same maximum transmission rate (normalized to), which
+is equal to that of a transmission line or crosspoint in the
+crossbar (also normalized to).
+
+An    crossbar is generally modeled as a weighted
+complete bipartite graph, with the  input ports and the
+ output ports represented as the two disjoint vertex sets
+respectively. An edge between an input portand an output
+port  corresponds to the VOQ  at the input port , and
+its weight is the queue length (.., the number of packets
+buffered) of the VOQ. A valid schedule, or matching, is a set
+of edges between the  input ports and the  output ports,
+in which no two distinct edges share a vertex. Since there
+can be at most  edges in any such matching, the crossbar
+can switch at most  packets to their respectively output
+ports during each time slot. Each matching can also be
+represented as an Nx  sub-permutation matrix! § = (siz),
+in which ;; =if and only if the input portis matched
+with the output port
+
+‘An NxN sub-permutation matrix is an   - matrix
+where at most one element in each row or column can take
+value
+. Performance Metrics
+
+The research objective of crossbar scheduling is to design
+scheduling algorithms that select a good matching, as measured by certain performance metrics, in each time slot, with
+a reasonable amount of computation. Typically, scheduling algorithms are evaluated on three performance metrics:
+throughput, delay, and complexity.
+
+Throughput: Normalized throughput is defined as the average number of packets that exit an output port during
+each time slot. It is a value betweenand(.., 100%).
+Throughout this work, we mean normalized throughput whenever we use the word “throughput”.
+
+We say a switch, employing a certain crossbar scheduling
+algorithm, is stable [19] — under a certain workload — if its total queue (VOQ) length ||()||: satisfies sup [||(|li] <
+
+
+oo. A crossbar scheduling algorithm is said to achieve%
+throughput, if the switch is stable under any traffic arrival
+process that is admissible (defined next) and satisfies certain
+other mild conditions (see §.). For example, Serena can
+achieve% throughput under any such admissible arrival
+process, whereas iSLIP generally cannot.
+
+Delay: We define delay as the number of time slots elapsed
+since the arrival of a packet to its eventual departure from
+the switch. An ideal scheduling algorithm has% throughput and low delay. Achieving% throughput is relatively
+easier than achieving low delay. For instance, in TASS [33],
+100% throughput is achieved, at the cost of high delays,
+using a simple randomized adaptive algorithm that we will
+describe in §..
+
+Complexity: Another criterion for evaluating a scheduling
+algorithm is the time complexity of computating a matching.
+As mentioned earlier, folklore suggests a tradeoff between
+the quality of matching and the computational complexity.
+A key contribution of our QPS approach is to strike better
+performance-complexity tradeoffs than existing approaches
+such as iSLIP and Serena.
+Admissible Traffic Patterns
+
+Let Az; be the normalized (to the percentage of the rate
+of an input/output link) mean arrival rate of packets to the
+** VOQ (.., those destined for output port ) at input
+port Then the traffic pattern, represented by an   
+traffic matrix A = {Az }nxn, is called admissible if
+
+Equivalently, we say A is admissible, if and only if  <
+where , defined as
+pmax { max {}, max YH} ()
+
+is the maximum normalized load imposed on any input or
+output port. Clearly,  <is a necessary condition for any
+crossbar scheduling algorithm to ensure the stability of a
+switch.
+
+Now we state a well-known fact that has been used, usually without a proof, in almost every switch stability proof
+in the literature.
+
+Fact For each    admissible traffic matrix A,
+whose maximum per input/output load is  (defined in ()),
+there exist    matching (sub-permutation) matrices Mn,
+=,,..., such that
+
+
+This fact follows from the fact that A/ is a sub-stochastic
+matrix, which can be expressed as a linear combination
+of sub-permutation matrices with positive coefficients summing up to a value no larger than known as the Birkhoff-—
+von Neumann decomposition [, 21, 23].
+ QUEUE-PROPORTIONAL SAMPLING
+
+In this section, we first describe the QPS proposing strategy in details. Then we explain how to augment iSLIP and
+Serena using QPS. We next compare QPS with ShakeUp [11],
+another “add-on” technique that can be used to augment iterative switching algorithms such as iSLIP and iLQF [16]. In
+Appendix A, we discuss a QPS variant called FQPS, which
+samples a VOQ with a probability proportional to a function
+of the VOQ length.
+ The QPS Proposing Strategy
+
+In all QPS-augmented crossbar scheduling algorithms, the
+first step is for input ports and output ports to perform one
+iteration of message exchanges to generate a starter matiching. This iteration consists of two phases, namely, a QPSproposing phase and an accepting phase.
+
+Proposing phase. In this phase, each input port proposes
+to exactly one output port — decided by the QPS strategy —
+unless it has no packet to transmit. Procedureshows the
+pseudocode of the QPS proposing strategy at an input port; that at any other input port is identical. Denote as mi,
+m2, -+--, mn the respective lengths of  VOQs at input
+port and as  their total (ie.,  = me). Input
+portsimply samples an output portwith probability{line), .., proportional to the length of the corresponding
+VOQ; it then proposes the value ; to output port  (line).
+
+Accepting phase. We adopt the same accepting strategy
+as in Serena: “Longest VOQ first”. The pseudocode of the
+accepting phase, at output port is shown in Procedure;
+that at any other output port is identical. The action of output portdepends on the number of proposals it receives.
+If it receives exactly one proposal from an input port, it will
+accept the proposal and (tentatively) match with the input
+port. However, if it receives proposals from multiple input ports, it will accept the proposal accompanied with the
+highest VOQ length, with ties broken uniformly at random.
+
+The computational complexity of this accepting strategy
+is () in practice although in theory an output port could
+receive up to  proposals and have to compare their accompanying VOQ lengths. This is because the probability for
+an output port to receive proposals from more than several
+(say) input ports is tiny, and even if this rare event happens, the output port can ignore/drop all proposals beyond
+the first several (say) without affecting the quality of the
+final matching much. In our evaluations, we indeed set this
+threshold to
+ Procedure QPS-Propose
+Sample an output port  with probability aiSend ,; (length of VOQ ) to output port
+Procedure Proposing phase at input port
+
+ Procedure Accept
+
+ | if one or more proposals are received then
+
+| Accept the one with largest VOQ length
+
+Procedure Accepting phase at output port
+
+We have also considered and experimented with another
+accepting strategy: accepting each competing proposal with
+a probability proportional to the length of the corresponding
+VOQ, which we refer to as Proportional Accepting (PA). The
+advantage of PA over “longest VOQ first” above is that when
+the switch is severely overloaded (.., with offered load >%), PA could provide better fairness to competing input
+ports and help prevent certain starvation situations. For
+example, consider the pathological scenario in which, for a
+fairly long period of time (sayminute), packets destined for
+an outputwould arrive at input portsand i2 with ratesand respectively. Under “longest VOQ first”, the output
+port  would keep accepting proposals from input port(because its VOQ length is longer) and hence starve input
+port i2, whereas under PA, the output portwould accept
+proposals from input port # with roughly/11 probability.
+
+However, we prefer “longest VOQ first” over PA because,
+as we will show in Appendix ., the former generally has
+better average delay performance, albeit slightly, and guarantees almost the same fairness and lack of starvation, under all admissible workloads. We believe the primary mission of a crossbar scheduling algorithm is to deliver excellent
+performance under admissible workloads; such “grace under
+fire” (proportional fairness and lack of starvation even when
+severely overloaded) is a secondary consideration and can
+be better achieved through other “knobs or levers” orthogonal to switching such as congestion control, packet scheduling, or traffic policing/shaping. This said, we prove in Appendix  that QPS-Serena with PA can also achieve%
+throughput just like QPS-Serena with “longest VOQ first”,
+in case the former is preferred in certain application scenarios.
+
+Message Complexity. The message complexity of each
+“propose-accept” iteration is () messages per input or output port, because each input/output port transmits no more
+than one message during the propose/accept phase.
+ Augmenting iSLIP and Serena
+
+Now we describe, in QPS-iSLIP and QPS-Serena respectively, how iSLIP and Serena are augmented using QPS.
+We also describe iLQF [16] in this section, because it is
+closely related to iSLIP, and its performance will be compared against QPS-iSLIP in §.
+. iSLIP, QPS-iSLIP, and iLQF
+
+The iSLIP algorithm computes an approximate MSM (Max
+imum Size Matching) via multiple iterations of message exchanges between the input and output ports. Each iteration
+consists of three stages: request, grant, and accept. In the
+
+ 
+
+ 
+
+request stage, each input port sends requests to all output
+ports whose corresponding VOQs are not empty. In the
+grant stage, each output port, upon receiving requests from
+multiple input ports, grants to one in a round-robin order.
+This round-robin order is enforced through a grant pointer
+that records the identifier of the input port — to whom a
+grant was accepted in the first iteration — during the most
+recent time slot when this situation occurred. Finally, in the
+accept stage, each input port, upon receiving accepts from
+multiple output ports, accepts one in a round-robin order,
+enforced similarly through an accept pointer.
+
+QPS-iSLIP can be viewed as adding a “%” iteration” to
+iSLIP. In this*” iteration, QPS is executed to generate
+a starter matching. Then iSLIP is called to match only
+those input/output ports not matched in the% iteration,
+through multiple request-grant-accept iterations. We specify that in QPS-iSLIP, it is those ports matched in the™*
+iteration (by iSLIP), not those matched in the°” iteration
+(by QPS), who update the values of their grant or accept
+pointers. The rationale is that the aforementioned objective
+of enforcing the round-robin order is not accomplished in
+the QPS iteration.
+
+iLQF [16] operates in the same way as iSLIP, except that
+() it is aware of the edge weights (.., lengths of VOQs),
+and () it favors the request or grants with the heaviest
+weight (.., greedy) in the grant or accept stage respectively. Hence, iLQF can be viewed as a greedy approach to
+approximately compute the MWM. iLQF generally performs
+better than iSLIP, but has a higher computational complexity of () per port (compared to (log? ) for iSLIP).
+We show in § that our QPS-iSLIP algorithm has a similar
+performance as iLQF, but the same per-port complexity as
+iSLIP.
+. Serena and OPS-Serena
+
+As described earlier, Serena derives a starter matching
+from the arrival graph. This starter matching, which is typically partial, is then populated into a full matching by pairing the unmatched nodes in the bipartite graph uniformly at
+random. Serena then combines, using a MERGE procedure,
+this full matching with the matching used in the previous
+time slot, to arrive at a new matching that is at least as
+heavy as both matchings. This new matching will then be
+used for the current time slot. We omit the details of this
+MERGE procedure, since it is not related to how QPS augments Serena. Finally, to precisely specify QPS-Serena, it
+suffices to note that the only difference between QPS-Serena
+and Serena is that QPS-Serena uses a QPS-generated starter
+matching, instead of one derived from the arrival graph.
+QPS vs. ShakeUp
+
+As we have shown, QPS is used mainly as an “add-on”
+to certain switching algorithms. In the literature, the only
+other add-on technique that we are aware of is ShakeUp [11].
+ShakeUp is a set of randomized algorithms designed to boost
+the performance of certain iterative switching algorithms,
+such as iSLIP and iLQF. It does so by preventing these iterative algorithms from getting stuck at (locally) maximal
+matchings during their iterative executions. ShakeUp is typically used as follows: a ShakeUp-augmented switching algorithm alternates between an iteration of the underlying
+switching algorithm (.., iSLIP) and a ShakeUp iteration.
+
+There are two types of ShakeUp algorithms: unweighted
+and weighted [11]. The unweighted ShakeUp is designed to
+augment switching algorithms that do not consider VOQ
+lengths in their decision-making, such as Parallel Iterative
+Matching (PIM) [] and iSLIP [17]. In each unweighed
+ShakeUp iteration, unmatched input ports are first permuted
+in a random order. From this (random) order, each unmatched input port sends a request to an output port uniformly at random (.., unweighted) chosen from the set of
+output ports to which the corresponding VOQs are nonempty.
+An output port, upon receiving such a request, must now
+pair with this input port, even if it was already paired with
+another input port. If an output port receives multiple requests during the same ShakeUp iteration, it selects one of
+them uniformly at random. The iSLIP scheme augmented
+this way was called SLIP-SHAKE in [11]. In §, we will
+compare the its performance (renamed to iSLIP-ShakeUp)
+with that of QPS-iSLIP.
+
+The weighted ShakeUp [11] is designed to augment switch
+ing algorithms that incorporate VOQ lengths in their decision
+making, such as iLQF [16]. In each weighed ShakeUp iteration, each unmatched input port, one after another in the
+above-mentioned randomly order, sends a request to an output port with a probability proportional to the length of the
+corresponding VOQ.
+
+Admittedly, weighted ShakeUp’ proposing strategy sounds
+very similar to our QPS strategy. However, there are four
+key differences: how they are used, how widely applicable
+they are, their intended purpose, and how they are implemented. First, in ShakeUp, only unmatched input ports
+execute this strategy to “shake up” an existing suboptimal
+matching, whereas in QPS, all input ports execute the strategy at the very beginning to generate a starter matching for
+other switching algorithms to build on. In a sense, ShakeUp
+is designed for “post-processing” whereas QPS is designed for
+“pre-processing”. Second, while our QPS scheme can easily
+augment a non-iterative algorithm such as Serena, it is not
+known whether ShakeUp, weighted or unweighted, can do
+the same. Third, it was never suggested in [11] that this
+(weighted) strategy might be suitable for “weight-oblivious”
+switching algorithms such as PIM or iSLIP; only the unweighed ShakeUp was “prescribed” for PIM or iSLIP. Last,
+unlike in our work, there was no mention of how the queueproportional proposing strategy could be carried out in ()
+time (per port), and no data structure was proposed for doing so [11].
+ QPS IMPLEMENTATION
+
+In this section, we describe the data structure and algorithm that allows an input port to sample a VOQ in the
+queue-proportional manner (.., lineof Procedure), and,
+if needed, to remove the Head-of Line (HOL) packet of any
+VOQ (for receiving switching service), both with () (per
+port) computational complexity. This data structure is extremely simple, although we have so far not been able to
+find anything sufficiently similar in the literature.
+
+The memory overhead of the QPS data structure is no
+more thanbytes per packet; the detailed “accounting” is
+shown in Appendix . Assuming an average packet size ofbytes, the amount of memory consumed by the QPS
+data structure is no more than% of what is needed for
+storing the actual packets. This is a modest space overhead
+ratio to pay, for the significant improvements in switching
+performance.
+ Overview of the Sampling Algorithm
+
+We first provide a high-level overview of the sampling algorithm. It consists of two steps. In the first step, we sample
+a packet, out of all packets currently queued at the input
+port, uniformly at random. Specifically, if there are a total of  packets across all  VOQs at the input port, each
+packet is sampled with probability/. With such uniform
+sampling, the ** VOQ, which has length ,;, will have one
+of packets sampled with probability ;/. This is precisely
+the QPS behavior called for in lineof Procedure
+
+Suppose a packet is thus sampled. A part of the second
+step is to find out which VOQ this packet belongs to so that
+the input port can propose to the corresponding output port
+with its queue length (see lineof Procedure). However,
+more effort is still required. Since all switching algorithms
+serve packets in a VOQ strictly in the FIFO order, if this
+proposal is successful (.., accepted by the output port),
+and the input and output port pair is eventually a part of
+the final matching, the HOL packet of this VOQ, which may
+or may not be the sampled packet, needs to be located and
+serviced. Hence, the other part of the second step is to locate
+the HOL packet of this VOQ.
+
+Before going into the details, we list two other basic operations that this data structure needs to also support. The
+first operation is that any new incoming packet must be
+recorded in the data structure so that it is logically “added
+to the end of the VOQ that it belongs to”. The second operation is that, when the scheduling algorithm eventually
+decides to pair the input port with a different output port
+than was proposed to, which could happen due to either the
+proposal being rejected or the initially accepted proposal
+being overridden by the scheduling algorithm (.., during
+Serena’ MERGE operation in the case of QPS-Serena), the
+HOL packet of the (new) corresponding VOQ needs to be located and removed for receiving the switching service. Both
+operations can be supported with () complexity, as will
+be shown next.
+ The Detailed Data Structure
+
+We show that the two steps of the QPS proposing strategy
+can be performed in () time, at any input port, via a main
+and an auxiliary data structures, that are the same for all
+input ports. Figure(a) and () present the data structures,
+at a single input port, before and after the HOL packet of its
+** VOQ is chosen for (switching) service. The top half and
+bottom half of the figures show the main and the auxiliary
+data structures respectively.
+
+The main data structure. The main data structure is
+an array of  records, corresponding to the  VOQs at the
+input port. Each record  (.., array entry ) is associated
+with a linked list, which corresponds to (pointers to) packets
+queued at a VOQ in the order they arrived, starting with
+the HOL packet. Each node in the linked list contains two
+pointers encoded as “(letter)” (.., A); one points to the actual packet (.., packet A) in the packet buffer (not shown
+in the figure) and the other to the corresponding entry (..,
+entry A) in the auxiliary data structure, which we refer to
+as a back pointer.
+
+For simplicity, Figureshows only record  (corresponding to VOQ ). Each record contains a head and a tail
+pointers that point to the head node and the tail node of the
+linked list respectively.
+Figure Illustrating the action of the QPS data structures on a single input port.
+
+ing and for removing the head node (.., the HOL packet)
+in () time; it is also needed for locating and replacing the
+array entry that corresponds to the HOL packet in the auxiliary data structure. The tail pointer is needed for inserting
+a newly arrived packet to the “end of the VOQ” (.., the
+first basic operation) in () time.
+
+The auxiliary data structure. The bottom half of Figureshows the auxiliary data structure used for performing
+the sampling. Suppose there are a total of  packets queued
+across all  VOQs at the input port. The auxiliary data
+structure is simply an array of  entries, each of which is
+a pointer that points to a distinct (packet) node (.., node
+A) in one of the  linked lists in the main data structure.
+
+Despite arrivals and departures of packets over time, the
+auxiliary data structure always occupies a contiguous block
+of array entries, the boundaries of which are identified by a
+head and a tail pointer as shown in the bottom half of Figure This contiguity allows any array entry (packet) to be
+sampled uniformly at random in () time, an aforementioned key step of QPS. Hence this contiguity needs to be
+maintained in the event of packet arrivals and departures.
+The case of a packet arrival is easier: the entry corresponds
+to the new packet is inserted after the current tail position,
+and the tail pointer updated. The case of a packet departure is only slightly trickier: if the departing packet leaves a
+“hole” in the block, the tail entry is moved to fill this hole,
+and the tail pointer updated.
+
+In the case of a packet departure, the (packet) node in
+the main data structure that is pointed to by the former tail
+entry (now moved to “fill the hole”) needs to have its back
+pointer updated to the offset of the former hole, where the
+former tail entry now is. This is clearly an () procedure.
+A similar procedure can be used to support the second basic
+operation in () time.
+
+An illustrative example. To see how the main and the
+auxiliary data structures work together to facilitate QPS,
+consider the example shown in Figure In Figure(a),
+the packet A was sampled out of  packets in the auxiliary
+data structure. However, it is not the HOL packet, so its
+destination (output) port (.., VOQ identifier) is checked,
+which turns out to be By accessing the ** record in
+the main data structure, which corresponds to VOQ , the
+HOL packet is packet . Now, the input port proposes to
+match with output port . In Figure(), if the proposal
+
+is accepted by, and the input port is eventually matched to,
+output port , packet  will depart (for output port ) in
+the current time slot. The head pointer in the ** record
+of the main data structure is updated to (point to) , the
+new HOL packet. These operations, .., the search for the
+HOL packet, and the updates to both data structures, all
+take () time.
+ STABILITY PROOF OF QPS-SERENA
+
+In this section, we prove that the QPS-Serena algorithm
+is stable (.., can achieve% throughput) under any arrival processes that are admissible and satisfy certain mild
+conditions. In, we introduce some background information and notations that we need in the stability proofs. In
+§., we describe a theorem used in [33] to prove the stability of the TASS algorithm. Unfortunately, this theorem is
+not applicable to QPS-Serena, because QPS-Serena in general does not satisfy the so-called Property , a condition
+required by the theorem. In §., we state a stronger theorem that requires only a weaker condition than Property ,
+which is satisfied by QPS-Serena.
+ Background and Notations
+
+We first define three    matrices (), A(), and ().
+Let () = (qi;()) be the queue length matrix where qi; ()
+is the length of the ** VOQ at input port  during time slot
+. Let A() = (ai;(¢)) be the traffic arrival matrix where
+a;;() is the number of packets arriving at the input port 
+destined for output portduring time slot , which can be
+viewed as the counting process associated with underlying
+traffic arrival process. Let () = (si;()) be the schedule
+(matching) matrix for time slot  output by the crossbar
+scheduling algorithm. As we explained earlier, each () is
+a- matrix in which ;;() =if and only if input port
+ is matched with output  during time slot . Then, the
+queue length matrix  evolves over time as follows. For
+
+
+gis ( +) = [gig () + ey () —(€)]* ()
+
+where [-]* is defined as max{-,}. With a slight abuse
+of the notation, we rewrite (), into the matrix form, as
+Qt +) = [OH + AM — SIT.
+
+Like in [34], we assume that, for each< , < ,
+{ai;()}?2o is a sequence of ... random variables, and the
+second moment of their common distribution (= [aj;()])
+is finite. Note that, the same or even stronger assumptions
+(.., Bernoulli ... arrivals) were made for proving the
+stabilities of TASS [33] and Serena [10] respectively. For
+ease of presentation, we refer to such an A() as an iid.
+arrival (counting) process in the sequel.
+
+Now we flatten the    matrices , A, and  into ?dimensional vectors in the row-major order, .., the first row
+of the matrix becomes the first  scalars in the vector, the
+second row becomes the next  scalars, and so on. Now that
+, A, and  are vectors, we can take their inner products,
+denoted as {-,-), in the following derivations. For example,
+((), ()) is the weight of the schedule (matching) (¢),
+... the queue length vector (), at time slot ¢.
+ TASS, Serena, and Their Stability
+. The Adaptive and Non-Degenerative Family
+
+The idea of TASS [33], shown below, is very simple: generate a “fresh” (.., independent of all other random vectors) random matching (), compare its weight with that
+of (—), the matching used in the previous time slot, and
+use the winner as the matching for the current time slot (-.,
+()). Here () is a random vector whose distribution is
+parameterized only by the current VOQ length vector (¢).
+Amazingly, such a simple adaptive algorithm can achieve% throughput, albeit at the cost of higher delays.
+
+
+
+
+otherwise
+Note that the TASS algorithm is also by definition (.., ())
+non-degenerative, defined next.
+
+()
+
+DEFINITION A scheduling algorithm is non-degenerative
+if it guarantees that for any time slot  > we have
+
+((), QM) = (( —), @)
+. Generalized Algorithm Family Tl
+Denote II as the family of adaptive algorithms defined by
+(). For the TASS’ stability proof and theorem to apply also
+
+to Serena, we need to generalize the family of II to TI that
+is defined by
+
+() = (), ( —), @) ()
+
+where  is an operator, the resulting () satisfies the nondegenerative property defined above, and () is a random
+schedule whose probability distribution is a function only
+of (). To ease proving our result, we also force () =
+() when all queues (VOQs) are empty at time slot , ..,
+to “forget the previous schedule ( —)” and reset to the
+“default random schedule” ().
+
+In TASS, this ¥ is clearly the “MAX operator”, that is,
+choosing the heavier schedule ... (£), between () and
+( —). In Serena, this  is the MERGE operator, that
+is, () = MERGE((), ( —), ()). As we explained
+in §.., the MERGE operator combines two matchings
+into one that is at least as heavy, ... (), as either, so
+the Serena algorithm, like TASS, is also non-degenerative.
+Hence, Serena also belongs to this extended family II. Now
+it is clear that QPS-Serena also belongs to II because it differs from Serena only in how the random schedule () is
+
+computed, and in QPS-Serena this () is generated in the
+“()-proportional” manner (so its probability distribution
+is a function only of ()). 
+
+We claim that, given any switching algorithm€ II, the
+joint queueing and scheduling process { ((), ()) — resulting fromand any ... arrival process A() (not necessarily admissible}, is a Markov chain. This property is clear
+from the following two facts. First, by (), (£) is a function
+of only () and ( —) (mote () is a function only of
+()). Second, by (), (£) is a function of only ( —),
+( —), and the random packet arrival vector A() that is
+independent of all other random vectors.
+. Stability Theorem for Family Tl
+The following theorem, concerning the stability of the
+family of switching algorithms II, was proven in [33].
+
+THEOREM For any (randomized) algorithm  € II that
+satisfies Property , defined next, and under any admissible
+... arrival process A() (defined in §.), the joint queueing and scheduling process { ((), ()) eo is an ergodic
+Markov chain, and as a consequence, the queueing process
+{()}20 converges in distribution to a random vector
+Furthermore,
+
+Fix a randomized switching algorithm Let ()((£), ()) be the weight of the schedule output byat
+time slot . Denote as Wo the weight of the MWM ... a
+queue length vector , .., Wo * max{ (, )}. Let Sg be
+
+one of the schedules that attain this maximum weight (..,
+
+DEFINITIONx satisfies Property  if at any time slot ,
+
+
+where>is a constant independent of the time slot  and
+the queue length vector ().
+
+In other words,  satisfies Property  if, at any time slot ,
+the schedule () output byis a MWM with at least a
+constant probability Both TASS and Serena satisfy Property  because there is a constant (... ()) probability
+for () to be a MWM in both cases, and when this happens, () remains a MWM after a “MAX” or “MERGE”
+operation. Since both TASS and Serena also belong to family we Theoremimplies that both can achieve%
+throughput.
+ Stability of QPS-Serena
+
+Although QPS-Serena also belongs to family II, Theoremis not applicable to QPS-Serena, because it can be
+shown that QPS-Serena does not satisfy Property . We establish a stronger theorem that allows us to prove that QPSSerena can achieve% throughput. More specifically, we
+first show in Lemmathat QPS-Serena satisfies a weaker
+condition called (€,)- MWM, defined next”. Then we show
+
+?Note that, the definition of (€,)-MWM is quite different
+than that of the-APRX (to MWM) defined in [28].
+
+(PROPERTY  [33]). A switching algorithm
+in Theoremthat this weaker condition, combined with the
+II family membership, is sufficient for a switching algorithm
+to achieve% throughput.
+
+DEFINITION A switching algorithm nm is called (,)MWM, if Ve > there exists a constant0 < < ..
+
+
+
+whereis a constant independent of the time slot  and the
+queue length vector (). Note thiscan depend on € and
+other (constant) system parameters such as . Here, ()
+and Wat) are similarly defined as before.
+
+In other words, an algorithmis called (,)-MWM if,
+at any time slot , the schedule () output byis within
+( — €) of the optimal (.., MWM) with at least a constant
+probability This condition is clearly weaker than Property
+, which requires () to be optimal (.., MWM) with at
+least a constant probability.
+
+The following Lemma shows that QPS alone is (€, )-MWM.
+Since at any time slot ¢, QPS-Serena merges ( —) with
+the schedule () output by QPS, resulting in a schedule
+() that is at least as heavy as (), QPS-Serena is also
+({€,)-MWM. Therefore, by Theorembelow, we conclude
+that QPS-Serena can achieve% throughput.
+
+LEMMA QPS is (,)-MWM.
+We defer its proof of to Appendix  in the interest of space.
+
+THEOREM For every algorithm a € II that is (€, )MWM, the conclusion of Theorem(.., convergence to a
+stationary distribution with finite first moment) continues to
+hold, under admissible ... arrivals.
+
+We defer its proof to Appendix  in the interest of space.
+
+Remark: Like Theoremabove, Theoremin [20] also
+establishes stability with conditions weaker than that are
+needed in Theorem However, they weaken different parts
+of the assumptions made in Theorem and hence their
+proofs are very different. Theoremabove weakens Property  in Theoremabove to (,) - MWM. In contrast,
+Theoremin [20] requires Property , but weakens the nondegenerative requirement (see Definition) in Theoremabove, by allowing it to be violated with a tiny probability.
+ EVALUATION
+
+In this section, we compare the performance of two QPSaugmented algorithms, QPS-iSLIP and QPS-Serena, against
+the iterative Longest Queue First (iLQF) [16], iSLIP-ShakeUp
+(iSLIP augmented by ShakeUp [11]), and the two original algorithms, iSLIP [17] and Serena [10]. We evaluate, through
+simulations, their throughputs and delays under various load
+conditions and traffic patterns. Maximum Weight Matching
+(MWM) is also simulated to provide a benchmark for these
+comparisons.
+
+The evaluation results show conclusively that QPS-iSLIP
+and QPS-Serena outperform iSLIP and Serena respectively
+in both throughput and delay. They also show that QPSiSLIP brings about the same amount of performance improvement to iSLIP as iLQF, even though QPS-iSLIP is far
+less computationally expensive ((log? ) per port) than
+iLQF (() per port), thus giving the “same bang for less
+buck”. Furthermore, they show QPS-iSLIP overall performs
+better than iSLIP-ShakeUp.
+ Simulation setup
+
+In all our simulations, we set the number of input/output
+ports  = Note that we have also investigated how
+the mean delay performance of various switching algorithms
+scales with respect to ; these results are shown in Appendix .. For the accurate measurement of throughput
+and delay, each VOQ is assumed to have infinite buffer, so
+that there is no packet drop at any input port. Every simulation run lasts  ? (= °) time slots. This
+duration is chosen so that every simulation run enters the
+steady state after a tiny fraction of this duration and stays
+there for the rest. The throughput and delay measurements
+are taken after the simulation run enters the steady state.
+
+We initially assume Bernoulli ... traffic arrivals: the
+distributions of arrivals to different input ports are ...,
+and in each time slot, there is a probability  € (,) that
+a packet will arrive. We will then look at bursty traffic
+arrivals further below. The followingstandard types of
+load matrices (.., traffic patterns) are used for generating
+the switch’ workloads:
+ Uniform: packets arriving at any input port go to each
+
+output port with probability +.
+ Quasi-diagonal: packets arriving at input portgo to
+
+output port=  with probabilityand go to any
+other output port with probability aay?
+ Log-diagonal: packets arriving at input portgo to
+-
+output port=with probability at and go to
+any other output port  with probability equalof
+the probability of output port  — (note: output portequals output port ).
+ Diagonal: packets arriving at input portgo to output
+port=with probability or go to output port
+( mod ) +with probability §.
+The load matrices are listed in order of how skewed the
+volumes of traffic arrivals to different output ports are: from
+uniform being the least skewed, to diagonal being the most
+skewed.
+
+In both iSLIP and iLQF, the total number of iterations
+in a time slot is usually set to log, . However, to achieve
+a fair comparison between iSLIP, iLQF, and QPS-iSLIP, in
+simulating these algorithms, the total number of iterations
+in a time slot is set to+ log, . For instance, with QPSiSLIP, this means that we raniteration of QPS followed by
+log,  iterations of iSLIP. In doing so, we emphasize that
+the outperformance of QPS-iSLIP does not come from an
+extra iteration. Note that, with+ log,  iterations, the
+complexity of both iSLIP and QPS-iSLIP remains (log? )
+per port and that of iLQF remains () per port.
+
+For iSLIP-ShakeUp, we alternate between an iSLIP iteration and a ShakeUp iteration also for a total of log,  +
+iterations (.., 82+" iterations for each). This algorithmic setting and parameter setting both follow the guidelines provided in [11] for iSLIP-ShakeUp, and the throughput numbers we have obtained (shown in Table) match
+those reported in [11].
+
+We consider two performance metrics: throughput and
+delay. We measure two types of delays: the mean delay and
+the°" percentile delay. The%" percentile delay is the
+delay value exceeded by exactly% of the packets.
+Table Maximum throughput.
+
+ 
+
+longest VOQs when evacuating other VOQs. In our simulations, the** percentile delay is measured by using the
+high dynamic range (HDR) histograms [].
+ QPS Throughput Results
+
+We have measured the maximum achievable throughput
+of iSLIP, QPS-iSLIP, iSLIP-ShakeUp and iLQF, under thedifferent load matrices and an offered load close to%.
+The results are presented in Table We do not include the
+throughputs of MWM, Serena and QPS-Serena in Tablebecause they provably achieve% throughput.
+
+There are three important observations from Table First,
+for non-uniform traffic patterns, where iSLIP does poorly,
+QPS-iSLIP significantly boosts the throughput performance
+of iSLIP, increasing it by an additive term of, .1261,
+and for the quasi-diagonal, log-diagonal, and diagonal load matrices respectively. Moreover, for non-uniform
+traffic, the throughput of QPS-iSLIP are very close to those
+of iLQF, which is much more expensive computationally.
+Second, the throughput of QPS-iSLIP is higher than that
+of iSLIP-ShakeUp under all load matrices except diagonal.
+Third, just like iSLIP, QPS-iSLIP can achieve% throughput under uniform traffic.
+
+We highlight a subtle fact that may sound counterintuitive to some readers: That a switch (running a scheduling
+algorithm) has a throughput of ~ <when the offered load
+is% does not imply that the switch is stable under any
+offered load (say ) smaller than ys. This is because the extra—  “switching resource” freed up by the reduced offered
+load may not all be efficiently utilized by the scheduling algorithm to clear up the longest queues. For example, iSLIPShakeUp is not stable under Quasi-diagonal traffic when the
+offered load is% (see the corresponding missing point in
+Figure(° row, "¢ from left)), even though its throughput under% offered load is%. In the sequel, we use
+the terms “load”, “normalized load”, “offered load”, “traffic
+load” and “load factor” interchangeably.
+ QPS Delay Performance Results
+. Bernoulli arrivals
+
+Figure(the% row) presents the mean delays of iSLIP,
+QPS-iSLIP, iSLIP-ShakeUp, iLQF, and MWM under thedifferent load matrices. Since iSLIP, QPS-iSLIP, iSLIPShakeUp, and iLQF generally cannot achieve% throughput, we only measure their delay performance under the
+offered loads that make them stable; in all figures in the
+sequel, each “missing point” on a curve indicates that the
+corresponding scheduling algorithm is not stable under the
+corresponding offered load.
+
+Figure(the** row) clearly shows that QPS-iSLIP has
+much lower mean delays than iSLIP under all load matrices, especially when the load factor is high (.., 80%); we
+note that the differences between the curves unfortunately
+look smaller on a log scale (on the -axis) than they ac
+tually are.In addition, the mean delays of QPS-iSLIP are
+very close to those of iLQF, the more expensive algorithm
+computationally, under all load matrices and factors.
+
+Figure(the% row) also shows that QPS-iSLIP has
+either similar or slightly higher mean delays than iSLIPShakeUp under all load matrices, when the traffic load is
+low to moderate. However, when the traffic load is high
+(say >%), the iSLIP-ShakeUp either becomes unstable
+or has higher mean delays than QPS-iSLIP, under all load
+matrices.
+
+Figure(the gna row) presents the mean delays of Serena,
+QPS-Serena, and MWM under thedifferent load matrices.
+We can see that QPS-Serena outperforms Serena under all
+load matrices for all load factors. More specifically, QPSSerena outperforms Serena by a wide margin, under uniform
+and diagonal load matrices for all load factors; it does so also
+under quasi-diagonal and log-diagonal load matrices for load
+factors that are not too high (<).
+
+Figure(the”¢ row) also shows that the relative difference of the mean delay between QPS-Serena and Serena
+generally becomes larger as the traffic load becomes lighter.
+This phenomena is due to the choice of the starter matching. In Serena, the starter matching is the arrival graph,
+and when the load is light, the arrival graph does not provide enough “cue” for the scheduling algorithm to select the
+longest VOQs. QPS-Serena, on the other hand, has a better
+starter matching that accounts for the VOQ lengths under
+any load conditions, and thus beats Serena in mean delay.
+The outperformance of QPS-Serena over Serena reinforces
+our message about the importance of choosing a good starter
+matching.
+
+Figure(the°* row) shows the°" percentile delays of
+iSLIP, QPS-iSLIP, iSLIP-ShakeUp, iLQF, and MWM under
+thedifferent load matrices. Due to the presence of delay
+values that are very close to which would severely “deform”
+all the curves if they were plotted in a log scale on the -axis,
+Figureis plotted in the linear scale on the -axis. Figure(the°* row) shows that QPS-iSLIP and iLQF achieve much
+lower°" percentile delays than iSLIP and iSLIP-ShakeUp,
+especially under heavy loads.
+
+Figure(the gna row) shows the*" percentile delays
+of QPS-Serena, Serena, and MWM under thedifferent
+lead matrices. Again QPS-Serena outperforms Serena by a
+wide margin under all four load matrices for almost all load
+factors.
+.  Bursty arrivals
+
+In real networks, packet arrivals are likely to be bursty. In
+this section, we evaluate the performance of these scheduling algorithms under bursty traffic, generated by a two-state
+ON-OFF arrival process described in [10]. The durations of
+each ON (burst) stage and OFF (no burst) stage are geometrically distributed: the probabilities the ON and OFF
+state lasts for  >time slots are given by
+
+Pon() = (—)* and Porr() = (—49)’,
+
+with the parameters , € (,) respectively. As such, the
+average duration of the ON and OFF states are ( — )/
+and ( — )/ time slots respectively.
+
+In an OFF state, an incoming packet’ destination (..,
+output port) is generated according to the corresponding
+lead matrix.
+Figure Mean delays under bursty traffic with theload matrices.
+
+thus simulating a burst of packet arrivals. By adjusting , we
+can control the desired average burst size while by adjusting
+, we can control the load of the traffic.
+
+We first compare QPS-iSLIP against iSLIP, iSLIP-ShakeUp,
+
+iLQF, and MWM, with average burst sizes ranging fromtopackets, on an offered load of. We use this
+load factor because iSLIP is not stable under certain load
+matrices when the offered load is larger than or equal to.
+
+The simulation results are shown in Figure(the%
+row). We can see that QPS-iSLIP beats iSLIP, and is on
+par with iLQF and QPS-ShakeUp, under all load matrices
+for all burst sizes. Furthermore, QPS-iSLIP beats iSLIP by
+a wide margin, under quasi-diagonal and log-diagonal load
+matrices. In fact, the starter matching generated by QPS for
+iSLIP is so superior that QPS-iSLIP is only slightly worse
+than MWM in the mean delay performance under all load
+matrices for all burst sizes.
+
+We then evaluate QPS-Serena’ mean delay performance
+against Serena’ and MWM’. Figure(the”¢ row) presents
+the results with average burst sizes ranging fromtopackets under an offered load of, under theload matrices respectively. Performance under other heavy loads,
+such as at, is similar to this case.
+
+We can see from Figure(the"¢ row) that the mean
+delay increases for all scheduling algorithms when the burst
+size increases, under allload matrices, which is not surprising. However, Figure(the”% row) also clearly shows
+that QPS-Serena handles highly bursty traffic much better
+than Serena, as we will elaborate next.
+
+We make the following two observations from Figure(the” row). First, QPS-Serena outperforms Serena by
+an increasingly wider margin, in both absolute and relative terms, as the burst size becomes larger. Second, the
+gap between QPS-Serena and MWM shrinks rapidly as the
+
+burst size becomes larger. Our explanation for the first observation is that, because QPS-Serena obtains information
+directly from the current lengths of the VOQs, rather than
+indirectly from the current arrivals, QPS-Serena reacts to
+the rapid build-up of packets in a VOQ from a past traffic burst much more promptly than Serena. For the second
+observation, the reason is as follows. When the burst size
+increases, the longest one or two VOQs at every input port
+account for an increasingly higher percentage of all packets
+queued at the input port, and hence have an increasingly
+higher chances of being sampled by QPS, so the resulting
+starter matching becomes increasingly closer to an MWM.
+ RELATED WORK
+
+In this section, we first provide a brief survey of crossbar scheduling algorithms or policies, besides those we have
+already described earlier (including MWM [34], iSLIP [17],
+iLQF [16], Serena [10], and ShakeUp [11]), focusing on those
+directly related to our work. Then in §., we compare our
+QPS strategy with other queue-proportional resource allocation policies.
+ Crossbar Scheduling Algorithms
+
+We order the presentations of these algorithms/ policies
+roughly by their (total) computational complexities.
+. Belief Propagation Algorithms
+
+As explained earlier, although MWM is an ideal algorithm
+in terms of performance, its most efficient implementation []
+has a prohibitively high computational complexity of (*).
+Note that MWM-a; [14] and MWM-* [31] are variants that
+only explore the MWM policy space by adopting different
+edge weight functions; they contain no algorithmic innovations that would reduce the (*) complexity of MWM.
+Another family of approximate MWM is the family of distributed iterative algorithms [,] based on belief-propagation
+(BP). In this family, the input ports engage in multiple iterations of message exchanges with the output ports to learn
+enough information about the lengths of all ? VOQs so
+that each input port can decide on a distinct output port to
+match with. The resulting matching either is, or is close to,
+the MWM. Note that the BP-based algorithms are simply
+parallel algorithms to compute the MWM: the total amount
+of computation, or the total number of messages needed to
+be exchanged, is still (°), but is distributed evenly across
+the input and the output ports (.., (?) work for each
+input/output port).
+
+A technique called BP-assisted scheduling was proposed
+in a recent work [], in which BP is used to boost the performance of certain distributed iterative algorithms (called
+“carrier” algorithms) that are not BP-based such as iLQF [16].
+Its idea is to replace the contents of the messages exchanged
+between input and output ports by those that would be exchanged in a BP-based algorithm. The “BP assistance” part
+alone has a total computational complexity of (N7), so
+it is best suited for a carrier algorithm that has the same
+asymptotical complexity, such as iLQF.
+. MVM and LHPF
+
+Another approach to reducing the complexity to ()
+while achieving performance similar to MWM is the family of Maximum Vertex-weighted Matching (MVM) policies [18]. The MVM family was later extended to a larger
+family called Lazy Heaviest Port First (LHPF) [12] that also
+has (?) complexity. In a standard MVM policy, each
+input or output port, denoted as a vertex, is assigned a
+weight that is equal to the total number of packets (across
+all  VOQs) queued at the vertex. The weight of an edge
+(,) is the sum of the weights of its two vertices  and ,
+if there is at least one packet in the corresponding VOQ
+(.., gi), and isotherwise. An MVM policy dictates that
+the heaviest (vertex-weighted) matching be used for crossbar scheduling. MVM can achieve% throughput, and
+has a delay performance quite close to that of MWM.
+. Lower-Complexity Randomized Algorithms
+
+Several randomized algorithms, starting with TASS [33]
+and culminating in Serena [10,27] were proposed to push
+the total complexity further down to () (.., linear complexity). We have described in earlier sections both TASS
+and Serena in details.
+
+A randomized scheduling algorithm specialized for switching variable-size packets was proposed in [38] that has ()
+total computational complexity (per switch). It belongs to
+a family of randomized algorithms (.., [,22,24,29]) primarily designed for computing a collision-free transmission
+schedule, which corresponds to an independent set in the
+interference graph, in a wireless network. These algorithms
+all build upon a Markov Chain Monte-Carlo (MCMC) technique called Glauber dynamics [36] for computing independent sets (convertible to bipartite matchings in the switching
+context).
+
+The algorithm in [38] for computing, at each time slot ¢,
+the matching for the next time slot (¢+), works follows. It
+samples one of the ? VOQs (edges) uniformly at random.
+Suppose the sampled VOQ (edge) is the *” VOQ at input
+port  (.., edge (, )). Then, with probability ” /(” +),
+
+it adds the edge (,) (.., pairing input portwith output
+port ) to or keeps the edge in (+), if neither ¢ nor 
+is currently matched (in ()) or (,) already belongs to
+the (). Here the weight  is set to the celebrated slowly
+varying weight function In(In(+2z)) proposed in [24], where
+ is the weight of the edge (,) (.., the length of the
+corresponding VOQ). Clearly, the algorithm makes at most
+one change (hence () total complexity), from any time
+slot ¢ to the next, to the configuration of the crossbar (..,
+the matching).
+
+It was proven in [24] that all such algorithms that use this
+weight function, including the algorithm in [38], can achieve% throughput. However, our simulation results (presented in Appendix .) show that, when used for switching fixed-size packets, the algorithm in [38] has very poor
+delay performance and the total queue length does not stabilize (.., keeps increasing) until after a very large number
+of time slots. These simulation results are not surprising:
+all algorithms that adopt this InIn( + -) weight function
+have similar poor delay performance, because as explained
+in [], the InIn( + -) weight function, aimed at achieving% throughput [24], reacts very slowly to changes in queue
+lengths and hence allows long queues to build up.
+ Queue-Proportional Resource Allocation
+
+Serving queues at rates or probabilities proportional to
+their (queue) lengths is an intuitively appealing resource allocation approach that has been used in various computer
+and communications systems for many years. For example,
+in [], a simple queue-proportional scheduler was proposed
+for scheduling transmissions in wireless broadcast channels,
+and a geometric programming based formulation of this problem specialized to the Gaussian broadcast channel was later
+established in [25,26]. However, unlike our QPS strategy, in
+which an input port proposes to an output port with a probability proportional to the length of the corresponding VOQ,
+the scheduler in [, 25,26] dictates that each link receives an
+service rate proportional to its current queue length during
+each time slot. As a result, it has to solve a convex optimization problem that has a much higher computational
+complexity.
+
+In [15], . Li et al. proposed a generalized version of the
+above queue-proportional scheduler called Queue-Proportional
+Rate Allocation (QPRA), with the objective of achieving
+maximum throughput in a multi-hop wireless network. As
+the QPRA algorithm is generally hard to implement in practice, they further proposed a low-complexity version called
+LC-QPRA to make their scheme more practical. The LCQPRA algorithm resembles the proposing step in our QPS
+scheme in that, during each time slot, a sender proposes
+{attempts to transmit) to each receiver with a probability
+proportional to the length of the corresponding “VOQ”.
+
+There are three key differences between QPRA and QPS
+however. First, in QPRA, during any time slot, the probability with which each sender proposes (to any receiver) is also
+proportional to its total queue length, whereas in QPS, this
+probability isfor any sender unless its total queue length
+is Second, in QPRA, if two senders propose (transmit) to
+the same receiver during a time slot, both transmissions are
+corrupted, whereas in QPS, only one is allowed to eventually transmit a packet to the receiver. Third, in QPRA, the
+outcomes (successful or corrupted) of these proposals (attempted transmissions) define the final matching, whereas
+QPS only generates a starter matching that will be further
+refined into a full or more complete matching.
+
+Finally, another policy was proposed in [37] for scheduling
+packets in a single-hop network, where crossbar scheduling
+is a special case. However, this policy is closely related to
+MWM.-0t [31], and is unrelated to QPRA or QPS.
+ CONCLUSION
+
+In this paper, we propose a new proposing strategy, called
+queue-proportional sampling (QPS), that generates superior starter matchings than all other known strategies. We
+use QPS to augment two existing crossbar scheduling algorithms, namely Serena and iSLIP. We show that the augmented algorithms, namely QPS-Serena and QPS-iSLIP, outperform the original algorithms by a wide margin, under
+various load conditions and traffic patterns. These performance enhancements come at virtually no additional computational cost due to QPS being an () algorithm (per
+port). Finally, to prove that QPS-Serena can achieve%
+throughput, we have proved a new and stronger stability
+theorem.
+
+Acknowledgements
+
+This work is supported in part by US NSF grants CNS1423182 and CNS-1302197 and Australian Research Council
+grant DP110103505.
+
+

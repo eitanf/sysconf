@@ -1,0 +1,486 @@
+Quality and Cost of Deterministic Network Calculus Design and Evaluation of an Accurate and Fast Analysis
+
+ABSTRACT
+---
+Networks are integral parts of modern safety-critical systems and certification demands the provision of guarantees for
+data transmissions. Deterministic Network Calculus (DNC) can compute a worst-case bound on a data flow’ end-to-end
+delay. Accuracy of DNC results has been improved steadily, resulting in two DNC branches: the classical algebraic analysis
+and the more recent optimization-based analysis. The optimization-based branch provides a theoretical solution for tight
+bounds. Its computational cost grows, however, (possibly super-)exponentially with the network size. Consequently, a
+heuristic optimization formulation trading accuracy against computational costs was proposed. In this article, we challenge
+optimization-based DNC with a new algebraic DNC algorithm.
+We show that:
+
+() no current optimization formulation scales well with the network size and
+() algebraic DNC can be considerably improved in both aspects, accuracy and computational cost.
+
+To that end, we contribute a novel DNC algorithm that transfers the optimization’ search for best attainable delay bounds to
+algebraic DNC. It achieves a high degree of accuracy and our novel efficiency improvements reduce the cost of the analysis
+dramatically. In extensive numerical experiments, we observe that our delay bounds deviate from the optimization-based
+ones by only% on average while computation times simultaneously decrease by several orders of magnitude.
+---INTRODUCTION
+
+Accurately bounding timing constraints is a fundamental problem of systems analysis. Applied in the design phase
+of communication networks, it allows for their certification while preventing over-provisioning of resources.
+For networks, the main resource is the forwarding capability of links and the crucial metric to consider is the
+end-to-end delay of data flows. An example of a networked system requiring certification are the Ethernet-based
+Avionics Full-Duplex (AFDX) data networks embedded in modern Airbus aircraft. These have to be verified against
+
+of all presented algDNC and optDNC analyses, ranking them regarding their quality and cost. Sectionrelates
+our contribution to the literature and Sectionconcludes the article.
+THE COMMON NETWORK CALCULUS MODEL Data Arrivals and Forwarding Service
+
+In DNC, flows are characterized by functions that cumulatively count their data [22]. These functions are
+non-negative, wide-sense increasing and pass through the origin:
+
+A flow’ functions A() and A’() describe its data put into a server  and its data put out from , both from
+the start of arrivals up until time ¢. Given these functions, the expected delay of a data unit arriving at  can be
+computed.
+
+Definition (Delay) Assume a flow with input function A traverses a server  and results in the output function
+A’. The (virtual) delay for a data unit arriving at  at time  is
+
+Note, that this definition requires the server to preserve the order of the flow’ arrivals when forwarding its
+data.
+
+In a second modeling step, network calculus introduces bounding functions for data arrivals, so-called arrival
+curves.
+
+Definition (Arrival Curve) Let a flow have input function A € Fo, then a@ € Fp is an arrival curve for A iff it
+bounds A in any observation window of duration , ie.,
+
+Using arrival curves, only the duration of observation is required to obtain an upper bound on the cumulative
+arrivals of data. Le., flow arrivals’ absolute starting point in time as well as the history up until time ¢ need not be
+known anymore.
+
+A useful basic shape for an arrival curve is the so-called token bucket. It is enforced by the eponymous traffic
+regulation algorithm. These curves are from the set Ftz  Fo,
+
+where  denotes the maximum arrival rate and  is the maximum burstiness (bucket size).
+Scheduling and buffering at a server result in the output function A’(). Network calculus captures the minimum
+forwarding capabilities that lead to A’ in interval time as well:
+
+Definition (Service Curve) If the service provided by a server  for a given input A results in an output A’,
+then  is said to offer a service curve  € Fo iff
+
+A number of servers fulfill a stricter definition of service curves by considering their state in addition to
+input A.
+Definition (Backlogged Period) A server  with input A and output A’ is backlogged during period (, £), if
+
+Servers offering strict service guarantees have a higher output guarantee during any backlogged period.
+
+Definition (Strict Service Curve) If, during any backlogged period of duration , a server  with input A and
+output A’ guarantees an output of at least £(), it offers a strict service curve  € Fo.
+
+A basic shape for service curves is the rate latency function defined by the set Fg,  Fo,
+where  denotes the minimum service rate and  is the maximum latency. Networks where curves are exclusively
+from the sets Ftz and Fgy have been in the focus of recent advances in DNC [, 15].
+Given these bounding curves, the maximum delay experienced by a flow when crossing a server is simply
+computed by the horizontal deviation between arrival curve @ and service curve pf:
+The Network Model
+. Arbitrary Multiplexing. Consistent with our worst-case perspective, we make no assumption on the
+ordering between flows when they are multiplexed at servers. That is we employ the so-called arbitrary multiplexing when computing left-over service for a flow of interest at a shared server. Certainly, if we could, for
+instance, assume FIFO multiplexing, then the performance bounds could be improved. However, in applications
+requiring worst-case guarantees such as, .., for the certification in avionics, a FIFO assumption may already be
+considered too optimistic. In fact, many network switches use highly optimized internal switching fabrics that
+can lead to reordering in order to avoid head-of-line blocking [31]. Overall, by using arbitrary multiplexing we
+play safe with respect to the worst-case.
+. The Feed-forward Property. A second assumption of current DNC analyses for networks is the absence
+of cyclic dependencies between flows. Work departing from this assumption can be found in [30, 39] but is not
+covered by this article. Therefore, we focus on networks that guarantee the feed-forward property by design. Le.,
+the analyzed network does not allow for cycles. In Appendix A, we present a means to generate feed-forward
+networks for evaluation of DNC analyses.
+ OPTIMIZATION-BASED DNC
+
+In this section, we perform a first cost evaluation of optDNC in larger feed-forward networks. Bounding worst
+case delays tightly is a NP-hard problem [14]. Therefore, we examine optDNC’ LP analysis that derives these
+tight bounds and provide deeper insights into the computational cost of optDNC’ less accurate heuristic, the
+ULP. We compare our results to the literature’ algebraic analysis SFA, as used in recent work of [10, 14]. The
+comparison reveals that that DNC currently requires to choose between a computationally barely feasible, yet
+accurate optimization analysis and a feasible, but inaccurate algebraic analysis.
+ The Tight LP Analysis
+OptDNC’ LP analysis [14] takes the following steps to derive a given flow of interest’ (foi’) tight delay bound:
+() Starting at the foi’ sink server, backtrack all flows in order to derive the dependencies between starts of
+backlogged periods of servers. For simple tandems of servers, this step results in a total order. However,
+in more general feed-forward networks, it derives a partial order.
+() The partial order is extended to the set of all compatible total orders. This step enumerates all relations of
+servers’ backlogged period beginnings. It is subject to restrictions caused by flows that rejoin again after
+demultiplexing.
+
+() Each total order is converted to one linear program that also includes the network description’ constraints
+such as arrival curves and service curves (Section). The maximum of all their solutions constitutes the
+tight delay.
+
+The third step shows that the LP is an all-or-nothing analysis where we cannot judge validity of a delay bound
+before computing all of them. Unfortunately, stepis prone to a combinatorial explosion that constitutes the
+underlying reason for this DNC analysis’ (possibly super-)exponential growth in effort. To illustrate this problem,
+let us briefly discuss on the number of linear programs (LPs) that have to be solved in a sink-tree network: In the
+best case, we have a pure tandem network of  servers and then a single LP results; in the worst case, we have a
+so-called fat tree with one root node and  —leaf nodes directly connected to it, resulting in ( —)! LPs. na
+full binary tree, the number of LPs is lower bounded by © ((#)!) [38]. In general, calculating the number of total
+orders being compatible with a given partial order is itself not a simple problem. One solution is the Varol-Rotem
+algorithm [44]; we implemented this algorithm to provide some numbers for the case of full -ary trees (Table).
+It is obvious that the computational cost to solve such large numbers of linear programs becomes prohibitive
+quickly, even for moderately sized networks.
+
+Based on the LP’ optimization formulation and the analysis design it was accompanied with, a heuristic called
+Unique LP (ULP) was proposed [14]. It circumvents the combinatorial explosion by skipping stepfrom above.
+Le., it always derives a single linear program that is directly based on the partial order from step Thus, the
+ULP does not attain tight delays but it was shown to stay very close to these in a (small) sample network. Its
+computational cost in terms of analysis run time [28, 33] in larger, more general feed-forward networks had not
+been investigated yet.
+. Inaccuracy due to Paying Segregation more than Once. The ULP models multiplexing of flows with joint
+backlogged periods and has access to global knowledge in the optimization step. Yet, recent work [] shows
+how skipping stepreduces the accuracy of bounds attained by the ULP. In the following situation, these two
+features of optDNC are only utilized by the LP analysis: Assume flows multiplex at a server and demultiplex
+after it, then they take different paths and multiplex later at a different server again. In such a network, the
+analysis should strive for the Pay Segregation Only Once (PSOO) principle - separated paths should not result
+in segregated flow analysis and overly pessimistic service allocation to flows. Yet, the ULP cannot capture the
+(global) interdependency between the former and the latter server where the flows jointly cause a backlogged
+period. Instead, it indeed derives an overly-pessimistic worst-case result by violating the PSOO principle. This
+PSOO violation, however, occurs in all known DNC heuristics, optimization and algebraic analysis.
+ Computational Cost Evaluation of the ULP. We implemented the ULP to measure its analysis execution
+time - deriving the partial order, the linear program and solving it - for our set of feed-forward networks
+(Appendix A.). For the optimization, we employ two different solvers: the open-source LpSolve.. and
+
+The service curve definition then translates to A’ > A ® , the arrival curve definition to A @ a > A, and
+performance bounds can be derived using the deconvolution operation:
+
+Theorem(Performance Bounds). Consider a server  that offers a service curve . Assume flow  with arrival
+curve a traverses . We get the following bounds for :
+.. Tandem Analysis. AlgDNC focuses the delay analysis on a specific flow of interest (foi), end-to-end on
+its path (a tandem of servers).
+
+Theorem(Concatenation of Servers). Let a flow  cross a tandem of serversT = (s1,...,5n) and assume that
+each ;, € {,...,}, offers a service curve Bs,. The overall service curve offered to  is their concatenation
+
+Theorem(Left-Over Service Curve). Consider a server  that offers a strict service curve ,. Let  be crossed by
+two flow aggregates Fy and , with arrival curves a*° and a™, respectively. Then ,’ worst-case resource share
+under arbitrary multiplexing at , .., its left-over service curve, is
+
+In this article, we use an open-source implementation of these operations []. An algDNC analysis of the flow’
+tandem then defines rules for their composition such that the model’ worst case is retained.
+
+Separate Flow Analysis (SEA) [34]. The first tandem analysis of algDNC, Separate Flow Analysis (SFA), constitutes
+a straight-forward application of Theoremand Theorem In order to derive the foi’ service curve on its
+path  = , cross-traffic is subtracted server by server and the per-server !° are (min-plus) convolved. The
+resulting pe is used to bound the foi’ delay. This procedure has a disadvantage: If cross-flows share longer
+(sub-)paths with the foi, then multiplexing is considered more than once in the equation bounding the foi’ delay.
+
+Pay Multiplexing Only Once (PMOO) Analysis [24, 41]. PMOO is an analysis principle that tackles the SFA’
+problem. It suggests to convolve the analyzed sub-tandems of servers as much as possible before subtracting
+cross-traffic. We denote this computation by
+whereis the analyzed tandem, ¢ is its convolved service curve and (Fi, sis »Fisj) denotes the cross-flow
+aggregates to subtract. For single-server tandems (), the derivation equals Theorem .., BE, = Bis) ©
+(a? * mess aFizi) =,° pe aFi+, For larger tandems and more involved interference patterns, [41] provides
+the first theoretical implementation of this principle (code is in []). We use this PMOO analysis in our article. It
+results in more accurate bounds than SFA in many scenarios, with some noticeable exceptions which we detail
+later [40].
+Note, that arrival curves need to pass through the origin. In a slight abuse of notation, we use the symbol @ for both, deconvolution and
+output bounding.
+
+Validity of PMOO Results. The PMOO’ underlying principle to convolve service curves before subtracting
+the impact of cross-traffic arrivals is, in fact, not covered by the basic rules to compose algDNC operations. The
+left-over service curve operation can only be applied to strict service curves as only these guarantee a bound on
+the backlogged period. In the worst case, this bound needs to be reached in order to assume left-over service. Yet,
+the convolution of two strict service curves does not necessarily result in a strict service curve. Correctness of the
+PMOO result is guaranteed nonetheless. The algDNC literature offers multiple justifications: On the one hand, it
+was proved that the algebraic manipulations are inherently pessimistic, such that the optimistically assumed
+bound on the backlogged period of simple service curves is set off. This is shown by proving that (valid) results
+of an optimization analysis are always better than PMOO results [32, 40]. Hence, the PMOO result constitutes a
+valid bound as well. On the other hand, more direct proofs arguing over input/output relations of flows crossing
+a tandem of servers can be found in the literature, too [11, 13].
+ Compositional Feed-forward Analysis: From Tandem Analyses to Network Analyses
+
+The algDNC tandem analyses are used in a compositional fashion to derive delay bounds in feed-forward networks
+(compFFA). Conceptually, the procedure can be split into two parts []:
+) The analysis abstracts from the feed-forward network to the foi’ path. In this part, arrivals of cross-traffic are
+bounded at the locations of interference with the foi.
+ii) A tandem analysis derives the foi’ delay bound.
+
+Whereas the tandem to analyze in the second part is known from the start, the tandems in the first part need to
+be derived. Le., the network must to be decomposed into a sequence of tandems to analyze (derive !°'). This
+decomposition depends on the applied analysis. Tandems are then interfaced with the output bound operation @.
+We illustrate the decomposition in Figurea, a minimal network that requires both parts of the procedure. Given
+the global view in this sample network, we see that SFA decomposes each flow’ paths into smallest possible
+tandems (.., individual servers). In contrast, the PMOO analysis “decomposes” into longest possible tandems to
+apply its left-over service curve derivation to.
+
+These decompositions define orders of algebraic operators in order to attain worst-case results. However,
+current algDNC analyses do not exploit all degrees of freedom to decompose a feed-forward network into tandems.
+This can cause pessimism and reduce the accuracy of results. In the following, we provide detailed insight into
+these aspects. Last, note that the presented optDNC analyses are not compositional. They directly derive the foi’
+delay bound.
+
+Causes for Overly-pessimistic Results of compFFA Heuristics. We provide an analysis of problems encountered
+in compFFA. There are several situations that algebraic DNC’ compositional feed-forward analysis can only
+handle by overly-pessimistic worst-case approximations. Detailed knowledge about them enables us to derive
+mitigation strategies that reduce occurrences to a minimum. We present newly found phenomena as well as
+known ones that lack comprehensive evaluation. All are considered in the design of our novel algebraic analysis
+algorithm. Our mitigation strategies exploit unused degrees of freedom in composing algDNC equations. Thus,
+the derived worst-case bounds are less pessimistic than the known ones but still more pessimistic than optDNC’
+ULP results. In Section we evaluate the respective accuracy differences.
+. Pay Segregation Only Once Violations in compFFA. Compositional feed-forward analysis compFFA causes
+the same PSOO violations as presented in Section.. When backtracking flows, the left-over service curve
+operation computes a worst-case service share for this flow. Le., the result is computed under local information
+only; interdependencies between flows that multiplex at a server ,, demultiplex after it, take different paths
+and multiplex later at a different server sj, again is not considered. If two flows fj and ; are each backtracked
+from Sip to sy, they compute their respective left-over service curves ,, © ; and ;, © fj at server Sy. Both
+
+Quality and Cost of Deterministic Network Calculus «+
+
+.. Restricting Design of compFFA. The above compFFA’ strict separation of its two parts is also reflected
+in the algDNC equations. Both, SFA of Figurec and PMOO of Figureb, assume that tandems cannot reach
+over the foi’ path on the left. A global view on the network reveals that another decomposition is permissible
+without violating worst-case assumptions. Le., we can match tandems onto the network in a different way:
+
+
+The according (min,+)-equation shows a reduction of enforced segregation in an SFA-like derivation:
+
+where Be, stretches over the boundaries of both compFFA parts. Thus, with global knowledge about the
+network, we can identify more degrees of freedom when decomposing the network into a sequence of tandem
+analyses. In the above example, this can result in arbitrarily better delay bounds (see Appendix ), similar to the
+results presented in [, ]. Yet, in Sectionwe evaluate our finding in a broader scope than a selected extreme
+case. Moreover, we add a cost evaluation as our finding demands additional analysis effort to be exploited.
+. Restricting Design of Tandem Analyses. Currently, decomposition of the network is defined by the tandem
+analysis to be used; it is independent of the compFFA procedure. We illustrate this on another small sample
+network (Figurea). As already mentioned, PMOO decomposes into longest possible tandems (see Figureb)
+and SFA decomposes into smallest possible tandems (see Figurec). Note, that there are no segregation effects
+in these equations for tandem analysis. In [40], it was shown that the SFA can outperform the PMOO if the
+foi’ left-over service strongly differs between servers. The authors designed the first optDNC optimization
+
+
+formulation to overcome this problem —- a tandem analysis that integrates with the compFFA - but its cost renders
+an application in feed-forward networks infeasible [32]. Therefore, we propose to stay with algDNC but decouple
+the decomposition of a network into tandems from their analysis. We allow for the following superior derivation
+that can exploit the PMOO principle at the start of the foi’ path as well as a fast left-over service curve Broo at
+the end:
+. Decomposition on Insufficient Information. We presented the previous two insights to already reveal
+countermeasures to the problems of algDNC. However, it is not possible to derive the best tandem decomposition
+from the network model in a static fashion. Neither of the alternatives is strictly superior to the others, -., all
+alternatives need to be assessed based on their actual cross-traffic arrival bounds and left-over service curves.
+Depending on the analyzed tandem’ location in the feed-forward network, the required preceding computations
+can already be very costly. Starting with a single decomposition (.., SFA or PMOO) and eventually recognizing
+that the analysis can be improved, requires additional feed-forward analyses for the decomposition alternatives.
+ Overly-pessimistic Cross-traffic Burstiness []. A recent improvement to algDNC was proposed in [].
+This work identifies a problem that occurs when the burstiness of a flow is bounded after crossing a server,
+ie. when applying Theorem Output, to compute the output bound’ relevant part a’() = (a @ '*)(). The
+computation relies on the deconvolution of the analyzed flow’ arrival curve a with the crossed server’ left-over
+service curve for it, !°. This deconvolution-based computation is ignorant about the server’ queue. It was
+shown that this can lead to overly-pessimistic bounds on the worst-case burstiness. During compFFA’ step ),
+this inaccuracy propagates through the cross-traffic arrival bounding and eventually leads to overly-pessimistic
+flow delay bounds. In [], it is propose to derive the worst-case queue length at a server and use this information
+to cap the output burstiness @’(). This finding suggests that neither solution to compute bounds on output
+burstiness is tight. However, it was only theoretically evaluated in an artificial network designed to provoke the
+burst cap mechanism. An evaluation in realistic networks, benchmarks against optDNC and an evaluation of the
+additional effort are lacking.
+ Derivation of all Permissible (min,+)-Equations
+
+Given the new insights about compositional algDNC analysis we derived in this section, we propose to exhaustively
+derive all permissible (min,+)-equations. An equation is permissible if the result constitutes a valid worst-case
+delay bound for the foi. In theory, we execute the following three steps that somewhat resemble the optDNC
+feed-forward analysis:
+
+() Backtracking: Starting at the foi’ sink server, this step derives the dependencies of flows on each other.
+The backtracking progresses along the paths taken by flow aggregates in order to mitigate PSOO violations
+as much as possible.
+
+() (min,+)-equations: The previous step’ backtracking considers flow entanglements but still leaves the
+degrees of freedom presented in Section. We enumerate all alternatives to match tandems onto the
+intermediate network representation from step Tandems are analyzed with the PMOO and interfaced
+with the burst-capped output bound. Thus, we derive all permissible (min,+)-equations that bound the
+foi’ delay in the given feed-forward network. Integrated Design
+
+We depart from separately deriving global knowledge and the permissible (min,+)-equations. Instead, we unify
+stepsandof Section’ compFFA into a single one Step the backtracking, was designed to derive
+information of the entanglement of flow aggregates and stepused this information derive a permissible (min,+)
+equation based on the composition rules for (min,+)-operations. In this Section, we show that it is possible to
+unify both steps, yet, still consider all permissible equations and derive the best valid result.
+
+We aim to derive all decompositions of a feed-forward network in a single step. The exhaustiveness we
+propose is defined by a multitude of alternatives that were previously considered in step In order to allow our
+algorithm to attain the same set of permissible equations, we need to extend the new backtracking to consider
+alternatives as well. The solution is simple yet powerful. The analysis starts with a single tandem (the foi’ path)
+and recursively backtracks cross-traffic flow aggregates over the tandems they jointly traverse until reaching the
+tandem currently analyzed. Given any tandem in this procedure, the integrated analysis decomposes it into all
+disjoint sequences of sub-tandems by deciding whether to decompose (“cut”) the tandem at a link or not. On
+sub-tandems, the left-over service curve is computed and all sub-tandem ones are convolved into the tandem one
+for a specific decomposition alternative. In order to derive left-over service curves, the backtracking needs to
+be started each of sub-tandem, exhaustively working on decompositions again. The exhaustive derivation all
+sub-tandem decompositions mitigates the causes for compFFA’ pessimism:
+
+Section. Compositions that align with sub-path sharing of cross-flows are tested. They trade algDNC’
+need for segregated bounding against composite left-over derivation.
+
+Section. Small sub-tandems on the foi’ path are combined with large (sub-)tandems for cross-traffic arrival
+bounding.
+
+Section. Neglected decompositions for the foi’ are included.
+
+Section. Sufficiently many decompositions are tested to find the best one for any tandem in the analysis.
+
+Section. The output of each tandem can be easily capped with the backlog bound of its last server.
+
+In fact, as the backtracking simultaneously considers the entanglement of flows (backtracking of flow aggregates)
+and the composition rules of (min,+)-operations, it derives the same set of permissible equations as presented in
+Section.
+ Efficiency Concerns and Improvements
+
+The exhaustiveness of our proposed procedure naturally raises concerns about its computational costs. A tandem
+of length  can be decomposed into”! distinct sub-tandem sequences. All sub-tandem sequence of two adjacent
+levels of the backtracking recursion need to be combined in order to find the best attainable algDNC result.
+This consideration reveals a combinatorial explosion resulting in the large amount of permissible equations
+presented in Figure In detail, a large search tree (Figure) is constructed where branching corresponds to the
+sub-tandem decomposition that, in turn, requires bounding of cross-traffic arriving on a tandem to cut. Each path
+through this search tree derives a single permissible (min,+)-equation. With our integrated design, we aim for an
+efficient solution to fully cover the search tree and achieve the objective to find the permissible equation for most
+accurate results. In algDNC, we can compute intermediate results by solving already derived parts of permissible
+(min,+)-equations. Their results can be used to cut down the search tree and thus improve efficiency.
+.. Caching of Arrival Bounds. Disjoint sub-tandem decompositions only need to differ by a single link that
+was cut, so they often share many sub-tandems which all require the same derivations of traffic arrivals. These
+arrival bounds are solely defined by the sub-tandem, the flows to bound, and the foi — -., the path through the
+search tree that leads to a certain arrival bound (black dot in Figure) does not matter. Caching and reusing
+arrival bounds therefore reduces the computational effort by allowing the analysis to terminate a search before
+reaching any of the search tree’ leaves.
+Flows, ordered by their algDNC delay bound Flows, ordered by their ULP analysis run time
+(a) AFDX Case Study: Delay Bounds. () AFDX Case Study: Computational Effort.
+Fig. Delay bounds and computational effort in the AFDX topology with randomly routed unit size flows.
+
+dense core ofswitches that connect a total ofend-systems located in the network periphery. Each server
+has a service curve resembling aMbps Ethernet link. We created a representative AFDX topology according
+to the algorithm presented in [19]. This topology generation scheme has some random factors in it, ie., from an
+industrial point of view, the network we analyze may correspond to a single alternative in the pre-deployment
+design space exploration.
+
+According to the current AFDX specification, flows are routed within so-called virtual links (VLs). Each VL
+connects a single source end-system to multiple sink end-systems (in the device graph) with fixed resource
+reservation on the path between these systems. In the view of the network calculus, VLs correspond to multicast
+flows that reserve large resource shares. An examination of the problems due to VLs’ coarse granularity can
+be found in [37]. The analysis of multicast flows with algDNC was presented in [], yet, a multicast ULP has
+not been provided. For an expressive comparison, we thus focus on the AFDX network topology itself and 
+randomly routed unicast flows to the network. They are shaped to unit size token buckets wit rateMbps and
+bucket sizeMb.
+
+Figurea depicts theindividual flow delay bounds. The SFA’ delay bounds show a gap to algDNC and
+ULP bounds that tends to grow on average. Additionally, the SFA delay bounds keep oscillating compared to the
+ULP and algDNC bounds, such that this analysis is not suitable to confidently rank AFDX design alternatives
+regarding their performance.
+
+Figureb shows the time to analyze each flow in the network. This per-flow effort can differ more than three
+orders of magnitude within the SFA and the ULP analysis. This is surprising as the AFDX has a small network
+diameter and therefore the recursive backtracking is not very deep. For the very same reason, algDNC’ effort
+stays within a much smaller range. In absolute terms, the algDNC outperforms ULP as well as SFA run times by
+multiple orders of magnitude - a decisive advantage in design space explorations.
+ Scalability of DNC Analyses
+Next, we turn to the scalability. To do so, we created a set of larger test networks (see Appendix A.) to evaluate
+quality and cost.
+. Quality: Accuracy of Delay Bounds. Figuresa andb show each flow’ end-to-end delay bound in
+two sample networks of very different size and complexity: the smallest in our set of networks (20 devices, 38
+servers, 158 flows) and the largest one still feasible to analyze with ULP (180 devices, 646 servers, 2584 flows). For
+with a total ofobservation points (Table flows on the left, in Appendix A.). The numerical evaluation
+confirms that optDNC’ ULP barely outperforms the algDNC:
+
+ Our new exhaustive decomposition analysis deviates from the ULP by only% on average in our
+evaluations.
+
+ Theth percentile is as low as% deviation.
+
+ Results do not deviate by more than%, except for a single outlier at%. Yet, this outlier is still more
+accurate than% of the SFA-derived delay bounds.
+
+ These accuracy characteristics are stable across different network sizes.
+
+These results confirm that the problems of algDNC found in Section were indeed crucial for its previous lack
+in accuracy. Moreover, our approach to find the (min,+)-algebraic equation with the minimal combined impact of
+all algDNC problems turned out to allow for delay bounds whose quality is competitive with optDNC’ feasible
+heuristic ULP.
+. Cost: Network Analysis Times. Last, we evaluate the cost of attaining delay bounds in feed-forward
+networks. We show that our efficiency improvements have a crucial impact on the network analysis times of the
+algDNC analysis. Figureshows that both outperform the ULP considerably and scale better with increasing
+network size. Our novel algDNC analysis performs best, a discernible increase in effort can only be observed in
+network sizes that are impractical to analyze with any of the other analyses. Although the experimental results
+are subject to fluctuations due to the high degree of randomness in the creation of our set of sample networks
+(see Appendix A.), we can draw clear conclusions about fundamental trends in DNC network analysis:
+
+ The ULP becomes computationally infeasible fast; thedevices network requires ~days to be
+analyzed.
+
+ The SFA scales better than the ULP. However, absolute effort increases to levels unsuitable for a design
+space exploration. Increasing the network size by onlydevices can cause a huge difference of analysis
+effort. In our sample, analyzing thedevices network is relatively fast while thedevices network
+is already impractical to analyze. The SFA’ effort seems barely predictable.
+
+ Our novel algDNC scales better than the other analyses. It is also more resilient to the randomness of our
+network creation. Provoking a considerable increase of network analysis time required to vastly increase
+the network size todevices (3626 servers, 14504 flows).
+
+Figurealso depicts results for different levels of deterministically parallelized optimization with CPLEX”. A
+maximum amount ofthreads yields larger network analysis times than single-threaded execution due to the
+overhead of thread synchronization. However, for networks >devices, an optimization with up toparallel
+threads becomes faster. In Section, Figureb, we saw that CPLEX optimization consumes the vast majority of
+analysis time. In an attempt to improve optDNC analyses run time, we also investigated the potential benefit of
+further parallelization of this optimization step with CPLEX. Yet, run times were not affected significantly as the
+results in Appendix  show. Deriving accurate delay bounds in large feed-forward networks is solely possible
+with the novel algDNC analysis. OptDNC’ trends ... delay bounds of individual flows are retained such that
+algDNC possesses a similar power in ranking of design alternatives.
+RELATED WORK
+
+In this work, we rely on the PMOO left-over service curve under arbitrary multiplexing of flows. DNC also
+offers an algebraically derived left-over service curve for FIFO-multiplexing servers Bi [34]. Similar to the
+arbitrary-multiplexing one, it is only applicable to a single server. Thus, it allows for an analysis akin to the SFA.
+
+Note, that among the tools employed in this evaluation, only CPLEX offers parallelization.
+
+Quality and Cost of Deterministic Network Calculus «+
+
+is done by computing the above FIFO left-over service curve. .., in Figurea, xf;’ arrival at server s1 (a3") is
+removed from s1, then the left-over service curve Be, is convolved with ,,, and finally a;,' is removed from
+this curve. Note, that this approach for tandem analysis enforces a PSOO violation during cross-traffic arrival
+bounding like any other algDNC tandem analysis. If paths of cross-flows are not nested, this approach cannot be
+applied, for instance, if we analyzed xf in Figurea. In this case, [] suggests to decompose into sub-tandems
+with nested interference patterns before applying the LUDB procedure. The end-to-end left-over service curve for
+delay bounding is then derived by convolution of the sub-tandem ones. Oftentimes, there are multiple alternatives
+to decompose to nested interference patterns (Figurea: both links are potential demarcations of a decomposition).
+LUDB suggests exhaustive enumeration of alternatives, computation of all delay bounds and returning the least
+one among them - the compFFA procedure depicted in Section is strictly executed. Obvious drawbacks of
+this procedure are a lack of the PMOO principle implementation and a combinatorial explosion as shown in
+Section.
+
+The LUDB’ sub-tandem decomposition and our novel algDNC’ decomposition are similar, yet, they differ
+in some key aspects. First, our algDNC does not require to result in tandems with nested interference as the
+arbitrary-multiplexing PMOO analysis fully implements the eponymous principle. Our exhaustive approach
+thus results in more decompositions per tandem than the LUDB. Therefore, more permissible (min,+)-equations
+are derived and solved. Secondly, [35] and [] are concerned with a tandem analysis only. They do not address
+the problems in feed-forward analyses presented in Section, although the LUDB enforces PSOO violations.
+Moreover, they do not provide a technical solution for the potential combinatorial explosion problem; [] rather
+presents a heuristic to trade accuracy against computational effort on a single tandem. Our novel analysis design
+is very generic and thus not restricted to arbitrary multiplexing. The LUDB tandem analysis can be embedded
+into it and benefit from our efficiency improvements.
+
+An optimization-based DNC approach for tight FIFO-multiplexing feed-forward network analysis exists as
+well [16]. It transforms the DNC description of the network to a Mixed-Integer Linear Program (MILP) where the
+integer variables encode the (partially) parallel paths of flows. This circumvents the step of explicitly extending a
+partial order to the set of all compatible total orders, the root cause the LP analysis’ combinatorial explosion.
+Again, the computational effort to solve the MILP for large networks is not evaluated. Instead, the authors advise
+to remove constraints such that all integer variables are removed, leaving an ordinary linear program to solve.
+Le., tightness is traded for computational effort reduction. This is similar to the ULP heuristic that we showed to
+be computationally infeasible nonetheless.
+CONCLUSION
+
+In this article, we contribute the first DNC analysis for high quality and low cost end-to-end delay bounds in
+large feed-forward networks. We demonstrate this contribution on the novel set of feed-forward networks we
+created for DNC evaluation as well as the first comprehensive optDNC evaluation in such networks. Figure
+summarizes the findings of our article: Against previous belief, we showed that optDNC’ most efficient heuristic,
+ULP, is computationally infeasible even for moderately sized networks. For larger networks, we also showed that
+the algebraic SFA is more costly than expected, becoming barely feasible to execute. The remaining, grayed-out
+TFA and PMOO were not categorized more precisely — their quality does not change and more detailed knowledge
+about their cost would still have left the desired area in the intersection of low cost and high quality empty.
+Therefore, we developed a novel algDNC analysis that combines the strengths of all previously existing analyses,
+crucially improves their quality and incorporates decisive efficiency improvements. This novel algDNC analysis
+is currently the only network analysis providing highly accurate delay bounds while being computationally
+
+
+feasible even in large feed-forward networks. Its algebraically derived delay bounds deviate from the optimization
+based ULP analysis by only% on average in our evaluations while computation times are several orders of
+magnitude smaller.
+

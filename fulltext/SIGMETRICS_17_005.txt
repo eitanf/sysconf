@@ -1,0 +1,445 @@
+A Simple Yet Effective Balanced Edge Partition Model
+for Parallel Computing
+
+ABSTRACT
+---
+Graph edge partition models have recently become an appealing alternative to graph vertex partition models for distributed
+computing due to their flexibility in balancing loads and their performance in reducing communication cost [, 16]. In this
+paper, we propose a simple yet effective graph edge partitioning algorithm. In practice, our algorithm provides good partition
+quality (and better than similar state-of-the-art edge partition approaches, at least for power-law graphs) while maintaining
+low partition overhead. In theory, previous work [] showed that an approximation guarantee of (dmax./log nlog ) apply
+to the graphs with  = (?) edges ( is the number of partitions). We further rigorously proved that this approximation
+guarantee hold for all graphs.
+
+We show how our edge partition model can be applied to parallel computing. We draw our example from GPU program
+locality enhancement and demonstrate that the graph edge partition model does not only apply to distributed computing
+with many computer nodes, but also to parallel computing in a single computer node with a many-core processor.
+---
+
+INTRODUCTION
+
+Graph edge partition models have recently become an appealing alternative to graph vertex partition models
+for distributed computing due to their flexibility in balancing workloads and their performance in reducing
+communication cost [, 16]. In the edge partition model, a graph is partitioned based on the edges as opposed to
+vertices in the vertex partition problem. The edge partition model optimizes the number of vertex copies, which
+is a more precise measure for communication cost than the number of edge cuts.
+
+We show an example of a computation problem abstracted by a graph edge partition model in Figure We use
+the computation fluid dynamics (cfd) program [, 10]. In cfd, the main computation is to calculate the interaction
+between fluid elements bounded by certain spatial distances and to use the interaction information to update the
+status of every fluid element for the next time step.
+
+A fluid element is modeled as a vertex. An interaction is calculated between a pair of fluid elements, modeled
+as an edge. Figureshows six interaction edges among six fluid elements.
+Fig. Mapping of cfd interaction computation into two multi-core processors. Assuming we have two multi-core processors
+and each multi-core processor is in charge of three edges. In (a) there are three fluid elements that need to be copied into
+both processors while in there is only one.
+
+partition the computation (edges) to two multi-core processors, in which case, edges e1, ¢, e3 are mapped to one
+multi-core processor and e4, é5, ¢ are mapped to the other multi-core processor, requiring three fluid elements
+to be copied into both multi-core processors (marked as solid circles). However, with an optimized partition as
+illustrated in Figure(), with e1, e2,, mapped to one multi-core processor and e3, e5, ¢ mapped to the other
+multi-core processor, only one fluid element needs to be copied into both multi-core processors. In total, Figure() reduces the number of vertex copies by%, corresponding to a significant memory communication cost
+reduction.
+
+Graph edge partition has been less studied in literature than graph vertex partition. The Powergraph [16]
+work is the first that discovered using edge partition rather than vertex partition improves work balancing
+and reduces communication cost in practice, especially for power-law graph. Bourse, Lelarge, and Vojnovic []
+established the first theoretical approximation guarantee and developed an efficient streaming edge partition
+algorithm. The target application for both studies is data analytics in large-scale distributed computing clusters,
+in which case good single-pass edge partition algorithms are desired.
+
+The hypergraph partition approach [17] is an indirect approach to solve edge partition problem. The target
+application for hypergraph partition is parallel program that has potentially good data reuse and has multi-pass
+computation phases, for instance, sparse linear algebra solvers for optimization problems. In this paper, we target
+the same type of parallel application workloads as the hypergrah model.
+
+The streaming edge partition algorithms [, 16] are for scenarios when the input graph is given as an stream
+or only one pass through the input graph is allowed. In these settings their use is much preferred even when
+they may not yield the same partition quality as the hypergraph algorithm, their non-streaming counterpart. The
+reason is that the large overhead of the latter.
+
+In this paper, we propose a novel edge partition approach that yields similar or improved partition quality
+than the hypergraph model, while at the same time, maintains acceptably low partition overhead. Our approach
+improves previous work in both theory and practice, in the following ways.
+
+First, our approach is practical. It has significantly lower partition overhead than the hypergraph partition
+approach. Partitioning a power-law graph withmillion vertices andmillion edges takes aboutseconds if
+we apply the best hypergraph algorithm we are aware of, while less thanseconds if we apply the approach
+proposed in this paper.
+
+Second, it is simple yet effective. It is based on a transformation procedure called split-and-connect procedure
+we developed in this paper. The split-and-connect procedure improves the partition quality (the number of vertex
+copies in different partitions) over the streaming and the hypergraph approaches or is at least similar to the better
+of the two. In particular, when compared with the streaming edge partition algorithms, the partition quality
+improvement is the most pronounced in power-law graphs.
+
+Third, it improves the theoretical guarantee for all ranges of parameters. Similar to the work by Bourse, Lelarge,
+and Vojnovic [], by formulating the edge partition problem into vertex partition problem, we established an
+approximation guarantee of (dmax+/log  log ), where  is the number of vertices,  is the number of edges, 
+is the number of partitions, and dig is the maximum degree. The work by Bourse, Lelarge and Vojnovic []
+showed that this approximation guarantee hold for graphs with the constraint  = (”). We rigorously proved
+this approximation guarantee holds for all graphs.
+
+We apply our edge partition approach to GPU programs and obtained non-trivial performance improvement.
+As far as we know, this is the first study of applying edge partition approach to GPU computing and to programs
+running on a many-core processor.
+
+To summarize, our contributions are as follows:
+
+ We propose a split-and-connect edge partition procedure that is easy to implement, yields good partition
+quality, and has low overhead.
+
+ Our approach improves theoretical guarantee for all ranges of parameters.
+
+ Our approach improves data locality in practice for massively parallel programs.
+
+The rest of our paper is organized as follows. We present an abstract machine model for massively parallel
+programming in Sectionto facilitate further discussion. Sectionpresents the split-and-connect partition
+procedure (Section), as well its application to real and synthetic graphs (Section), and proof for the
+approximation guarantee (.). Sectionpresents program transformations that are needed for applying the
+graph edge partition model to GPU programs. Sectionshows our experimental environment and evaluation
+results. Sectiondiscusses the related work, and Sectionconcludes the paper.
+ABSTRACT MACHINE MODEL
+
+We introduce an abstract machine model for GPU computing. We use GPU computing as an example here since
+it is a widely adopted massively parallel computing accelerator. Nonetheless, the abstract machine model applies
+to other parallel computing platforms as well.
+
+We first describe the software cache model in GPU architecture. The software cache is a type of scratch-pad
+memory, that requires explicit read/write management. It is called shared memory using NVIDIA terminology’. In
+the rest of the paper, we use the term software cache and shared memory interchangeably for the same concept.
+
+A GPU is composed of a set of streaming multiprocessors (SMs). The software cache is local cache for every SM,
+shared by threads running on the same SM. Multiple thread blocks run on one SM. Every thread block acquires a
+partition of the software cache, uses it, and yields it only when the thread block finishes its work. When one
+thread block yields the software cache partition, another thread block will claim the freed cache partition. During
+program execution, one thread block cannot peek into another thread block’ software cache partition. It is as if
+every thread block has its own local cache and there are as many local caches as the number of logical thread
+blocks, despite the fact that the total physical space of software cache is typically limited. We show the abstract
+machine model in Figure where every thread block can be viewed as a logical multi-core processor and every
+thread block is connected to a local cache.
+
+The last level cache on GPU - the L2 cache is shared by all SMs on a GPU. An L2 cache on GPU has a high hit
+latency — typicallyclock cycles and above, compared with the L1 hit latency which is typically less than
+We use NVIDIA CUDA terminology throughout the paper.
+Fig. Abstract GPU cache sharing model. TBLOCK refers to thread block.
+
+clock cycles. L2 cache is shared by all SMs and is connected to the device DRAM. All DRAM accesses go through
+L2 cache. We abstract the L2 cache together with DRAM as an unified memory layer that is connected to all
+software local caches in Figure
+
+Hardware cache is similar to software cache. Only co-running threads share the hardware cache. There are
+several minor differences. Hardware cache automatically places/replaces data object and maintains address
+mapping. Cache replacement policies, such as least recently used (LRU) policy, are used to retain the more
+recently used data in cache. Thus, the hardware cache tends to keep the data for co-running threads present at
+the same time. L2 is hardware cache that is shared by all SMs. Other hardware caches, such as L1 cache, is local to
+every SM. However, they are typically used for special type of data objects, for instance, constant, read-only data
+objects, or thread-private memory [25] data objects. Thus L1 cache is not as extensively used as the software
+cache on GPUs. Thus we use the computing abstraction with software cache as an example for graph edge
+partition model.
+DATA-CENTRIC LOCALITY MODEL
+Problem Definition
+With the abstract machine model defined in Section we now describe how the graph edge partition model fits
+into the computing model. We also give a formal definition of the graph edge partition model.
+
+The graph edge partition model places an emphasis on data. Computation is modeled as interaction between
+data. In the graph, a node represents a data object and an edge represents the interaction between two data
+objects.
+
+We propose an approach that is based on a graph transformation which we name as split-and-connect transformation. We denote the split-and-connect transformation as ¥ transformation. Our approach strikes a balance
+between efficiency and overhead, maintaining low partition overhead and good quality.
+
+We sketch our partition algorithm in three steps:
+
+() Given original graph , we transform it into a new graph ’ with the split-and-connect (¥) transformation.
+(ii) We perform -way balanced vertex partition on ’ and obtain a valid partition .
+(iii) We construct a valid edge partition  for  using the vertex partition  for ’, using the  transformation
+in Definition.
+
+We describe every step in details together with a walk-through example in Figure
+@) We convert the original graph using the split-and-connect transformation, defined as follows.
+
+Definition. We define the split-and-connect graph transformation function ¥. Assume  = (, ), ’ =
+(’,’) is a graph that is transformed from  using the ¥ transformation, ’ € (). In the split phase, for every
+vertex  of degree  € , we create a set of vertices () = {;,...vj} in ’, () CV’.
+
+In the connect phase, for any edge  = (,) in , we create a corresponding edge ’ = (;, ;) in ’, which
+we refer to as an dominant edge, such that pi; € () and v5 € (), both pi, ; are connected to one and only
+one dominant edge ’. We then link the cloned vertices in every set () to form a path of  nodes and  -edges, where  is the degree of  in . We name such an edge as an auxiliary edge.
+
+Since there are different ways to connect  nodes into one path, the ¥ transformation generates multiple
+different graph, and thus ¥() returns a set. One way to connect the  nodes from set () is to connect nodes
+based on their indices in the set:  (;, vj,,) pair in set (),  =..., — we connect node ; to node /,, with
+one auxiliary edge’.
+
+The split-and-connect transformation process is illustrated in Figure(a), (), and (). In the transformed
+graph ’, the total number of vertices is exactly twice the total number of edges in the original graph , by
+construction.
+
+We partition the vertices of the transformed graph ’. We assign weightto every auxiliary edge. We
+assign an infinite weight to every dominant edge so that during vertex partition of ’, only auxiliary edges will
+be cut and no dominant edge will be cut. In practice we set it to and it worked well (as demonstrated by
+experiment results in Section). Then we perform a -way balanced vertex partition for ’ and obtain a solution
+ such that only auxiliary edges are cut. The vertex partition process is illustrated in Figure().
+
+We reconstruct the edge partition solution  for  from the vertex partition solution  for ’ obtained in
+the second step. Since in the solution  no dominant edges are cut, for every dominant edge, both end points fall
+into the vertex partition, assuming the -th partition in , and then we assign the dominant edge into the -th
+partition in . Every dominant edge in ’ has a one-to-one mapping to an edge in . Since the total number of
+vertices in every partition in ’ is the same, and the number of dominant edges is half the number of vertices
+in the graph ’, every edge partition in  has the same number of edges. By this step, we have successfully
+reconstructed the edge partition  for graph . The process is formally defined below.
+
+Definition. We define the edge partition construction function . Assume a graph ’ is transformed with
+the split-and-connect function ¥, ’ € ¥(). Let  be valid balanced -way vertex partition of ’ that does not
+cut any dominant edge. We construct an edge partition  of  form  of ’ by the following.
+
+Assuming  = {P1, Po,...,,}, where ; is a disjoint partition of vertices in ’. For every dominant edge
+’ = (’,’) € ’, find the vertex partition that ’ and ’ fall into in .
+Fig. Degree distribution. Note that  axis is log scale, and  axis is log scale for in-2004 and scircuit.
+
+The reconstruction process is illustrated in the example in Figure() and Figure().
+ Comparison with Existing Methods
+
+We show how the split-and-connect (SPAC) partition approach works in practice by comparing it with existing
+approaches. We show the theoretical bound of the SPAC approach in Section.
+
+For vertex partition component (step ii) of the transformed graph in the SPAC method, we use METIS [20]
+library, which is regarded the fastest vertex partition method in practice. We use representative graphs derived
+from sparse matrices in the Florida matrix collection [12] and matrix market [], since graph structures are
+typically stored in sparse matrix format. We also use a graph generator to obtain synthesized graphs with different
+size, density, and degree distribution.
+
+We describe the vertex degree distribution of the five real graphs first. The degree distribution of four of them
+are in Figure The selected graphs have different degree distribution functions. The degree of cant’ graph
+is betweenand circuit5M has a more random degree distribution and we only show part of the  axis
+for readability. Two graphs exhibit power-law (ie., scale free) pattern: in-2004 and scircuit. We did not show
+mc2depi in Figuresince it has a relatively simpler degree distribution: more than% of vertices have degree the rest have degreeor The degree distribution of mc2depi resembles the mesh type graphs in scientific
+
+simulations.
+.. Comparison with hypergraph model. Hypergraphs are generalized graphs where an edge may connect
+more than two vertices, and such an edge is also called a hyperedge. In the hypergraph partition model [17],
+unlike our data-centric model, a vertex represents a task, and a hyperedge represents a data object where it covers
+all the vertices (tasks) that use this data object. The goal of minimizing data copies in caches is equivalent to
+minimization of hyperedge cuts when partitioning vertices (tasks) into  parts. Figureshows an example on
+how to use the hypergraph model and comparison with the edge partition model. We also show the optimum
+
+(a) hypergraph vertex partition () edge partition model
+
+
+Notations: Let ’’() be the cost of the balanced vertex partition  [15], which is the total number of edges
+whose end points fall into two different vertex partitions, also named as the number of edge cuts. Let C2? () be
+the cost of the balanced edge partition  (Definition in Section).
+
+THEOREM, Assume we have two graphs  and  such that  € ¥(), let  be a valid vertex partition for the
+graph , let  be a valid edge partition of , such that  = (, , ), the edge partition cost of  is less than or
+equal to the vertex partition cost of , CE” ()< CY? ().
+
+Proor. When reconstructing  from , , and  using the © transformation in Definition, every auxiliary
+edge that is cut in  contributes at most one unit cost to the total cost of #? () (the total number of node cuts
+for its incident edges to fall into multiple edge partitions). Ifauxiliary edges in  that represent the same node
+ in  are cut, the node  is cut into at most / +distinct edge partitions in , which contributes to | unit cost for
+® (). If a dominant edge  is cut in , at most one end point  of the dominant edge  get an additional unit
+cost for  potentially being cut into a different edge partition of , since we place this dominant edge into one
+and only one edge partition in . Only the edges that are cut in  will contribute to the edge partition cost of .
+Thus CF? () < CY (). 
+
+THEOREM. For any graph , there exist a graph  such thatW € ¥(),  has an optimal vertex partition top:
+with the cost of CY” (top:) that is equivalent to the cost of the optimal edge partition Xop: for ,’” (topr) = *? (xopr).
+We refer to this graph  as the dual graph for .
+
+Proor. Theorem implies that the cost of the optimal edge partition for graph  is equivalent to the cost of
+the optimal vertex partition for graph , where  is a graph constructed from  using the split-and-connect
+transformation .
+
+To show  exist, we construct  from  by the following steps. Assume we have an optimal edge partition
+solution xp; of , we construct  using  and xop;. Given a node  of degree  in  , we perform the split
+phase of the split-and-connect transformation as described in Definition and create a set of  nodes  =
+LG yx Orcas vs in , each node ; corresponds to an incident edge ; ( =.) of  in . In the connect phase,
+for the set we partition it into no more than  subsets ;,  =.. (assuming  is the number of edge partitions
+in ) such that ; includes all the nodes Vis Vis Vi, oss %, that correspond to the edges in the -th partition of
+Xopt, that is, ;,, Cig, Cis, «+ Ci" belong to the -th edge partition of xop;. For every non-empty set $;, we connect its
+nodes to form a path ;. We connect ; to ; to form a longer path (; to P2, P2 to Py, and so on). The edges we
+use to create paths within and between ; are auxiliary edges.
+
+We let the weight of every auxiliary edge be the weight of every dominant edge be the total number of
+auxiliary edges. It ensures that the optimal vertex partition of  cuts only auxiliary edge.
+
+Assume we have an optimal vertex partition solution top; for the graph . We construct an edge partition
+solution  of the graph  using the function  = (, top:, ) (Definition). Using Theorem, the cost of
+the partition  is less than or equal to the cost of the partition top: C2? () < CY” (topr).
+
+It is obvious that the optimal edge partition xp»; of  can also be mapped to a valid vertex partition  of  by
+following the above construction process of . The vertex partition ¢ is obtained by cutting the edges that connect
+different; sets. Note that CY? () = ®?(xop:) using this construction for . We prove the solution ¢ has minimal
+cost among all valid vertex partition solutions for  by contradiction. Assume there exists such a vertex partition 
+of  that has smaller cost (fewer auxiliary edges are cut) thant of ,"”? < CY? (), we use the reconstruction
+function  to convert it to an edge partition  = (, yw, ) and since ??() < CYP (pu) < CYP () = ¥? (xope)
+, this contradicts that xop¢ is optimal for . Thus CY” () = CY? (top:), and we have CY (top:) = #?(xopr).
+Therefore Theorem is proved. Oo
+
+THEOREM. VM € ¥(), assume the graph  is the dual graph of , let yop; be the optimal vertex partition
+of , top: be the optimal vertex partition of , and dmax be the maximal node degree of graph , the following
+relation holds:
+
+
+Proof. Since we do not know a priori the optimal edge partition xp; of , we do not immediately obtain the
+dual graph  of  as described in the proof of Theorem. However, we can determine an approximation factor
+of the optimal partition cost of an arbitrary split-and-connect transformed graph  with respect to the optimal
+vertex partition cost of the dual graph .
+
+For any  € ¥(), when connecting the cloned vertices vj, ;, .., vy of one node  into a path, the order of the
+nodes that appear on the path from one end to the other is arbitrary. However the set of cloned nodes and the set
+of dominant edges every cloned node is associated with are the same, ie., the set of cloned nodes for  and  is
+the same. Since vertex partition tgp; of  can be converted to a valid vertex partition  of the graph  by cutting
+any auxiliary edge of  if its two incident end points are in different vertex partitions of t_opt. For an arbitrary
+graph  € ¥(), if a path of auxiliary edges (corresponding to node  in ) is cut, at most dg, —auxiliary
+edges are cut since the number of edges on the path is equivalent to the degree of the node . Correspondingly,
+for any path that is cut in top; of , the number of auxiliary edges cut per path is at least one. When converting
+topr to , only if a path ; (for the -th node ; in ) is cut in top;, the corresponding path ; (also for the -th
+node ; in ) will be cut in . Therefore the vertex partition cost of  for  is at most (dmax —) times of the
+vertex partition cost of top: for , CY?() < (dmax —) * CY? (tops). Since Yop: is the optimal solution for ,
+CYP (yopt) < CY? (), Theorem is proved. 
+
+Coro.iary. For any graph  that is constructed from ,  € ¥(), there exists a polynomial time vertex
+partition solution  of  such that, CY’? () < (,/log nlog ) * (dmax —) *”” (top), where  is the dual graph
+of  and top; is the optimal vertex partition of the graph .
+
+Proor. This step can be trivially proved using the Theorem in [22] and Theorem we proved. Theorem in [22] states that there exists a polynomial time algorithm for balanced vertex partition problem with
+
+approximation factor of ./log  log .
+Assuming that this solution is  for ,
+According to Theorem, CY? (Yopt) < (dmax —)cVP (topr), therefore Corollary is proved. oO
+
+Putting it altogether, we prove that there exist a polynomial algorithm that has (dmax-~/log  log ) approximation factor for the balanced edge partition problem using the following four steps. We use the following
+notation. () represents the original graph,  is the dual graph of ,  is a graph constructed from ,  € ().
+Let xop; be an optimal edge partition of the graph , top; be an optimal vertex partition for the dual graph . Let
+ be a valid balanced vertex partition of  that satisfies Corollary and let yop; be an optimal balanced vertex
+partition of . Let  be a valid edge partition constructed from , , and ,  = (,, ). We show that  is
+the partition solution that satisfies the (dmax+/log  log ) approximation factor.
+
+We prove the approximation bound in the above four steps. Step () is directly obtained using Theorem.
+Step () and () are obtained using Theorem and Corollary. Step () can be obtained using Theorem.
+
+Our approximation guarantee improves the work by Bourse et al. []. We not only proposed an alternative
+way to prove the approxiamtion guarantee but also proved the approximation guarantee holds for all ranges of
+parameters. Bourse et al. has relaxation of load balancing constraint, such that the maximum load size for every
+partition is () < ( + € + ?/)*(/), where  is the number of edges, () is the number of edges in the -th
+partition, and  is the number of partitions, while our load constraint is () < ( + )*(/), without relaxing the
+load balancing constraint. The  factor comes naturally from the vertex partition component of our algorithm,
+since the traditional balanced (, €) vertex partition problem allows a factor ¢. In both our work and the work by
+Bourse, Lelarge, and Vojnovic, € is set to
+
+ LOCALITY ENHANCEMENT
+
+We describe how to apply the SPAC partition results to enhance GPU program locality.
+
+Program Transformation The first step is to perform the job swapping and data reordering program transformations as described in [29]. The SPAC partition results determine how tasks should be scheduled to different
+thread blocks. Job swapping is a program transformation that enables task swapping among different threads.
+However, job swapping relies on an input schedule that guides the mapping of tasks to threads. The input schedule
+here is determined by our locality graph partition results. The key transformation technique for job swapping
+[29] is simple - replacing the logical thread id with a new threads id such that tid’ = newSchedule[tid] while the
+newSchedule[] array is determined by graph partition results and it is passed as an additional kernel argument.
+Since GPU programs use thread id to infer the task for every thread, transformation of thread id can change the
+task a thread. Similarly other thread index information such as thread block id also needs to be transformed if
+they are used in the kernel.
+
+Another program transformation that follows job swapping is data reorganization if job swapping adversely
+affects memory coalescing efficiency. Data reorganization depends on thread scheduling information. We use
+existing technique to perform data layout transformation [29] [13]. The key idea is to reorganize data in memory
+based on the new schedule of tasks, for example, place data processed by threads in the same warp (or block)
+near each other in memory.
+
+The second step is to pre-load data shared by threads in the same thread block into cache. If we use software
+cache, we need to explicitly pre-load data into cache and determine the addresses in software cache, as illustrated
+in Figure(a). If we use hardware cache, for instance, the texture cache, we need to let the host function bind the
+particular data objects to texture memory using the CUDA built-in function cudaBindTexture. The GPU kernel
+prefixes every texture cache data reference using tex1Dfetch as shown in Figure(a).
+
+Overhead Control To reduce runtime overhead, we can perform SPAC partitioning and data layout transformation using the CPU while kernel is executed on the GPU. The CPU-GPU pipelining technique is proposed in
+[28, 29] to overlap GPU computation and locality optimization so that the overhead is transparent. Our locality
+optimization is performed once and we reuse the task schedule and data layout for performance improvement
+for computation. We illustrate this overhead control model with an example in Figure The CPU optimization
+
+EVALUATION
+ Experimental Methodology
+
+We conduct the locality enhancement experiments on two GPUs: the NVIDIA Titan  (Pascal architecture) and
+the GeForce GTX(Kepler architecture) to evaluate the performance of SPAC. Tableshows the configuration.
+There are three configurations of L1 cache and shared memory for GTX 16KB/48KB, 32KB/32KB andKB/16KB. Since L1 cache is not used for global memory data for GTX we always configure shared memory
+to beKB. We conduct the SPAC partition experiments on CPU - the Intel Core i7-4790 CPU withcores at
+GHz. Currently, the SPAC partition algorithm only utilizes one core, and thus the partition cost may be further
+reduced using if using multi-core .
+
+
+ 
+
+Our benchmarks are listed in Table We use six applications from various computation domains as described
+in Table This set of benchmarks are representative of important contemporary workloads that can benefit from
+cache locality enhancement.
+
+We show the detailed experiment results for SPMV and CG in Section. We report the summary experiment
+results for other four benchmarks in Section.
+ Detailed Analysis Results
+
+We present the detailed analysis results for SPMV and CG for several reasons. First, SPMV is an important computation
+kernel in many applications such as numerical analysis, PDE solvers, and scientific simulation. Second, the
+conjugate gradient (CG) [19] is an application calls SPMV iteratively, representing an application case of SPMV.
+Therefore, we can present both the performance improvement in individual kernel and the performance-overhead
+trade-off in a kernel to show how practical it is. We use real-world sparse matrices from the University of Florida
+sparse matrix collection [12] and matrix market [] as input to CG.
+
+We compare our approach with the highly optimized implementation in cuSPARSE [26] and CUSP [11] libraries.
+The CUSP SPMV kernel is open source. It reorders the data in a pre-processing step such that all non-zero elements
+are sorted by row indices and then it distributes the non-zero elements evenly to threads. We are not aware of
+cuSPARSE’ SPMV method implementation since its source code is not disclosed. However since it is a popular and
+widely used library, and it is faster than CUSP for most of the times, we also include cuSPARSE for comparison.
+
+experiments and analytical analysis demonstrate our approach improves partition quality and also improves the
+theoretical approximation guarantee.
+Other Models for Improving Communication Cost in Parallel Computing
+
+Bondhugula et al. introduce an automatic source-to-source transformation framework to optimize data locality,
+and they formulate data locality problem with polyhedral model [], which only works for regular applications
+with affine memory indices. The graph model can be applied to these regular applications as well as irregular
+applications, however, the polyhedral model can’ be applied to irregular applications, ie., sparse linear algebra
+solvers.
+
+Ding and Kennedy proposed to use runtime heuristic for improving memory performance of irregular programs.
+The programming support is known as the inspector-executor model. For locality optimization, this can be
+automated and optimized by a compiler, as done initially for sequential code [DingK:PLDI99] and later for parallel
+programs [Venkat+:PLDI15].
+
+Most GPU dynamic workload partition studies mainly focus on optimizing memory coalescing rather than data
+reuse, which is spatial locality rather than temporal locality. Zhang et al. propose to dynamically reorganize data
+and thread layout to minimize irregular memory accesses [29]. Wu et al. also propose two data reorganization
+algorithms to reduce irregular accesses [28] for more coalesced memory accesses.
+
+There are also domain-specific studies for improving the memory performance of sparse matrix vector
+multiplication. Bell and Garland discuss various sparse matrix representation formats []. Venkat and others
+propose transformations to automatically choose sparse matrix representation and optimize inspector performance
+in the inspector-executor model.
+CONCLUSION
+
+In this paper, we propose a simple yet effective graph edge partition technique based on the split-and-connect
+heuristic to improve data communication cost. In practice, our algorithm provides good partition quality (and
+better than similar state-of-the-art edge partition approaches, at least for power-law graphs) while maintaining
+low partition overhead. In theory, we improved previous work [] by showing that an approximation guarantee
+of (dmax-Vlog  log ) hold for graphs with all ranges of parameters — that is, not just hold for the graphs with
+ = (?) edges ( is the number of partitions).
+
+This is also the first comprehensive study of how to characterize and optimize data communication cost using
+graph edge partition model for massively parallel GPU computing platform. Compared with previous graph
+partition models, our method provides high quality task schedule and yet has low-overhead. Our experiments
+show that our method can improve data sharing and thus performance significantly for various GPU applications.
+
+ACKNOWLEDGEMENTS
+
+We thank Milan Vojnovic for providing invaluable comments during the preparation of the final version of the
+paper. We owe a great debt to the anonymous reviewers for their helpful suggestions on this paper. This work is
+supported by NSF Grant NSF-CCF-1421505, NSF-CCF-1628401, and Google Faculty Award. Any opinions, findings,
+conclusions, or recommendations expressed in this material are those of the authors and do not necessarily reflect
+the views of our sponsors.
+
+

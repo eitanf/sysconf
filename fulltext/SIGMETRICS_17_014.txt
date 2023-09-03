@@ -1,0 +1,827 @@
+Exploiting Data Longevity for Enhancing the Lifetime of Flash-based
+Storage Class Memory
+
+ABSTRACT
+---
+Storage-class memory (SCM) combines the benefits of a solid-state memory, such as high-performance and robustness, with
+the archival capabilities and low cost of conventional hard-disk magnetic storage. Among candidate solid-state nonvolatile
+memory technologies that could potentially be used to construct SCM, flash memory is a well-established technology and
+have been widely used in commercially available SCM incarnations. Flash-based SCM enables much better tradeoffs between
+performance, space and power than disk-based systems. However, write endurance is a significant challenge for a flash-based
+SCM (each act of writing a bit may slightly damage a cell, so one flash cell can be written-10° times, depending on the
+flash technology, before it becomes unusable). This is a well-documented problem and has received a lot of attention by
+manufactures that are using some combination of write reduction and wear-leveling techniques for achieving longer lifetime.
+In an effort to improve flash lifetime, first, by quantifying data longevity in an SCM, we show that a majority of the data stored
+in a solid-state SCM do not require long retention times provided by flash memory (.., up toyears in modern devices);
+second, by exploiting retention time relaxation, we propose a novel mechanism, called Dense-SLC (-SLC), which enables us
+perform multiple writes into a cell during each erase cycle for lifetime extension; and finally, we discuss the required changes
+in the flash management software (FTL) in order to use -SLC mechanism for extending the lifetime of the solid-state part of
+an SCM. Using an extensive simulation-based analysis of an SLC flash-based SCM, we demonstrate that -SLC is able to
+significantly improve device lifetime (betweenXx andx) with no performance overhead and also very small changes at
+the FTL software.
+---INTRODUCTION
+
+During the last decade, the CPUs have become power constrained, and scaling of the logic devices no longer
+results in substantial performance improvement of computers. Therefore, it is imperative to consider developing
+additional ways for performance improvement. For instance, one might target the memory wall problem and
+consider how to achieve higher overall performance by changing the memory-storage hierarchy. Looking at the
+
+We thank the anonymous reviewers and our shepherd, Abhishek Chandra, for their constructive feedback and insightful suggestions. This work
+is supported in part by NSF grants 1213052, 1439021, 1302225, 1629129, 1526750, andand a grant from Intel. Dr. Jung’ research
+is partly supported by NRFR1C1B2015312 andM3C4A7065645, DOE DE-AC02-05CH and MSIP IITP-2017-2017--01015.
+Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that
+copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first
+page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy
+otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from
+permissions@acm.org.
+conventional memory-storage hierarchy, we observe that there is a large performance-cost gap between DRAM
+(located near processor) and HDD, and this gap has become larger with the recent technology advances. Bridging
+this gap has the potential to boost system performance in all kinds of computing systems. This is possible with
+a high-performance, high-density and low-cost non-volatile memory (NVM) technology whose access time as
+well as cost-per-bit fall between DRAM and HDD, and is called Storage Class Memory (SCM) [, 10]. Despite the
+recent advances in NVM technologies (such as Phase Change Memory [30] and Magnetic RAM [33]), it is quite
+unlikely to exploit them in SCM in any near future because of their high fabrication costs. Instead, this paper
+assumes a NAND flash-based SCM which has been widely used in various kinds of commercial systems ranging
+from laptops and desktops to enterprise computers.
+
+Flash memory stores binary data in the form of a charge, .., the amount of electrons it holds. There are two
+types of popular flash memories: Single-Level Cell (SLC) and Multi-Level Cell (MLC). An SLC flash cell has two
+voltage states used for storing one-bit information, while an MLC flash cell has more than two states and stores
+or more bits at each time. SLC is fast and has a long lifetime, but MLC trades off these metrics for higher density.
+In order to have the benefits of both the technologies in the same system, a flash-based SCM typically has a
+hierarchical internal structure: there is an SLC Solid State Drive (SSD) [, , 12, 18] with tens of gigabytes capacity
+at the upper level, and an MLC SSD with terabyte capacity at the lower level. Write endurance is a significant
+challenge for the SLC SSD in this setup. The reason is that the SLC SSD services a great portion of the incoming
+traffic which poses high write pressure on it (flash memory suffers from low cell endurance, -., each cell can
+tolerate*-10° program/erase cycles).
+
+In this paper, we target the lifetime problem of SLC SSD in an SCM and discuss the opportunity for improving
+it by relaxing the retention time of the flash, -., the period of time that a flash cell can correctly hold the stored
+data. The flash devices traditionally have long retention times and are expected to retain data for one or more
+years. Although this long-term non-volatility is a must for many flash memory applications, there are also some
+cases where the stored data does not require it. For example, within a memory-storage hierarchy, we expect the
+SLC SSD to handle the I/ requests with short-term longevity, while the I/ requests with long-term longevity
+are normally handled by the underlying MLC SSD or HDD. Our characterization study in this work confirms this
+behavior - we measure the longevity of written data into an SLC SSD for a wide range of enterprise workloads
+taken from the MSR Cambridge I/ suite [27]. We observe that a majority of written data into the SLC SSD of an
+SCM for all evaluated workloads exhibits very short longevity, .., about% of written data in these workloads
+have a longevity of up tohours (it is less thanminutes for some applications and less thanhours for some
+others).
+
+The retention time relaxation for flash memory is previously studied by some works [21, 28]. They have
+shown that, by controlling the amount of charges in a cell during the write process, it is possible to reduce its
+retention time (more details on the theory behind this property are given in Section). The prior works mostly
+use this property for performance improvement of the flash by reducing its write execution time. In this paper,
+however, we use the retention time relaxation of flash to enhance its lifetime. The main idea is that, by relaxing
+the retention time of an SLC device, we can have more than two states in a cell. At each given time, similar to
+the baseline SLC, we use every two states to write one bit information. In this way, a device stores multiple bits
+(one bit at each time) before it needs an erase, increasing the number writes to cell during one erase cycle, or
+simply increasing the PWE! of the device beyond the conventional SLC flash (ie., one). Increasing PWE of a
+device directly translates into lifetime improvement.
+
+Our proposed flash memory design is called Dense-SLC (-SLC) and its implementation needs two minor
+changes at FTL. First, the block allocation algorithm in FTL should be modified to enable having blocks with
+We use the term “page writes per erase cycle” (PWE) as the maximum number of logical pages stored in one physical page during one /
+cycle.
+
+different retention times and use them for storing data values of different longevities. Our proposed block
+allocation algorithm does not require any specific mechanism for retention time estimation. Instead, it uses a
+simple and yet effective page migration scheme that imposes negligible lifetime and bandwidth overhead. Second,
+the garbage collection algorithm, which is needed for the flash management, is modified to ease the system-level
+implementation of writing multiple bits in one erase cycle. These modifications are simple to implement in the
+FTL and need two-bit metadata information per one block. Using a detailed implementation of -SLC flash
+memory in DiskSim simulator [, ], we evaluate its lifetime and performance efficiency for a large workload
+set. Our experimental evaluation confirms that a typical implementation of -SLC is able to improve SLC SSD’
+lifetime by up tox (.8x, on average) with no degradation in the overall system performance.
+PRELIMINARIES. SSD and Flash Memory
+
+Figureillustrates the internal architecture of an SSD that is composed of three components:) Host interface
+communicates with the host system, queues the incoming requests, and schedules them for services;) The SSD
+controller is responsible for processing I/ requests and managing SSD resources by executing Flash Translation
+
+Layer (FTL) software;) A set of NAND flash memory chips as the storage medium, which are connected to the
+
+controller via multiple buses.
+
+NAND flash chip: A flash memory has thousands of blocks and each block has hundreds of pages. Each page
+is a row of NAND flash cells. Binary values of a cell is represented by its charge holding property. Flash memory
+has three main operations: read, program (write), and erase. Page is the unit of a read or a write operation, and
+reprogramming a cell needs to be preceded by an erase. Erase is performed at unit of a block. Due to the need
+for erase-before-write operation and high latency of an erase, flash memory usually employs an out-of-place
+update policy, .., when updating a data, the page containing the old data is marked as invalid, and the new data
+is written to an arbitrary clean page. The new page is marked as valid.
+
+FTL: The FTL implements some important functionalities for flash memory management. We go over two
+primary FTL’ functionalities in below.
+
+ Address mapping: On receiving an I/ request, FTL segments it into multiple pages and maps each page onto
+flash chips separately. Address mapping for a write request is a two-step process. First, a chip-level allocation
+strategy [17] determines which chip each page should be mapped to. Then, the page is mapped to one of
+the blocks and a page inside it (block allocation). For each chip, FTL always keeps one clean block as the
+active block for new page writes. Within an active block, clean pages are used to program data in a sequential
+order. Once the clean pages run out in the active block, a new active block is assigned. Finally, the mapping
+The case for data error because of threshold voltage drift.
+
+information of each page (.., chip number, block number in the chip, and page index in the block) is stored in
+a mapping table which is kept by FTL. On receiving a read request, the FTL looks up the mapping table for
+finding its physical page location.
+
+Garbage collection (GC): When the number of free pages falls below a specific threshold, the FTL triggers a
+GC procedure to reclaim the invalid pages and makes some pages clean. When a GC is invoked, the target
+blocks are selected, their valid pages are moved (written) to other places, and finally the blocks are erased. Due
+to the page migrations and erase operation, a GC generally takes a long time and consumes significant SSD
+bandwidth [13, 14, 20].
+ SLC-based SSD in an SCM
+
+Flash memory conventionally stores one-bit information in each cell (Single-Level Cell or SLC). However, during
+the last few years, manufactures leverage the ability to store multiple bits in a single cell — cells in recent products
+can storebits (called Triple-Level Cell or TLC) before which-bit cell (Multiple-Level Cell or MLC) was the
+norm. The multi-bit capability of a cell is provided by enabling multiple voltage states in it - MLC has four
+voltage states, whereas TLC has eight voltage states (sometimes called voltage levels). Despite of their low cost
+per bit, the TLC/MLC flash memories have higher access latencies and lower endurance than the SLC [29].
+
+In order to have the benefits of both technologies in the same system, current SCM designs usually rely on a
+two-level and hybrid flash-based hierarchy. At upper level, there is a small and fast SLC flash-based SSD (with
+tens of gigabyte capacity), and a dense MLC flash-based SSD (with few terabyte capacity) is used at lower level.
+In such an architecture, the SLC-based SSD is responsible for servicing most of the I/ traffic and hence its
+lifetime is very crucial (because of writes). In this work, we focus on enhancing lifetime of the SLC SSD in SCM.
+However, the studied characterization and our proposed optimization mechanism is general and can be applied
+to MLC/TLC SSDs. This is left as the future work.
+ SLC Flash Memory
+
+Data in a flash cell is stored in the form of a threshold voltage (;;,), ie., the amount of electrons captured in the
+cell represents different states. The threshold voltage is formed within a fixed-sized voltage window, bounded
+by a minimum voltage (Vipin) and a maximum voltage (Vingx). For instance, in an SLC cell, the entire voltage
+window is divided into two non-overlapping ranges (two voltage states S1 and S2 for storing binary values “”
+and “”, respectively), separated by a large gap and one reference voltage (;er), as shown in Figure
+
+Write operation: When the written data is “”, no action is needed as the cell is initially in the no-charging
+state or erase state (.., State S1 in Figure). On writing “”, the flash memory employs a specific scheme called
+Incremental Step Pulse Programming (ISPP) [32]. As shown in Figuresa andb, the ISPP applies a sequence of
+voltage pulses with a fixed duration (Tpyjse) and staircase-up amplitude (Vjspp) to the cell, in order to form the
+
+desired threshold voltage (;arger). After triggering each pulse, the cell state is verified to check if the programmed
+threshold voltage reaches ;arger. This process is repeated until the desired voltage is reached. The program
+time (Tprog) is a proportional to the number of ISPP loops, that is inversely proportional to Vrspp, and can be
+expressed as follows [15]:
+
+Under a fixed Vispp, the higher the target voltage (Viarger) is, the longer the program time is.
+
+Read operation: Reading an SLC flash is realized by applying a reference voltage (Ver) and inferring the
+threshold voltage (;;). If the threshold voltage is larger than the reference voltage (Vin<;er), the cell state is
+S1 and its value is “”; otherwise, the cell state is $ and its value is “”. The flash read time is a proportional
+to the number of voltage sensing/comparisons. Thus, reading from SLC is very fast since it needs only one
+sensing/comparison.
+
+Errors in SLC flash: Right after a cell is programmed as “”, the threshold voltage is around the target voltage
+(Viarget). However, as time goes by, due to the charge loss, the threshold voltage in the cell drifts and it will finally
+overlap with the neighboring voltage state. As a result, the cell data is interpreted as “” when it is read. We call
+this data corruption retention error [, , 24], which is illustrated in Figurec. In this error model, the lower tail
+of the state S2 overlaps the part of the state $ after a specific elapse time, called retention time. In order to avoid
+fast data corruption and provide years of retention time in current flash products, the target voltage (Viarger) of
+the state S2 is conservatively formed to be far from the erase state (S1).
+
+As a flash block experiences more and more erases (or / cycles), the voltage drift (charge loss) accelerates.
+To enable data integrity for long time, vendors specify a guaranteed retention time (.., 10 years) and endurance
+limit (.., 100K / cycles) for their flash products.
+RETENTION RELAXATION FOR LIFETIME ENHANCEMENT
+
+SLC flash products normally guarantee one long-term retention duration throughout the whole flash lifetime.
+Such a long-term reliability requirement is critical, when a flash-based SSD is used as a main I/ storage and a
+replacement for HDDs. However, when employing SSD in the intermediate layers of a storage system (.., as
+the SCM which is the focus of this work), such a long retention time guarantee can be an overkill. Hence, if the
+retention time guarantee could be relaxed under a specific condition, one could have an opportunity to improve
+other system requirements such as performance and endurance without least concern about the data loss.
+
+Relaxing the guaranteed retention time has been explored in various kinds of non-volatile memories [16, 31].
+Some prior works exploited retention relaxation for improving the write performance of flash memories [21, 28].
+The principle behind most of these works is to form the threshold voltage less accurately, and by doing so, they
+would reduce the number of loops in the ISPP process - that would reduce (improve) the device program time. In
+this work, however, we leverage retention time relaxation for enhancing the lifetime of SLC flash memories in an
+SCM. To the best of our knowledge, this paper is among the first works that exploit retention time relaxation for
+lifetime enhancement in SLC SSDs. We believe that our findings give insights to SSD developers for developing
+highly-reliable flash storage.
+
+In the next three subsections, we introduce our mechanism by answering the following questions:
+
+() What is the distribution of data longevity values in a flash-based SCM? Do all the data written into an SSD need
+the long retention time guarantee of flash memory? (Section)
+
+() Is it practically possible to relax the guaranteed retention time of a flash memory? What is the theory behind it?
+(Section)
+
+() How can we exploit the retention relaxation for improving the lifetime of flash memory? What kind of architectural
+and software support is required to implement such a relaxation? (Section
+Fig. CDF of data longevity for/ blocks inwrite-intensive workloads from the MSR Cambridge suite.
+ Distribution of Data Longevity in I/ Workloads
+
+In a well-managed SCM-based memory hierarchy, we expect that data blocks with short retention times get
+stored in the solid-state part, while the other data blocks (.., those with long retention times) will normally be
+kept in the HDD (at the lowest level of storage hierarchy). To examine the distribution of data longevity (ie.,
+the time between two consecutive update of the data) in a typical SLC-based SSD of an SCM, we configured a
+GB SSD (consisting of eightGB SLC flash chips). Details of the evaluated configuration and its parameters are
+given later in Section. On this SSD, we ranworkloads from the MSR Cambridge suite [27]. The selected
+
+Fig. (a) Conventional SLC with PWE of; (), () and () our -SLC with a PWE of “”.
+
+workloads are write-intensive, as our interest is to investigate the data longevity and improve the storage lifetime
+(read traffics do not have an impact on SSD’ lifetime). Section characterizes our workloads.
+
+Figureshows the cumulative distribution function (CDF) of data longevity of I/ blocks stored in the SSD.
+For the I/ blocks written once in a workload, we set their data longevity to the maximum (.., 10 years) and
+assume that we are not allowed to relax the retention time for them. One can observe from this figure that, for all
+the examined workloads, a large portion of the written data blocks have a short longevity in the range of few
+minutes, few hours or few days. Specifically, theth-percentile of I/ blocks written in prxy_@ have a longevity
+ofminutes; it isminutes for proj_Q;hour for src1_2;hours for hm_@, mds_@, src2_@, usr_@, web_@ and
+wdev_@;day for prn_®, prn_1 and web_1; anddays for wdev_2.
+
+To sum up, a majority of data blocks (95th percentile) in all our examined workloads are frequently-updated;
+hence they do not need such a long retention time guarantee (up toyears) provided by the commercial SLC
+flash memories. In contrast, a small fraction of the write data need a retention time larger thandays (the
+percentage varies between% to% across our workloads). Using these characteristics of our workloads, we will
+demonstrate in the next section how one can trade off the short retention times for a prolonged storage lifetime.
+
+We note that reading from a flash cell multiple times may affect its voltage level and affect its retention time.
+However, the probability of data disturbance due to the intensive reads is quite low (.., less than% []).
+Moreover, we observed that our workloads do not exhibit such excess reads on data. Therefore, the read disturbance
+is not a big issue in a retention-relaxed flash cell and the focus of our work is retention times related to data
+longevity.
+ Retention Time Relaxation for NAND Flash
+
+To relax the retention time in flash memory, we first need to investigate how long the threshold voltage drifts
+due to the charge loss. Some prior works have shown that the voltage drift of a flash device is affected by
+multiple parameters including the initial threshold voltage, the current device wear-out level (in / cycles), and
+the fabrication technology. Pan et al. [28] proposed a detailed model of the voltage drift distance (Darif:) for
+NAND flash memory. We simplify this model by considering the critical factors as below and use it throughout
+this work:
+
+where Np  and Trr are the number of / cycles the cell (block) experienced and the retention time in hour,
+respectively. Kscaie is a device-specific constant.
+
+Being aware of the voltage drift behavior, we can reduce the “voltage guard” between the two states by shifting
+the threshold voltage of the program state (S2 in Figure) to the left. By doing so, we can decrease the drift
+distance between the two states and relax the retention time. Figuregives an example. Figuresa shows the
+baseline SLC flash, in which there is a large voltage guard between two states and a long retention time (.., 10
+years) is guaranteed. Figureb shows the case where, by shifting the program state (S2) to the left, we could
+achieve smaller voltage guard between the two states, which results in shorter retention time compared to the
+baseline. In this figure, the new program state is named as IS- (intermediate state).
+
+Forming a program state with lower threshold voltage (like IS- in Figureb) is easy in flash memory - we
+need to calibrate ISPP process such that we can program the cell to the new threshold voltage level. The ISPP
+controller is a programmable circuit inside a flash chip; one can tune the ISPP parameters such as voltage step
+(Vispp), pulse duration (Tpyise), and target voltage (Viaregr), which collectively determines the number of ISPP
+loops, and in turn, the program latency. Recall the ISPP mechanism described in Section. In the conventional
+SLC flash, the voltage step (Vispp, amplitude difference between two consecutive pulses) is set to a large value,
+which helps the flash cell reach S2 (of Figurea) quickly by reducing the number of ISPP loops. However, if
+we use this large voltage step for programming a retention-relaxed cell, it is very likely that we jump over the
+intermediate threshold voltage (IS- in Figureb). Therefore, we need to decrease Vispp and enable a fine-grained
+threshold voltage jump in the retention-relaxed flash. Decreasing Vispp can increase the number of ISPP loops and
+the write latency. Note that we want to keep the program latency of a retention-relaxed flash memory same as in
+the conventional SLC memory. Fortunately, compared to the conventional SLC (Figurea), the target voltage
+(Viaregt) decreases in a retention-relaxed flash (Figureb) — this would reduce the number of ISPP loops and the
+write latency. To sum up, to keep the number of ISPP loops and the write latency in retention-relaxed flash same
+as in the conventional SLC, we need to calibrate both Vispp and Vyaregr, while pulse duration (Tputse) is fixed.
+Trading-off Retention Time for Higher Lifetime of SLC Flash
+
+The discussion in Section reveals that, on the one hand, the data longevity of the written data blocks into SSD
+(as SCM) is mostly limited to few minutes, few hours or few days in the transactional and enterprise applications,
+ie., much shorter thanyears provided by the current flash products. On the other hand, we showed that it is
+possible to relax the retention time guarantee of flash memory by calibrating the voltage guard and the ISPP
+parameters (Section). In this section, we propose a novel mechanism and show how retention time relaxation
+can be exploited for achieving longer lifetime in flash memories. We start by defining a new metric for lifetime
+analysis that helps us describe our proposal more clearly.
+. Page Write per Erase cycle (PWE) Metric. We define the term “page writes per erase cycle” (PWE) as the
+maximum number of logical pages stored in one physical page during one / (erase) cycle. The conventional SLC
+flash memory stores one bit data in each cell during each erase cycle, and hence, its PWE is one.
+
+If one can write more than one bit during an erase cycle, and hence increase the PWE, the device stores an
+increased amount of data during its whole lifetime (.., 50K /Es for an SLC flash memory in our setting), or in
+other words, the device lifetime gets improved. The increase in the number of writes in an erase cycle does not
+accelerate the cell wear-out [19, 26]. That is, the total amount of electrons that go in and out of a cell in an erase
+cycle determines the cell wear-out. The amount of electrons that pass through a cell in an erase cycle is limited,
+no matter how many writes are applied. Note also that increasing PWE of an SLC device does not necessarily
+mean that it stores more than one bit information at each moment — the device is still SLC (single bit storage at
+each given time); rather, it means that the device does not need to be erased before reprogramming it. Our main
+objective is to enhance the SLC flash lifetime by increasing its PWE to values higher than one.
+
+.. Overview of the Proposed Mechanism. Figureshows a high-level view of our proposed design versus
+the conventional SLC flash memory. The conventional SLC flash cell (shown in Figurea) has two states: $ or
+the erase state (value “’), and S2 (value “”). There is a large voltage gap between these two states, which results
+in a very long retention time (10 years in this example). This cell stores one bit at each time and reprogramming
+it requires first erasing it. Thus, during each erase cycle, it stores one bit - its PWE is one.
+
+Figureb shows the initial state of our proposed SLC flash design. Similar to the conventional design, it has
+two states: S1 (value “”) and IS- (value “”). However, the voltage gap between these two states is small, and
+hence the device retention time is relaxed to smaller durations (say few minutes, few hours or few days). In
+contrast to the conventional SLC, in our proposed design, we do not need to erase the cell before reprogramming.
+Instead, when the current values gets invalid, the cell can store the new value by using higher voltage values. For
+example, as shown in Figurec, the new binary states are IS- and IS-, representing the new binary values “”
+and “”, respectively. As before, the cell stores one bit data at each time (similar to the baseline SLC) and also, the
+voltage distribution of the new binary states (IS- andS-) is calibrated for short retention time. Repeating this
+procedure, the device stores one more bit in the cell by programming it into states IS- and S2 for binary values
+“” and “”, respectively. As this example demonstrates, by calibrating the voltage states in an SLC device and
+having two intermediate states IS- and IS-, one can store three bits (one bit at each time) in one cell before
+erasing it. This increases the PWE of the SLC flash from one in conventional design to three in this example,
+which directly translates to a longer device lifetime.
+
+We emphasize two points. First, it is feasible to partially program a cell multiple times during one erase cycle.
+A few prior works [11, 23] have experimentally demonstrated that we can gradually increase the threshold
+voltage of a cell by repeating the process of electron injection. Second, achieving higher lifetime is not free in this
+approach. In fact, one would need to adjust the ISPP parameters to take advantage of the intermediate states — that
+would increase the complexity of the ISPP controller (even though it is not that much). As discussed in Section,
+to keep the write performance (the number of ISPP loops) in our design similar to that of the conventional SLC,
+we need to decrease both the voltage step (Vispp) and the target voltage (Viareg:), while maintaining the pulse
+duration in each loop unchanged, with respect to the conventional one.
+
+In short, the proposed mechanism, named Dense-SLC or -SLC, archives a longer lifetime compared to the
+conventional design by exploiting the relaxed retention time. The only potential problem with -SLC is that it
+may increase the number of page migrations inside the SSD. Indeed, if the written value at each round has a
+longevity longer than the device retention time (now relaxed to few minutes for example), we need to move it
+to another location to avoid data loss. In the following, we describe the required changes at the FTL and SSD
+controller that help to get most of the potential benefits of -SLC while avoiding the potential overheads related
+to unwanted page migrations.
+. Detailed Design of -SLC. The -SLC flash design is highly scalable, ie., by controlling the ISPP
+parameters and calibrating distribution of the voltage states, it is possible to increase the number of voltage states
+in -SLC and hence enhance its PWE. However, this is not always beneficial since, by increasing the number of
+states, either a more accurate write mechanism (or finer-grain ISPP) is required or the inter-state voltage gap is
+reduced. The former increases the controller’ complexity (or write latency if we do not want to keep the -SLC’
+performance similar to the baseline SLC). The latter results in an exponential decrease in device retention time
+which in turn increases the number unwanted page migrations.
+
+In order to provide sufficient retention time for the majority of I/ blocks while keeping the PWE level of
+-SLC high, we make use of the data longevity characterization presented in Section and the drift model in
+Section for the threshold voltage calibration in -SLC. We categorize the I/ blocks of each workload into
+four groups based on their longevity (or retention time): longevity of a block is either less thanhour, between hour and hours, between hours and days, or more than days. For the I/ blocks which are only written
+once in a workload during the examined duration, we assume the maximum longevity and they belong to the last
+group (.., that with longevity larger thandays). Tablereports the ratio of the I/ blocks belonging to the
+four retention time categories for each workload.
+
+We determine the voltage threshold distribution in an SLC flash by using the drift model in Section with
+two optimization goals. First, we want to increase the PWE of the SLC flash for each data longevity category
+in Tableduring the entire lifetime of the device. Second, we want to keep the performance of our SLC design
+close to that of the conventional SLC. By assuming a fixed duration for each pulse in ISPP, we determine Vyspp
+to keep the number of ISPP loops close to that of the baseline SLC. Following these optimization goals, Tablereports the number of voltage states used for storing I/ blocks of our four longevity categories during the entire
+lifetime of the device. Similar to the baseline, the block’ endurance limit isK /Es.
+
+In this study, we limit our calculation to three modes for each cell: it is either in the-state mode (ie., exactly
+same as the conventional SLC), -state mode (.., shown by the example in Figure), or-state mode (.., it hastightly-arranged intermediate states). The-state mode has the shortest retention time and very suitable for
+storing data values with short longevity (like those with “less than an hour longevity”). The-state mode has
+the longest retention time and suitable for data values with long longevity (like those with “greater thandays
+
+Fig. Block allocation examples; DSLC-FTL maintains three different active blocks, and write (update) data is stored in one
+of these. When retention time of a block expires, an scrubbing mechanism moves the valid pages to a clean block with lower
+mode (.., from a-state mode block to a-state mode block).
+
+ 
+
+longevity”). The-state mode has a moderate retention time and is mostly used for values with “10 hours todays longevity”. One can observe form this table that, as the device wears out, the drift rate increases and we
+need to decrease the device state to lower levels to avoid (unwanted) migrations. As an example, this behavior
+happens for I/ blocks with a longevity of “-10 hours” that are targeted to-state mode in early cycles of the
+device lifetime, but later are targeted to-state mode for / cycles larger thanK.
+
+We use the three modes described above for our FTL design and main evaluation results. We later analyze the
+sensitivity of the -SLC’ efficiency to different parameters including the number of voltage states.
+. FTL Design for -SLC Support. To support -SLC in an SSD, two changes are required at the FTL - the
+block allocation algorithm needs to be modified to enable multiple blocks/pages with different modes, and the
+garbage collection algorithm needs to be redesigned to enable reprogramming a page without erasing that. The
+new FTL is called DSLC-FTL. We describe the modifications to DSLC-FTL for -SLC with three modes (-state,
+-state, and-state modes). However, our methodology is general and can be applied to -SLC with a different
+mode configuration.
+
+Block Allocation in DSLC-FTL: Due to the limitations of the write and erase operations, all cells in a single
+page and all pages in a single block have to be in the same mode in -SLC. Thus, as opposed to the conventional
+SLCs that have two block types (clean or used) at each time, -SLC has four block types in a flash chip - each
+block is either clean (or empty), a-state mode, a-state mode, or a-state mode block. Also, at each time, -SLC
+has three active blocks and active write points corresponding to the three state modes it has. Figureshows
+the block allocation algorithm used in DSLC-FTL. On arrival of a new I/ block, the FTL assumes that it will
+have a short longevity and maps it to the-state mode active block (@). The heuristic behind this assumption is
+that, as shown in Table a majority of the written data have “less than one hour” longevity which, irrespective
+of device wear-out level, is always mapped to-state mode based on mode-assignment in Table If this I/
+block gets updated in less than an hour, ,., the retention time of a-state mode block, the new update is also
+allocated in the (current)-state mode active block (@); so we do not change the block mode, as its history admits
+its short data longevity. Otherwise, on expiration of the block’ retention time, we read its all valid pages and
+migrate them to the-state mode active block (@); so the controller downgrades mode of these pages because of
+retention time violation. We call this mechanism data scrubbing which is part of our DSLC-FTL. We follow the
+same procedure for the I/ blocks mapped to-state mode: if their updates come before-state mode expiration,
+
+we keep rewriting them in the (current)-state mode active block (@); otherwise, on expiration of the block’
+retention time, we move its all valid pages to the-state mode active block by invoking data scrubbing (@). The/ data in-state mode block always remains in this mode @).
+
+This simple heuristic is easy to implement and it needs two minor changes at the FTL metadata.
+
+() FTL needs keep the retention time information at block granularity (instead of page granularity). Indeed,
+when the first page is allocated in a block, FTL records the clock tic for that block, and periodically monitors
+it for expiration.
+
+() FTL also needs-bit information per each block to indicate its status: “00” for the clean mode, “01” for the-state mode, “10” for the-state mode, and “11” for the-state mode.
+
+We note that this implementation gives the maximum flexibility to DSLC-FTL and allows to write any incoming
+data into either of the blocks, depending on its longevity, but one can employ a retention time predictor (like
+the one proposed in [22]) to avoid the data scrubbing cost. However, we found that such mechanism brings a
+negligible lifetime gain and the data scrubbing in our scheme imposes a very small overhead (see Section).
+Accordingly, the current version of -SLC exploits data scrubbing, instead of a retention-time predictor.
+
+Garbage Collection in DSLC-FTL: We now describe the garbage collection procedure employed for a-state
+mode block, as an example, in -SLC. This mechanism can be generalized to other modes as well. The diagram in
+Figuredepicts the life-cycle of a-state mode block. At any given time, a block can be in one of the four states:
+
+() Clean: A block is initially clean or empty. All pages are erased.
+
+() Round1: Starting with a clean block, at this state, we write data into the pages of the block in an in-order
+fashion (.., page + has to be written after page ). In this state, we use two first states, ie., the states S1 and
+IS-, for writing one bit data in each cell.
+
+() Round2: When all the pages in a block are used up in Round1, the block state is changed to Round2 and we
+store one new page in the target page frame. Again, due to the constraint imposed by the in-order page writes
+in a block, the next three following actions have to be sequentially applied: () All valid pages, programmed
+in Round1, have to be relocated to elsewhere; () We apply dummy write pulses to all page frames to change
+their voltage states to IS- (pseudo-erase state for Round2) - so, all the pages (cells) in the block will have
+the state IS-; and () We start the second round by using two intermediate states (IS- and IS-). The
+writes are again performed in an in-order fashion.
+
+Round3: When all the pages in a block are used up in Round2, the block state is changed to Round3 by
+
+following a procedure very similar to what described for Round1 to Round2 transition. The only difference is
+
+that, during Round3, FTL uses two last states (IS- and S2) for writing one new data.
+Flash chipblocks per chip, 128 pages per block, 8KB pages, block endurance
+ofK / cycles
+
+ 
+
+Timing parameters ||us for page read, 350us for page write, .5ms for block erase, 200MB/sec
+data transfer rate of the chip.
+
+Here are some salient points to keep in mind about this block diagram:
+
+ Dummy write is the process during which all cells in all pages of a block are initialized to the state “” in
+Roundz. In fact, when the controller decides to change the status of a block from Round1 to Round2, it needs
+to make sure that all the cells in the block have the stateS- (ie., like erase state for Round2). Implementing
+dummy write is easy — at the end of Round], if the content of a cell is “” (S1), the controller writes into the
+cell to make its state IS-; otherwise, .. the cell’ content is “” (IS-), no action is required.
+
+The same procedure (dummy write) applies at the end of Round2, in order to make sure that all cells have the
+
+state IS- (.., like erase state for Round3).
+
+Changing the block status from Round! to Round2 and Round2 to Round3 is carried out by garbage collection
+
+(GC). This is because we need to move all valid pages to elsewhere, prior to applying our dummy writes.
+
+However, in these cases, we do not erase the block.
+
+ When all the pages of a block in Round3 are used up, we invoke a normal GC in order to move remaining valid
+pages and erase the block after page movements (making it ready for Round1 programming).
+
+ -SLC can work with any GC algorithm available for flash memories. When FTL invokes GC, it chooses one of
+the already-used blocks, regardless of its current state (.., the selected block can be either in Round1, Round2
+or Round3). After moving the valid pages of the victim block, FTL applies an erase pulse (if the current state is
+Round3) or a dummy write (if the current state is Round1 or Round2). So, we do not distinguish among the
+blocks in Round1, Round2 and Round3 during the victim block selection.
+EVALUATION METHODOLOGY Evaluation Framework
+
+We used DiskSim simulator [] with the SSD extensions by Microsoft [] to model an SLC-based SSD as an SCM.”
+This simulator is highly-parametrized and modularized which enables us configure various parameters including
+the number of flash chips, the flash internal components (.., the number of blocks, the number of pages in a
+block, and page size), and different timing values (.., page read and write latencies, block erase time, and data
+transfer time in/out of the flash chip).
+
+On top of the DiskSim+SSD simulator, we added one function (data scrubbing) and modified two existing
+functions (block allocation and garbage collection) for -SLC and its FTL implementation.
+
+ The data scrubbing function implements the data scrubbing mechanism (.., when the retention time of a
+block is expired, valid pages in it, if any, are moved to a new block).
+
+ The block allocation algorithm is modified to () support and maintain multiple active blocks for each flash chip
+in -SLC, and (ii) implement the block allocation algorithm in Section..
+
+ The garbage collection algorithm is also modified to support our multiple-round GC policy in Section..
+Our analysis and reported results in this paper are based on simulation. As a part of future work, we plan to have a more realistic
+implementation of -SLC and DSLC-FTL by using OpenNVM [34].
+ Configuration of the Baseline System
+
+Tablegives the details of the baseline SSD configuration. It is aGB SSD with eightGB SLC flash chips. The
+flash memory parameters are taken from a modern Micron device [25] - each chip hasK blocks, each block
+haspages and each page isKB. The read, write and erase latencies aremicroseconds, 230 microseconds,
+and milliseconds, respectively. The block endurance isK / cycles. We also assume that its FTL uses
+GREEDY algorithm [] for victim block selection during garbage collection, and the chip-level allocation strategy
+is static [17].
+Workloads
+
+We use the I/ traces provided in the MSR Cambridge suite [27]. These I/ traces are collected from different
+transactional and enterprise applications (or different disk volumes in a system running one single application)
+running multiple consecutive days, which allows us capture the longevity of I/ blocks for long time durations.
+Among thetraces in this benchmark suite, we usedtraces for our evaluations. Our workloads are listed in
+Table(different indices refer to different volumes of the same application). Theexcluded traces are either
+read-intensive (their write ratios are less than%) where lifetime of the baseline SSD is not a concern (the
+endurance enhancement is the main goal of our technique), or many blocks in them are accessed once during the
+trace collection time (that is one week in these traces). Tablegives the important characteristics of the studied
+workloads in terms of the write ratio, average write request size, and average read request size (note that Table reports the retention time categorization of data blocks in these workloads).
+ Evaluated Systems
+We evaluated and compared the results of three systems:
+
+() Baseline: This uses the conventional-state mode for all blocks.
+() -SLC: This uses the proposed -SLC technique with three state modes for the blocks (.., -state mode,
+-state mode, or-state mode).
+Fig. Lifetime analysis of -SLC and Oracle--SLC systems. The results are normalized to the baseline SLC.
+
+functions to implement the scrubbing mechanism, block allocation and garbage collection in -SLC. As
+explained before, we assume that -SLC’ read and write latencies in all the block modes are comparable to
+those in the baseline SLC (and hence there is no latency overhead or enhancement in this design).
+
+() Oracle--SLC: This system is mostly similar to the -SLC and uses all DSLC-FTL functionalities except its
+block allocation algorithm. For block allocation, this system assumes that retention time information for
+each incoming I/ block is known ahead and hence it is allocated to the most suitable block mode. Doing
+this, Oracle--SLC removes the need for scrubbing and, as a result, gives the upper limit of the lifetime and
+performance improvement by -SLC.
+
+During our analysis, the results of the evaluated systems are normalized to the baseline system for comparison.
+Metrics
+We use the following metrics for our evaluation:
+
+() Lifetime: It refers to the lifespan of the SLC SSD system and is measured as the total data volume (in KBs)
+written to it up to the point that its all chips/blocks reach their endurance limit. Under a fixed endurance
+limit, the more data written to an SSD, the longer lifetime it has.
+
+() PWE: Section. defines our PWE metric. Note that the PWE of the conventional SLC is “” during its
+entire lifetime. However, the proposed -SLC results in various PWE values for each block during its lifetime
+(it can be “”, “” or “” for the-state, -state or-state modes, respectively).
+
+() GC rate and GC cost: The GC rate refers to the average number of GC invocations in a time unit, and GC
+cost represents the average execution time of a GC. The higher GC rate and cost result in lower available
+bandwidth for normal I/ operations.
+
+() Scrubbing rate and scrubbing cost: The scrubbing rate indicates how often our data scrubbing mechanism
+is triggered (.., the ratio of blocks on which the data scrubbing is actually triggered, as a fraction of the
+total number of blocks used). The scrubbing cost is the average number of page migrations required for each
+scrubbing initiation.
+
+() Throughput: It is measured as the amount of data (in KBs) read from or written to the SSD in a time unit.
+EVALUATION RESULTS. Lifetime Enhancement
+
+Figureshows the lifetimes of -SLC and Oracle--SLC, normalized to the baseline SLC. Compared to the
+baseline SLC, -SLC and Oracle--SLC increase the lifetime byx andx, respectively. Exploiting short
+retention times and employing multiple state modes (.., additionalandstate modes) are quite effective in
+prolonging the storage lifespan.
+Fig. Percentages of blocks with , andstates (whose PWEs are , and respectively) during the entire device
+lifetime.
+
+significantly increasing the PWE, which is analyzed in Section. We want to highlight that -SLC achieves
+a lifetime improvement that is very close (only% less) to that brought by Oracle--SLC. This implies that
+-SLC does not need frequent data scrubbing invocations. (Section provides an analysis on the data scrubbing
+overheads).
+
+Compared to the other workloads, -SLC achieves lower lifetime improvements for web_1 and wdev_2 (.1x
+andx, respectively). This is because over% of their data have retention times betweenhours anddays
+
+Fig. Analysis on GC overheads of -SLC: (a) the numbers of GC invocations per one million writes and () the average
+costs of each GC invocation. The results are normalized to the baseline SLC.
+
+(see Table) and such data are not placed in blocks with-state mode (see Table); as a result, these workloads
+miss the opportunity for further increasing PWE and improving the storage lifetime.
+
+In contrast, proj_@ exhibits much higher lifetime enhancement than the average. This impressive result is
+due to two factors: () over% of its data have retention times below one hour, thus allowing almost all data to
+be stored in blocks with-state mode and maximizing PWE/lifetime. () The block allocation scheme in -SLC
+could efficiently separate highly-updated data (with short retention times) from data with long retention times in
+the workload, which reduces its GC rate and cost (note that the lower the GC rate/cost, the higher the lifetime
+gain). We note that prxy_@ with a similar distribution of retention times to proj_@ cannot lead to such a high
+improvement. This is because the retention times significantly vary during the workload execution; hence, it
+cannot reduce the GC rate and cost. We discuss this in more detail in Section.
+ PWE Analysis
+
+The lifetime improvements brought by -SLC originate from the increase in PWE. Figureshows the PWE
+analysis for the studied workloads. Each figure shows the percentage of flash blocks with , andstate-modes
+(whose PWEs are , and respectively) during the whole device lifetime. In general, the larger the gray area
+(PWE=), the more beneficial our scheme. Note however that, one cannot directly compare the PWE results
+of different workloads, since their lifetimes in time (-axis) are all different. We can observe a few common
+characteristics across the workloads.
+
+() Throughout the storage lifetime, there are always a few blocks with-state mode. This is because a few
+blocks with-state mode (including one of the active blocks) are reserved to serve write data in need of a
+long retention guarantee. In addition, such blocks have a tendency to maintain their mode (.., -state mode),
+as they are not likely to get invalid and erased.
+
+() As the flash device gets older, the number of blocks whose PWE is “” dramatically increases. This is because
+the data whose retention times range fromtohours should be stored in blocks with-state mode fromK /Es, while they could be accommodated in-state mode blocks at early ages (see Table). In the same
+context, as the storage gets older, the number of blocks whose PWE is “” also increases (specifically, for
+web_1 and wdev_2). In these workloads, data whose retention times are betweenhours anddays need to
+be placed in-state mode blocks instead of blocks with-state mode fromK /Es.
+
+() The ratios of block with different modes continue to change as time goes by. This indicates that each block
+frequently changes its mode, when it is erased and allocated as a new active block again. Thus, as the workload
+being executed moves from one phase to another, the storage can adapt to the change and adjust the ratios of
+blocks with different modes.
+Table Analysis on data scrubbing overheads of -SLC: the data scrubbing rate (percentage of blocks on which the scrubbing
+is invoked) and the data scrubbing cost (the number of valid pages to be migrated per a block scrubbing).
+
+GC Analysis
+
+Figureprovides the GC frequencies and the GC costs, both of which collectively analyze the GC overhead of
+-SLC. Compared to the baseline SLC, -SLC decreases “the number of GC invocations per one million writes”
+and “the cost per a GC invocation” by% and%, on average. The reduction in GC overheads helps -SLC
+bring additional lifetime and bandwidth benefits, even though the effectiveness is not high. This reduction in GC
+overheads comes from the isolation of hot data (which are frequently updated) from cold data (with long retention
+times). Note that -SLC provides multiple active blocks and groups data with similar retention guarantee together
+in a single block. Hence, when a GC is invoked, victim blocks (which are-state mode blocks in most cases) have
+a tendency to include relatively fewer valid pages, since no data with long retention times is placed in them. As a
+result, the number of page migrations during GC decreases, and in turn, new/clean pages are not wasted and the
+GC invocation frequency is lowered.
+
+The significant lifetime improvement in proj_@ results from the largely-reduced GC overheads as well as its
+high PWEs. Surprisingly, proj_@ drops “the number of GC invocations per one million writes” and “the cost per
+a GC invocation” by% and%, respectively. This indirect advance in lifetime helps proj_@ with our scheme
+achieve ax of lifetime improvement, which is far beyondx when assuming all blocks whose PWE of “”
+are used throughout the storage lifespan. One might note that web_1 also experiences a significantly-reduced
+GC overheads. Unfortunately, this GC benefit does not lead to the high lifetime improvement (ie., onlyx) in
+web_1. We want to emphasize that the lifetime enhancement in our scheme mainly comes from the increased
+PWEs and this additional GC overhead reduction is a secondary advantage.
+ Scrubbing Overhead Analysis
+
+Tablepresents the data scrubbing rate and cost, which collectively represent the data scrubbing overhead. The
+data scrubbing rate (“the percentage of blocks for which the data scrubbing is triggered as a fraction of the total
+number of allocated blocks”) is quite low (.., .071%, on average). Furthermore, the data scrubbing cost (“the
+number of valid pages in apage-block where the data scrubbing is triggered”) is also low (.., 22.83 /pages, on average). This low data scrubbing rate is because most of target blocks are already erased when it comes
+to the deadline and there is no need to act for such blocks. Note that most (page) data in a block are invalidated
+before the deadline is reached, and such blocks where most pages are invalidated are the best candidates for the
+GC. Even though the target block is not erased and the data scrubbing is executed, most of its data are already
+invalidated, which results in low scrubbing costs.
+
+Compared to other workloads, prxy_@ shows a relatively high data scrubbing rate (.187%), even though
+its cost is still low. It is because the longevity of its data blocks vary. One can confirm the impact of this high
+scrubbing rate from Figure; the lifetime improvement of prxy_@ is lowered a bit, compared to Oracle--SLC
+which is aware of the longevity of all data in advance. However, in general, the scrubbing overhead is too small
+to severely hurt the storage lifetime and bandwidth.
+Fig. The/ throughput brought by -SLC, normalized to the baseline SLC.
+
+One might wonder why workloads like web_1 and wdev_2, where a large portion of data have long longevity,
+would experience low data scrubbing overheads. For these two workloads, a large fraction of data havehour todays data longevity, and they are written in the-state mode block at first. Once they are moved to-state or-state mode blocks by the scrubbing, the following updates on these data are written in the-state or-state
+active blocks, after which there is no more scrubbing activities on these data. Thus, the scrubbing overhead is not
+significant for these workloads after the state changes happen.
+ Performance Analysis
+
+Figureshows the storage throughput results, which are comparable to those of the baseline SLC. Some
+workloads experience improved throughput, while others lose a bit of their performance; overall, the storage
+
+throughput increases by% on average. The important parameters that shape the storage throughput in our
+-SLC are three:
+
+ Device read/write latencies: If device latencies increase, storage throughput decreases and vice versa. However, our scheme provides read/write latencies close to the baseline SLC, as discussed in Section. So, we
+assume that device latencies do not affect the throughput in our scheme.
+
+ Garbage collection overhead: The higher the GC overhead, the lower the storage throughput. As evaluated
+in Section, our scheme reduces the GC overheads a bit; the saved bandwidth in turn helps the storage
+throughput increase slightly.
+
+ Data scrubbing overhead: This additional storage operation consumes storage bandwidth and has a negative
+impact on storage throughput. However, as discussed in Section, our scheme does not frequently invoke
+the data scrubbing, which minimizes the loss of the storage throughput.
+
+Note that our scheme does not have an impact on other critical parameters that might affect the storage
+performance. For example, the degree of storage parallelization (how many I/ requests the storage can process
+in parallel) and inter-arrival times (how frequently I/ requests are submitted to the storage) remain unchanged
+under our scheme and evaluation methodology.
+SENSITIVITY ANALYSIS
+The efficiency of the proposed -SLC design can be influenced by device parameters or configuration setup. To
+
+examine this, we performed a series of sensitivity studies.
+
+Table Block state mode assignment (, , or-state mode) for different I/ retention times as a function of the block age
+in  devices.
+Fig. Lifetime improvement brought by our scheme in Weak, Normal, and Strong devices, normalized to the baseline SLC.
+ Different Voltage Drift Distances
+. Non-Uniform Device Characteristics. The voltage drift distance as a function of the retention time and
+the / cycles (Section) can be a little longer or shorter, depending on the device characteristics. Specifically,
+the drift distance is affected by a wide variety of design factors (such as vendors, technology nodes, material-level
+characteristics), which makes a need to evaluate our scheme in different devices exhibiting varying drift patterns.
+In addition to the configuration evaluated in Section we employ two more devices by changing the scaling
+constant () of Equation The three evaluated systems in this experiment are as follows:
+
+ Weak: In this device, the voltage state drifts longer under the same / cycles and retention times.  is set tox
+
+ Normal: This is the configuration employed so far (Section).  is set tox+.
+
+ Strong: The voltage state in this device drifts shorter under the same / cycles and retention times.  is set
+tox".
+
+These three devices have different mappings of state modes to flash blocks for each pair of / cycles and
+retention times, which are listed in Table For example, the Strong device can store data whose retention times
+are betweenandhours in blocks with-state mode at any time (/ cycle), whereas in the Weak device, such
+data should be placed only in blocks with-state mode afterK /Es.
+. Effectiveness of -SLC in Different Devices. Figurecompares the lifetime improvements achieved by
+-SLC in three different devices. As can be seen, -SLC brings more lifetime improvements in stronger devices than
+in weaker devices. This is because in stronger devices, more data with the same retention times can be stored in
+blocks with higher PWE values. For example, according to Table the Strong device allows data with retention
+times betweenhours anddays to be stored in-state mode blocks before it reachesK /Es, while such
+data should be stored in-state mode blocks untilK /Es in the Normal or Weak devices.
+
+Fig. Percentages of blocks with , andstates, when running prn_0 on Weak, Normal, and Strong devices.
+
+The PWE analysis shows how -SLC increases PWE values as the target device becomes stronger. As an
+example, Figuresa, 12b, andc show the percentage of blocks with , andstates, when running web_1 in
+Weak, Normal, and Strong devices, respectively. One can see from these figures that the ratios of blocks withstates (black area) and withstates (red area) gradually decrease, as the drift resistance increases from Weak
+to Strong devices. Specifically, the Weak device needs blocks withstates to store data whose retention times
+range fromhours todays from aroundK hours (.., 20K /Es), whereas such data require-state mode
+blocks after aroundK hours (.., 30K /Es) in the Normal device. On the other hand, no-state mode block
+is needed to store such data in Strong device.
+
+One might also observe that, in some workloads such as prn_@ and proj_®, the lifetime improvements stay
+quite low in the Weak device. This phenomenon can be explained by the PWE analysis. Figuresa, 13b, andc
+show the percentage of blocks with three different states when executing prn_@ in the Weak, Normal, and Strong
+devices, respectively. The ratio of blocks withstates is very low in the Normal device, and it is almost removed
+in the Strong device. In contrast, the percentage of-state mode blocks largely increases in the Weak device; the
+black area in Figurea appears remarkably. It is because the data whose retention times rangetohours
+
+need-state mode blocks quite early (.., afterK /Es), while such data need them afterK /Es in the Normal
+device and none of them throughout the lifespan in the Strong device.
+Fig. Lifetime improvement brought by device under varying numbers of states, normalized to the baseline SLC.
+ Different Numbers of State Modes
+. Varying the Granularity of -SLC. So far, our scheme has employed “three” different modes, which
+are , and-state modes. However, it is possible to manage voltage drifts at finer granularities by employing
+additional modes such asand-state modes. To this end, we evaluate -SLC supporting different numbers of
+state modes. In particular, we compare the following four systems:
+
+-Mode configuration: This system has two state modes:and-state modes.
+
+-Mode configuration: This system has three state modes: , and-state modes. This is the configuration
+employed so far.
+
+-Mode configuration: This system has four state modes: , , and-state modes.
+
+-Mode configuration: This system has five state modes: , , , and-state modes.
+
+Tableprovides the different mappings of state modes to flash blocks for each pair of / cycles and retention
+times in the four evaluated systems.
+. Effectiveness of -SLC under Various Configurations. In general, the more state modes, the longer the
+device lifetime. However, some workloads significantly benefit from increasing the number of modes, while the
+lifetime gain is negligible in others. Figureshows the lifetime improvement achieved by the-Mode, -Mode,
+-Mode, and-Mode devices in four representative workloads, which are categorized into two groups.
+Fig. Percentages of blocks with different states, when running wdev_2 in-Mode, -Mode, -Mode, and-Mode devices.
+
+ Low-beneficial workloads: As shown in Figurea, prxy_@ and src1_2 benefit less (or negligible) from the
+increasing number of modes. It is because majority retention times in these workloads are belowhours, and
+the difference among the , , and-Mode devices is the assignment of different voltage modes (, , , and-state mode, respectively) to blocks whose /Es are betweenK andK (see the last two columns of the
+second row in Table).
+
+ High-beneficial workloads: For web_1 and wdev_2, increasing the number of supporting modes leads to a
+significant device lifetime improvement (Figureb). These workloads include a large amount of data whose
+retention times are betweenhours anddays, which can be placed in blocks with finer-granularity state
+modes such asand-state mode in the-Mode/-Mode devices. In contrast, in the-Mode/-Mode devices,
+such data are accommodated in blocks withand-state mode (see the third row of Table).
+
+The PWE analysis shown in Figureillustrates why a low-beneficial workload (src1_2) cannot fully draw the
+full potential of increasing the number of modes, whereas Figureillustrates how a high-beneficial workload
+(wdev_2) experiences a significantly-increased lifespan by supporting more modes. In src1_2, the cliff at the
+latter of its lifespan represents that the blocks “where data whose retention times range fromtohours are
+stored” change their modes, when their / cycles go beyondK. Such data can use blocks with(red),  (black),
+ (yellow), and(purple) states in the-Mode, -Mode, -Mode, and-Mode devices, respectively. Consequently,
+these small differences do not result in a significant lifetime gain. In contrast, wdev_2 includes a lot of data whose
+retention times are betweenhours anddays, and such data can be stored in blocks with more states (or
+higher PWEs) in early / cycles (.., fromtoK) in the-Mode and-Mode devices. As a result, one can
+observe from the-Mode device (Figured) that% of total blocks gradually change their modes (.., red,
+black, yellow, and purple areas) throughout the device lifespan, which results in much higher PWEs, compared to
+the continuous low and unchanged PWE (.., “”) for the same blocks in the-Mode device.
+RELATED WORK
+
+Retention time relaxation has been considered as an attractive optimization option for flash memories. Prior
+works exploit this capability for different purposes and design trade-offs. We categorize the related works in two
+groups:
+
+() Using retention time relaxation for enhancing write performance [21, 28]: The flash write latency
+based on the ISPP [32] is mainly determined the number of ISPP loops (see the equation of Section),
+which is a function of () the distance between start and target voltages (Viarege — Vstart) and (ii) staircase-up
+amplitude (;spp). In general, the higher ;areg: (and the longer the voltage distance) or the lower Vispp, the
+larger the number of ISPP loops (and the longer the write latency), and vice versa. The works in this group
+attempt to reduce the number of ISPP loops (and the write latency) by increasing Vrspp and placing the target
+threshold voltage less-accurately (based on the retention time relaxation). In contrast, our -SLC targeting
+lifetime enhancements tries to keep the number of ISPP loops similar or very close to the baseline SLC by
+adjusting (reducing) both Vispp and Viaregt
+() Using retention time relaxation for enhancing flash lifetime [22]: Similar to -SLC, WARM [22]
+optimizes flash lifetime by taking advantage of retention relaxation. However, there are substantial differences
+between the two approaches. WARM begins with a retention-relaxed flash memory which employs refresh
+mechanism to avoid data loss. Motivated by the high overhead of refresh for hot data (.., those with longevity
+less than the refresh period), they propose an algorithm for hot data detection and design separate pools
+of hot and cold blocks for the efficient refresh management. In contrast, -SLC is a generic design and the
+baseline should not necessarily be a retention-relaxed flash nor a flash with the refresh support. Furthermore,
+instead of employing an algorithm to estimate the data longevity, -SLC includes a heuristic mechanism,
+which is able to put data with similar data longevity history in the same block. More importantly, -SLC
+writes multiple bits into a cell during one erase cycle, while WARM allows just a single-bit write in each erase
+cycle (as the baseline SLC does). In other words, -SLC improves the lifetime by increasing PWE, whereas
+WARM (still keeping the PWE one) achieves it by removing unnecessary refreshes. Therefore, -SLC and
+WARM can be combined for further lifetime improvement.
+CONCLUSIONS
+
+Despite the advances in non-volatile memory technologies, flash-based SCMs are still widely used by commercial
+computing systems, ranging from laptop and desktop to enterprise systems, to hide the performance-cost gap
+between DRAM and HDD. However, the limited endurance seems to be the main issue for flash-based SCMs, and
+is the target of our design and optimization in this paper. Specifically, we make three main contributions in this
+paper: First, by quantifying data longevity in an SCM, we show that a majority of the data stored in a solid-state
+SCM do not require long retention times provided by flash memory. Second, by relaxing the guaranteed retention
+times, we propose a novel mechanism, named Dense-SLC (-SLC), which enables us perform multiple writes
+into a cell during each erase cycle for lifetime extensions. Third, we discuss the required changes in the FTL in
+order to exploit these characteristics for extending the lifetime of solid-state part of an SCM. Using an extensive
+simulation-based analysis of a flash-based SCM, we demonstrate that our proposed -SLC is able to significantly
+improve device lifetime (betweenx andx) with no performance overhead and also very small changes in
+the FIL software.
+
+

@@ -1,0 +1,1148 @@
+Overcommitment in Cloud Services — Bin packing
+with Chance Constraints
+
+ABSTRACT
+---
+This paper considers a traditional problem of resource allocation, scheduling jobs on machines. One such
+recent application is cloud computing, where jobs arrive in an online fashion with capacity requirements
+and need to be immediately scheduled on physical machines in data centers. It is often observed that the
+requested capacities are not fully utilized, hence offering an opportunity to employ an overcommitment
+policy, .., selling resources beyond capacity. Setting the right overcommitment level can induce a significant
+cost reduction for the cloud provider, while only inducing a very low risk of violating capacity constraints.
+We introduce and study a model that quantifies the value of overcommitment by modeling the problem as
+a bin packing with chance constraints. We then propose an alternative formulation that transforms each
+chance constraint into a submodular function. We show that our model captures the risk pooling effect and
+can guide scheduling and overcommitment decisions. We also develop a family of online algorithms that are
+intuitive, easy to implement and provide a constant factor guarantee from optimal. Finally, we calibrate
+our model using realistic workload data, and test our approach in a practical setting. Our analysis and
+experiments illustrate the benefit of overcommitment in cloud services, and suggest a cost reduction of
+to depending on the provider’ risk tolerance.
+---
+
+INTRODUCTION
+Bin packing is an important problem with numerous applications such as hospitals, call centers,
+filling up containers, loading trucks with weight capacity constraints, creating file backups and
+more recently, cloud computing. A cloud provider needs to decide how many physical machines to
+purchase in order to accommodate the incoming jobs efficiently. This is typically modeled as a bin
+packing optimization problem, where one minimizes the cost of acquiring the physical machines
+subject to a capacity constraint for each machine. The jobs are assumed to arrive in an online
+fashion according to some vaguely specified arrival process. In addition, the jobs come with a
+
+specific requirement, but the effective job size and duration are not exactly known until after the
+
+actual scheduling has occurred. In practice, job size and duration can be estimated from historical
+data. One straightforward way to schedule jobs is to assume that each job will fully utilize its
+requirement (.., if a job requestsCPU cores, the cloud provider allocates this exact amount for
+the job). However, there is empirical evidence, that most of the virtual machines do not use the full
+requested capacity. This offers an opportunity for the cloud provider to employ an overcommitment
+policy, .., to schedule sets of jobs with the total requirement exceeding the respective capacities
+of physical machines. On one hand, the provider faces the risk that usage exceeds the physical
+capacity, which can result in severe penalties (.., acquiring or reallocating machines on the fly,
+canceling and rescheduling running jobs, mitigating interventions, etc.). On the other hand, if
+many jobs do not fully utilize their requested resources, the provider can potentially reduce the
+costs significantly. This becomes even more impactful in the cloud computing market, which has
+become increasingly competitive in recent years as Google, Amazon, and Microsoft aim to replace
+private data centers. “The race to zero price” is a commonly used term for this industry, where
+cloud providers have cut their prices very aggressively. According to an article in Business Insider
+in January “Amazon Web Services (AWS), for example, has cut its pricetimes during-2015, while Microsoft and Google have both decreased prices multiple times to keep up with
+AWS”. In January RBC Capital’ Mark Mahaney published a chart that perfectly captures
+this trend and shows that the average monthly cost per gigabyte of RAM, for a set of various
+workloads, has dropped significantly: AWS dropped prices% from Oct.to Dec. while
+both Google and Microsoft cut prices by% and%, respectively, in the same period. Other
+companies who charge more, like Rackspace and AT&, dropped prices even more significantly.
+
+As a result, designing the right overcommitment policy for servers has a clear potential to increase
+the cloud provider profit. The goal of this paper is to study this question, and propose a model
+that helps guiding this type of decisions. In particular, we explicitly model job size uncertainty to
+motivate new algorithms, and evaluate them on realistic workloads.
+
+Our model and approaches are not limited to cloud computing and can be applied to several
+resource allocation problems. However, we will illustrate most of the discussions and applications
+using examples borrowed from the cloud computing world. Note that describing the cloud infrastructure and hardware is beyond the scope of this paper. For surveys on cloud computing, see, for
+example Dinh et al. (2013) and Fox et al. (2009).
+
+We propose to model the problem as a bin packing with chance constraints, .., the total load
+assigned to each machine should be below physical capacity with a high pre-specified probability.
+Chance constraints are a commonly used modeling tool to capture risks and constraints on random variables (Charnes and Cooper). Introducing chance constraints to several continuous
+
+optimization problems was extensively studied in the literature (see, .., Calafiore and El Ghaoui
+
+ Delage and Ye). This paper is the first to incorporate capacity chance constraints in
+the bin packing problem, and to propose efficient algorithms to solve the problem. Using some
+results from distributionally robust optimization (Calafiore and El Ghaoui), we reformulate
+the problem as a bin packing with submodular capacity constraints. Our reformulations are exact
+under the assumption of independent Gaussian resource usages for the jobs. More generally, they
+provide an upper bound and a good practical approximation in the realistic case where the jobs’
+usages are arbitrarily distributed but bounded.
+
+Using some machinery from previous work (see Goemans et al. Svitkina and Fleischer), we show that for the bin packing problem with general monotone submodular constraints,
+it is impossible to find a solution within any reasonable factor from optimal (more precisely, ay
+where  is the number of jobs). In this paper, we show that our problem can be solved using a class
+of simple online algorithms that guarantee a constant factor of/ from optimal (Theorem). This
+class of algorithms includes the commonly used Best-Fit and First-Fit heuristics. We also develop
+an improved constant guarantee of/ for the online problem (Theorem), and a-approximation
+for the offline version (Theorem). We further refine our results to the case where a large number
+of jobs can be scheduled on each machine (.., each job has a small size relative to the machine
+capacity). In this regime, our approach asymptotically converges to a/ approximation. More
+importantly, our model and algorithms allow us to draw interesting insights on how one should
+schedule jobs. In particular, our approach () translates to a transparent recipe on how to assign
+jobs to machines; (ii) explicitly exploits the risk pooling effect; and (iii) can be used to guide an
+overcommitment strategy that significantly reduces the cost of purchasing machines.
+
+We apply our algorithm to a synthetic but realistic workload inspired by historical production workloads in Google data centers, and show that it yields good performance. In particular,
+our method reduces the necessary number of physical machines, while limiting the risk borne by
+the provider. Our analysis also formalizes intuitions and provides insights regarding effective job
+
+scheduling strategies in practical settings.
+Contributions
+
+Scheduling jobs on machines can be modeled as a bin packing problem. Jobs arrive online with
+some requirements, and the scheduler decides how many machines to purchase and how to schedule
+the jobs. Assuming random job sizes and limited machine capacities, one can formulate the problem
+as a/ integer program. The objective is to minimize the number of machines required, subject
+to constraints on the capacity of each machine. In this paper, we model the capacity constraints as
+chance constraints, and study the potential benefit of overcommitment. The contributions of the
+
+paper can be summarized as follows.
+
+
+ Formulating the overcommiiment bin packing problem.
+
+We present an optimization formulation for scheduling jobs on machines, while allowing the provider
+to overcommit. We first model the problem as Bin Packing with Chance Constraints (BPCC). Then,
+we present an alternative Submodular Bin Packing (SMBP) formulation that explicitly captures
+the risk pooling effect on each machine. We show that the SMBP is equivalent to the BPCC under
+common assumptions (independent Gaussian usage distributions), and that it is distributionally
+robust for usages with given means and diagonal covariance matrix). Perhaps most importantly
+from a practical perspective, the SMBP provides an upper bound and a good approximation under
+generic independent distributions over bounded intervals (see Proposition). This last setting is
+most common in today’ cloud data centers, where virtual machines are sold as fixed-size units.
+
+ Developing simple algorithms that guarantee a constant factor approximation from optimal.
+We show that our (SMBP) problem can be solved by well-known online algorithms such as First-Fit
+and Best-Fit, while guaranteeing a constant factor of/ from optimal (Theorem). We further
+refine this result in the case where a large number of jobs can be scheduled on each machine, and
+obtain a/ approximation asymptotically (Corollary). We also develop an improved constant
+guarantee of/ for the online problem using First-Fit (Theorem), and aapproximation for
+the offline version (Theorem). We then use our analysis to infer how one should assign jobs to
+machines, and show how to obtain a nearly optimal assignment (Theorem).
+
+ Using our model to draw practical insights on the overcommitment policy.
+
+Our approach translates to a transparent and meaningful recipe on how to assign jobs to machines
+by clustering similar jobs in terms of statistical information. In addition, our approach explicitly
+captures the risk pooling effect: as we assign more jobs to a given machine, the “safety buffer”
+needed for each job decreases. Finally, our approach can be used to guide a practical overcommitment strategy, where one can significantly reduce the cost of purchasing machines by allowing a
+low risk of violating capacity constraints.
+
+ Calibrating and applying our model to a practical setting.
+
+We use realistic workload data inspired by Google Compute Engine to calibrate our model and test
+our results in a practical setting. We observe that our proposed algorithm outperforms other natural
+scheduling schemes, and realizes a cost saving of% to% relative to the no-overcommitment
+
+policy.
+Literature review
+This paper is related to different streams of literature.
+In the optimization literature, the problem of scheduling jobs on virtual machines has been
+
+extensively studied, and the bin packing problem is a common formulation. Hundreds of papers
+
+
+study the bin packing problem including many of its variations, such asD packing (.., Pisinger
+and Sigurd), linear packing, packing by weight, packing by cost, online bin packing, etc.
+The basic bin packing problem is NP-hard, and Delorme et al. (2016) provide a recent survey of
+exact approaches. However, several simple online algorithms are often used in practice for largescale instances. A common variation is the problem where jobs arrive online with sizes sampled
+independently from a known discrete distribution with integer support, and must be immediately
+packed onto machines upon arrival. The size of a job is known when it arrives, and the goal is to
+minimize the number of non-empty machines (or equivalently, minimize the waste, defined as the
+total unused space). For this variation, the sum-of-squares heuristic represents the state-of-the-art
+approach. It is almost distribution-agnostic, and nearly universally optimal for most distributions
+by achieving sublinear waste in the number of items seen (Csirik et al.). In Gupta and
+Radovanovic (2012), the authors propose two algorithms based on gradient descent on a suitably
+defined Lagrangian relaxations of the bin packing linear program that achieve additive (VN )
+waste relative to the optimal policy. This line of works bounds the expected waste for general
+classes of job size distribution in an asymptotic sense.
+
+Worst-case analysis of (finite, deterministic) bin packing solutions has received a lot of attention
+as well. For deterministic capacity constraints, several efficient algorithms have been proposed.
+They can be applied online, and admit approximation guarantees in both online and offline settings. The offline version of the problem can be solved using (+¢)OPT + bins in linear time
+(de La Vega and Lueker). A number of heuristics can solve large-scale instances efficiently
+while guaranteeing a constant factor cost relative to optimal. For a survey on approximation algorithms for bin packing, see for example Coffman Jr et al. (1996). Three such widely used heuristics
+are First-Fit (FF), Next-Fit (NF) and Best-Fit (BF) (see, .., Bays Keller et al.
+Kenyon et al.). FF assigns the newly arrived job to the first machine that can accommodate
+it, and purchases a new machine only if none of the existing ones can fit the new job. NF is similar to FF but continues to assign jobs from the current machine without going back to previous
+machines. BF uses a similar strategy but seeks to fit the newly arrived job to the machine with the
+smallest remaining capacity. While one can show that these heuristics provide a-approximation
+guarantee, improved factors were also developed under special assumptions. Désa and Sgall (2013)
+provide a tight upper bound for the FF strategy, showing that it never needs more thanOPT
+machines for any input. The offline version of the problem also received a lot of attention, and
+the Best-Fit-Decreasing (BFD) and First-Fit-Decreasing (FFD) strategies are among the simplest
+(and most popular) heuristics for solving it. They operate like BF and FF, but first rank all the
+jobs in decreasing order of size. Désa (2007) show that the tight bound of FFD is .
+
+
+Our problem differs as our goal is to schedule jobs before observing the realization of their
+size. In this case, stochastic bin packing models where the job durations are modeled as random
+variables, are particularly relevant. Coffman et al. (1980) consider this problem, and study the
+asymptotic and convergence properties of the Next-Fit online algorithm. Lueker (1983) considers
+the case where the job durations are drawn uniformly from intervals of the form [a,], and derive
+a lower bound on the asymptotic expected number of bins used in an optimal packing. However,
+unlike this type of asymptotic results where the jobs’ sizes are known when scheduling occurs, we
+are interested in computing a solution that is feasible with high probability before observing the
+actual sizes. Our objective is to assign the jobs to as few machines as possible such that the set
+of jobs assigned to each machine satisfies the capacity constraint with some given probability (say%). In other words, we are solving a stochastic optimization problem, and studying/analyzing
+different simple heuristic solutions to achieve this goal. To make the difference with the worst case
+analysis clear, we note that the worst case analysis becomes a special case of our problem when
+the objective probability threshold is set to% (instead of%, or any other number strictly
+less than). The whole point of our paper is to exploit the stochastic structure of the problem in
+order to reduce the scheduling costs via overcommitment.
+
+In this paper, we consider an auxiliary deterministic bin packing problem with a linear cost but
+non-linear modified capacity constraints. In Anily et al. (1994), the authors consider general cost
+structures with linear capacity constraints. More precisely, the cost of a machine is assumed to
+be a concave and monotone function of the number of jobs in the machine. They show that the
+Next-Fit Increasing heuristic provides a worst-case bound of no more than, and an asymptotic
+worst-case bound of.
+
+An additional common application of the bin packing problem is surgery planning (sometimes
+also called operating rooms scheduling). In this application, the surgery duration is assumed to be
+stochastic, and the objective is to schedule the surgeries while minimizing the total overtime cost
+(see, .., the survey papers by Cardoen et al. Deng et al.). In this paper, however, our
+objective is to minimize the total number of machines (or bins) instead of the total cost of packing.
+Denton et al. (2010) consider the problem of optimizing surgery allocation to operating rooms
+by minimizing the total cost of opening a room plus the expected penalty cost of overtime. The
+authors solve a two-stage stochastic binary integer program based on finite samples of the random
+surgery durations. In this context, Shylo et al. (2012) was among the first to use chance constraints
+for restricting the overtime in surgery operating rooms. By assuming that the surgery durations
+follow a multivariate Gaussian distribution, they reformulate the chance-constrained model as an
+
+equivalent semidefinite program based on convex analysis of probabilistic constraints.
+
+
+Finally, bin packing models find a practical application in bandwidth allocation for high-speed
+networks. For example, Kleinberg et al. (2000) relate stochastic bin packing to the problem of
+allocating bandwidth for bursty connections in high-speed networks, and propose approximation
+algorithms for its online chance-constrained variant. The authors also show that the chance constraints in binary knapsack problems are equivalent to those in bin packing problems. The knapsack
+problem with chance constraints was also extensively studied in the literature (see, .., Goyal and
+Ravi Han et al.).
+
+A common way to solve the chance-constrained bin packing problem is to apply the Sample
+Average Approximation (SAA) approach in order to approximate the problem as a Mixed Integer
+Linear Program (see, Luedtke et al. (2010) and the references therein). In this approach, one needs
+to know the full distributional information. The recent work by Zhang et al. (2016) considers
+an offline algorithm to solve a bin packing with chance constraints when knowing only the first
+two moments of the uncertainty. The authors show that the problem can be reformulated as a- second-order cone program, and derive extended polymatroid inequalities to strengthen the
+formulation. In addition, they demonstrate computationally that the branch-and-cut algorithm
+with extended polymatroid inequalities scales very well as the problem size grows. However, no
+theoretical guarantee on the worst-case performance is provided.
+
+The motivation behind this paper is similar to the overbooking policy for airline companies and
+hotels. It is very common for airlines to overbook and accept additional reservations for seats on a
+flight beyond the aircraft’ seating capacity.’ Airline companies (and hotels) employ an overbooking
+strategy for several reasons, including: () no-shows (several passengers are not showing up to their
+flight, and the airline can predict the no-show rate for each itinerary); (ii) increasing the profit
+by reducing lost opportunities; and (iii) segmenting passengers (charging a higher price as we get
+closer to the flight). Note that in the context of this paper, the same motivation of no-shows
+applies. However, the inter-temporal price discrimination is beyond the scope of our model. Several
+academic papers in operations research have studied the overbooking problem within the last forty
+years (see, .., Rothstein 1985, Weatherford and Bodily Subramanian et al.
+Karaesmen and Van Ryzin). The methodology is often based on solving a dynamic program
+incorporating some prediction of the no-show rate. In our problem, we face a large-scale bin packing
+problem that needs to be solved online. Rather than deciding how many passengers (jobs) to accept
+and at what price, cloud providers today usually aim to avoid declining any reasonable workloads
+
+at a fixed list price.”
+
+' http: //www-forbes.-tickets-flights-lifestyle-travel-airlines-overbooked.html
+
+?The “spot instances” provided by Amazon and other heavily discounted reduced-availability services are notable
+exceptions.
+
+
+This paper is also related to the robust optimization literature, and especially to distributionally
+robust optimization. In this context, the goal is to solve an optimization problem where the input
+parameter distribution belongs to a family of distributions that share some properties (.., all the
+distributions with the same mean and covariance matrix) and consider the worst-case within the
+given family (concrete examples are presented in Section). Examples of such works include:
+Ghaoui et al. (2003), Bertsimas and Popescu (2005), Calafiore and El Ghaoui (2006) and Delage
+and Ye (2010). These works aim to convert linear or convex (continuous) optimization problems
+with a chance constraint into tractable formulations. Our paper shares a similar motivation but
+considers a problem with integer variables. To the best of our knowledge, this paper is the first
+to develop efficient algorithms with constant approximation guarantees for the online bin packing
+problem with capacity chance constraints.
+
+Large-scale cluster management in general is an important area of computer systems research.
+Verma et al. (2015) provide a full, modern example of a production system. Among the work
+on scheduling jobs, Sindelar et al. (2011) propose a model that also has a certain submodular
+structure due to the potential for sharing memory pages between virtual machines (in contrast
+to the risk-pooling effect modeled in this paper). Much experimental works seek to evaluate the
+real-world performance of bin packing heuristics that also account for factors such as adverse
+interactions between jobs scheduled together, and the presence of multiple contended resources
+(see for example Rina Panigrahy Alan Roytman). While modeling these aspects is
+likely to complement the resource savings achieved with the stochastic model we propose, these
+papers capture fundamentally different efficiency gains arising from technological improvements
+and idiosyncratic properties of certain types (or combinations) of resources. In this paper, we limit
+our attention to the benefit and practicality of machine over-commitment in the case where a single
+key resource is in short supply. This applies directly to multi-resource settings if, for example, the
+relatively high cost of one resource makes over-provisioning the others worthwhile, or if there is
+simply an imbalance between the relative supply and demand for the various resources making one
+of the resources scarce.
+
+Structure of the paper. In Section we present our model and assumptions. Then, we
+present the results and insights for special cases in Section In Section we consider the general
+case and develop a class of efficient approximation algorithms that guarantee a constant factor
+from optimal. In Section we exploit the structure of the problem in order to obtain a nearly
+optimal assignment and to draw practical insights. In Sectionsand we present extensions and
+computational experiments using realistic data respectively. Finally, our conclusions are reported
+
+in Section Most of the proofs of the technical results are relegated to the Appendix.
+
+ Model
+
+In this section, we present the model and assumptions we impose. We start by formulating the
+problem we want to solve, and then propose an alternative formulation. As we previously discussed,
+job requests for cloud services (or any other resource allocation problem) come with a requested
+capacity. This can be the memory or CPU requirements for virtual machines in the context of
+cloud computing, or job duration in more traditional scheduling problems where jobs are processed
+sequentially.? We refer to A; as the size of job  and assume that A; is a random variable. Historical
+data can provide insight into the distribution of A;. For simplicity, we first consider the offline
+version of the problem where all the jobs arrive simultaneously at time and our goal is to pack
+the jobs onto the minimum possible number of machines. Jobs cannot be delayed or preempted.
+The methods we develop in this paper can be applied in the more interesting online version of
+the problem, as we discuss in Section We denote the capacity of machine  by ;. Motivated by
+practical problems, and in accordance with prior work, we assume that all the machines have the
+same capacity, .., Vj =; V2. In addition, each machine costs ;=, and our goal is to maximize
+the total profit (or equivalently, minimize the number of machines), while scheduling all the jobs
+and satisfying the capacity constraints. Note that we consider a single dimensional problem, where
+each job has one capacity requirement (.., the number of virtual CPU cores or the amount of
+memory). Although cloud virtual machine packing may be modeled as a low-dimensional vector
+bin packing problem (Rina Panigrahy), one resource is often effectively binding and/or more
+
+critical so that focusing on it offers a much larger opportunity for overcommitment.*
+Bin packing problem
+
+For the case where A; is deterministic, we obtain the classical deterministic bin packing problem:Although there is also a job duration in cloud computing, it is generally unbounded and hence, even less constrained
+than the resource usage from the customer’ perspective. The duration is also less important than the resource usage,
+since most virtual machines tend to be long-lived, cannot be delayed or pre-empted, and are paid for by the minute.
+In contrast, over-allocating unused, already paid-for resources can have a large impact on efficiency.
+
+“Insofar as many vector bin packing heuristics are actually straightforward generalizations of the FF, NF and BF
+rules, it will become obvious how our proposed algorithm could similarly be adapted to the multi-resource setting in
+Section although we do not pursue this idea in this paper.
+
+
+For the offline version, we have a total of  jobs and we need to decide which machines to
+use/purchase (captured by the decision variable ; that is equal to if machine  is purchased
+andotherwise). The solution is a -partition of the set {,,...,} that satisfies the capacity
+constraints. The decision variable ;; equals one if jobis assigned to machine  and zero otherwise.
+As we discussed in Section, there is an extensive literature on the DBP problem and its many
+variations covering both exact algorithms as well and approximation heuristics with performance
+bounds.
+
+The problem faced by a cloud provider is typically online in nature since jobs arrive and depart
+over time. Unfortunately, it is not possible to continually re-solve the DBP problem as the data is
+updated for both practical and computational reasons. Keeping with the majority of prior work,
+we start by basing our algorithms on static, single-period optimization formulations like the DBP
+problem, rather than explicitly modeling arrivals and departures. The next section explains how,
+unlike prior work, our single-period optimization model efficiently captures the uncertainty faced
+by a cloud provider. We will consider both the online and offline versions of our model.
+
+We remark that, while our online analysis considers sequentially arriving jobs, none of our results
+explicitly consider departing jobs. This is in line with the bin packing literature, where results
+typically apply to very general arrival processes {A;}, but it is usually assumed that packed items
+remain in their assigned bins. In practice, a large cloud provider is likely to be interested in a
+steady-state where the distribution of jobs is stable over time (or at least predictable), even if
+individual jobs come and go. Whereas the online model with arrivals correctly reflects the fact
+that the scheduler cannot optimize to account for unseen future arrivals, it is unclear if and how
+additionally modeling departures would affect a system where the overall distribution of jobs
+remains the same over time. Note that several works considers bin packing with item departures
+(see, .., Stolyar and Zhong (2015) and the references therein). In this work, the authors design
+a simple greedy algorithm for general packing constraints and show that it can be asymptotically
+
+optimal.
+Chance constraints
+
+The DBP problem suffers from the unrealistic assumption that the jobs’ sizes A; are deterministic. In reality, jobs’ requirements (or durations) can be highly unpredictable and quite volatile,
+especially from the perspective of a cloud provider with no control over the software executed in
+a virtual machine. Ensuring that the capacity constraints are satisfied for any realization of A,
+generally yields a conservative outcome. For example, if the jobs’ true requirements are Bernoulli
+random variables taking on either or with equal probability, one needs to plan as if each
+
+job consumes a capacity of. By overcommitting resources, the provider can reduce the cost
+
+
+significantly. Caution is required however, since overcommitting can be very expensive if not done
+properly. Planning according to the expected value (in the previous simple example, .65), for
+instance, would result in capacity being too tight on many machines. Specifically, for large machines,
+the realized requirements could exceed capacity up to half of the time. Depending on the specific
+resource and the degree of violation, such performance could be catastrophic for a cloud service
+provider. Concretely, sustained CPU contention among virtual machines would materially affect
+customers’ performance metrics, whereas a shortage of available memory could require temporarily
+“swapping” some data to a slower storage medium with usually devastating consequences on performance. Other mitigations are possible, including migrating a running virtual machine to another
+host, but these also incur computational overhead for the provider and performance degradation for
+the customer. In the extreme case where overly optimistic scheduling results in inadequate capacity
+planning, there is even a stock-out risk where it is no longer possible to schedule all customers’ jobs
+within a data center. With this motivation in mind, our goal is to propose a formulation that finds
+the right overcommitment policy. We will show that by slightly overcommitting (defined formally
+in Section), one can reduce the costs significantly while satisfying the capacity constraints with
+high probability.
+
+While not strictly required by our approach, in practice, there is often an upper bound on Aj,
+denoted by A;. In the context of cloud computing, A; is the requested capacity that a virtual
+machine is not allowed to exceed (32 CPU cores, orGB of memory, say). However, the job
+may end up using much less, at least for some time. If the cloud provider schedules all the jobs
+according to their respective upper bounds A;, then there is no overcommitment. If the cloud
+provider schedules all the jobs according to some sizes smaller than the A;, then some of the
+machines may be overcommitted.
+
+We propose to solve a bin packing problem with capacity chance constraints. Chance constraints
+are widely used in optimization problems, starting with Charnes and Cooper (1963) for linear
+programs, and more recently in convex optimization (Nemirovski and Shapiro) and in finance
+
+(see, .., Abdelaziz et al.). In this case, the capacity constraints are replaced by:
+
+where @ represents the confidence level of satisfying the constraint (a =, say) and is exogenously set by the cloud provider depending on considerations such as typical job’ running time
+and contractual agreements. Note that when a= this corresponds to the setting with no overcommitment, or in other words, to the worst-case solution that covers all possible realizations of
+all the A,;’. One of our goals is to study the trade-off between the probability of violating physical
+
+capacity and the cost reduction resulting from a given value of a.
+
+
+The problem becomes the bin packing with chance constraints, parameterized by a:
+One can define the overcommitment level as follows. Consider two possible (equivalent) benchmarks. First, one can solve the problem for a = and obtain a solution (by directly solving the
+IP or any other heuristic method) with objective (). Then, we solve the problem for the desired
+value a < The overcommitment benefit can be defined as< (a)/() < It is also interesting
+to compare the two different jobs assignments.
+The second definition goes as follows. We define the overcommitment factor as the amount of
+
+sellable capacity divided by the physical capacity of machines in the data center, that is:
+Note that OCF() is (generally strictly) less than one, as the bin packing overhead prevents the
+For illustration purposes, consider the following simple example with  =-core jobs. The jobs
+are independent and Bernoulli distributed with probability. In particular, the jobs are either
+high usage (.., fully utilize thecore), or low usage (in this case, idle). Each machine has a
+capacity  =cores. Without overcommitting, we needmachines, .., () = What happens
+if we schedule all the jobs in a single machine? In this case, one can reduce the cost (number of
+machines) by half, while satisfying the capacity constraint with probability. In other words,
+Technical note: other production overheads such as safety stocks for various types of outages and management
+overheads, are generally also included in the denominator. For the purpose of this paper, we omit such factors.
+
+
+(.99) = The overcommitment benefit in this simple example is clear. Our goal is to formalize
+a systematic way to overcommit in more complicated and realistic settings.
+
+Note that overcommitment may lead to Service Level Agreement (SLA) violations. This paper
+does not discuss in detail the SLAs (with some possible associated metrics), and the corresponding
+estimation/forecast procedures as they are usually application and resource specific. Instead, this
+research treats a general Virtual Machine (VM) scheduling problem. More precisely, our context
+is that of a cloud computing provider with limited visibility into the mix of customer workloads,
+and hard SLAs. While the provider does track numerous service-level indicators, they are typically
+monotonic in the resource usage on average (we expect more work to translate to worse performance). Therefore, we believe that it is reasonable to rely on resource utilization as the sole metric
+
+in the optimization problem.
+A variant of submodular bin packing
+In this section, we propose an alternative formulation that is closely related to the (BPCC) problem.
+Under some mild assumptions, we show that the latter is either exactly or approximately equivalent
+to the following submodular bin packing problem:
+
+
+The difference between the (BPCC) and the (SMBP) problems is the way the capacity constraints
+are written. Here, we have replaced each chance constraint with a linear term plus a square root
+term. These constraints are submodular with respect to the vector . The variable ; denotes the
+expected value of A;. The capacity constraint for each machine  in the (SMBP), Fen [jLig +
+(a) ey bj; vi; < Vy, is submodular,® as shown in AtamtiiRk and Narayanan (2008). In what
+follows, we will consider different definitions of ; and (a) in three different settings. The first
+two are concrete motivational examples, whereas the third one is a generalization. In each case, we
+
+formally show the relation between the (BPCC) and the (SMBP) problems.
+
+® A submodular function is a set function for which the difference in the incremental value made by adding a single
+element to an input set decreases as the size of the input set increases. Formally, a function  :° + is submodular
+if for every , CQ, with  CY and every  €\, we have (  {}) — () > (  {}) - ().
+
+ Gaussian case: Assume that the random variables A; are Gaussian and independent. In this
+case, the random variable= ae Aj;,;; for any given binary vector  is Gaussian, and therefore,
+one can use the following simplification:
+
+where ®~'(-) is the inverse CDF of a normal (,), ; =[A,] and o7 = Var(A;). Note that we
+have used the fact that  is binary so that x7, = ,;. Consequently, the (BPCC) and the (SMBP)
+problems are equivalent with the values ; =and (a) =®~'(a).
+
+When the random variables A; are independent but not normally distributed, if there are a
+large number of jobs per machine, one can apply the Central Limit Theorem and obtain a similar
+approximate argument. In fact, using a result from Calafiore and El Ghaoui (2006), one can extend
+this equivalence to any radial distribution.’
+ Hoeffding’ inequality: Assume that the random variables A; are independent with a finite
+support [A;, Aj], <A;< A; with mean ;. As we discussed, one can often know the value of A;
+and use historical data to estimate; and A, (we discuss this in more detail in Section). Assume
+that the mean usages fit on each machine, .., a Lizlt; < yiV;. Then, Hoeffding’ inequality
+states that:
+” Radial distributions include all probability densities whose level sets are ellipsoids. The formal mathematical definition can be found in Calafiore and El Ghaoui (2006).
+
+
+where in this case, (a) = ,/—.5In( — a). Note that in this setting the (BPCC) and the (SMBP)
+problems are not equivalent. We only have that any solution of the latter is a feasible solution for
+the former. We will demonstrate in Sectionthat despite being very conservative, this formulation
+based on Hoeffding’ inequality actually yields good practical solutions.
+
+The next case is a generalization of the last two.
+ Distributionally robust formulations: Assume that the random variables A,; are independent with some unknown distribution. We only know that this distribution belongs to a family
+of probability distributions . We consider two commonly used examples of such families. First,
+we consider the family , of distributions with a given mean and (diagonal) covariance matrix,
+ and &, respectively. Second, we look at D2, the family of generic distributions of independent
+random variables over bounded intervals [A,, Aj].
+
+In this setting, the chance constraint is assumed to be enforced robustly with respect to the
+
+entire family  of probability distributions on A = (Aj, Ao,..., An), meaning that:
+
+
+In this context, we have the following result.
+
+PROPOSITION Consider the robust bin packing problem with the capacity chance constraints
+() for each machine . Then, for any a € (,), we have:
+
+ For the family , of distributions with a given mean and diagonal covariance matrix, the
+robust problem is equivalent to the (SMBP) with bj =? and ,(a) = \/a/(—a).
+
+ For the family Dz of generic distributions of independent random variables over bounded inter
+vals, the robust problem can be approximated by the (SMBP) with ; = (A; —A,)? and D2(a) =/ —.5In( — a).
+
+The details of the proof are omitted for conciseness. In particular, the proof for , is analogous to
+an existing result in continuous optimization that converts linear programs with a chance constraint
+into a linear program with a convex second-order cone constraint (see Calafiore and El Ghaoui Ghaoui et al.). The proof for D2 follows directly from the fact that Hoeffding’ inequality
+applies for all such distributions, and thus for the infimum of the probability.
+
+We have shown that the (SMBP) problem is a good approximation for the bin packing problem
+with chance constraints. For the case of independent random variables with a given mean and
+covariance, the approximation is exact and for the case of distributions over independent bounded
+
+intervals, the approximation yields a feasible solution. We investigate practical settings in Section
+
+ and show that these approximate formulations all yield good solutions to the original problem.
+
+From now on, we consider solving the (SMBP) problem, that is repeated here for convenience:
+As discussed, the capacity constraint is now replaced by the following equation, called the modified
+
+capacity constraint:
+
+One can interpret equation () as follows. Each machine has a capacity . Each job j7 consumes
+capacity yz; in expectation, as well as an additional buffer to account for the uncertainty. This
+buffer depends on two factors: () the variability of the job, captured by the parameter ;; and (ii)
+the acceptable level of risk through (a). The function (a) is increasing in a, and therefore we
+impose a stricter constraint as @ approachesby requiring this extra buffer to be larger.
+Equation () can also be interpreted as a risk measure applied by the scheduler. For each machine
+, the total (random) load is wy Aj;;;. If we consider that; represents the expectation and ,;
+corresponds to the variance, then jot fje,; and  ojo ;,; correspond to the expectation and
+the standard deviation of the total load on machinerespectively. As a result, the right hand side of
+equation () can be interpreted as an adjusted risk utility, where (a) is the degree of risk aversion
+of the scheduler. The additional amount allocated for jobcan be interpreted as a safety buffer to
+account for the uncertainty and for the risk that the provider is willing to bear. As we discussed,
+this extra buffer decreases with the number of jobs assigned to the same machine. In Section we
+
+develop efficient methods to solve the (SMBP) with analytical performance guarantees.
+Two naive approaches
+
+In this section, we explore the limitations of two approaches that come to mind. The first attempt
+is to rewrite the problem as a linear integer program: the decision variables are all binary and the
+non-linearity in (SMBP) can actually be captured by common modeling techniques, as detailed
+in Appendix A. Unfortunately, solving this IP is not a viable option. Similarly as for the classical
+
+deterministic bin packing problem, solving even moderately large instances with commercial solvers
+
+
+takes several hours. Moreover, applying the approach to smaller, specific toy instances provides
+little insight about the assignment policy, and how the value of a affects the solution. Since our
+goal is to develop practical strategies for the online problem, we chose not to further pursue exact
+solutions.
+
+The second potential approach is to develop an algorithm for a more general problem: the
+bin packing with general monotone submodular capacity constraints. Unfortunately, using some
+machinery and results from Goemans et al. (2009) and Svitkina and Fleischer (2011), we next show
+
+that it is in fact impossible to find a solution within any reasonable factor from optimal.
+
+THEOREM Consider the bin packing problem with general monotone submodular capacity constraints for each machine. Then, there exists no polynomial time algorithm with an approximation
+VN
+
+factor better (.., smaller) than many:
+
+The proof can be found in Appendix . We will show that the (SMBP) problem that we consider
+is more tractable as it concerns only a specific class of monotone submodular capacity constraints
+that capture the structure of the chance-constrained problem. In the next session, we start by
+
+addressing simple special cases in order to draw some structural insights.
+ Results and insights for special cases
+
+In this section, we consider the (SMBP) problem for some given ;, ;,  and (a). Our goals are
+to: () develop efficient approaches to solve the problem; (ii) draw some insights on how to schedule
+the different jobs and; (iii) study the effect of the different parameters on the outcome. This will
+ultimately allows us to understand the impact of overcommitment in resource allocation problems,
+
+such as cloud computing.
+Identical distributed jobs
+
+We consider the symmetric setting where all the random variables A; have the same distribution,
+such that uw; = and ; = in the (SMBP) problem. By symmetry, we only need to find the number
+of jobs  to assign to each machine. Since all the jobs are interchangeable, our goal is to assign as
+many jobs as possible in each machine. In other words, we want to pick the largest value of  such
+
+that the constraint () is satisfied, or equivalently:
+
+
+ For a given value of a, the number of jobs (a) increases with /. Indeed, since  represents
+the expected job size, increasing the ratio / is equivalent to increasing the number of ” average”
+jobs a machine can host. If the jobs are smaller or the machines larger, one can fit more jobs per
+machine, as expected.
+
+ For a given value of /, () is a non-increasing function of a. When a increases, it means
+that we enforce the capacity constraint in a stricter manner (recall that a = corresponds to the
+case without overcommitment). As a result, the number of jobs per machine cannot increase.
+
+ For given values of a and /, () is a non-increasing function of . Recall that the parameter
+ corresponds to some measure of spread (the variance in the Gaussian setting, and the range for
+distributions with bounded support). Therefore, when  increases, it implies that the jobs’ resource
+usage is more volatile and hence, a larger buffer is needed. Consequently, the number of jobs cannot
+increase when  grows.
+
+ For given values of a and , () is non-increasing with //. The quantity Vb/ represents
+the coefficient of variation of the random job size in the Gaussian case, or a similarly normalized
+measure of dispersion in other cases. Consequently, one should be able to fit less jobs, as the
+variability increases.
+
+The simple case of identically distributed jobs allows us to understand how the different factors
+affect the number of jobs that one can assign to each machine. In Figure we plot equation ()
+for an instance with A=—, A=., =.65,  =and<a<. The large dot for a=
+in the figure represents the case without overcommitment (.., a =). Interestingly, one can see
+that when the value of a approaches the benefit of allowing a small probability of violating the
+capacity constraint is significant, so that one can increase the number of jobs per machine. In this
+case, when a@ = we can fitjobs per machine, whereas when a =, we can fitjobs,
+
+hence, an improvement of%. Note that this analysis guarantees that the capacity constraint is
+
+ 
+
+
+satisfied with at least probability a. As we will show in Sectionfor many instances, the capacity
+constraint is satisfied with an even higher probability.
+
+Alternatively, one can plot a as a function of  (see Figurea for an example with different
+values for /). As expected, the benefit of overcommitting increases with /, .., one can fit a
+larger number of jobs per machine. In our example, when , by scheduling jobs according
+to A (ie., a =, no overcommitment), we can schedulejobs, whereas if we allow a%
+violation probability, we can schedulejobs. Consequently, by allowing% chance of violating
+
+the capacity constraint, one can save more than% in costs.
+
+FigureExample for identically distributed jobs
+
+We next discuss how to solve the problem for the case with a small number of different classes
+of job distributions.
+Small number of job distributions
+We now consider the case where the random variables A; can be clustered in few different categories.
+For example, suppose standard clustering algorithms are applied to historical data to treat similar
+jobs as a single class with some distribution of usage. For example, one can have a setting with
+four types of jobs: () large jobs with no variability (uw; is large and ; is zero); (ii) small jobs with
+no variability (; is small and ; is zero); (ii) large jobs with high variability (both yw; and ; are
+large); and (iv) small jobs with high variability (; is small and , is high). In other words, we
+have  jobs and they all are from one of thetypes, with given values of; and ;. The result for
+this setting is summarized in the following Observation (the details can be found in Appendix ).
+OBSERVATION In the case where the number of different job classes is not too large, one can
+solve the problem efficiently as a cutting stock problem.
+The resulting cutting stock problem (see formulation (13) in Appendix ) is well studied in many
+
+contexts (see Gilmore and Gomory (1961) for a classical approach based on linear programming,
+
+
+or the recent survey of Delorme et al. (2016)). For example, one can solve the LP relaxation of
+(13) and round the fractional solution. This approach can be very useful for cases where the cloud
+provider have enough historical data, and when the jobs can all be regrouped into a small number
+of different clusters. This situation is sometimes realistic but not always. Very often, grouping all
+possible customer job profiles into a small number of classes, each described by a single distribution
+is likely unrealistic in many contexts. For example, virtual machines are typically sold with , ,
+, 16, 32 orCPU cores, each with various memory configurations, to a variety of customers with
+disparate use-cases. Aggregating across these jobs is already dubious, before considering differences
+in their usage means and variability. Unfortunately, if one decides to use a large number of job
+classes, solving a cutting stock problem is not scalable. In addition, this approach requires advance
+knowledge of the number of jobs of each class and hence, cannot be applied to the online version
+
+of our problem.
+ Online constant competitive algorithms
+In this section, we analyze the performance of a large class of algorithms for the online version of
+problem (SMBP). We note that the same guarantees hold for the offline case, as it is just a simpler
+
+version of the problem. We then present a refined result for the offline problem in Section.
+Lazy algorithms are §-competitive
+An algorithm is called lazy, if it does not purchase/use a new machine unless necessary. The formal
+definition is as follows.
+
+DEFINITION We call an online algorithm lazy if upon arrival of a new job, it assigns the job
+to one of the existing (already purchased) machines given the capacity constraints are not violated.
+In other words, the algorithm purchases a new machine if and only if non of the existing machines
+can accomodate the newly arrived job.
+
+Several commonly used algorithms fall into this category, .., First-Fit, Best-Fit, greedy type
+etc. Let OPT be the optimal objective, .., the minimum number of machines needed to serve all
+the jobs {,,---,}. Recall that in our problem, each job<  < , has two characteristics: py;
+and ; which represent the mean and the uncertain part of job  respectively. For a set of jobs ,
+we define the corresponding cost Cost() to bejeg  ;c590;- Without loss of generality,
+we can assume (by normalization of all; and ;) that the capacity of each machine isand that
+(a) is also normalized to We call a set  feasible, if its cost is at most the capacity limit In
+
+the following Theorem, we show that any lazy algorithm yields a constant approximation for the
+(SBBP) problem.
+
+THEOREM Any lazy algorithm ALG purchases at mostPT machines, where OPT is the
+
+optimum number of machines to serve all jobs.
+
+
+The proof can be found in Appendix . Theoremderives an approximation guarantee of/
+for any lazy algorithm. In many practical settings, one can further exploit the structure of the set
+of jobs, and design algorithms that achieve better approximation factors. For example, if some jobs
+are usually larger relative to others, one can incorporate this knowledge into the algorithm. We
+next describe the main intuitions behind the/ upper bound. In the proof of Theorem we have
+used the following two main proof techniques:
+
+ First, we show a direct connection between the feasibility of a set  and the sum ),..(;+0y,).
+In particular, we prove that ),-¢(; + ;) < for any feasible set, and greater than/ for any
+infeasible set. Consequently, OPT’ cannot be less than the sum of; +; for all jobs. The gap of
+.
+
+ Second, we show that the union of jobs assigned to any pair of machines by the lazy algorithm
+is an infeasible set, so that their sum of; +; should exceed/. One can then find / disjoint
+pairs of machines, and obtain a lower bound of/ for the sum yw; +; for each pair. The fact
+that we achieve this lower bound for every pair of machines (and not for each machine) contributes
+another factor ofto the approximation factor, resulting to $ =
+
+Note that the second loss of a factor offollows from the fact that the union of any two machines
+forms an infeasible set and nothing stronger. In particular, all machines could potentially have a
+cost of/+€ for a very small «, and make the above analysis tight. Nevertheless, if we assume
+
+that each machine is nearly full (.., has Cost close to), one can refine the approximation factor.
+
+THEOREM For any0<<, if the lazy algorithm ALG assigns all the jobs tom machines
+such that Cost(;) >— for every<<, we have < ($+)OPT, .., a (¢+3e) approzi
+mation guarantee.
+
+Proof. To simplify the analysis, we denoteto be—€. For a set ;, we define  = » es, Hi
+and = Dae , 25 Since Cost(;) is at least we have + >. Assuming  < we have:
+where the first equality is by the definition of  and , the first inequality holds by + > and
+the rest are algebraic manipulations. For  > £, we also have ie Ss; (;+;)>a>>—. We
+conclude that pa (Hy +;) >- ( —€). We also know that OPT > Sp (Hy +;), which implies
+
+
+ 
+
+A particular setting where the condition of Theoremholds is when the capacity of each machine
+is large compared to all jobs, .., maxi<< ; is at most . In this case, for each machine
+ # (except the last purchased machine), we know that there exists a job  € ,, (assigned to the
+
+last purchased machine ) such that the algorithm could not assign  to machine . This means
+
+
+
+REMARK As elaborated above, there are two main sources for losses in the approximation
+factors: non-linearity of the cost function that can contribute up to/, and machines being only
+partially full that can cause an extra factor ofwhich in total implies the/ approximation
+guarantee. In the classical bin packing case (.., ; = for all), the cost function is linear, and
+the non-linearity losses in approximation factors fade. Consequently, we obtain that () Theoremreduces to aapproximation factor; and (ii) Theoremreduces to a (+) approximation
+factor, which are both consistent with known results from the literature on the classical bin packing
+problem.
+
+Theoremimproves the bound for the case where each machine is almost full. However, in
+practice machines are often not full. In the next section, we derive a bound as a function of the
+
+minimum number of jobs assigned to the machines.
+Algorithm First-Fit is $-competitive
+
+So far, we considered the general class of lazy algorithms. One popular algorithm in this class
+(both in the literature and in practice) is FIRST-F1T. By exploring the structural properties of
+allocations made by FIRST-FIT, we can provide a better competitive ratio of $ < . Recall that
+upon the arrival of a new job, FIRST-FIT purchases a new machine if the job does not fit in any of
+the existing machines. Otherwise, it assigns the job to the first machine (based on a fixed ordering
+such as machine IDs) that it fits in. This algorithm is simple to implement, and very well studied
+in the context of the classical bin packing problem. First, we present an extension of Theorem
+for the case where each machine has at least  jobs.
+
+COROLLARY If the FIRST-FIT algorithm assigns jobs such that each machine receives at least
+ jobs, the number of purchased machines does not exceed ( + ~)OPT, where OPT is the
+
+optimum number of machines to serve all jobs.
+
+One can prove Corollaryin a similar fashion as the proof of Theoremand using the fact that
+jobs are assigned using FIRST-FIT (the details are omitted for conciseness). For example, when
+ = (resp.  =), we obtain a(resp.) approximation. We next refine the approximation
+
+factor for the problem by using the FirsT-FIT algorithm.
+
+THEOREM The number of purchased machines by Algorithm F1IRST-FIT for any arrival order
+of jobs is not more thanPT +.
+
+The proof can be found in Appendix . We note that the approximation guarantees we developed
+in this section do not depend on the factor (a), and on the specific definition of the parameters
+pt; and;. In addition, as we show computationally in Section the performance of this class of
+
+algorithm is not significantly affected by the factor (a).
+
+ Insights on job scheduling
+In this section, we show that guaranteeing the following two guidelines in any allocation algorithm
+yields optimal solutions:
+
+ Filling up each machine completely such that no other job fits in it, .., making each machine’
+Cost equal to
+
+ Each machine contains a set of similar jobs (defined formally next).
+
+We formalize these properties in more detail, and show how one can achieve optimality by
+satisfying these two conditions. We call a machine full if- Hj +/>-¢; is equal to(recall
+that the machine capacity is normalized towithout loss of generality), where  is the set of jobs
+assigned to the machine. Note that it is not possible to assign any additional job (no matter how
+small the job is) to a full machine. Similarly, we call a machine €-full, if the the cost is at least—,
+Le., jes [yj + [dyes ; >—. We define two jobs to be similar, if they have the same /, ratio.
+Note that the two jobs can have different values of yu and . We say that a machine is homogeneous,
+if it only contains similar jobs. In other words, if the ratio ;/; is the same for all the jobsassigned to this machine. By convention, we define ;/; to be +oo when ; =. In addition, we
+introduce the relaxed version of this property: we say that two jobs are-similar, if their / ratios
+
+differ by at most a multiplicative factor of+ A machine is called-homogeneous, if it only
+
+b5/uj
+
+is at most
+
+
+contains-similar jobs (.., for any pair of jobs  and ’ in the same machine
+THEOREM For any «> and> consider an assignment of all jobs to some machines
+with two properties: a) each machine is €-full, and ) each machine is-homogeneous. Then, the
+
+number of purchased machines in this allocation is at most anor = °
+
+The proof can be found in Appendix .
+
+In this section, we proposed an easy-to-follow recipe in order to schedule jobs to machines. Each
+arriving job is characterized by two parameters yu; and ;. Upon arrival of a new job, the cloud
+provider can compute the ratio ; =;/;. Then, one can decide of a few buckets for the different
+values of ;, depending on historical data, and performance restrictions. Finally, the cloud provider
+will assign jobs with similar ratios to the same machines and tries to fill in machines as much as
+possible. If one manages to make all the machines -full, while packing similar jobs in each machine
+(..,  homogeneous), the result of Theoremprovides evidence that such a strategy will yield a
+
+good performance in terms of minimizing the number of purchased machines.
+ Extensions
+
+In this section, we present two extensions of the problem we considered in this paper.
+
+Offline-approximation algorithm
+
+Consider the offline version of the (SMBP) problem. In this case, all the  jobs already arrived,
+and one has to find a feasible schedule so as to minimize the number of machines. We propose
+the algorithm LOCAL-SEARCH that iteratively reduces the number of purchased machines, and
+also uses ideas inspired from FIRST-FIT in order to achieve a-approximation for the offline
+problem. Algorithm LOCAL-SEARCH starts by assigning all the jobs to machines arbitrarily, and
+then iteratively refines this assignment. Suppose that each machine has a unique identifier number.
+We next introduce some notation before presenting the update operations. Let a be the number of
+machines with only one job, A; be the set of these a machines, and , be the set of jobs assigned to
+these machines. Note that this set changes throughout the algorithm with the update operations.
+We say that a job  ¢ , is good, if it fits in at leastof the machines in the set A,.° In addition,
+we say that a machine is large, if it contains at leastjobs, and we denote the set of large machines
+by As. We say that a machine is medium size, if it contains , orjobs, and we denote the set
+of medium machines by Ao. We call a medium size machine critical, if it contains one job that
+fits in none of the machines in A, and the rest of the jobs in this machine are all good. Next, we
+present the update operations that LOCAL-SEARCH performs until no such operation is available.
+
+ Find a job  in machine  ( is the machine identifier number) and assign it to some other
+machine ’ < if feasible (the outcome will be similar to FirsT-FIT).
+
+ Find a medium size machine  that contains only good jobs. Let--- ,je (<£<) be the
+jobs in machine Assign to one of the machines in A, that it fits in. Since is a good job,
+there are at leastdifferent options, and the algorithm picks one of them arbitrarily. Assign j2 to
+a different machine in A, that it fits in. There should be at leastways to do so. We continue
+this process until all the jobs in machine  (there are at mostof them) are assigned to distinct
+machines in A,, and they all fit in their new machines. This way, we release machineand reduce
+the number of machines by one.
+
+ Find a medium size machine  that contains one jobthat fits in at least one machine in Aj,
+and the rest of the jobs inare all good. First, assignto one machine in A, that it fits in. Similar
+to the previous case, we assign the rest of the jobs (that are all good) to different machines in A.
+This way, we release machine  and reduce the number of purchased machines by one.
+
+ Find two critical machines; and tg. Let and jo be the only jobs in these two machines
+that fit in no machine in A,. If both jobs fit and form a feasible assignment in a new machine,
+we purchase a new machine and assign and jz to it. Otherwise, we do not change anything and
+ignore this update step. There are at: mostx= other jobs in these two machines since both are
+’ The reason we needjobs is technical, and will be used in the proof of Theorem In particular, one of the update
+operations does not hold if this number is smaller than as we will explain below.
+
+
+medium machines. In addition, the rest of the jobs are all good. Therefore, similar to the previous
+two cases, we can assign these jobs todistinct machines in A, that they fit in. Note that any
+number less thanin the definition of good jobs will not suffice for this part of the algorithm to
+hold. This way, we release machines and i2 and purchase a new machine. So in total, we reduce
+the number of purchased machines by one.
+
+Before presenting the performance result of LOCAL-SEARCH, we first motivate our choice in
+terms of splitting the machines according to their sizes, into small machines, medium machines
+and large machines. According to our proof (see Appendix ), if there are only small machines,
+the LOCAL-SEARCH algorithm is optimal. Indeed, it becomes clear that the first iteration of the
+LOCAL-SEARCH algorithm ensures that if two of the jobs fit in one machine, they will be merged.
+On the other hand, if there are no small machines, we can show that the algorithm yields aapproximation using the same argument as we used in the paper (see Corollary when  =).
+Consequently, we remain with the case where we have a mixture of small and non-small machines. In
+this case, the argument presented in our proof yields a guarantee which is worse than Therefore,
+we need to find a way to compensate for this gap, and improve the total approximation guarantee
+to This is the main motivation of introducing medium and large machines. By using our proof
+technique, if we only have large machines, one can show an approximation factor of/, which
+is indeed strictly better than We then exploit this improvement with respect toin order to
+compensate for the deficit we have obtained from the mixed cases of small, medium and large
+machines.
+
+We are now ready to analyze this LOCAL-SEARCH algorithm that also borrows ideas from
+FirST-F1T. We next show that the number of purchased machines is at mostPT + (), ie., a
+-approximation.
+
+THEOREM Algorithm LOCAL-SEARCH terminates after at most ? operations (where  is
+
+the number of jobs), and purchases at mostPT +machines.
+
+The proof can be found in Appendix .
+
+We conclude this section by comparing our results to the classical (deterministic) bin packing
+problem. In the classical bin packing problem, there are folklore polynomial time approximation
+schemes (see Section in Albers and Souza) that achieve a ( —)-approximation factor
+by proposing an offline algorithm based on clustering the jobs into/? groups, and treating them
+as equal size jobs. Using dynamic programming techniques, one can solve the simplified problem
+with/? different job sizes in time (nP°'¥"/*)). In addition to the inefficient time complexity of
+these algorithms that make them less appealing for practical purposes, one cannot generalize the
+same ideas to our setting. The main obstacle is the lack of a total ordering among the different
+jobs. In the classical bin packing problem, the jobs can be sorted based on their sizes. However,
+
+this is not true in our case since the jobs have the two dimensional requirements yu; and ;.
+
+Alternative constraints
+Recall that in the (SMBP) problem, we imposed the modified capacity constraint (). Instead, one
+
+can consider the following family of constraints, parametrized by<<
+
+Note that this equation is still monotone and submodular in the assignment vector , and captures
+some notion of risk pooling. In particular, the “safety buffer” reduces with the number of jobs
+already assigned to each machine. The motivation behind such a modified capacity constraint lies
+in the shape that one wishes to impose on the term that captures the uncertain part of the job. In
+one extreme (=), we consider that the term that captures the uncertainty is linear and hence,
+as important as the expectation term. In the other extreme case (=), we consider that the
+term that captures the uncertainty behaves as a square root term. For a large number of jobs per
+machine, this is known to be an efficient way of handling uncertainty (similar argument as the
+central limit theorem). Note also that when =, we are back to equation (), and when =we have a commonly used benchmark (see more details in Section). One can extend our analysis
+
+and derive an approximation factor for the online problem as a function of  for any lazy algorithm.
+
+COROLLARY Consider the bin packing problem with the modified capacity constraint ().
+()
+
+number of machines to serve all jobs and () is given by:
+
+Then, any lazy algorithm ALG purchases at most OPT machines, where OPT is the optimum
+
+The proof is in a very similar spirit as in Theoremand is not repeated due to space limitations.
+Intuitively, we find parametric lower and upper bounds on (jh bj xij)” in terms of wy ; X43.
+Note that when =, we recover the result of Theorem(.., a/ approximation) and as 
+increases, the approximation factor converges to In Figure we plot the approximation factor
+
+as a function of<<.
+ Computational experiments
+
+In this section, we test and validate the analytical results developed in the paper by solving
+the (SMBP) problem for different realistic cases, and investigating the impact on the number of
+machines required (.., the cost). We use realistic workload data inspired by Google Compute
+
+Engine, and show how our model and algorithms can be applied in an operational setting.
+
+
+ 
+
+Approximation Factor
+Setting and data
+
+We use simulated workloads ofjobs (virtual machines) with a realistic VM size distribution
+(see Table). Typically, the GCE workload is composed of a mix of CPU usages from virtual
+machines belonging to cloud customers. These jobs can have highly varying workloads, including
+some large ones and many smaller ones.
+Table
+
+In this context, the average utilization is typically low, but in many cases, the utilization can be
+highly variable over time. Although we decided to keep a similarl VM size distribution as observed
+in a production data center, we also fitted parametric distributions to roughly match the mean and
+the variance of the measured usage. This allows us to obtain a parametric model that we could vary
+for simulation. We consider two different cases for the actual CPU utilization as a fraction of the
+requested job size: we either assume that the number of cores used has a Bernoulli distribution, or
+a truncated Gaussian distribution. As discussed in Section, we assume that each job  has lower
+and upper utilization bounds, A, and A;. We sample A, uniformly in the range [.,.], and A;
+in the range [., .]. In addition, we uniformly sample py, and oj € [.,.] for each VM to serve
+as the parameters for the truncated Gaussian (not to be confused with its true mean and standard
+deviation, ; and ;). For the Bernoulli case, py’; =; determines the respective probabilities of the
+realization corresponding to the lower or upper bound (and the unneeded a; is ignored).
+®° The average distribution of workloads we present in Tableassumes small percentages of workloads withandcores, and larger percentages of smaller VMs. A “large” workload may consist of many VMs belonging to a single
+customer whose usages may be correlated at the time-scales we are considering, but heuristics ensure these are spread
+
+across different hosts to avoid strong correlation of co-scheduled VMs. The workload distributions we are using are
+representative for some segments of GCE. Unfortunately, we cannot provide the real data due to confidentiality.
+
+
+For each workload ofVMs generated in this manner, we solve the online version of the
+(SMBP) problem by implementing the Best-Fit heuristic, using one of the three different variants
+for the values of (a) and ;. We solve the problem for various values of a ranging from to. More precisely, when a new job arrives, we compute the modified capacity constraint
+in equation () for each already-purchased machine, and assign the job to the machine with the
+smallest available capacity that can accommodate it.!° If the job does not fit in any of the already
+purchased machines, the algorithm opens a new machine. We consider the three variations of the
+(SMBP) discussed earlier:
+
+ The Gaussian case introduced in (), with ; =and (a) = ®~‘(). This is now also
+an approximation to the chance constrained (BPCC) formulation since the true distributions are
+truncated Gaussian or Bernoulli.
+
+ The Hoeffding’ inequality approximation introduced in (), with ; = (A; —A,)? and (a) =
+/—.5In( — a) . Note hat the distributionally robust approach with the family of distributions Dp
+is equivalent to this formulation.
+
+ The distributionally robust approximation with the family of distributions ,, with ; = oF
+and ,(a@)=./a/(—a).
+Linear benchmarks
+We also implement the following four benchmarks which consist of solving the classical (DBP)
+problem with specific problem data. First we have:
+
+ No overcommitment — This is equivalent to setting a= in the (SMBP) problem, or solving
+the (DBP) problem with sizes Aj.
+Three other heuristics are obtained by replacing the square-root term in constraint () by a linear
+
+term, specifically we replace the constraint with:
+
+where the equality follows from the fact that the variables ;; are binary, so that ,/%jj = ,;, and
+hence we have: wy /; Xi; = na ,/;2i;. Equation () allows us to obtain:
+
+ The linear Gaussian heuristic that mimics the Gaussian approximation in ().
+
+ The linear Hoeffding’ heuristic that mimics the Hoeffding’ approximation in ().
+
+ The linear robust heuristic that mimics the distributionally robust approach with the family
+of distributions ,.Note that we clip the value of the constraint at the effective upper bound (do; rij), to ensure that no trivially
+
+feasible assignments are excluded. Otherwise, the Hoeffding’ inequality-based constraint may perform slightly worse
+relative to the policy without over-commitment, if it leaves too much free space on the machines.
+
+
+Notice that the linearized constraint () is clearly more restrictive for a fixed value of a by concavity
+of the square root, but we do of course vary the value of a in our experiments. We do not expect
+these benchmarks to outperform our proposed method since they do not capture the risk-pooling
+effect from scheduling jobs concurrently on the same machine. They do however still reflect different
+relative amounts of ” padding” or ”buffer” above the expected utilization of each job allocated due
+to the usage uncertainty.
+
+The motivation behind the linear benchmarks lies in the fact that the problem is reduced to the
+standard (DBP) formulation which admits efficient implementations for the classical heuristics.
+For example, the Best-Fit algorithm can run in time (NlogN) by maintaining a list of open
+machines sorted by the slack left free on each machine (see Johnson (1974) for details and lineartime approximations). In contrast, our implementation of the Best-Fit heuristic with the non-linear
+constraint () takes time (”) since we evaluate the constraint for each machine when each new
+job arrives. Practically, in cloud VM scheduling systems, this quadratic-time approach may be
+preferred anyway since it generalizes straightforwardly to more complex “scoring” functions that
+also take into account additional factors besides the remaining capacity on a machine, such as
+multiple resource dimensions, performance concerns or correlation between jobs (see, for example,
+Verma et al.). In addition, the computational cost could be mitigated by dividing the data
+center into smaller “shards”, each consisting of a fraction of the machines, and then trying to assign
+each incoming job only to the machines in one of the shard. For example, in our experiments we
+found that there was little performance advantage in considering sets of more thanjobs at
+a time. Nevertheless, our results show that even these linear benchmarks may provide substantial
+savings (relative to the no-overcommitment policy) while only requiring very minor changes to
+
+classical algorithms: instead of A;, we simply use job sizes defined by ;, ; and a.
+Results and comparisons
+We compare the seven different methods in terms of the number of purchased machines and show
+that, in most cases, our approach significantly reduces the number of machines needed.
+
+We consider two physical machine sizes:cores andcores. As expected, the larger machines
+achieve a greater benefit from modeling risk-pooling. We drawindependent workloads each
+composed ofVMs as described above. For each workload, we schedule the jobs using the BestFit algorithm and report the average number of machines needed across theworkloads. Finally,
+we compute the probability of capacity violation as follows: for each machine used to schedule each
+of the workloads, we drawutilization realizations (either from a sum of truncated Gaussian
+or a sum of Bernoulli distributions), and we count the number of realizations where the total CPU
+
+usage of the jobs scheduled on a machine exceeds capacity.
+
+
+The sample size was chosen so that our results reflect an effect that is measurable in a typical
+data center. Since our workloads require on the order ofmachines each, this corresponds to
+roughlyxx=,000 individual machine-level samples. Seen another way, we
+schedulex= jobs and collectdata points from each. Assuming a sample is
+recorded everyminutes, say, this corresponds to a few days of traffic even in a small real data
+center with less thanmachines.'! The sample turns out to yield very stable measurements,
+and defining appropriate service level indicators is application-dependent and beyond the scope of
+this paper, so we do not report confidence intervals or otherwise delve into statistical measurement
+issues. Similarly, capacity planning for smaller data centers may need to adjust measures of demand
+uncertainty to account for the different scheduling algorithms, but any conclusions are likely specific
+to the workload and data center, so we do not report on the variability across workloads.
+
+In Figure we plot the average number of machines needed as a function of the probability
+that a given constraint is violated, in the case where the data center is composed ofCPU core
+machines. Each point in the curves corresponds to a different value of the parameter a. Without
+overcommitment, we need an average of overmachines in order to serve all the jobs. By allowing
+a small chance of violation, say a% risk (or equivalently, a% satisfaction probability), we
+only needmachines for the Bernoulli usage, andmachines for the truncated Gaussian usage.
+If we allow a% chance of violation, we then only needandmachines, respectively. The
+table of Figuresummarizes the relative savings, which are roughly% and% with a%
+risk, and roughly% and% with a% risk, for the Bernoulli and truncated Gaussian usages,
+respectively. In terms of the overcommitment factor defined in Section, the reported savings
+translate directly to the fraction of the final capacity that is due to overcommitment,
+
+Figureshows that all three variations of our approach (the Gaussian, Hoeffding’, and the
+distributionally robust approximations) yield very similar results. This suggests that the results
+are robust to the method and the parameters. The same is true for the corresponding linear
+benchmarks, though they perform worse, as expected. We remark that although the final performance tradeoff is nearly identical, for a particular value of the a parameter, the achieved violation
+‘ The exact time needed to collect a comparable data set from a production system depends on the data center size
+and on the sampling rate, which should be a function of how quickly jobs enter and leave the system, and of how
+volatile their usages are. By sampling independently in our simulations, we are assuming that the measurements from
+each machine are collected relatively infrequently (to limit correlation between successive measurements), and that
+the workloads are diverse (to limit correlation between measurements from different machines). This assumption is
+increasingly realistic as the size of the data center and the length of time covered increase: in the limit, for a fixed
+
+sample size, we would record at most one measurement from each job with a finite lifetime, and it would only be
+correlated with a small fraction of its peers.
+allocating capacity to virtual machines in a data center. We modeled the problem as bin packing
+with chance constraints, where the objective is to minimize the number of purchased machines,
+while satisfying the physical capacity constraints of each machine with a very high probability.
+We first showed that this problem is closely related to an alternative formulation that we call the
+SMBP (Submodular Bin Packing) problem. Specifically, the two problems are equivalent under
+the assumption of independent Gaussian job sizes, or when the job size distribution belongs to the
+distributionally robust family with a given mean and (diagonal) covariance matrix. In addition, the
+bin packing problem with chance constraints can be approximated by the SMBP for distributions
+with bounded supports.
+
+We first showed that for the bin packing problem with general monotone submodular capacity
+constraints, it is impossible to find a solution within any reasonable factor from optimal. We then
+developed simple algorithms that achieve solutions within constant factors from optimal for the
+SMBP problem. We showed that any lazy algorithm is/ competitive, and that the First-Fit
+heuristic is/ competitive. Since the First-Fit and Best-Fit algorithms are easy to implement and
+well understood in practice, this provides an attractive option from an implementation perspective.
+Second, we proposed an algorithm for the offline version of the problem, and showed that it
+guarantees a-approximation. Then, we used our model and algorithms in order to draw several
+useful insights on how to schedule jobs to machines, and on the right way to overcommit. We
+convey that our method captures the risk pooling effect, as the “safety buffer” needed for each job
+decreases with the number of jobs already assigned to the same machine. Moreover, our approach
+translates to a transparent and meaningful recipe on how to assign jobs to machines by naturally
+clustering similar jobs in terms of statistical information. Namely, jobs with a similar ratio /
+(the uncertain term divided by the expectation) should be assigned to the same machine.
+
+Finally, we demonstrated the benefit of overcommitting and applied our approach to realistic
+workload data inspired by Google Compute Engine. We showed that our methods are () easy to
+implement; (ii) robust to the parameters; and (iii) significantly reduce the cost (.-17% depending
+
+on the setting and the size of the physical machines in the data center).
+
+Acknowledgments
+
+We would like to thank the Google Cloud Analytics team for helpful discussions and feedback. The first
+author would like to thank Google Research as this work would not have been possible without a one year
+postdoc at Google NYC during the year-2016. The authors would also like to thank Lennart Baardman,
+
+Arthur Flajolet and Balasubramanian Sivan for their valuable feedback that has helped us improve the
+
+paper.
+
+
+

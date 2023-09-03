@@ -1,0 +1,937 @@
+Design-Induced Latency Variation in Modern DRAM Chips:
+Characterization, Analysis, and Latency Reduction Mechanisms
+
+ABSTRACT
+---
+Variation has been shown to exist across the cells within a modern DRAM chip. Prior work has studied and exploited
+several forms of variation, such as manufacturing-process- or temperature-induced variation. We empirically demonstrate a
+new form of variation that exists within a real DRAM chip, induced by the design and placement of different components in
+the DRAM chip: different regions in DRAM, based on their relative distances from the peripheral structures, require different
+minimum access latencies for reliable operation. In particular, we show that in most real DRAM chips, cells closer to the
+peripheral structures can be accessed much faster than cells that are farther. We call this phenomenon design-induced variation
+in DRAM. Our goals are to ) understand design-induced variation that exists in real, state-of-the-art DRAM chips, ii) exploit
+it to develop low-cost mechanisms that can dynamically find and use the lowest latency at which to operate a DRAM chip
+reliably, and, thus, iii) improve overall system performance while ensuring reliable system operation.
+
+To this end, we first experimentally demonstrate and analyze designed-induced variation in modern DRAM devices by
+testing and characterizingDIMMs (768 DRAM chips). Our characterization identifies DRAM regions that are vulnerable to
+errors, if operated at lower latency, and finds consistency in their locations across a given DRAM chip generation, due to
+design-induced variation. Based on our extensive experimental analysis, we develop two mechanisms that reliably reduce
+DRAM latency. First, DIVA Profiling uses runtime profiling to dynamically identify the lowest DRAM latency that does not
+introduce failures. DIVA Profiling exploits design-induced variation and periodically profiles only the vulnerable regions to
+determine the lowest DRAM latency at low cost. It is the first mechanism to dynamically determine the lowest latency that
+can be used to operate DRAM reliably. DIVA Profiling reduces the latency of read/write requests by%/57.%, respectively,
+at°. Our second mechanism, DIVA Shuffling, shuffles data such that values stored in vulnerable regions are mapped to
+multiple error-correcting code (ECC) codewords. As a result, DIVA Shuffling can correct% more multi-bit errors than
+conventional ECC. Combined together, our two mechanisms reduce read/write latency by%/60.%, which translates to an
+overall system performance improvement of%/13.%/13.% (in-/-/-core systems) across a variety of workloads, while
+ensuring reliable operation.
+---
+
+INTRODUCTION
+
+In modern systems, DRAM-based main memory is significantly slower than the processor. Consequently,
+processors spend a long time waiting to access data from main memory [, 66], making the long main memory
+access latency one of the most critical bottlenecks in achieving high performance [48, 64, 67]. Unfortunately, the
+latency of DRAM has remained almost constant in the past decade [, 13, 14, 32, 46, 49, 72]. The main reason for
+this is that DRAM is optimized for cost-per-bit (.., storage density), rather than access latency. Manufacturers
+leverage technology scaling to pack more DRAM cells in the same area, thereby enabling high DRAM density, as
+opposed to improving latency.
+
+As the DRAM cell size scales to smaller technology nodes, the variation among DRAM cells increases [33].
+This variation can take several forms, such as manufacturing-process- or temperature-induced variation, and can
+widen the gap between the access latencies of the fastest and the slowest cells [12, 14, 40, 48]. DRAM vendors
+do not currently exploit this variation: instead, they use a fixed standard latency. In order to increase yield and
+reduce cost, instead of discarding chips with slow cells to improve the standard latency, vendors use a pessimistic
+standard latency that guarantees correct operation for the slowest cell in any acceptable chip.
+
+In this work, we experimentally demonstrate, analyze and take advantage of a unique, previously-unexplored
+form of variation in cell latencies in real DRAM chips. We observe that there is variation in DRAM cells’ access
+latencies based on their physical location in the DRAM chip. Some cells can be accessed faster than others
+because they happen to be closer to peripheral structures, .., sense amplifiers or wordline drivers [34, 49, 96].
+This phenomenon is unique: in contrast to other commonly-known and experimentally demonstrated forms
+of variation, such as manufacturing-process- or temperature-induced variation in DRAM cells [12, 14, 48], it is
+induced by the design and placement of different components, hence physical organization, in a real DRAM chip.
+Hence, we refer to this phenomenon as design-induced variation.'
+
+Design-induced variation occurs because different cells in DRAM have different distances between the cell and
+the peripheral logic used to access the cell, as shown in Figure The wires connecting the cells to peripheral
+logic exhibit large resistance and large capacitance [48, 49]. Consequently, cells experience different RC delays
+based on their relative distances from the peripheral logic. Cells located closer to the peripheral logic experience
+smaller delay and can be accessed faster than the cells located farther from the peripheral logic.
+Fig. Design-Induced Variation ina DRAM Chip
+
+Design-induced variation in latency is present in both vertical and horizontal directions in aD DRAM cell
+array (called a mat): ) Each vertical column of cells is connected to a sense amplifier and ii) each horizontal row of
+cells of a mat is connected to a wordline driver. Variations in the vertical and horizontal dimensions, together,
+divide the cell array into heterogeneous latency regions, where cells in some regions require larger access latencies
+
+Note that other works [49, 87, 96] observe that the access latency of a cell depends on its distance from the peripheral structures, but none
+of these works characterize or exploit this phenomenon in real DRAM chips.
+for reliable operation. This variation in latency has direct impact on the reliability of the cells. Reducing the
+
+latency uniformly across all regions in DRAM would improve performance, but can introduce failures in the
+
+inherently slower regions that require long access latencies for correct operation. We refer to these inherently
+slower regions of DRAM as design-induced vulnerable regions.
+
+Our goals are to ) experimentally demonstrate, characterize and understand design-induced variation in
+modern DRAM chips, and ii) develop new, low-cost mechanisms that leverage design-induced variation to
+dynamically find and use the lowest latency at which to operate DRAM reliably, and thus improve overall system
+performance while ensuring reliable system operation.
+
+We first identify the design-induced vulnerable regions of real DRAM chips. Doing so is not an easy task due to
+two major challenges. First, identifying design-induced vulnerable regions requires a detailed knowledge of DRAM
+internals. Modern DRAM cells are organized in a hierarchical manner, where cells are subdivided into multiple
+mats and these mats are organized as a matrix (Figure). Due to this hierarchical organization, the vulnerability
+of cells does not necessarily increase linearly with increasing row and column addresses, but depends on ) the
+location of the cell in the mat and ii) the location of the mat in the chip.
+
+Second, identifying design-induced vulnerable regions is difficult due to the current DRAM interface that does not
+expose how data corresponding to an address is mapped inside of DRAM. Even though certain regions in DRAM
+might be more vulnerable due to the design and placement of cells, internal scrambling of addresses [36] and
+remapping of rows and columns [52] scatters and distributes that region across the address space. In this work,
+we provide a detailed analysis on how to identify such vulnerable regions despite the limitations posed by the
+modern DRAM interface.
+
+To understand design-induced variation in modern DRAM chips, we build an FPGA-based DRAM testing
+infrastructure, similar to that used by prior works [12-14, 17, 24, 35-37, 40, 41, 46, 48, 52]. Our extensive
+experimental study ofreal DIMMs (768 DRAM chips) using this infrastructure shows that ) modern DRAM
+chips exhibit design-induced latency variation in both row and column directions, ii) design-induced vulnerability
+gradually increases in the row direction within a mat and this pattern repeats in every mat, and iii) some columns
+are more vulnerable than others due to the internal hierarchical design of the DRAM chip.
+
+We develop two new mechanisms that exploit design-induced variation to enable low DRAM latency at high
+reliability and low cost. First, we propose to reduce the DRAM latency at runtime, by dynamically identifying the
+lowest DRAM latency that ensures reliable operation. To this end, we develop an online DRAM testing mechanism,
+called DIVA Profiling. The key idea is to periodically test only the regions vulnerable to design-induced variation
+in order to find the minimum possible DRAM latency (for reliable operation), as these regions would exhibit
+failures earlier than others when the access latency is reduced and, therefore, would indicate the latency boundary
+where further reduction in latency would hurt reliability. DIVA Profiling achieves this with much lower overhead
+than conventional DRAM profiling mechanisms that must test all of the DRAM cells [35, 53, 68, 95]. For example,
+for aGB DDR3-1600 DIMM, DIVA Profiling takesms, while conventional profiling takesms.
+
+Second, to avoid uncorrectable failures (due to lower latency) in systems with ECC, we propose DIVA Shuffling,
+a mechanism to reduce multi-bit failures while operating at a lower latency. The key idea is to leverage the
+understanding of the error characteristics of regions vulnerable to design-induced variation in order to remap or
+shuffle data such that the failing bits get spread over multiple ECC codewords and thereby become correctable by
+ECC.
+
+We make the following contributions:
+
+ To our knowledge, this is the first work to experimentally demonstrate, characterize and analyze the phenomenon of design-induced variation that exists in real, state-of-the-art DRAM chips. Due to this phenomenon,
+when DRAM latency is reduced, we find that certain regions of DRAM are more vulnerable to failures than
+others, based on their relative distances from the peripheral logic.
+
+ We identify the regions in DRAM that are most vulnerable to design-induced variation based on the internal
+hierarchical organization of DRAM bitlines and wordline drivers. We experimentally demonstrate the existence
+of design-induced vulnerable regions in DRAM by testing and characterizingreal DIMMs (768 DRAM chips).
+
+ We develop two new mechanisms, called DIVA Profiling and DIVA Shuffling, which exploit design-induced
+variation to improve both latency and reliability of DRAM at low cost. DIVA Profiling is the first mechanism
+to dynamically determine the lowest latency at which to operate DRAM reliably: it dynamically reduces the
+latencies of read/write operations by%/57.% at°, while ensuring reliable operation. DIVA Shuffling is
+the first mechanism that takes advantage of design-induced variation to improve reliability by making ECC
+more effective: on average, it corrects% of total errors that are not correctable by conventional ECC, while
+operating at lower latency. We show that the combination of our two techniques, DIVA-DRAM, leads to a
+raw DRAM latency reduction of (read/write) and an overall system performance improvement of 13%. (-/-/-core) over a variety of workloads in our evaluated systems, while ensuring reliable
+system operation. We also show that DIVA-DRAM outperforms Adaptive-Latency DRAM (AL-DRAM) [48], a
+state-of-the-art technique that lowers DRAM latency by exploiting temperature and process variation (but not
+designed-induced variation).”
+MODERN DRAM ARCHITECTURE
+
+We first provide background on DRAM organization and operation that is useful to understand the cause,
+characteristics and implications of design-induced variation.
+DRAM Organization
+
+DRAM is organized in a hierarchical manner where each DIMM consists of multiple chips, banks, and mats,
+as shown in Figure A DRAM chip (shown in Figurea) consists of ) multiple banks and ii) peripheral logic
+that is used to transfer data to the memory channel through the IO interface. Each bank (shown in Figureb) is
+subdivided into multiple mats. In a bank, there are two global components that are used to access the mats: ) a
+row decoder that selects a row of cells across multiple mats and ii) global sense amplifiers that transfer a fraction of
+data from the row through the global bitlines, based on the column address. Figurec shows the organization
+of a mat that consists of three components: ) a- cell array in which the cells in each row are connected
+horizontally by a wordline, and the cells in each column are connected vertically by a bitline, ii) a column of
+wordline drivers that drive each wordline to appropriate voltage levels in order to activate a row during an access
+and iii) a row of local sense amplifiers that sense and latch data from the activated row.
+ DRAM Operation
+
+On a memory request (.., to read a cache line), there are two major steps involved in accessing the requested
+data. First, to access a row, the memory controller issues an ACTIVATION command along with the row address to
+select a row in a bank. On receiving this command, DRAM transfers all the data in the row to the corresponding
+local sense amplifiers. Second, in order to access a specific cache line from the activated row, the memory
+controller issues a READ command with the column address of the request. DRAM then transfers the selected
+data from the local sense amplifiers to the memory controller, over the memory channel.
+
+While this is a high-level description of the two major DRAM operations, these operations, in reality, consist
+of two levels of accesses through: ) global structures across mats within a bank (global sense amplifiers, global
+A second important benefit of DIVA-DRAM over AL-DRAM is that DIVA-DRAM is not vulnerable to changes in DRAM latency characteristics
+over time due to issues such as aging and wearout, since DIVA-DRAM determines latency dynamically based on runtime profiling of latency
+characteristics. As AL-DRAM does not determine latency dynamically and instead relies on static latency parameters, it is vulnerable to
+dynamic changes in latency characteristics, which leads to either potential reliability problems or large latency margins to prevent potential
+failures. See Section for a more detailed discussion of this.
+
+Fig. Hierarchical Organization of a DRAM System
+
+wordlines, and global bitlines) and ii) local structures within a mat (local sense amplifiers, local wordlines, and
+local bitlines).
+Figure ® When the row decoder in a bank receives a row address, it first activates the corresponding global
+wordline in the bank. @ The global wordline, in turn, activates the corresponding wordline driver in each mat
+that it is connected to. ® The wordline driver in each mat activates the corresponding local wordline connecting
+the row to the local sense amplifiers. © These local amplifiers sense and latch the entire row through the local
+bitlines in each mat across the bank. ®@ When DRAM receives the column address, a fraction of data from each
+mat is transferred from the local sense amplifiers to the global sense amplifiers, through the global bitlines. ©
+Data from the global sense amplifiers is then sent to the memory channel through the IO interfaces of the DRAM
+chip.
+
+Both DRAM row and column accesses are managed by issuing row and column access commands to DRAM.
+The minimum time between these commands is determined by internal DRAM operation considerations, such
+as how long it takes to sense data from cells in a selected wordline, how long it takes to transfer data from the
+local to the global sense amplifiers [42, 48, 49, 59]. There are four major timing parameters for managing row
+and column accesses. tRAS (tRP) is the minimum time needed to select (deselect) a row in a bank for activation.
+tRCD is the minimum time needed to access a column of a row after activating the row. tWR is the minimum time
+needed to update the data in a column of a row after activating the row. More detailed information on these
+timing parameters and DRAM operation can be found in [14, 42, 48, 49].
+DESIGN-INDUCED VARIATION
+
+In this work, we show that DRAM access latency varies based on the location of the cells in the DRAM
+hierarchy. Intuitively, transferring data from the cells near the IO interfaces (and sensing structures) incurs
+less time than transferring data from the cells farther away from the IO interfaces (and sensing structures).
+We refer to this variability in cell latency caused by the physical organization and design of DRAM as designinduced variation. Since DRAM is organized as a multi-level hierarchy (in the form of chips, banks and mats),
+design-induced variation exists at multiple levels. Design-induced variation has several specific characteristics
+that clearly distinguish it from other known types of variation observed in DRAM, .., process variation and
+temperature dependency [12, 48]:
+
+ Predetermined at design time. Design-induced variation depends on the internal DRAM design, predetermined at design time. This is unlike other types of variation, (.., process variation and temperature induced
+variation [12, 48]), which depend on the manufacturing process and operating conditions after design.
+
+ Static distribution. The distribution of design-induced variation is static, determined by the location of cells.
+For example, a cell closer to the sense amplifier is always faster than a cell farther away from the sense amplifier,
+assuming there are no other sources of variation (.., process variation). On the other hand, prior works show
+that variability due to process variation follows a random distribution [12, 48], independent of the location of
+cells.
+
+ Constant. Design-induced variation depends on the physical organization, which remains constant over
+time. Therefore, it is different from other types of variation that change over time (.., variable retention
+time [35, 39, 52, 62, 69, 74, 76, 102], wearout due to aging [29, 51, 57, 60, 78, 88, 89, 92, 97]).
+
+ Similarity in DRAMs with the same design. DRAMs that share the same internal design exhibit similar
+design-induced variation (Section). This is unlike process variation that manifests itself significantly
+differently in different DRAM chips with the same design.
+
+The goals of this work are to ) experimentally demonstrate, characterize, and understand the design-induced
+variation in real DRAM chips, especially within and across mats, and ii) leverage this variation and our understanding of it to reduce DRAM latency at low cost ina reliable way. Unfortunately, detecting the design-induced
+vulnerable regions is not trivial and depends on two factors: ) how bitline and wordline drivers are organized
+internally, ii) how data from a cell is accessed through the DRAM interface. In order to define and understand the
+design-induced variation in modern DRAM, we investigate three major research questions related to the impact
+of DRAM organization, interface, and operating conditions on design-induced variation in the following sections.
+ Impact of DRAM Organization
+
+The first question we answer is: how does the DRAM organization affect the design-induced vulnerable regions? To
+answer this, we present ) the expected characteristics of design-induced variation and ii) systematic methodologies
+to identify these characteristics in DRAM chips.
+
+Effect of Row Organization. As discussed in Section, a mat consists of aD array of DRAM cells along
+with peripheral logic needed to access this data. In the vertical direction, DRAM cells (typically, 512 cells [42, 96]),
+connected through a bitline, share a local sense amplifier. As a result, access latency gradually increases as the
+distance of a row from the local sense amplifier increases (due to the longer propagation delay through the bitline).
+This variation can be exposed by reading data from DRAM faster by using smaller values for DRAM timing
+parameters. Cells in the rows closer to the local sense amplifiers can be accessed faster in a reliable manner.
+Hence, they exhibit no failures due to shorter timing parameters. On the contrary, cells located farther away
+from the sense amplifiers take longer to access in a reliable manner, and might start failing when smaller values
+are used for the timing parameters. As a result, accessing rows in ascending order starting from the row closest
+to the sense amplifiers should exhibit a gradual increase in failures due to design-induced variation, as shown in
+Figurea. In this figure, the darker color indicates slower cells, which are more vulnerable to failures when we
+reduce the access latency.
+
+In the open-bitline scheme [30], alternate bitlines within a mat are connected to two different rows of sense
+amplifiers (at the top and at the bottom of the mat), as shown in Figureb. In this scheme, even cells and odd cells
+in a row located at the edge of the mat exhibit very different distances from their corresponding sense amplifiers,
+leading to different access latencies. On the other hand, cells in the middle of a mat have a similar distance from
+both the top and bottom sense amplifiers, exhibiting similar latencies. Due to this organization, we observe that
+there are more failures in rows located on both ends of a mat, but there is a gradual decrease in failures in rows
+in the middle of the mat.
+
+Based on these observations about row organization, we define two expected characteristics of vulnerable
+regions across the rows when we reduce DRAM latency uniformly. First, the number of failures would
+gradually increase with increased distance from the sense amplifiers.
+Fig. Design-Induced Variation Due to Row Organization
+
+failures would periodically repeat in every mat (everyrows). We experimentally demonstrate these
+characteristics in Section.
+
+Effect of Column Organization. As we discussed in Section, the wordline drivers in DRAM are organized
+in a hierarchical manner: a strong global wordline driver is connected to all mats over which a row is distributed
+and a local wordline driver activates a row within a mat. This hierarchical wordline organization leads to latency
+variation at two levels. First, a local wordline in a mat located closer to the global wordline driver starts activating
+the row earlier than that in a mat located farther away from the global wordline driver (design-induced variation
+due to the global wordline). Second, within a mat, a cell closer to the local wordline driver gets activated faster than
+a cell farther away from the local wordline driver (design-induced variation due to the local wordline). Therefore,
+columns that have the same distance from the local wordline driver, but are located in two different mats,
+have different latency characteristics (see Figure where a darker color indicates slower cells, which are more
+vulnerable to failures if/when we reduce the access latency). However, exact latency characteristics of different
+columns in different mats depend on the strength of the global versus local wordline drivers and the location of
+the respective mats and columns.
+Fig. Design-Induced Variation in Column Organization
+
+We define two expected characteristics of vulnerable regions across columns when we reduce DRAM latency uniformly. First, although some columns are clearly more vulnerable than others, the number of
+failures likely would not gradually increase with ascending column numbers. Second, the failure characteristics observed with ascending column numbers would be similar for all rows. We experimentally
+demonstrate these characteristics in Section.
+Impact of the Row/Column Interface
+
+Our second question is: how does the row/column interface affect the ability to identify the design-induced
+vulnerable regions in DRAM? Unfortunately, identifying design-induced vulnerable regions becomes challenging
+due to a limited understanding of how data corresponding to an address is mapped inside DRAM. While it is
+possible to identify vulnerable regions based on location, exposing and exploiting such information through the
+row/column DRAM addressing interface is challenging due to two reasons.
+
+Row Interface (Row Address Mapping). DRAM vendors internally scramble the row addresses in DRAM.
+This causes the address known to the system to be different from the actual physical address [36, 52, 94]. Asa
+result, consecutive row addresses issued by the memory controller can be mapped to entirely different regions of
+DRAM. Unfortunately, the internal mapping of the row addresses is not exposed to the system and varies across
+products from different generations and manufacturers. In Section, we showed that if the access latency is
+reduced, accessing rows in a mat in ascending row number order would exhibit a gradual increase in failures.
+Unfortunately, due to row remapping, accessing rows in ascending order of addresses known to the memory
+controller will likely exhibit irregular and scattered failure characteristics.
+
+Column Interface (Column Address Mapping). In the current interface, the bits accessed by a column
+command are not mapped to consecutive columns in a mat. This makes it challenging to identify the vulnerable
+regions in a wordline. When a column address is issued, 64 bits of data from a row are transferred over the global
+bitlines (typically, 64-bit wide [96]). This data is transferred in eight-bit bursts over the IO channel, as shown in
+Figure However, the data transferred with each column address comes from cells that are in different mats, and
+have different distances from their global and local wordline drivers. This makes it impossible to determine the
+physical column organization by simply sweeping the column address in ascending order.
+Fig. Accessing Multiple Mats in a Data Burst
+
+In this work, we provide alternate ways to identify design-induced vulnerable regions using the current
+row/column interface in DRAM. We describe the key ideas of our methods.
+
+ Inferring vulnerable rows from per-row failure count. In order to identify the gradual increase in design-induced
+variability with increasing row addresses in mats (in terms of internal DRAM physical address), we try to
+reverse engineer the row mapping in DRAM. We hypothesize the mapping for one mat and then verify that
+mapping in other DRAM mats in different chips that share the same design. The key idea is to correlate the
+number of failures to the physical location of the row. For example, the most vulnerable row would be the one
+with the most failures and hence should be located at the edge of the mat. Section provides experimental
+analysis and validation of our method.
+ Inferring vulnerable columns from per-bit failure count in the IO channel. A column access transfersbits of data
+from a DRAM chip over the IO channel. Thesebits come frombitlines that are distributed over different
+mats across the entire row. Our key idea to identify the vulnerable bitlines in the column direction is to examine
+each bit in a-bit burst. We expect that due to design-induced variation, some bits in a-bit burst that are
+mapped to relatively slow bitlines are more vulnerable than other bits. In Section, we experimentally identify
+the location of bits in bursts that consistently exhibit more failures, validating the existence of design-induced
+variation in columns.
+Impact of Operating Conditions
+
+The third question we answer is: Does design-induced variation in latency show similar characteristics at different
+operating conditions? DRAM cells get affected by temperature and the refresh interval [35, 48, 52, 69]. Increasing
+the temperature within the normal system operating range (45° to°) or increasing the refresh interval
+increases the leakage in cells, making them more vulnerable to failure. However, as cells get similarly affected by
+changes in operating conditions, we observe that the trends due to design-induced variation remain similar at
+different temperatures and refresh intervals, even though the absolute number of failures may change. We provide
+detailed experimental analysis of design-induced variation at different operating conditions, in Section.
+DRAM TESTING METHODOLOGY
+
+In this section, we describe our FPGA-based DRAM testing infrastructure and the testing methodology we use
+for our experimental studies in Section
+
+FPGA-Based DRAM Testing Infrastructure. We build an infrastructure similar to that used in previous
+works [12-14, 17, 24, 35-37, 40, 41, 46, 48, 52]. Our infrastructure provides the ability to: ) generate test patterns
+with flexible DRAM timing parameters, ii) provide an interface from a host machine to the FPGA test infrastructure,
+and iii) maintain a stable DRAM operating temperature during experiments. We use a Xilinx ML605 board [100]
+that includes an FPGA-based memory controller connected to a DDR3 SODIMM socket. We designed the memory
+controller [101] with the flexibility to change DRAM parameters. We connect this FPGA board to the host machine
+through the PCle interface [99]. We manage the FPGA board from the host machine and preserve the test results
+in the host machine’ storage. In order to maintain a stable operating temperature for the DIMMs, during our
+experiments, we place the FPGA board in a heat chamber that consists of a temperature controller, a temperature
+sensor, and a heater which enables us to test at different temperatures.
+
+Profiling Methodology. The major purpose of our experiments is to characterize design-induced variation in
+DRAM latency. We would like to ) determine the characteristics of failures when we reduce timing parameters
+beyond the error-free operation region, and ii) observe any correlation between the error characteristics and the
+internal design of the tested DRAMs. To this end, we analyze the error characteristics of DRAM by lowering
+DRAM timing parameters below the values specified for error-free operation.
+
+An experiment consists of three steps: ) writing background data, ii) changing timing parameters, and iii)
+verifying cell content. In Step we write a certain data pattern to the entire DIMM with standard DRAM timing
+parameters, ensuring that correct (ie., the intended) data is written into all cells. In Step we change the timing
+parameters. In Step we verify the content of the DRAM cells after the timing parameters are changed. To
+pass verification, a DRAM cell must maintain its data value until the next refresh operation. To complete the
+verification step, we let DRAM cells remain idle and leak charge for the refresh interval and read and verify the
+data. If the data read in Stepdoes not match the data written in Step we log the addresses corresponding to
+the failures and the failed bits in the failed addresses.
+
+Data Patterns. In order to exercise worst-case latency behavior, we use a row stripe pattern, wherein a test
+pattern is written in odd rows and an inverted test pattern is written in even rows [41, 94]. This pattern drives
+the bitlines in opposite directions when accessing adjacent rows. The patterns we have used in our tests are
+
+Proc. ACM Meas. Anal. Comput. Syst., Vol. No. Article Publication date: June
+:10 « . Leeetal.
+ 0101, @11, and We perform the test twice per pattern, once with the test data pattern and once with
+the inverted version of the test data pattern, in order to test every cell in charged (.., data) and non-charged
+states (.., data). We report the sum of failures from these two cases for each test. We performiterations of
+the same test to make sure the errors are consistent.
+
+We evaluate four DRAM timing parameters: tRCD, tRAS, tRP, and tWR. For each timing parameter, our evaluations start from the standard values (13.75/35./13.75/15.0ns for , respectively) [59] and
+reduce the timing parameters to the lowest values that our DRAM infrastructure allows (5ns for ,
+and tRCD +ns for tRAS). We useDIMMs, comprisingDRAM chips, from three DRAM vendors for our
+experiments. Appendix  lists evaluated DIMMs and their major characteristics. We provide detailed results for
+each DIMM online [].
+CHARACTERIZATION OF DESIGN-INDUCED VARIATION IN DRAM
+
+In this section, we present the results of our profiling studies that demonstrate the presence of design-induced
+variation in both the vertical (bitline) and horizontal (wordline) directions. We ) show the existence of designinduced variation in Sections and, ii) analyze the impact of the row and column interface in Sections
+and, and iii) characterize the impact of operating conditions on design-induced variation in Section. We
+then provide a summary of our analysis on design-induced variation acrossDIMMs (768 DRAM chips) in
+Section. In Appendix , we present the results of our supporting circuit-level SPICE simulation studies that
+validate our hypotheses on design-induced variation in a mat.
+ Design-Induced Variation in Bitlines
+
+As we explain in Section, we expect different error characteristics for different cells connected to a bitline,
+depending on the relative distances of the cells from the local sense amplifiers. To demonstrate the existence of
+design-induced variation in a bitline, we design a test pattern that sweeps the row address.
+
+Per-Row Error Count with Row Address Sweeping. Figureplots the error count for four values of a
+DRAM timing parameter, tRP (whose standard value isns), with a refresh interval ofms (greater than
+the normalms refresh interval to emphasize the effects of access latency [48]) and an ambient temperature of°. We tested all rows (andcolumns) in a DIMM and plot the number of erroneous accesses for each set of
+row address modulorows.? We aggregate the error count across errors every set of row address modulorows because each bitline is connected tocells. Hence, our expectation is that the design-induced variation
+pattern will repeat everycells. We make two key observations. First, reducing a timing parameter enough
+below its standard value induces errors, and reducing it further induces more errors. At a tRP ofns, there are
+no errors, due to the latency margin that exists in DRAM cells, as shown in previous works [14, 48]. At a tRP ofns (.75ns reduction from the standard value), the number of errors is small, as shown in Figureb while
+at a tRP ofns, we observe a large number of errors, as shown in Figured. Second, we observe significant
+error count variation acrossrow chunks only atns (with error counts ranging fromto more thanin
+Figurec), while most errors are randomly distributed atns (Figureb) and most rows show very high error
+counts atns (Figured).
+
+Periodicity in Per-Row Error Count. To understand these trends better, we break down the error counts
+further for a tRP ofns. As we expect the variation pattern to repeat everyrows, we use the value of row
+address modulo(which we refer to as a row chunk) to tally all of the number of errors observed in the DIMM,
+Even though there are redundant cells (rows), DRAM does not allow direct access to redundant cells. Therefore, we can only access aX512 cell mat (” data chunk). Figureplots the number of erroneous requests in every-cell chunk.
+
+“Note that Figureshows the sum of all error counts for all rows with the same row number modulo In other words, each value on the
+-axis of Figurec represents a modulo value , where the corresponding -axis value shows the aggregated number of errors for the set of
+rows — Row , Row+, Row+, etc. We provide each individual row’ error count in Figureb to substantiate this further.
+Fig. Erroneous Request Count When Sweeping Row Addresses with a Reduced tRP Timing Parameter
+
+as shown in Figurec. We then sort the row chunks based on the number of errors, shown in Figurea. To see
+whether periodicity exists, we then reorder the erroneous request counts of each individual row within every set
+ofrows by using the sorted order in Figurea, which we show in Figureb. We reorder the per-row data in
+this manner as, without the sorting, it is difficult to observe the periodicity that exists in the error count.
+
+As expected, there is periodicity in error counts acrossrow chunks. Therefore, we conclude that error
+count shows periodicity with row address, confirming our expectation that there is predictable design-induced
+variation in the latency of cells across a bitline. We will understand the reason why this periodicity does not show
+up with increasing row addresses in Section.
+ Design-Induced Variation in Wordlines
+
+As we explained in Section, we expect design-induced variation across cells in a wordline, depending on
+the distance from the wordline driver. To confirm the existence of design-induced variation across a wordline, we
+use a similar evaluation methodology as the one used in Section, except that ) we sweep the column address
+instead of the row address, ii) aggregate errors in the same column across multiple rows (128 columns per row).
+In order to minimize the impact of variation across a bitline and focus on variation across a wordline, we test all
+columns in onlyrows.
+
+Per-Column Error Count with Column Address Sweeping. Figureprovides results with two tRP values
+(10ns andns). Similar to the evaluation with sweeping row addresses, we see that the number of errors is
+small and the distribution is random when tRP is reduced by a small amount, as shown in Figurea. However,
+the number of errors is large when tRP is reduced significantly, as shown in Figureb. We observe variations in
+
+Fig. Erroneous Request Count When Sweeping Column Addresses with a Reduced tRP Timing Parameter
+
+To understand these, we separately plot each row’ error count, which displays different patterns. We provide
+two such types of patterns (obtained from multiple rows) in Figuresc andd. In one such type, shown in
+
+Figurec, the error count drastically increases at around theth column and drops at around theth column
+(There are other types of patterns with similar shapes but with the jumps/drops happening at different locations).
+In the type of pattern shown in Figured, the error count drastically increases at theth column and stays high.
+We attempt to correlate such behavior with the internal organization of DRAM.
+
+Figureshows an illustration of how the precharge control signal flows across mats. The timing parameter tRP
+dictates how long the memory controller should wait after it issues a precharge command before it issues the next
+command. When a precharge command is issued, the precharge signal propagates to the local sense amplifiers
+in each mat, leading to propagation delay (higher for sense amplifiers that are farther away). To mitigate this
+variation in the delay of the precharge control signal, DRAM uses two signals, ) a main precharge signal propagating from left to right, and ii) a sub precharge signal - that directly reaches the right and propagates
+from right to left.
+Fig. Design-Induced Variation Due to Precharge Control
+
+The main and sub precharge signals arrive at different times at the different mats due to parasitic capacitance
+on the propagation path. The main precharge signal is delayed by a per mat going from left to right, while the
+sub precharge signal is delayed by  when it reaches the rightmost mat where a > , since the sub precharge
+signal does not have any load going from left to right. However, after that, the sub precharge signal exhibits a
+delay of a per mat when propagating through mats from right to left. The sense amplifiers in a mat respond to
+the faster one of the two precharge signals. For instance, in Figure matreceives the precharge signal the
+last. Hence, accesses to it would exhibit more errors than accesses to other mats if tRP is reduced. Such control
+signal delays result in the kind of jumps in errors at particular column addresses we see in real DRAM chips (..,
+Figuresb, 8c, 8d). We conclude that error count varies across columns, based on the column’ distance from the
+wordline and control signal drivers. While such control signal delays explain why such jumps occur, knowledge
+of the exact location of mats and how they are connected to the control signals is necessary to understand and
+explain why jumps occur at particular column addresses.
+ Effect of the Row Interface
+
+As shown in Figurec, the error count across a bitline does not linearly increase with increasing DRAMexternal row address (.., the address issued by the memory controller over the memory channel). However,
+we observe periodicity when rows are sorted by error count, as shown in Figure This behavior could occur
+because the DRAM-external row address is not directly mapped to the internal row address in a DRAM mat [52].
+Without information on this mapping, it is difficult to tie the error count periodicity to specific external row
+addresses. In this subsection, we estimate the most-likely mapping between the DRAM-external row address
+
+and the DRAM-internal row address (estimated row mapping) based on the observed error count. We then analyze
+the similarity of the estimated row address mapping across multiple DIMMs manufactured by the same DRAM
+company (in the same time frame).
+
+Methodology for Estimating Row Address Mapping. We explain our estimation methodology using a
+simple example shown in Figure which has a-bit row address (eight rows per mat). Figurea shows the
+DRAN-internal row address in both decimal and binary, increasing in the order of distance between the row and
+the sense amplifier.
+Fig. DRAM-Internal vs. DRAM-External Row Addressing and Estimated Mapping Based on Observed Error Counts for
+the External Addresses
+
+Figureb shows DRAM-external row addresses that are ranked based on the error counts. As observed, the order
+is not the same as the DRAM-internal address order in Figurea. To determine the estimated external-to-internal
+row mapping based on the observed error counts for the external addresses, we explore all possible permutations
+that rearrange the three bits in the row address. For each of the eight rows in the mat, we have the error count.
+Our goal is to find an ordering of the three bits, which we call the internal row address, for which the error
+count monotonically increases with the number represented by the three bits. For example, after rearranging,
+the row with an internal row address of “001” should have a higher error count than the row with an internal
+row address of “000”. We find that by mapping the MSB of the internal row address (IntMSB) to the middle bit of
+the external row address (ExtMID), and by mapping the middle bit of the internal row address (IntMID) to the
+MSB of the external row address (ExtMSB), as shown in Figurec, the row error count increases monotonically
+with the internal row address. The estimated mapping (in the logical address) is indicated by dark boxes when
+the expected bit is “” and light boxes when the expected bit is “”. There are cases when this mapping does not
+match with the actual external address (indicated in red). Figurec shows that, in this example, external to
+internal mapping can be estimated with high confidence. For example, we can say with% confidence that
+the external address bit ExtMID maps to the internal address bit IntMSB since the observed error counts for the
+ExtMID bit match the expected error counts from the IntMSB bit.
+
+Estimated Row Address Mapping in Real DIMMs. We perform such an external to internal address
+mapping comparison and mapping exercise on eight DIMMs manufactured by the same company in a similar time
+frame. Figureshows the average confidence level over all rows in a DIMM, for the estimated row mapping. We
+use error bars to show the standard deviation of the confidence over eight DIMMs. We make three observations.
+First, all DIMMs show the same estimated row mapping (with fairly high confidence) for at least the five most
+significant bits. This result shows that DIMMs manufactured by the same company at the same time have similar
+
+design-induced variation. Second, the confidence level is almost always less than%. This is because process
+variation and row repair mechanisms introduce perturbations in addition to design-induced variation, which can
+change the ranking of rows (determined based on error counts as we explained earlier). Third, the confidence
+level drops gradually from IntMSB to IntLSB. This is also due to the impact of process variation and row repair
+mechanisms. The noise from process variation and row repair can change row ranking and grouping by error
+count. Address bits closer to IntMSB tend to divide rows into groups at a larger granularity than address bits
+closer to IntLSB. Therefore, the higher order bits show higher confidence. Based on these observations, we
+conclude that DRAMs that have the same design display similar error characteristics due to design-induced
+latency variation.
+
+Confidence
+
+ 
+
+
+In summary, we observe predictable row address mapping (similar to Figure) when testing DIMMs from the
+same vendor that were manufactured around the same time frame (.., they likely have the same internal circuit
+design).
+ Effect of the Column Interface
+
+Another way to observe the error characteristics in the wordline organization is by using the mapping between
+the global sense amplifier and the IO channel. As we explained, global sense amplifiers ina DRAM chip concurrently
+read-bit data from different locations of a row, leading to variation in errors. Figureplots errors in-bit
+data-out (as shown in Figure) in the IO channel (For example, first eight bits (bits-) are the first burst
+of data transfer). We draw three conclusions. First, there is large variation in the amount of errors in the IO
+channel. For example, more thanK errors happen in the third bit while no errors are observed in the first bit
+of the IO channel. Second, the error characteristics of eight DRAM chips show similar trends. Third, while we
+observed regular error distribution at different bit positions from DIMMs that show design-induced variation, we
+also observed that the error patterns from different DIMMs (.., DIMMs from different vendors) were different.
+Section uses these observations to develop a new error correction mechanism, called DIVA Shuffling.
+
+ Effect of Operating Conditions
+
+Figureshows the error count sensitivity to the refresh interval and the operating temperature by using the
+same method as row sweeping (aggregating the error count across every set of row address modulorows, as
+done in Section). We make three observations. First, neither the refresh interval nor temperature changes the
+overall trends of design-induced variation (.., the variability characteristics in different row addresses remain
+the same, though the absolute number of errors changes). Second, reducing the refresh interval or the ambient
+temperature within the normal system operating conditions (.., 45° to°) leads to fewer errors. Third, the
+variability in cells is much more sensitive to the ambient temperature than the refresh interval. When changing
+the refresh interval, the total error count does not change drastically: it exhibits only a% decrease with aX
+reduction in refresh interval. On the other hand, changing the ambient temperature has a large impact on the
+total error count: error count reduces by% with a° change in temperature. This is due to the fact that
+frequent refreshes make only the cells faster [23, 49, 84], whereas reducing temperature makes not only the cells
+but also the peripheral circuits faster. Based on these observations, we conclude that temperature or refresh
+interval do not change the trends in design-induced variation, but they impact the total number of failures in
+vulnerable regions at different rates.
+
+ Summary Results ofDIMMs
+
+We profileDIMMs withchips from three vendors to characterize the design-induced variation in DRAM
+chips. We observe similar trends and characteristics in DIMMs from the same generation, though the absolute
+number of failures are different. In Figure we show the error count difference between the most vulnerable
+region vs. the least vulnerable region in each of the tested DIMMs. We define the difference as vulnerability ratio
+and calculate it using the error count ratio between the error count of the top% most vulnerable rows and the
+error count of the top% least vulnerable rows.°
+
+We make two observations from this figure. First, most of the DIMMs exhibit large design-induced variation
+in terms of vulnerability ratio (.., as high astimes, notice the log scale). Second, we did not observe
+design-induced variation inDIMMs. However, we believe that this is in part due to a limitation of our
+infrastructure, where we can reduce timing parameters only at a coarser granularity (.., at a step size of ns)
+due to the limited FPGA frequency, similar to the DRAM test infrastructures used in prior works [12-14, 17, 24, 3537, 40, 41, 46, 48, 52]. As a result, it is sometimes possible that reducing a step of a timing parameter causes
+Note that the results show the variation of error distribution, which does not represent either the performance or the reliability of DIMMs
+from different vendors.
+Fig. Vulnerability Ratio: the error count ratio between the top% most vulnerable and the top% least vulnerable rows
+
+the tested DIMM to transition from a no-error or very-low-error state to a state where latency is low enough
+to make all cells fail, missing the timing where design-induced variation is clearly visible. In real machines
+where state-of-the-art DRAM uses a much lower clock period (.., DDR3-2133:ns), design-induced variation
+might be prevalent. Third, DRAMs from the same vendor and from similar production time frames show similar
+characteristics to each other, including whether or not they are susceptible to design-induced variation related
+errors. For example, DRAMs from Vendor  have drastically high error counts across most regions when tRCD is
+reduced below a certain value. We include summary results for each DIMM that we tested in Appendix . We
+provide detailed results for each DIMM online [].
+
+In summary, we have experimentally demonstrated that ) design-induced variation is prevalent across a large
+number of DIMMs and ii) our observations hold true in most of the DIMMs. We validate these observations on
+the existence of design-induced variation in DRAM using circuit-level SPICE simulations in Appendix . We
+conclude that modern DRAMs are amenable to reducing latency by exploiting design-induced variation.
+MECHANISMS TO EXPLOIT DESIGN-INDUCED VARIATION
+
+In this section, we present two mechanisms that leverage design-induced variation to reduce DRAM latency
+while maintaining reliability: ) Design-Induced Variation Aware online DRAM Profiling (DIVA Profiling) to
+determine by how much DRAM latency can be safely reduced while still achieving failure-free operation, and ii)
+Design-Induced Variation Aware data Shuffling (DIVA Shuffling) to avoid uncorrectable failures (due to lower
+latency) in systems with ECC. We intentionally aim to design intuitive and simple mechanisms, such that they
+are practical and easy to integrate into real systems.
+ DIVA Profiling
+
+Previous works observe that the standard DRAM timing parameter values are determined based on the
+worst-case impact of process variation and worst-case operating conditions, and leverage this observation to
+reduce overall DRAM latency under common-case operating conditions [12, 48]. We leverage design-induced
+variation in DRAM to develop a dynamic and low-cost DRAM latency/error profiling technique. We call this
+technique Design-Induced Variation Aware Online DRAM Profiling (DIVA Profiling). The key idea is to separate
+reduced-latency-induced errors into two categories, one caused by design-induced variation and the other caused
+by process variation, and then employ different error mitigation techniques for these two error categories.
+
+DIVA Profiling avoids two shortcomings faced by prior work on exploiting latency variation to reduce overall
+DRAM latency [12, 48]. These prior works, which do not exploit design-induced latency variation, are unable
+to perform effective online profiling to dynamically determine DRAM latency, since online profiling can incur
+high performance overhead [18, 69, 75, 85]. As a result, these prior works rely on static profiling, which leads
+
+to two key shortcomings. First, prior works do not present any concrete way to identify the lowest possible
+values of timing parameters that guarantee reliability. Second, these works do not account for dynamic changes
+in minimum DRAM latency that happen over time due to circuit aging and wearout. Therefore, implementable
+mechanisms based on these works have to assume conservative margins to ensure reliable operation in the
+presence of aging and wearout. This causes the realistic latency reductions with such mechanisms to be lower
+than what we optimistically show for these mechanisms [48] in our evaluations (Section). By employing
+low-cost online profiling, DIVA Profiling can attain much more aggressive latency reductions while maintaining
+reliable operation.
+
+Design-Induced Variation vs. Process Variation. The error characteristics from process variation and
+design-induced variation are very different. Figureshows the error patterns from these two types of variation
+(darker cells are more error prone). First, the errors caused by process variation are usually randomly distributed
+over the entire DRAM chip [12, 48] (Figurea). Because these errors are random, existing ECC mechanisms (..,
+SECDED) [55, 57] can detect and recover these random errors. On the other hand, the errors caused by designinduced variation are more systematic and are concentrated in specific regions in the DRAM chip (Figureb).
+For instance, when timing parameters are aggressively reduced, cells that are farther away from both the row
+driver and the local sense amplifiers are prone to more errors. As these high-error cells are concentrated on a
+specific region of the mat, they typically result in multi-bit errors that cannot be corrected by simple ECC (..,
+SECDED). To avoid these undesirable multi-bit errors, we propose to periodically profile only the high-error (..,
+vulnerable) regions and track whether any of these regions fail under a specific set of timing parameters, which
+incurs much less overhead than profiling the entire DRAM, and then tune the timing parameters appropriately
+based on the failure information.
+
+Fig, 15. Latency Variation in a Mat (Darker: Slower)
+
+DIVA Profiling Mechanism. DIVA Profiling combines SECDED ECC, which stores ECC codewords in a
+separate chip on the DIMM (similar to commodity DRAM), with online profiling in a synergistic manner to
+reduce DRAM latency while maintaining high reliability. Due to design-induced variation, there is a specific
+region within each subarray of the DRAM that requires the highest access latency in the subarray. The DIVAprofiling-based memory system uses this slowest region, which we call the latency test region, to perform online
+latency profiling. To address the random effect of process variation across different subarrays in the entire DRAM
+chip, our mechanism employs per-subarray latency test regions.’
+
+Note that our evaluation of AL-DRAM does not factor in dynamic latency increases due to aging and wearout, giving AL-DRAM an unfair
+
+advantage in our results, overestimating its latency benefit.
+?We further discuss the effect of process variation in Appendix .
+
+Note that actual useful data (.., application or system data) is not stored in these per-subarray latency test
+regions. A memory controller with DIVA Profiling support periodically accesses these latency test regions and
+determines the smallest value of DRAM timing parameters required for reliable operation in all of the latency
+test regions (without causing multi-bit errors). The system then adds a small margin to the timing parameters
+obtained from this profiling (.., one clock cycle increase) to determine the timing parameters for the other
+regions (data region), which store the actual useful data required by the system and the programs.
+
+System Changes to Enable DIVA Profiling. We require three changes to the system. First, we need to
+account for the repair/remapping process employed by DRAM vendors to increase yield. As we describe in
+Section, when faulty cells are identified during post-manufacturing test, the rows or columns corresponding
+to these faulty cells are remapped to other rows or columns by blowing fuses after manufacturing []. If a row
+from the latency test region is remapped to a different row, this will affect the profiling phase of our mechanism.
+In order to avoid such interactions with the repair/remapping process (and potential inaccuracies in identification
+of the lowest latency at which to operate a DRAM chip reliably), we propose an approach where rows from the
+latency test regions are not remapped by DRAM vendors. Faulty cells in the latency test region are instead repaired
+using column remapping, another repair mechanism that is already implemented in commercial DRAM [25].
+Our mechanism finds a uniform latency for an entire DIMM, at which all rows in all latency test regions of
+the DIMM operate reliably, by selecting the smallest latency that guarantees reliable operation of all such test
+rows. Therefore, the profiled latency can be used to reliably operate all non-test rows (both normal rows and
+redundant rows). This approach is straightforward to implement, since DRAM vendors are likely to know the
+most vulnerable regions in the DRAM chip (based on their design knowledge). Since rows in the latency test
+regions do not store any useful data, this approach maintains system reliability.
+
+Second, systems with DIVA Profiling require the ability to change DRAM timing parameters online. Since DIVA
+Profiling uses only one set of timing parameters for the entire DIMM, the only required change is updating the
+timing parameters in the memory controller with the smallest latency values that still ensure reliable operation.
+
+Third, DIVA Profiling requires a way of exposing the design-induced variation to the memory controller. The
+most intuitive approach is to expose either the internal organization or the location of the slowest region as part of
+the DRAM specification or the SPD (Serial Presence Detect) data in DIMMs (.., as done in [14, 42, 49]). Address
+scrambling techniques in the memory controller need not impact DIVA Profiling since memory controller )
+knows how the addresses are scrambled, and ii) can generate requests for profiling without applying scrambling.
+
+DIVA Profiling Overhead. There are several overheads to consider when implementing DIVA Profiling.
+First, in terms of area overhead within the DRAM array, DIVA Profiling reduces the memory capacity slightly by
+reserving a small region of the DRAM for latency testing. In a conventional DRAM, which typically containsrows per subarray, the area overhead is% (one row per subarray). Second, in terms of latency overhead, DIVA
+Profiling requires additional memory accesses, which could potentially delay demand memory requests. However,
+we expect the latency overhead of profiling to be low, since DIVA Profiling reserves only the slowest rows as the
+test region (one row per subarray), and only these rows need to be profiled. DIVA Profiling is much faster than
+conventional online profiling mechanisms that must test all of the DRAM cells [35, 53, 68, 95]: DIVA Profiling
+takesms per data pattern® to profile aGB DDR3-1600 DIMM, whereas conventional profiling takesms
+(see Appendix A for the detailed calculation). We can employ intelligent and optimized profiling mechanisms
+that can further reduce the impact of the overhead. For example, one simple and low overhead mechanism can
+conduct online profiling as part of the DRAM refresh operation (.., similar to methods that parallelize refresh
+operations and memory accesses [15]), which would have minimal effect on memory system performance. Third,
+in terms of storage overhead within the memory controller, systems with DIVA Profiling require a very small
+DRAM manufacturer can select and provide the worst-case data pattern() DIVA Profiling should use for each DRAM module. This
+information can be conveyed via the Serial Presence Detect (SPD) circuitry present in each DRAM module (as done in [14, 42, 49]).
+
+amount of additional storage (.., as low asbits for aGB DIMM) to implement the profiling mechanism: one
+bit per DIMM to track if any rows fail for the current timing parameters being tested, and one row address register
+per DIMM, which points to the slowest region in the DIMM.
+
+In summary, our mechanism profiles only the slowest region that is most affected by design-induced variation,
+thereby incurring low profiling overhead, while achieving low DRAM latency and high reliability.
+
+Energy Consumption. DIVA Profiling consumes similar energy for a single DRAM operation (.., activation,
+read, write, and precharge) compared to conventional DRAM. The profiling overhead is low since only the test
+region needs to be profiled. Furthermore, the DRAM latency reductions enabled by DIVA Profiling reduces system
+execution time, as we will see in Section, and can thereby reduce system energy consumption.
+
+Other Sources of Latency Variation in DRAM. DIVA Profiling has been designed with careful consideration
+of other sources of DRAM latency variations, .., voltage (due to supply grid) & temperature variation and
+VRT (Variable Retention Time [35, 39, 52, 62, 69, 74, 76, 102]). As explained, we divide DRAM failures into two
+categories: ) localized, systematic failures (caused by design-induced variation); and ii) random failures (caused
+by process variation and VRT). We then exploit different error mitigation techniques to handle these two different
+categories of failures: ) online profiling for localized systematic failures, and ii) ECC for random failures. Since the
+physical size of a mat is very small (.., 1415. um” innm technology), the effects of voltage and temperature
+variation are similar across a mat. The negative effects of process variation and VRT can be handled by ECC.
+Furthermore, we tackle the impact of sense amplifier offset (.., the phenomenon that a sense amplifier shows
+different sensitivities for detecting “” and “” due to process variation [34]) by profiling all columns of the rows
+in all latency test regions. Hence, the variation from sense amplifier offset is accounted for in determining the
+smallest possible values of timing parameters that ensure reliable operation.
+
+There can be several opportunities for applying different timing parameters to exploit process variation (..,
+variation across subarrays, variation across banks, or variation across chips). DIVA Profiling, for example, can
+be used to determine different timing parameters for different subarrays, banks, or chips within a DIMM. While
+exploiting the latency variation induced by process variation in such a manner is promising, we leave this for
+future work.’ In DIVA-DRAM, we focus solely on exploiting design-induced variation, which remains consistent
+across DRAM chips. To this end, DIVA Profiling uses the same timing parameters across all chips in a DIMM.
+ DIVA Shuffling
+
+Our second approach focuses on leveraging design-induced variation to mitigate uncorrectable errors in
+memory systems with ECC (especially when DRAM is operated at a lower latency than the standard latency). As
+we observed in Section, when data is read out of a memory channel, data in specific locations tends to fail
+more frequently. This happens because data is delivered from locations that are distributed across a wordline. Due
+to design-induced variation in wordline and control signals, it takes longer to access cells in specific locations
+compared to cells in other locations, which could lead to multi-bit errors in memory systems with ECC. Figurea
+shows the effect of design-induced variation in systems with ECC. Data in the darker grey regions (high-error
+bits) tends to be more error-prone than data in the lighter grey regions. These high-error bits are concentrated in
+a similar location across different chips, and, as a result, are part of the same data-transfer burst. Since SECDED
+ECC can correct only one erroneous bit in a single data burst [55], it is probable to observe uncorrectable errors
+for such data bursts.’°
+A recent work [13, 14] characterizes and exploits this type of process variation, providing promising results.Note that uncorrectable errors are reasonably common in the field, as reported by prior work [57]. While our DIVA Shuffling mechanism
+can be used to correct such errors as well, we leave the exploration of this to future work.
+
+We tackle this problem and mitigate potential uncorrectable errors by leveraging awareness of design-induced
+variation. Our key idea is to distribute the high-error bits across different ECC codewords. We call this mechanism
+design-induced-variation-aware data shuffling (DIVA Shuffling)."!
+
+There are two potential ways in which such a shuffling mechanism can be implemented. The first way is
+using DRAM chips that have different data-out mappings, by changing the DRAM chips internally during their
+manufacturing. Since the data mapping is changed internally in the DRAM chips to shuffle the high-error bits
+across different ECC codewords, the address decoding mechanism for reads and writes can remain identical
+across DRAM chips. The second way is to shuffle the address mapping of DRAM chips within a DIMM. We
+achieve this by connecting the address bus bits in a different order for different DRAM chips in a DIMM, thereby
+enabling different column addresses to be provided by different DRAM chips. Using these two mechanisms, we
+can achieve data shuffling in the data output from DRAM (as Figureb shows), which leads to fewer errors in
+all data bursts.
+
+Figureshows the fraction of correctable errors from a total ofDIMMs using SECDED ECC with and
+without DIVA Shuffling. We recorded the error locations and then filtered out correctable errors assuming
+SECDED ECC. The -axis represents the total percentage of errors with lower DRAM timing parameters, and
+the -axis represents(randomly selected) DIMMs. The operating conditions (ie., the reduced latencies) were
+chosen to make sure that there are actually errors, so that ECC is useful.
+Fig. Correctable Errors with/without DIVA ShufflingWhile it is possible that different placement algorithms for DIVA Shuffling could affect the latency and failure probability, the search space
+
+of such algorithms is very large. We choose an intuitive algorithm based on our observations of where errors and high-latency regions lie
+within DRAM, and find that this algorithm results in high performance with significant improvements in reliability.
+
+Our DIVA Shuffling mechanism corrects% of the errors that are not correctable by using only conventional
+ECC. In some DIMMs, DIVA Shuffling corrects% of the errors, while some other DIMMs still experience
+errors even with DIVA Shuffling. We believe that the major cause for this is the malfunction of DRAM core
+operation, leading to excessively high error rates. Overall, we conclude that using DIVA Shuffling along with
+ECC can significantly reduce the error rate than using conventional ECC alone.
+ DRAM Latency & Performance Analysis
+
+DRAM Latency Profiling. We profileDIMMs, comprisingDRAM chips, for potential latency reduction.
+We use the same test methodology, described in Section which is also similar to the methodology of previous
+works [12, 48]. We measure the latency reduction of four timing parameters (tRCD, tRAS, tRP, and tWR).
+
+Figureshows the average latency reduction for DRAM read and write operations with three mechanisms
+— AL-DRAM [48], DIVA Profiling, and the combination of DIVA Profiling and DIVA Shuffling — normalized
+to the sum of the corresponding baseline timing parameters. We compare these mechanisms at two operating
+temperatures, 55° and°. We ignore the fact that AL-DRAM does not account for latency changes due to
+aging and wearout, and assume aggressive latency reductions for it, giving AL-DRAM an unfair advantage.
+AL-DRAM [48] can reduce the latency for read/write operations by% (18 cycles) and% (18 cycles) at°, and% (12 cycles) and% (19 cycles) at°, respectively. DIVA Profiling reduces the corresponding
+latencies by% (22 cycles) and% (20 cycles) at°, and% (22 cycles) and% (20 cycles) at°,
+respectively. Using DIVA Shuffling on top of DIVA Profiling enables more latency reduction (by% on average).
+Thus, even though we give an unfair advantage to AL-DRAM in our evaluation, our mechanisms achieve better
+latency reduction compared to AL-DRAM, mainly because ECC (and also ECC with DIVA Shuffling) can correct
+single-bit errors in an ECC codeword. Specifically, increasing the temperature from° to° with the same
+set of timing parameters mostly generates single-bit and randomly distributed errors that can be corrected by
+ECC. Since AL-DRAM does not employ ECC, its latency benefits degrade at high temperatures, whereas our
+mechanism’ latency benefits remain high at all temperatures.
+
+ 
+  
+
+
+Performance Evaluation. We simulate the performance of our DIVA Profiling mechanism using a modified
+version of Ramulator [43], a fast, cycle-accurate DRAM simulator that is publicly available []. We use Ramulator
+combined with a cycle-level x86 multi-core simulator. Tableshows the system configuration we model. We use
+PinPoints [54, 70] to collect workload traces. We usebenchmarks from Stream [56, 63], SPEC CPU2006 [90],
+TPC [93] and GUPS [26], each of which is used for a single-core workload. We constructtwo-, four-, and eightcore workloads, for a total ofmulti-core workloads (randomly selected from thebenchmarks). We measure
+
+Figureshows the performance improvement with DIVA Profiling and DIVA Shuffling. We draw two major
+conclusions. First, DIVA Profiling provides significant performance improvements over the baseline DRAM
+(.%/14.%/13.%/13.% performance improvement in single-/two-/four-/eight-core systems, respectively). This
+improvement is mainly due to the reduction in DRAM latency. Second, using DIVA Profiling and DIVA Shuffling
+together provides even better performance improvements (by% on average) due to the additional latency
+reductions enabled by DIVA Shuffling.’? Our techniques achieve these performance improvements by dynamically
+monitoring and optimizing DRAM latency in a reliable manner (using DIVA Profiling), while also improving
+DRAM reliability (using DIVA Shuffling). Third, DIVA-DRAM shows less performance sensitivity to temperature
+when compared to AL-DRAM (as shown in Figure). In general, increasing temperature leads to more randomlydistributed single-bit errors, which limits the performance benefits from AL-DRAM at high temperatures (as
+shown for° in Figure). DIVA-DRAM incorporates ECC, and, hence, is able to correct these single-bit errors,
+enabling latency reductions (and performance improvement) similar to what we observe at lower temperatures.
+
+Figurealso shows that our techniques outperform AL-DRAM for all four configurations by%/.%/.%/.%, even though we assume aggressive raw DRAM latency reductions for AL-DRAM (Section). We also ignore the fact that AL-DRAM is unable to account for dynamic latency changes due to aging
+and wear-out, and is thus an unrealistic mechanism (Section). Considering that aging or post-packaging
+failures affect a significant number of DRAM parts [29, 51, 57, 78, 88, 89] and AL-DRAM cannot handle such
+failures, we conclude that our mechanisms would provide even higher performance (and reliability) improvements
+over AL-DRAM in reality than we have shown.
+Note that the main reason we design DIVA Shuffling is to improve reliability (while using reduced latency parameters), not performance.
+
+RELATED WORK
+
+To our knowledge, this is the first work to ) experimentally demonstrate and characterize design-induced
+latency variation across cells in real DRAM chips, ii) develop mechanisms that take advantage of this existing
+design-induced variation to reliably reduce DRAM latency as well as to mitigate errors, and iii) devise a practical
+mechanism to dynamically determine the lowest latency at which to operate DRAM reliably.
+
+Low Latency DRAM Organizations. There are multiple proposals that aim to reduce DRAM latency by
+changing DRAM internals. Our proposals can be combined with these techniques to further reduce DRAM latency.
+Son et al. [87] enable low-latency access to banks near IO pads and shorten bitlines to some subarrays, which
+reduces DRAM latency at the expense of additional chip area [42, 49]. Our work, on the other hand, performs a
+comprehensive experimental analysis of design-induced variation across wordlines and bitlines at the mat level,
+and proposes new mechanisms to take advantage of such mat-level latency variation. Lee et al. [49] propose
+TL-DRAM, a new subarray organization that enables lower access latency to cells near local sense amplifiers.
+To achieve this, TL-DRAM adds isolation transistors to separate a bitline into near and far segments, thereby
+adding a small but non-negligible area overhead to DRAM. RL-DRAM reduces DRAM latency by using smaller
+subarrays [58], but this comes at a significant increase in chip area. In contrast to all these works, DIVA-DRAM
+reduces latency and mitigates DRAM errors with no changes to the DRAM mat design. Furthermore, while prior
+works [49, 87] are based on simulation results using a circuit-level DRAM model, we profile real DIMMs and
+experimentally analyze design-induced variation. Our new method of finding the slowest regions in DRAM,
+DIVA Profiling, is applicable to all these prior works.
+
+Exploiting Process and Temperature Variations to Reduce DRAM Latency. Lee et als AL-DRAM [48]
+and Chandrasekar et al. [12] lower DRAM latency by leveraging latency variation in DRAM due to the manufacturing process and temperature dependency. In contrast to our work, these two works are different in two
+major ways. First, they are not aware of and do not exploit design-induced latency variation in DRAM, which
+is due to the design and placement of components in a DRAM chip and is independent of the manufacturing
+process and temperature. Unlike process variation, design-induced variation, as we have experimentally shown
+(in Section), ) is dependent on the internal design of DRAM, ii) does not change over time, and iii) is similar
+across DRAM chips that have the same design. Second, these two works do not provide an online method for
+dynamically identifying the lowest latency at which to operate DRAM reliably. Instead, they assume such latencies
+are provided by the DRAM interface, which ) not only is difficult to achieve due to increased cost on the DRAM
+manufacturer’ end and the difficulty in changing the DRAM standard, ii) but also cannot adapt to increases
+in actual DRAM latency over time due to aging and wearout (and therefore would lead to large margin in the
+provided latencies). Finally, neither of these two works develop an online profiling or error correction mechanism,
+which our work develops. We have already provided both extensive qualitative (Section) and quantitative
+(Section) comparisons to AL-DRAM and shown that our mechanism significantly outperforms AL-DRAM,
+without requiring a priori knowledge of the lowest latency at which to operate DRAM reliably (which AL-DRAM
+does require), even when our simulations assume that AL-DRAM provides very aggressive latency reductions
+(ignoring the fact that AL-DRAM does not account for aging and wearout).
+
+Experimental Study of DRAM Failures. Many works [12-14, 17, 35-37, 39-41, 46, 48, 52, 69, 74] provide
+experimental studies and models for DRAM errors due to different type of failures such as: ) retention time
+failures [35-37, 39, 52, 69, 74], ii) wordline coupling failures [40, 41, 65], iii) failures due to lower timing parameters [12-14, 46, 48], and iv) failures due to reduced-voltage operation [13, 17]. Specifically, Chang et al. [14]
+observe the non-uniform distribution of DRAM errors due to reduced latency, but do not provide the fundamental
+reasoning behind this non-uniformity. This work also proposes reducing DRAM latency for some cells, but does
+not provide a mechanism for finding the lowest DRAM latency and instead assumes that the latency of each
+cell is provided by the DRAM device. Our experiments and analyses focus on understanding failures due to
+
+reducing latency in design-induced vulnerable regions in DRAM, which has not been studied by any of these
+works. Previous failure modes, .., Row Hammer [40, 41, 65] or retention failures [39, 52, 69], do not exhibit
+design-induced variation, .., they are not dependent on cell distance from peripheral DRAM structures, as
+shown in prior work [39, 41].
+
+Study of DRAM Failures in Large Scale Systems. Many previous works [29, 51, 57, 78, 79, 88, 89] study
+DRAM errors in large scale systems (.., a server cluster or many data centers) and analyze the system-level impact
+on DRAM failures, .., power fluctuation, operating temperature, wearout, etc. Our analyses are orthogonal to
+these studies and focus on the impact of internal DRAM organization on latency and error characteristics.
+
+DRAM Error Mitigation Techniques. To increase system reliability and efficiency, many error correction
+codes [, 38, 55, 98] have been proposed specifically in the context of DRAM error mitigation [35]. VS-ECC []
+proposes variable strength error correction codes for better performance and energy efficiency. HI-ECC [98]
+increases power efficiency for high-capacity eDRAM-based caches by integrating a strong error correction code.
+
+Our proposals complement existing ECC mechanisms and achieve better performance and reliability. First,
+having ECC alone (regardless of ECC strength) is not enough to guarantee correct operation with maximum
+latency reduction, since it is not possible to determine the smallest value for each timing parameter without
+profiling. DIVA Profiling can do so, enabling maximum latency reduction while leveraging ECC support to
+correct failures. Second, DIVA Shuffling enables greater reliability in the presence of an ECC mechanism by
+distributing possible errors over different ECC codewords. Third, our work opens up new research opportunities
+to exploit design-induced variation in combination with different ECC schemes. For example, variable-strength
+ECC [] can exploit awareness of design-induced variation by adjusting ECC strength based on error probability
+indications/predictions from design-induced variation.
+
+DRAM Latency Reduction with In-Memory Communication and Computation. Transferring data
+over the memory channel leads to long latency and delays other data transfers. To reduce this latency, prior
+works offload bulk data movement [16, 50, 81] or computation operations (.., [, , 10, 20-22, 27, 28, 44, 45,
+61, 71, 73, 80, 82, 83, 91]) to DRAM. These works do not fundamentally reduce the access latency to the DRAM
+array, whereas our proposal DIVA-DRAM does. Hence, DIVA-DRAM is complementary to such in-memory
+communication and computation mechanisms.
+
+DRAM Latency Reduction Based on Memory Access Patterns. Prior works [23, 84] show that DRAM
+leakage affects two DRAM timing parameters (tRCD/tRAS), and recently-accessed rows have more charge. This
+allows such rows to be reliably accessed with a lower latency than the DRAM standard. Our approach of reducing
+latency by taking advantage of design-induced variation is complementary to these works.
+CONCLUSION
+
+This paper provides the first study that experimentally characterizes and exploits the phenomenon of designinduced variation in real DRAM chips. Based on a detailed experimental analysis ofmodern DRAM chips
+from three major manufacturers, we find that there is widespread variation in the access latency required
+for reliable operation of DRAM cells, depending on how close or far the cells are to the peripheral structures
+that are used to access them. We introduce DIVA-DRAM, which consists of two novel techniques that take
+advantage of design-induced variation to ) reduce DRAM latency reliably at low cost and ii) improve reliability
+by making ECC more effective. DIVA Profiling reduces DRAM latency by finding the lowest latency at which
+to operate DRAM reliably, by dynamically profiling certain cells that are most vulnerable to failures caused by
+reduced-latency operation, due to the design of the DRAM chip. DIVA Shuffling improves DRAM reliability by
+intelligently shuffling data such that errors induced due to reduced-latency operation become correctable by
+ECC. Our comprehensive experimental evaluations demonstrate that DIVA-DRAM can greatly reduce DRAM
+read/write latency, leading to significant system performance improvements on a variety of workloads and
+system configurations, compared to both modern DRAM and the state-of-the-art Adaptive-Latency DRAM [48].
+
+We conclude that exploiting the design-induced latency variation inherent in DRAM using our new techniques
+provides a promising, reliable, and low-cost way of significantly reducing DRAM latency. We hope that our
+comprehensive experimental characterization and analysis of design-induced variation in modern DRAM chips
+enables the development of other mechanisms to improve DRAM latency and reliability.
+
+ACKNOWLEDGMENTS
+
+
+
+comments. An earlier version of this work was posted on arXiv [47]. We acknowledge the generous support of
+Google, Intel, NVIDIA, Samsung, and VMware. This work is supported in part by NSF grants 1320531,
+and the Intel Science and Technology Center for Cloud Computing, and the Semiconductor Research
+Corporation.
+
+

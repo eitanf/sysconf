@@ -1,0 +1,601 @@
+Understanding Reduced-Voltage Operation
+in Modern DRAM Devices:
+Experimental Characterization, Analysis, and Mechanisms
+
+ABSTRACT
+---
+The energy consumption of DRAM is a critical concern in modern computing systems. Improvements in manufacturing
+process technology have allowed DRAM vendors to lower the DRAM supply voltage conservatively, which reduces some of
+the DRAM energy consumption. We would like to reduce the DRAM supply voltage more aggressively, to further reduce
+energy. Aggressive supply voltage reduction requires a thorough understanding of the effect voltage scaling has on DRAM
+access latency and DRAM reliability.
+
+In this paper, we take a comprehensive approach to understanding and exploiting the latency and reliability characteristics
+of modern DRAM when the supply voltage is lowered below the nominal voltage level specified by DRAM standards. Using an
+FPGA-based testing platform, we perform an experimental study ofreal DDR3L (low-voltage) DRAM chips manufactured
+recently by three major DRAM vendors. We find that reducing the supply voltage below a certain point introduces bit errors
+in the data, and we comprehensively characterize the behavior of these errors. We discover that these errors can be avoided
+by increasing the latency of three major DRAM operations (activation, restoration, and precharge). We perform detailed
+DRAM circuit simulations to validate and explain our experimental findings. We also characterize the various relationships
+between reduced supply voltage and error locations, stored data patterns, DRAM temperature, and data retention.
+
+Based on our observations, we propose a new DRAM energy reduction mechanism, called Voltron. The key idea of Voltron
+is to use a performance model to determine by how much we can reduce the supply voltage without introducing errors and
+without exceeding a user-specified threshold for performance loss. Our evaluations show that Voltron reduces the average
+DRAM and system energy consumption by% and%, respectively, while limiting the average system performance loss
+to only%, for a variety of memory-intensive quad-core workloads. We also show that Voltron significantly outperforms
+prior dynamic voltage and frequency scaling mechanisms for DRAM.
+---
+INTRODUCTION
+
+In a wide range of modern computing systems, spanning from warehouse-scale data centers to mobile platforms,
+energy consumption is a first-order concern [26, 32, 35, 45, 55, 87, 94, 100, 137]. In these systems, the energy
+consumed by the DRAM-based main memory system constitutes a significant fraction of the total energy. For
+example, experimental studies of production systems have shown that DRAM consumes% of the total energy
+in servers [45, 133] and% of the total power in graphics cards [107].
+
+The energy consumed by DRAM is correlated with the supply voltage used within the DRAM chips. The
+supply voltage is distributed to the two major components within DRAM: the DRAM array and the peripheral
+circuitry [73, 131]. The DRAM array consists of thousands of capacitor-based DRAM cells, which store data
+as charge within the capacitor. Accessing data stored in the DRAM array requires a DRAM chip to perform a
+series of fundamental operations: activation, restoration, and precharge.! A memory controller orchestrates
+each of the DRAM operations while obeying the DRAM timing parameters. On the other hand, the peripheral
+circuitry consists of control logic and I/ drivers that connect the DRAM array to the memory channel, which is
+responsible for transferring commands and data between the memory controller and the DRAM chip. Since the
+DRAM supply voltage is distributed to both the DRAM array and the peripheral circuitry, changing the supply
+voltage would affect the energy consumption of both components in the entire DRAM chip.
+
+To reduce the energy consumed by DRAM, vendors have developed low-voltage variants of DDR (Double Data
+Rate) memory, such as LPDDR4 (Low-Power DDR&) [52] and DDR3L (DDR3 Low-voltage) [51]. For example, in
+DDR3L, the internal architecture remains the same as DDR3 DRAM, but vendors lower the nominal supply voltage
+to both the DRAM array and the peripheral circuitry via improvements in manufacturing process technology. In
+this work, we would like to reduce DRAM energy by further reducing DRAM supply voltage. Vendors choose a
+conservatively high supply voltage, to provide a guardband that allows DRAM chips with worst-case process
+variation to operate without errors under the worst-case operating conditions [32]. The exact amount of supply
+voltage guardband varies across chips, and lowering the voltage below the guardband can result in erroneous or
+even undefined behavior. Therefore, we need to understand how DRAM chips behave during reduced-voltage
+operation. To our knowledge, no previously published work examines the effect of using a wide range of different
+supply voltage values on the reliability, latency, and retention characteristics of DRAM chips.
+
+Our goal in this work is to () characterize and understand the relationship between supply voltage reduction
+and various characteristics of DRAM, including DRAM reliability, latency, and data retention; and (ii) use the
+insights derived from this characterization and understanding to design a new mechanism that can aggressively
+lower the supply voltage to reduce DRAM energy consumption while keeping performance loss under a bound.
+To this end, we build an FPGA-based testing platform that allows us to tune the DRAM supply voltage [43]. Using
+this testing platform, we perform experiments onreal DDR3L DRAM chips [51] from three major vendors,
+contained withindual in-line memory modules (DIMMs). Our comprehensive experimental characterization
+provides four major observations on how DRAM latency, reliability, and data retention time are affected by
+reduced supply voltage.
+
+First, we observe that we can reliably access data when DRAM supply voltage is lowered below the nominal
+voltage, until a certain voltage value, Vinin, which is the minimum voltage level at which no bit errors occur.
+Furthermore, we find that we can reduce the voltage below Vjnin to attain further energy savings, but that errors
+start occurring in some of the data read from memory. As we drop the voltage further below Vinjn, the number of
+erroneous bits of data increases exponentially with the voltage drop.
+
+Second, we observe that while reducing the voltage below ,,jn introduces bit errors in the data, we can prevent
+these errors if we increase the latency of the three fundamental DRAM operations (activation, restoration, and
+precharge). When the supply voltage is reduced, the capacitor charge takes a longer time to change, thereby
+We explain the detail of each of these operations in Section
+
+causing these DRAM operations to become slower to complete. Errors are introduced into the data when the
+
+memory controller does not account for this slowdown in the DRAM operations. We find that if the memory
+
+controller allocates extra time for these operations to finish when the supply voltage is below Vin, errors no
+longer occur. We validate, analyze, and explain this behavior using detailed circuit-level simulations.
+
+Third, we observe that when only a small number of errors occur due to reduced supply voltage, these errors
+tend to cluster physically in certain regions of a DRAM chip, as opposed to being randomly distributed throughout
+the chip. This observation implies that when we reduce the supply voltage to the DRAM array, we need to
+increase the fundamental operation latencies for only the regions where errors can occur.
+
+Fourth, we observe that reducing the supply voltage does not impact the data retention guarantees of DRAM.
+Commodity DRAM chips guarantee that all cells can safely retain data forms, after which the cells are refreshed
+to replenish charge that leaks out of the capacitors. Even when we reduce the supply voltage, the rate at which
+charge leaks from the capacitors is so slow that no data is lost during thems refresh interval at° and°
+ambient temperature.
+
+Based on our experimental observations, we propose a new low-cost DRAM energy reduction mechanism
+called Voltron. The key idea of Voltron is to use a performance model to determine by how much we can reduce
+the DRAM array voltage at runtime without introducing errors and without exceeding a user-specified threshold
+for acceptable performance loss. Voltron consists of two components: array voltage scaling and performance-aware
+voltage control.
+
+Array voltage scaling leverages minimal hardware modifications within DRAM to reduce the voltage of only the
+DRAM array, without affecting the voltage of the peripheral circuitry. If Voltron were to reduce the voltage of the
+peripheral circuitry, we would have to reduce the operating frequency of DRAM. This is because the maximum
+operating frequency of DRAM is a function of the peripheral circuitry voltage [32]. A reduction in the operating
+frequency reduces the memory data throughput, which can significantly harm the performance of applications
+that require high memory bandwidth, as we demonstrate in this paper.
+
+Performance-aware voltage control uses performance counters within the processor to build a piecewise linear
+model of how the performance of an application decreases as the DRAM array supply voltage is lowered (due to
+longer operation latency to prevent errors), and uses the model to select a supply voltage that keeps performance
+above a user/system-specified performance target.
+
+Our evaluations of Voltron show that it significantly reduces both DRAM and system energy consumption, at
+the expense of very modest performance degradation. For example, at an average performance loss of only%
+over seven memory-intensive quad-core workloads from SPEC2006, Voltron reduces DRAM energy consumption
+by an average of%, which translates to an overall system energy consumption of%. We also show that
+Voltron effectively saves DRAM and system energy on even non-memory-intensive applications, with very little
+performance impact.
+
+This work makes the following major contributions:
+
+ We perform the first detailed experimental characterization of how the reliability and latency of modern DRAM
+chips are affected when the supply voltage is lowered below the nominal voltage level. We comprehensively
+test and analyzereal DRAM chips from three major DRAM vendors. Our characterization reveals four
+new major observations, which can be useful for developing new mechanisms that improve or better trade off
+between DRAM energy/power, latency, and/or reliability.
+
+ We experimentally demonstrate that reducing the supply voltage below a certain point introduces bit errors in
+the data read from DRAM. We show that we can avoid these bit errors by increasing the DRAM access latency
+when the supply voltage is reduced.
+
+ We propose Voltron, a mechanism that () reduces the supply voltage to only the DRAM array without affecting
+the peripheral circuitry, and (ii) uses a performance model to select a voltage that does not degrade performance
+
+Precharge Command. After reading the data from the row buffer, the memory controller may contain a
+request that needs to access data from a different row within the same bank. To prepare the bank to service this
+request, the memory controller issues a PRECHARGE command to the bank, which closes the currently-activated
+row and resets the bank in preparation for the next ACTIVATE command. Because closing the activated row and
+resetting the bank takes some time, the standard specifies the precharge latency as the minimum amount of
+time the controller must wait for after issuing PRECHARGE before it issues an ACTIVATE. The timing parameter for
+precharge is called tRP, as shown in Figure and is typically set tons in DDR3L [92].
+ Effect of DRAM Voltage and Frequency on Power Consumption
+
+DRAM power is divided into dynamic and static power. Dynamic power is the power consumed by executing the
+access commands: ACTIVATE, PRECHARGE, and READ/WRITE. Each ACTIVATE and PRECHARGE consumes power in the
+DRAM array and the peripheral circuitry due to the activity in the DRAM array and control logic. Each READ/WRITE
+consumes power in the DRAM array by accessing data in the row buffer, and in the peripheral circuitry by driving
+data on the channel. On the other hand, static power is the power that is consumed regardless of the DRAM
+accesses, and it is mainly due to transistor leakage. DRAM power is governed by both the supply voltage and
+operating clock frequency: Power Voltage”  Frequency [32]. As shown in this equation, power consumption
+scales quadratically with supply voltage, and linearly with frequency.
+
+DRAM supply voltage is distributed to both the DRAM array and the peripheral circuitry through respective
+power pins on the DRAM chip, dedicated separately to the DRAM array and the peripheral circuitry. We call
+the voltage supplied to the DRAM array, Varray, and the voltage supplied to the peripheral circuitry, Vper;. Each
+DRAM standard requires a specific nominal supply voltage value, which depends on many factors, such as the
+architectural design and process technology. In this work, we focus on the widely used DDR3L DRAM design
+that requires a nominal supply voltage ofV [51]. To remain operational when the supply voltage is unstable,
+DRAM can tolerate a small amount of deviation from the nominal supply voltage. In particular, DDR3L DRAM is
+specified to operate with a supply voltage ranging fromV toV [92].
+
+The DRAM channel frequency value of a DDR DRAM chip is typically specified using the channel data rate,
+measured in mega-transfers per second (MT/). The size of each data transfer is dependent on the width of the
+data bus, which ranges fromtobits fora DDR3L chip [92]. Since a modern DDR channel transfers data on
+both the positive and the negative clock edges (hence the term double data rate, or DDR), the channel frequency
+is half of the data rate. For example, a DDR data rate ofMT/ means that the frequency isMHz. To run
+the channel at a specified data rate, the peripheral circuitry requires a certain minimum voltage (Vperi) for stable
+operation. As a result, the supply voltage scales directly (.., linearly) with DRAM frequency, and it determines
+the maximum operating frequency [32, 35].
+ Memory Voltage and Frequency Scaling
+
+One proposed approach to reducing memory energy consumption is to scale the voltage and/or the frequency
+of DRAM based on the observed memory channel utilization. We briefly describe two different ways of scaling
+frequency and/or voltage below.
+
+Frequency Scaling. To enable the power reduction that comes with reduced DRAM frequency, prior works
+propose to apply dynamic frequency scaling (DFS) by adjusting the DRAM channel frequency based on the
+memory bandwidth demand from the DRAM channel [14, 33-35, 107, 126]. A major consequence of lowering
+the frequency is the likely performance loss that occurs, as it takes a longer time to transfer data across the
+DRAM channel while operating at a lower frequency. The clocking logic within the peripheral circuitry requires
+a fixed number of DRAM cycles to transfer the data, since DRAM sends data on each edge of the clock cycle. For
+a-bit memory channel with aB cache line size, the transfer typically takes four DRAM cycles [50]. Since
+lowering the frequency increases the time required for each cycle, the total amount of time spent on data transfer,
+
+in nanoseconds, increases accordingly. As a result, not only does memory latency increase, but also memory
+data throughput decreases, making DFS undesirable to use when the running workload’ memory bandwidth
+demand or memory latency sensitivity is high. The extra transfer latency from DRAM can also cause longer
+queuing times for requests waiting at the memory controller [48, 60, 61, 70, 124, 125], further exacerbating the
+performance loss and potentially delaying latency-critical applications [32, 35].
+
+Voltage and Frequency Scaling. While decreasing the channel frequency reduces the peripheral circuitry
+power and static power, it does not affect the dynamic power consumed by the operations performed on the
+DRAM array (.., activation, restoration, precharge). This is because DRAM array operations are asynchronous,
+iLe., independent of the channel frequency [91]. As a result, these operations require a fixed time (in nanoseconds)
+to complete. For example, the activation latency ina DDR3L DRAM module isns, regardless of the DRAM
+frequency [92]. If the channel frequency is doubled from, the memory controller doubles
+the number of cycles for the ACTIVATE timing parameter (.., (RCD) (fromcycles tocycles), to maintain thens latency.
+
+In order to reduce the dynamic power consumption of the DRAM array as well, prior work proposes dynamic
+voltage and frequency scaling (DVFS) for DRAM, which reduces the supply voltage along with the channel
+frequency [32]. This mechanism selects a DRAM frequency based on the current memory bandwidth utilization
+and finds the minimum operating voltage (Vmin) for that frequency. Vjnin is defined to be the lowest voltage
+that still provides “stable operation” for DRAM (ie., no errors occur within the data). There are two significant
+limitations for this proposed DRAM DVFS mechanism. The first limitation is due to a lack of understanding of
+how voltage scaling affects the DRAM behavior. No prior work provides experimental characterization or analysis
+of the effect of reducing the DRAM supply voltage on latency, reliability, and data retention in real DRAM chips.
+As the DRAM behavior under reduced-voltage operation is unknown to satisfactorily maintain the latency and
+reliability of DRAM, the proposed DVFS mechanism [32] can reduce supply voltage only very conservatively. The
+second limitation is that this prior work reduces the supply voltage only when it reduces the channel frequency,
+since a lower channel frequency requires a lower supply voltage for stable operation. As a result, DRAM DVFS
+results in the same performance issues experienced by the DRAM DFS mechanisms. In Section, we evaluate
+the main prior work [32] on memory DVFS to quantitatively demonstrate its benefits and limitations.
+ Our Goal
+
+The goal of this work is to () experimentally characterize and analyze real modern DRAM chips operating at
+different supply voltage levels, in order to develop a solid and thorough understanding of how reduced-voltage
+operation affects latency, reliability, and data retention in DRAM; and (ii) develop a mechanism that can reduce
+DRAM energy consumption by reducing DRAM voltage, without having to sacrifice memory data throughput,
+based on the insights obtained from comprehensive experimental characterization. Understanding how DRAM
+characteristics change at different voltage levels is imperative not only for enabling memory DVFS in real systems,
+but also for developing other low-power and low-energy DRAM designs that can effectively reduce the DRAM
+voltage. We experimentally analyze the effect of reducing supply voltage of modern DRAM chips in Section
+and introduce our proposed new mechanism for reducing DRAM energy in Section
+
+ EXPERIMENTAL METHODOLOGY
+
+To study the behavior of real DRAM chips under reduced voltage, we build an FPGA-based infrastructure based
+on SoftMC [43], which allows us to have precise control over the DRAM modules. This method was used in many
+previous works [20, 21, 43, 53, 54, 57-59, 64, 65, 72, 73, 75, 83, 89, 108] as an effective way to explore different
+DRAM characteristics (.., latency, reliability, and data retention time) that have not been known or exposed to
+the public by DRAM manufacturers. Our testing platform consists of a Xilinx ML605 FPGA board and a host PC
+that communicates with the FPGA via a PCIe bus (Figure). We adjust the supply voltage to the DRAM by using
+
+a USB interface adapter [127] that enables us to tune the power rail connected to the DRAM module directly. The
+power rail is connected to all the power pins of every chip on the module (as shown in Appendix A).
+Fig. FPGA-based DRAM testing platform.
+
+Characterized DRAM Modules. In total, we testedDRAM DIMMs, comprising ofDDR3L (low-voltage)
+chips, from the three major DRAM chip vendors that hold more than% of the DRAM market share [13]. Each
+chip has aGb density. Thus, each of our DIMMs has aGB capacity. The DIMMs support up to aMT/
+channel frequency. Due to our FPGA’ maximum operating frequency limitations, all of our tests are conducted
+atMT/. Note that the experiments we perform do not require us to adjust the channel frequency. Tabledescribes the relevant information about the tested DIMMs. Appendix  provides detailed information on each
+DIMM. Unless otherwise specified, we test our DIMMs at an ambient temperature of°. We examine the
+
+effects of high ambient temperature (.., 70+°) in Section.
+
+Total Number Timing(ns) § Assembly
+
+DRAM Tests. At a high level, we develop a test (Test) that  every row in the entire
+DIMM, for a given supply voltage. The test takes in several different input parameters: activation latency (tRCD),
+precharge latency (tRP), and data pattern. The goal of the test is to examine if any errors occur under the given
+
+supply voltage with the different input parameters.
+In the test, we iteratively test two consecutive rows at a time. The two rows hold data that are the inverse
+
+of each other (.., data and data). Reducing tRP lowers the amount of time the precharge unit has to reset the
+
+bitline voltage from either full voliage (bit value) or zero voltage (bit value) to half voltage. If (RP were reduced
+too much, the bitlines would float at some other intermediate voltage value between half voltage and full/zero
+
+TestTest DIMM with specified tRCD/tRP and data pattern.
+
+
+voltage. As a result, the next activation can potentially start before the bitlines are fully precharged. If we were to
+use the same data pattern in both rows, the sense amplifier would require less time to sense the value during
+the next activation, as the bitline is already biased toward those values. By using the inverse of the data pattern
+in the row that is precharged for the next row that is activated, we ensure that the partially-precharged state
+of the bitlines does not unfairly favor the access to the next row [21]. In total, we use three different groups of
+data patterns for our test: (0x00, Oxff), (Oxaa, 0x33), and (Oxcc, 0x55). Each specifies the data and data, placed in
+consecutive rows in the same bank.
+CHARACTERIZATION OF DRAM UNDER REDUCED VOLTAGE
+
+In this section, we present our major observations from our detailed experimental characterization ofcommodity
+DIMMs (124 chips) from three vendors, when the DIMMs operate under reduced supply voltage (.., below the
+nominal voltage level specified by the DRAM standard). First, we analyze the reliability of DRAM chips as we
+reduce the supply voltage without changing the DRAM access latency (Section). Our experiments are designed
+to identify if lowering the supply voltage induces bit errors (.., bit flips) in data. Second, we present our findings
+on the effect of increasing the activation and precharge latencies for DRAM operating under reduced supply
+voltage (Section). The purpose of this experiment is to understand the trade-off between access latencies
+(which impact performance) and the supply voltage of DRAM (which impacts energy consumption). We use
+detailed circuit-level DRAM simulations to validate and explain our observations on the relationship between
+access latency and supply voltage. Third, we examine the spatial locality of errors induced due to reduced-voltage
+operation (Section) and the distribution of errors in the data sent across the memory channel (Section).
+Fourth, we study the effect of temperature on reduced-voltage operation (Section). Fifth, we study the effect
+of reduced voltage on the data retention times within DRAM (Section). We present a summary of our findings
+in Section.
+ DRAM Reliability as Supply Voltage Decreases
+
+We first study the reliability of DRAM chips under low voltage, which was not studied by prior works on DRAM
+voltage scaling (.., [32]). For these experiments, we use the minimum activation and precharge latencies that we
+experimentally determine to be reliable (.., they do not induce any errors) under the nominal voltage ofV at+° temperature. As shown in prior works [, 15, 17, 20, 21, 43, 57-59, 72, 73, 75, 81, 84, 105, 106, 108, 130],
+DRAM manufacturers adopt a pessimistic standard latency that incorporates a large margin as a safeguard to
+ensure that each chip deployed in the field operates correctly under a wide range of conditions. Examples of
+these conditions include process variation, which causes some chips or some cells within a chip to be slower than
+others, or high operating temperatures, which can affect the time required to perform various operations within
+DRAM. Since our goal is to understand how the inherent DRAM latencies vary with voltage, we conduct our
+experiments without such an excessive margin.
+Fig. Effect of reduced array supply voltage on activation, restoration, and precharge, from SPICE simulations.
+
+We make two observations from our SPICE simulations. First, we observe that the bitline voltage during
+activation increases at a different rate depending on the supply voltage of the DRAM array (Varray). Thus, the
+supply voltage affects the latency of the three DRAM operations (activation, restoration, and precharge). When
+the nominal voltage level (.35V) is used for Varray, the time (tRCD) it takes for the sense amplifier to drive the
+bitline to the ready-to-access voltage level (75% of Varray) is much shorter than the time to do so at a lower Varray.
+As Varray decreases, the sense amplifier needs more time to latch in the data, increasing the activation latency.
+Similarly, the restoration latency (tRAS) and the precharge latency (tRP) increase as Varray decreases.
+
+Second, the latencies of the three fundamental DRAM array operations (.., activation, restoration, precharge)
+do not correlate with the channel (or clock) frequency (not shown in Figure). This is because these operations
+are clock-independent asynchronous operations that are a function of the cell capacitance, bitline capacitance,
+and Varray [56]. As a result, the channel frequency is independent of the three fundamental DRAM operations.
+
+Therefore, we hypothesize that DRAM errors occur at lower supply voltages because the three DRAM array
+operations have insufficient latency to fully complete at lower voltage levels. In the next section, we experimentally
+investigate the effect of increasing latency values as we vary the supply voltage on real DRAM chips.
+In Appendix , we show a detailed circuit schematic of a DRAM array that operates asynchronously, which forms the basis of our SPICE
+circuit simulation model [].
+VOLTRON: REDUCING DRAM ENERGY WITHOUT SACRIFICING MEMORY THROUGHOUT
+
+Based on the extensive understanding we developed on reduced-voltage operation of real DRAM chips in
+Section we propose a new mechanism called Voltron, which reduces DRAM energy without sacrificing memory
+throughput. Voltron exploits the fundamental observation that reducing the supply voltage to DRAM requires
+increasing the latency of the three DRAM operations in order to prevent errors. Using this observation, the
+key idea of Voltron is to use a performance model to determine by how much to reduce the DRAM supply
+voltage, without introducing errors and without exceeding a user-specified threshold for performance loss.
+Voltron consists of two main components: () array voltage scaling, a hardware mechanism that leverages our
+experimental observations to scale only the voltage supplied to the DRAM array; and (ii) performance-aware
+voltage control, a software mechanism’ that automatically chooses the minimum DRAM array voltage that meets
+a user-specified performance target.
+ Array Voltage Scaling
+
+As we discussed in Section, the DRAM supply voltage to the peripheral circuitry determines the maximum
+operating frequency. If we reduce the supply voltage directly, the frequency needs to be lowered as well. As more
+applications become more sensitive to memory bandwidth, reducing DRAM frequency can result in a substantial
+performance loss due to lower data throughput. In particular, we find that reducing the DRAM frequency from significantly degrades performance of our evaluated memory-intensive applications by%. Therefore, the design challenge of Voltron is to reduce the DRAM supply voltage without changing the
+DRAM frequency.
+
+To address this challenge, the key idea of Voltron’ first component, array voltage scaling, is to reduce the
+voltage supplied to the DRAM array (Varray) without changing the voltage supplied to the peripheral circuitry,
+thereby allowing the DRAM channel to maintain a high frequency while reducing the power consumption of
+the DRAM array. To prevent errors from occurring during reduced-voltage operation, Voltron increases the
+latency of the three DRAM operations (activation, restoration, and precharge) in every DRAM bank based on our
+observations in Section
+
+By reducing Varray, we effectively reduce () the dynamic DRAM power on activate, precharge, and refresh
+operations; and (ii) the portion of the static power that comes from the DRAM array. These power components
+decrease quadratically with the square of the array voltage reduction in a modern DRAM chip [12, 56]. The tradeoff is that reducing Varray requires increasing the latency of the three DRAM operations, for reliable operation,
+thereby leading to some system performance degradation, which we quantify in our evaluation (Section).
+ Performance-Aware Voltage Control
+
+Array voltage scaling provides system users with the ability to decrease Varray to reduce DRAM power. Employing
+a lower Varray provides greater power savings, but at the cost of longer DRAM access latency, which leads to
+larger performance degradation. This trade-off varies widely across different applications, as each application has
+a different tolerance to the increased memory latency. This raises the question of how to pick a “suitable” array
+voltage level for different applications as a system user or designer. For this work, we say that an array voltage
+level is suitable if it does not degrade system performance by more than a user-specified threshold. Our goal is to
+provide a simple technique that can automatically select a suitable Va,-ay value for different applications. To
+this end, we propose performance-aware voltage control, a power-performance management policy that selects a
+minimum Vgrray that satisfies a desired performance constraint. The key observation is that an application’
+performance loss (due to increased memory latency) scales linearly with the application’ memory demand (..,
+memory intensity). Based on this empirical observation we make, we build a performance loss predictor that
+Note that this mechanism can also be implemented in hardware, or as a cooperative hardware/software mechanism.
+
+system is more likely to service them in parallel, leading to more memory-level parallelism [41, 67, 71, 96, 98, 99].
+Therefore, improved memory-level parallelism enables applications to tolerate higher latencies more easily.
+
+Figureb shows that an application’ performance loss increases with its instruction window (reorder buffer)
+stall time fraction due to memory requests for both memory-intensive and non-memory-intensive applications.
+A stalled instruction window prevents the CPU from fetching or dispatching new instructions [99], thereby
+degrading the running application’ performance. This observation has also been made and utilized by prior
+works [40, 95, 96, 99].
+
+Performance Loss Predictor. Based on the observed linear relationships between performance loss vs. MPKI
+and memory stall time fraction, we use ordinary least squares (OLS) regression to develop a piecewise linear
+model for each application that can serve as the performance loss predictor for Voltron. Equationshows the
+model, which takes the following inputs: memory latency , the application’ MPKI, and
+its memory stall time fraction.
+
+PredictedLoss; is the predicted performance loss for the application. The subscript  refers to each data sample,
+which describes a particular application’ characteristics (MPKI and memory stall time fraction) and the memory
+latency associated with the selected voltage level. To generate the data samples, we run a total ofworkloads
+acrossdifferent voltage levels that range fromV toV, at amV step (see Section for our methodology).
+In total, we generatedata samples for finding the coefficients (.., a and  values) in our model. To avoid
+overfitting the model, we use the scikit-learn machine learning toolkit [46] to perform cross-validation, which
+randomly splits the data samples into a training set (151 samples) and a test set (65 samples). To assess the fit of
+the model, we use a common metric, root-mean-square error (RMSE), which is and for the low-MPKI and
+high-MPKI pieces of the model, respectively. Furthermore, we calculate the ? value to be and for the
+low-MPKI and high-MPKI models, respectively. Therefore, the RMSE and ? metrics indicate that our model
+provides high accuracy for predicting the performance loss of applications under different Va-ray values.
+
+Array Voltage Selection. Using the performance loss predictor, Voltron selects the minimum value of Varray
+that satisfies the given user target for performance loss. Algorithmdepicts the array voltage selection component
+of Voltron. The voltage selection algorithm is executed at periodic intervals throughout the runtime of an
+application. During each interval, the application’ memory demand is profiled. At the end of an interval, Voltron
+uses the profile to iteratively compare the performance loss target to the predicted performance loss incurred
+by each voltage level, starting from a minimum value ofV. Then, Voltron selects the minimum Vg;;ay that
+does not exceed the performance loss target and uses this selected Varray as the DRAM supply voltage in the
+subsequent interval. In our evaluation, we provide Voltron with a total ofvoltage levels (everyV step fromV toV) for selection.
+ Implementation
+
+Voltron’ two components require modest modifications to different parts of the system. In order to support
+array voltage scaling, Voltron requires minor changes to the power delivery network of DIMMs, as commerciallyavailable DIMMs currently use a single supply voltage for both the DRAM array and the peripheral circuitry. Note
+
+
+that this supply voltage goes through separate power pins: Vpp and Vppg for the DRAM array and peripheral
+circuitry, respectively, on a modern DRAM chip [92]. Therefore, to enable independent voltage adjustment, we
+propose to partition the power delivery network on the DIMM into two domains: one domain to supply only the
+DRAM array (Vpp) and the other domain to supply only the peripheral circuitry (Vppg).
+
+Performance-aware voltage control requires () performance monitoring hardware that records the MPKI and
+memory stall time of each application; and (ii) a control algorithm block, which predicts the performance loss at
+different Va-ray Values and accordingly selects the smallest acceptable Va;;ay. Voltron utilizes the performance
+counters that exist in most modern CPUs to perform performance monitoring, thus requiring no additional
+hardware overhead. Voltron reads these counter values and feeds them into the array voltage selection algorithm,
+which is implemented in the system software layer. Although reading the performance monitors has a small
+amount of software overhead, we believe the overhead is negligible because we do so only at the end of each
+interval (.., every four million cycles in most of our evaluations; see sensitivity studies in Section).
+
+Voltron periodically executes this performance-aware voltage control mechanism during the runtime of the
+target application. During each time interval, Voltron monitors the application’ behavior through hardware
+counters. At the end of an interval, the system software executes the array voltage selection algorithm to select
+the predicted Vz-;ay and accordingly adjust the timing parameters stored in the memory controller for activation,
+restoration, and precharge. Note that there could be other (.., completely hardware-based) implementations of
+Voltron. We leave a detailed explanation of different implementations to future work.
+SYSTEM EVALUATION
+
+In this section, we evaluate the system-level performance and energy impact of Voltron. We present our evaluation
+methodology in Section. Next, we study the energy savings and performance loss when we use array voltage
+scaling without any control (Section). We study how performance-aware voltage control delivers overall
+system energy reduction with only a modest amount of performance loss (Sections and). We then evaluate
+an enhanced version of Voltron, which exploits spatial error locality (Section). Finally, Sections to
+present sensitivity studies of Voltron to various system and algorithm parameters.
+ Methodology
+
+We evaluate Voltron using Ramulator [63], a detailed and and cycle-accurate open-source DRAM simulator [],
+integrated with a multi-core performance simulator. We model a low-power mobile system that consists ofARM
+cores and DDR3L DRAM. Tableshows our system parameters. Such a system resembles existing commodity
+devices, such as the Google Chromebook [42] or the NVIDIA SHIELD tablet [104]. To model power and energy
+consumption, we use McPAT [79] for the processor and DRAMPower [18] for the DRAM-based memory system.
+We open-source the code of Voltron [].
+ARM Cortex-A9 cores [11], 2GHz,
+
+Enocessor-entry instruction window
+
+Cache L1:KB/core, L2:KB/core, L3:MB shared
+
+Memory .
+Table Evaluated system configuration.
+
+Tablelists the latency values we evaluate for each DRAM array voltage (Varray). The latency values are
+obtained from our SPICE model using data from real devices (Section), which is available online [].° To
+account for manufacturing process variation, we conservatively add in the same latency guardband (.., 38%)
+used by manufacturers at the nominal voltage level ofV to each of our latency values. We then round up
+each latency value to the nearest clock cycle time (.., .25ns).
+
+Workloads. We evaluatebenchmarks from SPEC CPU2006 [123] and YCSB [27], as shown in Tablealong
+with each benchmark’ L3 cache MPKI, .., memory intensity. We use thebenchmarks to form homogeneous and
+heterogeneous multiprogrammed workloads. For each homogeneous workload, we replicate one of our benchmarks
+by running one copy on each core to form a four-core multiprogrammed workload, as done in many past
+works that evaluate multi-core system performance [21, 23, 75, 76, 102, 103, 117, 118]. Evaluating homogeneous
+workloads enables easier analysis and understanding of the system. For each heterogeneous workload, we combine
+four different benchmarks to create a four-core workload. We categorize the heterogeneous workloads by varying
+the fraction of memory-intensive benchmarks in each workload (%, 25%, 50%, 75%, and%). Each category
+consists ofworkloads, resulting in a total ofworkloads across all categories. Our simulation executes at
+leastmillion instructions on each core. We calculate system energy as the product of the average dissipated
+power (from both CPU and DRAM) and the workload runtime. We measure system performance with the
+In this work, we do not have experimental data on the restoration latency ({RAS) under reduced-voltage operation. This is because our
+reduced-voltage tests access cache lines sequentially from each DRAM row, and tRAS overlaps with the latency of reading all of the cache
+lines from the row. Instead of designing a separate test to measure tRAS, we use our circuit simulation model (Section) to derive tRAS
+values for reliable operation under different voltage levels. We leave the thorough experimental evaluation of {RAS under reduced-voltage
+operation to future work.
+
+commonly-used weighted speedup (WS) metric [120], which is a measure of job throughput on a multi-core
+system [38].
+ Impact of Array Voltage Scaling
+
+In this section, we evaluate how array voltage scaling (Section) affects the system energy consumption and
+application performance of our homogeneous workloads at different Va--ay values. We split our discussion into
+two parts: the results for memory-intensive workloads (.., applications where MPKI >for each core), and the
+results for non-memory-intensive workloads.
+
+Memory-Intensive Workloads. Figureshows the system performance (WS) loss, DRAM power reduction,
+and system energy reduction, compared to a baseline DRAM withV, when we vary Varray fromV toV. We make three observations from these results.
+
+First, system performance loss increases as we lower Varray, due to the increased DRAM access latency.
+However, different workloads experience a different rate of performance loss, as they tolerate memory latency
+differently. Among the memory-intensive workloads, mcf exhibits the lowest performance degradation since
+it has the highest memory intensity and high memory-level parallelism, leading to high queuing delays in the
+memory controller. The queuing delays and memory-level parallelism hide the longer DRAM access latency more
+than in other workloads. Other workloads lose more performance because they are less able to tolerate/hide the
+increased latency. Therefore, workloads with very high memory intensity and memory-level parallelism can be
+less sensitive to the increased memory latency.
+
+Second, DRAM power savings increase with lower Vg;ray since reducing the DRAM array voltage decreases
+both the dynamic and static power components of DRAM. However, system energy savings does not monotonically
+increase with lower Varray. We find that using Varray=.9V provides lower system energy savings than using
+Varray=.0V, as the processor takes much longer to run the applications at Varray=.9V. In this case, the increase
+in static DRAM and CPU energy outweighs the dynamic DRAM energy savings.
+
+Third, reducing Varray leads to a system energy reduction only when the reduction in DRAM energy outweighs
+the increase in CPU energy (due to the longer execution time). For Varray =.1V, the system energy reduces by
+an average of%. Therefore, we conclude that array voltage scaling is an effective technique that improves
+system energy consumption, with a small performance loss, for memory-intensive workloads.
+
+Non-Memory-Intensive Workloads. Tablesummarizes the system performance loss and energy savings ofnon-memory-intensive workloads as Varray varies fromV toV, over the performance and energy consumption under a nominal Vj;;ay ofV. Compared to the memory-intensive workloads, non-memory-intensive
+workloads obtain smaller system energy savings, as the system energy is dominated by the processor. Although
+
+latency, and refresh. In contrast to all these works, our work focuses on a detailed experimental characterization
+of real DRAM chips as the supply voltage varies. Our study provides fundamental observations for potential
+mechanisms that can mitigate DRAM and system energy consumption. Furthermore, frequency scaling hurts
+memory throughput, and thus significantly degrades the system performance of especially memory-intensive
+workloads (see Section for our quantitative comparison). We demonstrate the importance and benefits of
+exploiting our experimental observations by proposing Voltron, one new example mechanism that uses our
+observations to reduce DRAM and system energy without sacrificing memory throughput.
+
+Low-Power Modes for DRAM. Modern DRAM chips support various low-power standby modes. Entering
+and exiting these modes incurs some amount of latency, which delays memory requests that must be serviced.
+To increase the opportunities to exploit these low-power modes, several prior works propose mechanisms
+that increase periods of memory idleness through data placement (.., [39, 69]) and memory traffic reshaping
+(.., [, 10, 16, 36, 86]). Exploiting low-power modes is orthogonal to our work on studying the impact of
+reduced-voltage operation in DRAM. Furthermore, low-power modes have a smaller effect on memory-intensive
+workloads, which exhibit little idleness in memory accesses, whereas, as we showed in Section, our mechanism
+is especially effective on memory-intensive workloads.
+
+Low-Power DDR DRAM Chips. Low-power DDR (LPDDR) [49, 52] is a specific type of DRAM that is
+optimized for low-power systems like mobile devices. To reduce power consumption, LPDDRx (currently in itsth generation) employs a few major design changes that differ from conventional DDRx chips. First, LPDDRx
+uses a low-voltage swing I/ interface that consumes% less I/ power than DDR4 DRAM [26]. Second, it
+supports additional low-power modes with a lower supply voltage. Since the LPDDRx array design remains the
+same as DDRx, our observations on the correlation between access latency and array voltage are applicable to
+LPDDRx DRAM as well. Our proposed Voltron approach can provide significant benefits in LPDDRx, since array
+energy consumption is significantly higher than the energy consumption of peripheral circuitry in LPDDRx
+chips [26]. We leave the detailed evaluation of LPDDRx chips for future work since our current experimental
+platform is not capable of evaluating them.
+
+Low-Power DRAM Architectures. Prior works (.., [24, 28, 128, 139]) propose to modify the DRAM chip
+architecture to reduce the ACTIVATE power by activating only a fraction of a row instead of the entire row. Another
+common technique, called sub-ranking, reduces dynamic DRAM power by accessing data from a subset of chips
+from a DRAM module [132, 138, 143]. A couple of prior works [87, 137] propose DRAM module architectures
+that integrate many low-frequency LPDDR chips to enable DRAM power reduction. These proposed changes to
+DRAM chips or DIMMs are orthogonal to our work.
+
+Reducing Refresh Power. In modern DRAM chips, although different DRAM cells have widely different
+retention times [62, 83], memory controllers conservatively refresh ail of the cells based on the retention time
+of a small fraction of weak cells, which have the longest retention time out of all of the cells. To reduce DRAM
+refresh power, many prior works (.., [, 15, 57-59, 81, 83, 84, 105, 106, 108, 130]) propose mechanisms to reduce
+unnecessary refresh operations, and, thus, refresh power, by characterizing the retention time profile (.., the
+data retention behavior of each cell) within the DRAM chips. However, these techniques do not reduce the power
+of other DRAM operations, and these prior works do not provide an experimental characterization of the effect of
+reduced voltage levels on data retention time.
+
+Improving DRAM Energy Efficiency by Reducing Latency or Improving Parallelism. Various prior
+works (.., [19, 22, 44, 68, 72, 73, 73-78, 114]) improve DRAM energy efficiency by reducing the execution time
+through techniques that reduce the DRAM access latency or improve parallelism between memory requests.
+These mechanisms are orthogonal to ours, because they do not reduce the voltage level of DRAM.
+
+Experimental Studies of DRAM Chips. Recent works experimentally investigate various reliability, data
+retention, and latency characteristics of modern DRAM chips [17, 21, 43, 53, 54, 57, 58, 64, 65, 72-75, 83, 84, 90,
+
+106, 112, 121, 122]. None of these works study these characteristics under reduced-voltage operation, which we
+do in this paper.
+
+Reduced-Voltage Operation in SRAM Caches. Prior works propose different techniques to enable SRAM
+caches to operate under reduced voltage levels (.., [, , 25, 110, 134, 135]). These works are orthogonal to our
+experimental study because we focus on understanding and enabling reduced-voltage operation in DRAM, which
+is a significantly different memory technology than SRAM.
+CONCLUSION
+
+This paper provides the first experimental study that comprehensively characterizes and analyzes the behavior of
+DRAM chips when the supply voltage is reduced below its nominal value. We demonstrate, usingDDR3L
+DRAM chips, that the DRAM supply voltage can be reliably reduced to a certain level, beyond which errors arise
+within the data. We then experimentally demonstrate the relationship between the supply voltage and the latency
+of the fundamental DRAM operations (activation, restoration, and precharge). We show that bit errors caused by
+reduced-voltage operation can be eliminated by increasing the latency of the three fundamental DRAM operations.
+By changing the memory controller configuration to allow for the longer latency of these operations, we can
+thus further lower the supply voltage without inducing errors in the data. We also experimentally characterize
+the relationship between reduced supply voltage and error locations, stored data patterns, temperature, and data
+retention.
+
+Based on these observations, we propose and evaluate Voltron, a low-cost energy reduction mechanism that
+reduces DRAM energy without affecting memory data throughput. Voltron reduces the supply voltage for only
+the DRAM array, while maintaining the nominal voltage for the peripheral circuitry to continue operating
+the memory channel at a high frequency. Voltron uses a new piecewise linear performance model to find the
+array supply voltage that maximizes the system energy reduction within a given performance loss target. Our
+experimental evaluations across a wide variety of workloads demonstrate that Voltron significantly reduces
+system energy consumption with only very modest performance loss.
+
+We conclude that it is very promising to understand and exploit reduced-voltage operation in modern DRAM
+chips. We hope that the experimental characterization, analysis, and optimization techniques presented in this
+paper will enable the development of other new mechanisms that can effectively exploit the trade-offs between
+voltage, reliability, and latency in DRAM to improve system performance, efficiency, and/or reliability.
+
+ACKNOWLEDGMENTS
+
+
+group members for feedback. We acknowledge the support of Google, Intel, NVIDIA, Samsung, VMware, and the
+United States Department of Energy. This research was supported in part by the ISTC-CC, SRC, and NSF (grantsand). Kevin Chang is supported in part by an SRCEA/Intel Fellowship.
+

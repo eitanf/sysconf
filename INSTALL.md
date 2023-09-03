@@ -1,8 +1,11 @@
-This document lists the preparation and installation of all the prerequisits for building sysconf documents.
+This document lists the preparation and installation of all the prerequisits for building sysconf documents. Alternatively, if you just want to run a prepackaged container with all the latest source, data, and papers, run:
+`docker run -ti eitanf/sysconf:latest`.
+
+If you do want to go through the full install on a local machine, follow these steps:
 
 # Ubuntu 20.04.3-LTS
 
-Assuming a fresh Ubuntu install (minimum recommended disk size: 12GB), follow these steps:
+Assuming a fresh Ubuntu install (minimum recommended available disk size: 12GB), follow these steps:
 
 ## 1. Install build tools and prerequisite libraries
 
@@ -42,12 +45,12 @@ export R=Rscript
 
 ## 5. Install R dependencies
 
-Run R from the command line, and in the interpreter, type:
+From the shell, run:
 
 ```
-source("pubs/dependencies.R")
-install.packages(dependencies, Ncpus=16)  # Or however many cores you have
+Rscript deps.R
 ```
+
 Answer `yes` to the questions on local installation.
 
 ## 6. Test it out

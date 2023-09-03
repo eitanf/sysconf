@@ -8,10 +8,10 @@ In addition, this directory contains some common files, shared by all the public
 
 ## How to replicate paper PDFs and analysis
 
-There are two ways to recreate the documents (which embed the analysis):
+There are three ways to recreate the documents (which embed the analysis), in decreasing order of difficulty:
 
  * By installing all the dependencies yourself, setting environment variables, and then building one (or more) papers from the command line or Rstudio.
-    1. Make sure that all the R packages in `dependencies.R` are installed. You can `source` the file in R and then call `install.packages(dependencies)`.
+    1. Make sure that all the R packages in `deps.R` are installed. You can simply run `Rscript ../deps.R` to install all the libraries with the correct version.
     2. Set the environment variables: `export R=Rscript` and `export SYSCONF_HOME=<top-level path where you cloned sysconf>`.
     3. Go in to this directory to build all papers, or the desired paper's subdirectory, and type `make`. It should generate the PDF file.
     4. You can also change the analysis code or data (or load it up in Rstudio), then type `make clean && make` to rebuild.
@@ -23,9 +23,12 @@ There are two ways to recreate the documents (which embed the analysis):
     4. Refer to steps 3--4 above to build the document.
     5. Access the document on your host by first finding out the container id (with `docker ps`), then by copying it (for example, `docker cp <id>:/sysconf/pubs/whpc-stats/women-hpc.pdf .`).
 
+  * By running the latest docker image with everything. Simply install Docker (step 1 before), and run `docker run -t eitanf/sysconf:latest bash`. This will give you access to the latest data, code, and generated paper PDFs with this data (may be more recent data than the original publications).
+
 ## List of completed and ongoing publications:
 
   * `artifact`: "Research artifacts and citations in computer systems papers" (`docker run -ti eitanf/sysconf:artifact`).
+  * `citation`: "Citation analysis of Computer Systems Papers" (`docker run -ti eitanf/sysconf:citations`).
   * `collab`: "Gender differences in collaboration patterns in computer science" (`docker run -ti eitanf/sysconf:collab`).
   * `diversity-survey`: "A survey of accepted authors in computer systems conferences" (`docker run -ti eitanf/sysconf:survey`).
   * `gender-gap`: "Underrepresentation of women in computer systems research" (`docker run -ti eitanf/sysconf:gender-gap`).
@@ -34,6 +37,7 @@ There are two ways to recreate the documents (which embed the analysis):
   * `survey-report`: A description of  distributions of survey responses ([online report](http://sysconf.review/survey)).
 <!--  * `web`: "Statistical Observations on Computer Systems Conferences". The documents are output to ../docs and publicized via [github pages](http://eitanf.github.io/sysconf/). -->
   * `whpc`: "Representation of Women in HPC Conferences" (`docker run -ti eitanf/sysconf:whpc`).
+  * `whysofew`: "Why are There so Few Women in Computer Systems Research".
 
 The following lists in bibtex format the published peer-reviewed documents in publication order:
 
@@ -135,11 +139,36 @@ The following lists in bibtex format the published peer-reviewed documents in pu
   doi =		 {10.3390/publications10040047},
   url =		 {https://www.mdpi.com/2304-6775/10/4/47},
 }
+
+@Article{frachtenberg23:citations,
+  title =	 {Citation analysis of computer systems papers},
+  author =	 {Frachtenberg, Eitan},
+  journal =	 {PeerJ Computer Science},
+  volume =	 9,
+  pages =	 {e1389},
+  month =	 may,
+  year =	 2023,
+  doi =		 {10.7717/peerj-cs.1389},
+  publisher =	 {PeerJ Inc.}
+}
+
+@Article{richter23:whysofew,
+  author =	 {Richter, Alexis and Yamamoto, Josh, and Frachtenberg, Eitan},
+  title =	 {Why So Few Women in Computer Systems Research?},
+  journal =	 {Computer},
+  year =	 2023,
+  volume =	 56,
+  number =	 2,
+  publisher =	 {{IEEE}},
+  month =	 feb,
+  doi =		 {10.1109/MC.2022.3219633}
+}
+
 ```
 
 ---
 
-Steps to create a reproducible Docker image for a paper:
+Steps to create a reproducible Docker image for a specific paper:
 
   0. If desired, ensure the current git version is tagged appropriately, and then use `git push origin tag`.
 

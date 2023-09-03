@@ -89,9 +89,9 @@ nonsys_confs <-
 
 nonsys_authors <- nonsys_confs %>%
   map_dfr(~json_to_df(.x, all_genders)) %>%
-  mutate(across(.cols = everything(), na_if, "NA")) %>%
-  mutate(across(c(field, subfield, gender), factor))
-  
+  mutate(across(c(field, subfield, gender, paper_id), factor)) %>%
+  mutate(across(.cols = everything(), na_if, NA))
+
 
 ###########
 name_combination_creator <- function(df)

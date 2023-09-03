@@ -15,12 +15,12 @@ RUN apt-get install -V -y \
   libgdal-dev
 
 COPY deps.R .
+RUN git clone http://github.com/eitanf/sysconf
 
 ENV SYSCONF_HOME /sysconf
 ENV R Rscript
 RUN Rscript deps.R
 
-RUN git clone http://github.com/eitanf/sysconf
 WORKDIR sysconf/
 RUN git checkout citations-final
 WORKDIR pubs/citations

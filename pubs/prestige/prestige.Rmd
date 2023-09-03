@@ -79,7 +79,7 @@ cleaning_imputation <- function(dat, ratio = THRESH_RATIO, s2_limit = S2_THRESH)
 {
   dat <- dat %>%
     mutate(imp = is.na(npubs) | npubs/s2npubs >= ratio & s2npubs <= s2_limit) %>%
-    mutate(npubs_all_good = na_if(npubs/s2npubs < ratio | s2npubs/npubs < ratio, npubs))
+    mutate(npubs_all_good = na_if(npubs/s2npubs < ratio | s2npubs/npubs < ratio, TRUE))
 
 
   # Create training dataset for imputation
@@ -657,16 +657,20 @@ rep.all$metric <- factor(rep.all$metric, ordered = T,
 rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
                               levels = c("lead", "last", "median", "mean", "total", "max"),
                               labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
-rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
-rep.all$t_pval <- as.numeric(rep.all$t_pval)
-rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
-rep.all$w_pval <- as.numeric(rep.all$w_pval)
-
+rep.all <- rep.all %>%
+  mutate(t_stat.t = as.numeric(t_stat.t),
+         t_pval = as.numeric(t_pval),
+         w_stat.W = as.numeric(w_stat.W),
+         w_pval = as.numeric(w_pval),
+         diff = as.numeric(median_sb) - as.numeric(median_db)) %>%
+  rowwise() %>%
+  mutate(t_label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")),
+         w_label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))
 
 ggplot(rep.all, aes(x = metric, y = aggregation)) +
   geom_tile(aes(fill = t_stat.t)) +
   scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")))) +
+  geom_text(aes(label = t_label)) +
   ylab("Paper aggregation method") +
   xlab("Reputation metric") +
   labs(fill = "t statistic") +
@@ -702,15 +706,15 @@ That is, we can compare how the median reputation per paper (however it is aggre
 
 
 ```{r median-diffs, echo = F, warning = F, fig.height = 3, fig.width = 5.5, fig.cap="Difference in medians for various reputation metrics and aggregations across papers using two-sided Wilcoxon test. Positive values (purple) indicate higher reputation in SB conferences. Negative values (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values (from a Wilcoxon two-sided unpaired test) below 0.05, 0.01, and 0.001, respectively."}
-rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
-
 rep.all %>%
   group_by(metric) %>%
+  rowwise() %>%
   mutate(normalized = diff / metric_denominator(rep.all, metric, "diff")) %>%
+  ungroup() %>%
   ggplot(aes(x = metric, y = aggregation)) +
   geom_tile(aes(fill = normalized)) +
   scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars")))) +
+  geom_text(aes(label = w_label)) +
   ylab("Paper aggregation method") +
   xlab("Reputation metric") +
   labs(fill = "Difference") +
@@ -956,22 +960,32 @@ reg.all$predictor <- factor(reg.all$predictor, ordered = T,
                             levels = predictors,
                             labels = c("None", "Age in years", "Acceptance rate", "h5 index", "Paper submissions", "Total past citations", "Mean citations per paper"))
 colnames(reg.all) <- c("metric", "predictor", "linear_c", "linear_p", "logistic_c", "logistic_p", "linear_m_c", "linear_m_p", "logistic_m_c", "logistic_m_p")
-reg.all$linear_c <- as.numeric(reg.all$linear_c)
-reg.all$linear_p <- as.numeric(reg.all$linear_p)
-reg.all$logistic_c <- as.numeric(reg.all$logistic_c)
-reg.all$logistic_p <- as.numeric(reg.all$logistic_p)
-reg.all$linear_m_c <- as.numeric(reg.all$linear_m_c)
-reg.all$linear_m_p <- as.numeric(reg.all$linear_m_p)
-reg.all$logistic_m_c <- as.numeric(reg.all$logistic_m_c)
-reg.all$logistic_m_p <- as.numeric(reg.all$logistic_m_p)
+reg.all <- reg.all %>%
+  mutate(linear_c = as.numeric(linear_c),
+         linear_p = as.numeric(linear_p),
+         logistic_c = as.numeric(logistic_c),
+         logistic_p = as.numeric(logistic_p),
+         linear_m_c = as.numeric(linear_m_c),
+         linear_m_p = as.numeric(linear_m_p),
+         logistic_m_c = as.numeric(logistic_m_c),
+         logistic_m_p = as.numeric(logistic_m_p)
+  ) %>%
+  rowwise() %>%
+  mutate(label_linear_c = paste0(round(linear_c, 2), format_p_value(linear_p, p_option = "stars")),
+         label_linear_m = paste0(round(linear_m_c, 2), format_p_value(linear_m_p, p_option = "stars")),
+         label_logistic_c = paste0(round(logistic_c, 2), format_p_value(logistic_p, p_option = "stars")),
+         label_logistic_m = paste0(round(logistic_m_c, 2), format_p_value(logistic_m_p, p_option = "stars")))
+
 reg.all %>%
   group_by(metric) %>%
+  rowwise() %>%
   mutate(normalized = linear_c / metric_denominator(reg.all, metric, "linear_c")) %>%
+  ungroup() %>%
   ggplot(aes(x = metric, y = predictor)) +
     geom_tile(aes(fill = normalized)) +
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
-    geom_text(aes(label = paste0(round(linear_c, 2), format_p_value(linear_p, p_option = "stars")))) +
+    geom_text(aes(label = label_linear_c)) +
     ylab("Additional predictor variable") +
     xlab("Reputation metric (max per paper)") +
     labs(fill = "DB coefficient") +
@@ -985,12 +999,14 @@ reg.all %>%
 ```{r linear-mixed-regression, echo = F, warning = F, fig.height = 3, fig.width = 5.5, fig.cap="Mixed-effects linear regression models of various author prestige metrics as predicted by review policy and other conference variables with conference as a random effect. Values shown are the coefficient of the reviewing policy variable in the linear model and their associated p-values, estimated via Satterthwaite’s degrees of freedom method [@kuznetsova17:lmertest]. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values, normalized by columns. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 reg.all %>%
   group_by(metric) %>%
+  rowwise() %>%
   mutate(normalized = linear_m_c / metric_denominator(reg.all, metric, "linear_m_c")) %>%
+  ungroup() %>%
   ggplot(aes(x = metric, y = predictor)) +
     geom_tile(aes(fill = normalized)) +
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
-    geom_text(aes(label = paste0(round(linear_m_c, 2), format_p_value(linear_m_p, p_option = "stars")))) +
+    geom_text(aes(label = label_linear_m)) +
     ylab("Additional predictor variable") +
     xlab("Reputation metric (max per paper)") +
     labs(fill = "DB coefficient") +
@@ -1040,12 +1056,14 @@ We will therefore use an arbitrary binary threshold of "top 10%" for each reputa
 ```{r logistic-regression, echo = F, warning = F, fig.height = 3, fig.width = 5.5, fig.cap="Logistic regression of the top decile of various author prestige metrics as predicted by review policy and other conference variables. Values shown are the coefficient of DB reviewing in the logistic model and their associated p-values. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 reg.all %>%
   group_by(metric) %>%
+  rowwise() %>%
   mutate(normalized = logistic_c / metric_denominator(reg.all, metric, "logistic_c")) %>%
+  ungroup() %>%
   ggplot(aes(x = metric, y = predictor)) +
     geom_tile(aes(fill = logistic_c)) +
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
-    geom_text(aes(label = paste0(round(logistic_c, 2), format_p_value(logistic_p, p_option = "stars")))) +
+    geom_text(aes(label = label_logistic_c)) +
     ylab("Additional predictor variable") +
     xlab("Reputation metric in top 10% of authors") +
     labs(fill = "DB coefficient") +
@@ -1059,12 +1077,14 @@ reg.all %>%
 ```{r logistic-mixed-regression, echo = F, warning = F, fig.height = 3, fig.width = 5.5, fig.cap="Mixed effects logistic regression of the top decile of various author prestige metrics as predicted by review policy and other conference variables with conference as a random effect. Values shown are the coefficient of DB reviewing in the logistic model and their associated p-values, estimated via Satterthwaite’s degrees of freedom method [@kuznetsova17:lmertest]. Positive coefficients (purple) indicate higher reputation in SB conferences. Negative coefficients (orange) indicate higher reputation in DB conferences. Darker colors reflect larger-magnitude values. Stars indicate p values below 0.05, 0.01, and 0.001, respectively."}
 reg.all %>%
   group_by(metric) %>%
+  rowwise() %>%
   mutate(normalized = logistic_m_c / metric_denominator(reg.all, metric, "logistic_m_c")) %>%
+  ungroup() %>%
   ggplot(aes(x = metric, y = predictor)) +
     geom_tile(aes(fill = logistic_c)) +
     scale_y_discrete(limits = rev) +
     scale_fill_gradient2(low = "orange", high = "blue") +
-    geom_text(aes(label = paste0(round(logistic_m_c, 2), format_p_value(logistic_m_p, p_option = "stars")))) +
+    geom_text(aes(label = label_logistic_m)) +
     ylab("Additional predictor variable") +
     xlab("Reputation metric in top 10% of authors") +
     labs(fill = "DB coefficient") +
@@ -1217,26 +1237,27 @@ rep.all$imp_type <- factor(rep.all$metric, ordered = T,
 rep.all$aggregation <- factor(rep.all$aggregation, ordered = T,
                               levels = c("lead", "last", "median", "mean", "total", "max"),
                               labels = c("Lead author", "Last author", "Median", "Mean", "Total", "Maximum"))
-rep.all$t_stat.t <- as.numeric(rep.all$t_stat.t)
-rep.all$t_pval <- as.numeric(rep.all$t_pval)
-rep.all$w_stat.W <- as.numeric(rep.all$w_stat.W)
-rep.all$w_pval <- as.numeric(rep.all$w_pval)
-
-
-# Diff in Medians for npubs imputations
-rep.all$diff <- as.numeric(rep.all$median_sb) - as.numeric(rep.all$median_db)
 rep.all <- rep.all %>%
+  mutate(t_stat.t = as.numeric(t_stat.t),
+         t_pval = as.numeric(t_pval),
+         w_stat.W = as.numeric(w_stat.W),
+         w_pval = as.numeric(w_pval),
+         diff = as.numeric(median_sb) - as.numeric(median_db)) %>%
+  rowwise() %>%
+  mutate(t_label = paste0(round(t_stat.t, 2), format_p_value(t_pval, p_option = "stars")),
+         w_label = paste0(round(diff, 2), format_p_value(w_pval, p_option = "stars"))
+  ) %>%
   group_by(metric_type) %>%
   mutate(normalized = diff/max(abs(diff)), max_diff = max(abs(diff)))
 
 # Create a long format dataset
 dat <- rep.all %>%
-  select(imp_type, aggregation, normalized, diff, w_pval, metric_type) %>%
-  rename(stat_norm = normalized, stat = diff, pval = w_pval) %>%
+  select(imp_type, aggregation, normalized, diff, w_pval, metric_type, w_label) %>%
+  rename(stat_norm = normalized, stat = diff, pval = w_pval, label = w_label) %>%
   mutate(test = "Wilcoxon Signed Rank Test") %>%
   bind_rows(select(rep.all,
-                   imp_type, aggregation, t_stat.t, t_pval, metric_type) %>%
-              rename(stat = t_stat.t, pval = t_pval) %>%
+                   imp_type, aggregation, t_stat.t, t_pval, metric_type, t_label) %>%
+              rename(stat = t_stat.t, pval = t_pval, label = t_label) %>%
               mutate(test = "Two-Sample t-Test")) %>%
   mutate(stat_norm = if_else(is.na(stat_norm), stat, stat_norm)) %>%
   group_by(test, metric_type, imp_type) %>%
@@ -1249,8 +1270,7 @@ dat %>%
   ggplot(aes(x = imp_type, y = aggregation)) +
   geom_tile(aes(fill = stat_norm2)) +
   scale_fill_gradient2(low = "orange", high = "blue") +
-  geom_text(aes(label = paste0(round(stat, 2),
-                               format_p_value(pval, p_option = "stars")))) +
+  geom_text(aes(label = label)) +
   ylab("Paper aggregation method") +
   xlab("Imputation Method") +
   theme_void() +

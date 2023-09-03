@@ -137,7 +137,8 @@ cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
 cbp2 <- c("#000000", "#E69F00", "#56B4E9", "#009E73",
           "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-length(unique(filter(sys_persons, !is.na(country))$country))
+country_count <-
+  length(unique(filter(sys_persons, !is.na(country))$country))
 
 country_stats <- function(code_, who_, by_affil = TRUE)
 {
@@ -294,7 +295,7 @@ tots = data.frame(Conference = "Overall",
                   Region = "--")
 
 bind_rows(tmp, tots) %>%
-  mutate_if(is_numeric, fmt) %>%
+  mutate_if(is.numeric, fmt) %>%
   knitr::kable(booktabs = T,
 #               linesep = c(sum(tmp$size == "L"), sum(tmp$size == "M"))),
               linesep = c(rep("", 9), "\\addlinespace", rep("", 19), "\\addlinespace", rep("", 22), "\\addlinespace"),
@@ -758,7 +759,7 @@ divdf$Grants = ifelse(divdf$Grants, Yes, No)
 divdf$Data = ifelse(divdf$Data, Yes, No)
 
 divdf %>%
-  mutate_if(is_numeric, fmt) %>%
+  mutate_if(is.numeric, fmt) %>%
   knitr::kable(booktabs = T,
                align = "lccccccrr",
                linesep = c(rep("", 16), "\\addlinespace"),
@@ -956,7 +957,7 @@ cntry %>%
   mutate(a_by_conf = ifelse(is.na(a_by_conf), "---", a_by_conf),
          pc_by_conf = ifelse(is.na(pc_by_conf), "---", pc_by_conf)) %>%
   dplyr::select(country, total_hosted, authors, a_by_affil, a_by_conf, pcs, pc_by_affil, pc_by_conf) %>%
-  mutate_if(is_numeric, fmt) %>%
+  mutate_if(is.numeric, fmt) %>%
   knitr::kable("latex", booktabs = T,
                align = c("lrrrrrrr"),
                caption = "Representation of women in the top 20 countries by author count. Shown for each country are: the number of conferences it hosted; total authors affiliated with the country; ratio of these authors that are women (FAR affiliated); ratio of female authors in local conferences (FAR hosted); total number of affiliated PC members, ratio of these that are women (FPR affiliated), and FPR in all locally hosted conferences. All counts include only persons whose email is unambigously affiliated with that country (with repeats). Women's ratios are compared to all other countries with a $\\chi^{2}$ test  (*$p<0.05$; **$p<0.01$; ***$p<0.001$).",
